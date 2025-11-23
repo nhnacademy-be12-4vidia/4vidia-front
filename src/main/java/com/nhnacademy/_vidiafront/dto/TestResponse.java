@@ -10,5 +10,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Setter
 public class TestResponse {
+
     String test;
 }

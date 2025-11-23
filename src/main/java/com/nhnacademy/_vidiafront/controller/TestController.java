@@ -15,7 +15,7 @@ public class TestController {
 
     public TestController() {
         this.webClient = WebClient.builder()
-                .baseUrl("https://www.4vidia.com")
+                .baseUrl("https://www.4vidia.shop")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }

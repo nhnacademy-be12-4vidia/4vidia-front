@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Page</title>
+    <script>
+        function fetchData() {
+            fetch('/test')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+                })
+                .catch(error => {
+                    document.getElementById('result').textContent = 'Error: ' + error;
+                });
+        }
+    </script>
+</head>
+<body>
+<h1>Test API Call</h1>
+<button onclick="fetchData()">Fetch JSON</button>
+<pre id="result"></pre>
+</body>
+</html>

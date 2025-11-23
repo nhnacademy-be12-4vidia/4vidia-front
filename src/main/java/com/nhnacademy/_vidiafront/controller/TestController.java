@@ -15,7 +15,7 @@ public class TestController {
 
     public TestController() {
         this.webClient = WebClient.builder()
-                .baseUrl("http://api-gateway:10463/coupon")
+                .baseUrl("http://4vidia-gateway/coupon")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }

@@ -3,22 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>Test Page</title>
-    <script>
-        function fetchData() {
-            fetch('/test')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('test').textContent = JSON.stringify(data, null, 2);
-                })
-                .catch(error => {
-                    document.getElementById('test').textContent = 'Error: ' + error;
-                });
-        }
-    </script>
 </head>
 <body>
 <h1>Test API Call</h1>
-<button onclick="fetchData()">Fetch JSON</button>
-<pre id="test"></pre>
+
+<form action="/test" method="get">
+    <button type="submit">Fetch JSON</button>
+</form>
+
+<!-- JSON 출력 -->
+<div th:if="${testResponse != null}">
+    <h2>API Response</h2>
+    <pre th:text="${#strings.escapeXml(testResponse)}"></pre>
+</div>
+
 </body>
 </html>

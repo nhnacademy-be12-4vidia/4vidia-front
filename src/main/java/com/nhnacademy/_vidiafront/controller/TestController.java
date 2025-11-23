@@ -4,13 +4,12 @@ import com.nhnacademy._vidiafront.dto.TestResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-@RestController
+@Controller
 public class TestController {
 
     private final WebClient webClient;
@@ -22,13 +21,22 @@ public class TestController {
                 .build();
     }
 
+    // 최초 페이지 렌더링
+    @GetMapping("/")
+    public String index() {
+        return "index"; // templates/index.html
+    }
+
+    // 버튼 클릭 시 서버에서 호출
     @GetMapping("/test")
-    public Mono<TestResponse> test() {
-        return webClient.get()
+    public String test(Model model) {
+        Mono<TestResponse> responseMono = webClient.get()
                 .uri("/api/v1/coupon/test")
                 .retrieve()
                 .bodyToMono(TestResponse.class);
+
+        TestResponse response = responseMono.block(); // 동기 호출
+        model.addAttribute("testResponse", response);
+        return "index"; // 동일 index.html 렌더링
     }
-
-
 }

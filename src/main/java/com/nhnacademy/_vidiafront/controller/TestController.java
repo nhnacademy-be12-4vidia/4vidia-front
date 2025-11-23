@@ -27,7 +27,6 @@ public class TestController {
                 .uri("/api/v1/coupon/test")
                 .retrieve()
                 .bodyToMono(String.class);
-
     }
 
     @GetMapping("/")

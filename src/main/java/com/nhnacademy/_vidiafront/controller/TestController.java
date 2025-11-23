@@ -1,5 +1,6 @@
 package com.nhnacademy._vidiafront.controller;
 
+import com.nhnacademy._vidiafront.dto.TestResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -22,11 +23,11 @@ public class TestController {
 
     @GetMapping("/test")
     @ResponseBody
-    public Mono<String> test() {
+    public Mono<TestResponse> test() {
         return webClient.get()
                 .uri("/api/v1/coupon/test")
                 .retrieve()
-                .bodyToMono(String.class);
+                .bodyToMono(TestResponse.class);
     }
 
     @GetMapping("/")

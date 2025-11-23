@@ -15,7 +15,7 @@ public class TestController {
 
     public TestController() {
         this.webClient = WebClient.builder()
-                .baseUrl("http://4vidia-gateway")
+                .baseUrl("http://4vidia-gateway:8080")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }

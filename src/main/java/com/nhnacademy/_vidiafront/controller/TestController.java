@@ -23,7 +23,6 @@ public class TestController {
     }
 
     @GetMapping("/test")
-    @ResponseBody
     public Mono<TestResponse> test() {
         return webClient.get()
                 .uri("/api/v1/coupon/test")
@@ -31,8 +30,5 @@ public class TestController {
                 .bodyToMono(TestResponse.class);
     }
 
-    @GetMapping("/")
-    public String index() {
-        return "index"; // templates/index.html
-    }
+
 }

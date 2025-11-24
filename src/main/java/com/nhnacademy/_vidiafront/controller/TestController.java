@@ -15,8 +15,6 @@ import org.springframework.web.client.RestTemplate;
 @Controller
 @RequiredArgsConstructor
 public class TestController {
-
-
     private final RestClient restClient;
 
 

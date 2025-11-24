@@ -30,13 +30,15 @@ public class TestController {
     // 버튼 클릭 시 서버에서 호출
     @GetMapping("/test")
     public String test(Model model) {
-        Mono<TestResponse> responseMono = webClient.get()
+        TestResponse block = webClient.get()
                 .uri("/api/v1/coupon/test")
                 .retrieve()
-                .bodyToMono(TestResponse.class);
+                .bodyToMono(TestResponse.class)
+                .block();
 
-        TestResponse response = responseMono.block(); // 동기 호출
-        model.addAttribute("testResponse", response);
+
+        model.addAttribute("testResponse", block);
         return "index"; // 동일 index.html 렌더링
+
     }
 }

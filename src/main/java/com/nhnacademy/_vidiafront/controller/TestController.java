@@ -1,11 +1,13 @@
 package com.nhnacademy._vidiafront.controller;
 
 import com.nhnacademy._vidiafront.dto.TestResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.client.RestTemplate;
 
+@Slf4j
 @Controller
 public class TestController {
 
@@ -29,8 +31,8 @@ public class TestController {
                 "http://4vidia-gateway-1:8080/api/v1/coupon/test",
                 TestResponse.class
         );
-
+        log.info(response.toString());
         model.addAttribute("testResponse", response);
-        return "index"; // 동일 index.html 렌더링
+        return "hi"; // 동일 index.html 렌더링
     }
 }

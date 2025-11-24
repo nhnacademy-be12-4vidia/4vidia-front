@@ -15,7 +15,7 @@ public class RestClientConfig {
         // 커스텀 요청팩토리, 메시지 변환기 등 설정 가능
         return RestClient.builder()
                 .requestFactory(new HttpComponentsClientHttpRequestFactory())
-                .baseUrl("http://4vidia-gateway:") // 기본 URL
+                .baseUrl("lb://4vidia-gateway:") // 기본 URL
                 .build();
     }
 }

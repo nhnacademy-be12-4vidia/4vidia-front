@@ -10,11 +10,17 @@ import org.springframework.web.client.RestClient;
 public class RestClientConfig {
 
     @Bean
-    public RestClient restClient() {
-        // 커스텀 요청팩토리, 메시지 변환기 등 설정 가능
+    @LoadBalanced
+    public RestClient.Builder restClientBuilder() {
         return RestClient.builder()
-                .requestFactory(new HttpComponentsClientHttpRequestFactory())
-                .baseUrl("http://4vidia-gateway-1:8080") // 기본 URL
+                .requestFactory(new HttpComponentsClientHttpRequestFactory());
+    }
+
+    // 2단계: 위에서 만든 빌더를 주입받아 구체적인 설정(baseUrl 등)을 추가하여 RestClient 생성
+    @Bean
+    public RestClient restClient(RestClient.Builder builder) {
+        return builder
+                .baseUrl("lb://4vidia-gateway") // lb:// 프로토콜 사용 가능
                 .build();
     }
 }

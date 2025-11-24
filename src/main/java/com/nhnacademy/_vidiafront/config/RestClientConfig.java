@@ -16,6 +16,7 @@ public class RestClientConfig {
                 .requestFactory(new HttpComponentsClientHttpRequestFactory());
     }
 
+
     // 2단계: 위에서 만든 빌더를 주입받아 구체적인 설정(baseUrl 등)을 추가하여 RestClient 생성
     @Bean
     public RestClient restClient(RestClient.Builder builder) {

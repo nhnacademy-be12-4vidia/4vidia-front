@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
+
 @Slf4j
 @Controller
 @RequiredArgsConstructor
@@ -27,10 +29,12 @@ public class TestController {
     // 버튼 클릭 시 서버에서 호출
     @GetMapping("/test")
     public String test(Model model) {
+
+
         TestResponse response = restClient.get() // GET 요청 시작
                 .uri("/api/v1/coupon/test") // URI 설정
                 .retrieve() // 응답 검색
-                .body(TestResponse.class); // 응답 본문을 TestResponse 클래스로 역직렬화
+                .body(TestResponse.class);// 응답 본문을 TestResponse 클래스로 역직렬화
 
         model.addAttribute("testResponse", response);
         return "hi"; // 동일 index.html 렌더링

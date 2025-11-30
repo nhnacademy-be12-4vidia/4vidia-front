@@ -32,7 +32,7 @@ public class TestController {
 
 
         TestResponse response = restClient.get() // GET 요청 시작
-                .uri("/api/v1/coupon/test") // URI 설정
+                .uri("/api/v1/coupon/welcome") // URI 설정
                 .retrieve() // 응답 검색
                 .body(TestResponse.class);// 응답 본문을 TestResponse 클래스로 역직렬화
 

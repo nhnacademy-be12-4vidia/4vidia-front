@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link th:href="@{/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,500,600,700,800,900"
+          rel="stylesheet">
+    <link th:href="@{/css/sb-admin-2.min.css}" rel="stylesheet">
+</head>
+
+<body id="page-top">
+
+<div id="wrapper">
+
+    <!-- ⭐ 사이드바 시작 -->
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+        <!-- 브랜드 로고 -->
+        <a class="sidebar-brand d-flex align-items-center justify-content-center mt-3" href="/static">
+            <div class="sidebar-brand-icon">
+                <img src="/img/logo5.png" style="max-height: 65px;" alt="logo">
+            </div>
+            <div class="sidebar-brand-text mx-1" style="font-size: 1.3rem;">4VIDIA</div>
+        </a>
+
+        <hr class="sidebar-divider my-3">
+
+        <div class="sidebar-heading">Interface</div>
+
+        <!-- todo : 네비게이션 고정 및 선택항목 표시 <- 컨트롤러 하나 추가됨(global controller advice) -->
+        <li class="nav-item" th:classappend="${currentUri.startsWith('/mypage') ? 'active' : ''}">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo">
+                <i class="fas fa-fw fa-cog"></i>
+                <span>마이페이지</span>
+            </a>
+            <div id="collapseTwo" class="collapse" th:classappend="${currentUri.startsWith('/mypage') ? 'show' : ''}">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <a class="collapse-item" th:href="@{/mypage/profile}" th:classappend="${currentUri == '/mypage/profile' ? 'active' : ''}">회원정보</a>
+                    <a class="collapse-item" th:href="@{/mypage/addresses}" th:classappend="${currentUri == '/mypage/addresses' ? 'active' : ''}">회원주소 관리</a>
+                    <a class="collapse-item" th:href="@{/mypage/orders}" th:classappend="${currentUri == '/mypage/orders' ? 'active' : ''}">주문 관리</a>
+                    <a class="collapse-item" th:href="@{/mypage/likes}" th:classappend="${currentUri == '/mypage/likes' ? 'active' : ''}">좋아요 리스트</a>
+                    <a class="collapse-item" th:href="@{/mypage/deactivate}" th:classappend="${currentUri == '/mypage/deactivate' ? 'active' : ''}">회원 탈퇴</a>
+                </div>
+            </div>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="bootstrap/charts.html">
+                <i class="fas fa-fw fa-chart-area"></i>
+                <span>Charts</span>
+            </a>
+        </li>
+
+        <hr class="sidebar-divider d-none d-md-block">
+
+        <div class="text-center d-none d-md-inline">
+            <button class="rounded-circle border-0" id="sidebarToggle"></button>
+        </div>
+
+    </ul>
+    <!-- ⭐ 사이드바 끝 -->
+
+
+    <!-- ⭐ 콘텐츠 영역 시작 -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+        <div id="content">
+
+            <!-- 상단 네비바 -->
+            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                    <i class="fa fa-bars"></i>
+                </button>
+
+                <!-- 검색 -->
+                <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                    <div class="input-group">
+                        <input type="text" class="form-control bg-light border-0 small"
+                               placeholder="도서 검색...">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="button">
+                                <i class="fas fa-search fa-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- 우측 메뉴 -->
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item dropdown no-arrow mx-1">
+                        <a class="nav-link toggle" href="/cart">
+                            <i class="fas fa-shopping-cart fa-fw"></i>
+                            <span class="badge badge-danger badge-counter">3</span>
+                        </a>
+                    </li>
+
+                    <div class="topbar-divider d-none d-sm-block"></div>
+
+                    <li class="nav-item dropdown no-arrow">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                           data-toggle="dropdown">
+                            <span class="mr-2 d-none d-lg-inline text-gray-600 small">유저이름</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in">
+                            <a class="dropdown-item" href="/mypage/profile">
+                                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                마이페이지
+                            </a>
+                            <a class="dropdown-item" href="#">
+                                <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i> 주문내역
+                            </a>
+                            <a class="dropdown-item" href="#">
+                                <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i> 내 쿠폰함
+                            </a>
+
+                            <div class="dropdown-divider"></div>
+
+                            <form action="/logout" method="GET" id="logoutForm">
+                                <a class="dropdown-item" href="javascript:document.getElementById('logoutForm').submit();">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Logout
+                                </a>
+                            </form>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+
+
+            <!-- 페이지별 내용 -->
+            <div layout:fragment="content">
+                <div class="container-fluid">
+                    <div class="row">
+                        (여기는 기본 내용입니다)
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <footer class="sticky-footer bg-white">
+            <div class="container my-auto">
+                <div class="copyright text-center my-auto">
+                    © 2025 Team4 4VIDIA | NHN Academy Project
+                </div>
+            </div>
+        </footer>
+
+    </div>
+    <!-- ⭐ 콘텐츠 영역 끝 -->
+
+</div>
+
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
+
+<script th:src="@{/vendor/jquery/jquery.min.js}"></script>
+<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/vendor/jquery-easing/jquery.easing.min.js}"></script>
+<script th:src="@{/js/sb-admin-2.min.js}"></script>
+
+</body>
+</html>

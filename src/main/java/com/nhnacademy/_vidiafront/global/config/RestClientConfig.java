@@ -1,4 +1,4 @@
-package com.nhnacademy._vidiafront.config;
+package com.nhnacademy._vidiafront.global.config;
 
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;

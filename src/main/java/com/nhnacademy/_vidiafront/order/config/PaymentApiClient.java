@@ -1,0 +1,36 @@
+package com.nhnacademy._vidiafront.order.config;
+
+import com.nhnacademy._vidiafront.order.dto.payment.requset.PaymentConfirmRequest;
+import com.nhnacademy._vidiafront.order.exception.ApiPaymentException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
+
+@Component
+@RequiredArgsConstructor
+public class PaymentApiClient {
+    private final RestClient restClient;
+    private static final String ORDER_SERVICE = "/api/v1/order-service";
+
+    // 결제 확정 및 결제 저장
+    public void confirmPayment(PaymentConfirmRequest confirmRequest, long id) {
+        try {
+            restClient.post()
+                    .uri(ORDER_SERVICE + "/orders/{orderId}/success", id)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .body(confirmRequest)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (RestClientException e) {
+            throw new ApiPaymentException("api 결제 확정 및 저장 실패" + e.getMessage());
+        }
+    }
+
+
+
+
+
+
+}

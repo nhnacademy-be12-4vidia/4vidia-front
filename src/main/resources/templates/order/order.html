@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout.html}">
+<head>
+    <title>주문/결제</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <div class="container-fluid">
+
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">주문/결제</h1>
+        </div>
+
+        <div class="row">
+            <form id="orderForm" action="/api/v1/orders" method="POST" class="col-lg-12 row p-0">
+                <div class="col-lg-7">
+
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">1. 주문 상품 및 포장 선택</h6>
+                        </div>
+                        <div class="card-body">
+
+                            <div th:each="item, stat : ${cartItems}" class="row mb-4 border-bottom pb-4 align-items-center">
+                                <div class="col-md-2 text-center">
+                                    <img th:if="${item.book.imageUrl != null}" th:src="${item.book.imageUrl}" class="img-fluid rounded" alt="Book Cover">
+                                    <i th:unless="${item.book.imageUrl != null}" class="fas fa-book fa-3x text-gray-300"></i>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <h5 class="font-weight-bold text-dark mb-1" th:text="${item.book.title}">책 제목</h5>
+                                    <p class="text-xs text-gray-600 mb-2">
+                                        <span th:text="${item.book.author}">저자</span> |
+                                        <span th:text="${item.book.publisher}">출판사</span>
+                                    </p>
+                                    <div class="d-flex align-items-center">
+                                        <span class="font-weight-bold mr-2" th:text="|₩${item.price}|">₩35,000</span>
+                                        <span class="text-xs text-gray-600" th:text="|x ${item.quantity}개|">x 1개</span>
+                                    </div>
+
+                                    <input type="hidden" th:name="|orderItems[${stat.index}].bookId|" th:value="${item.book.id}">
+                                    <input type="hidden" th:name="|orderItems[${stat.index}].salePrice|" th:value="${item.price}">
+                                    <input type="hidden" th:name="|orderItems[${stat.index}].quantity|" th:value="${item.quantity}">
+                                </div>
+
+                                <div class="col-md-4 packaging-select-group">
+                                    <div th:each="num : ${#numbers.sequence(1, item.quantity)}" class="mb-2">
+                                        <label class="text-xs font-weight-bold text-primary mb-1"
+                                               th:text="|🎁 ${num}번째 권 포장|">🎁 1번째 권 포장</label>
+
+                                        <select class="form-control form-control-sm packaging-select">
+                                            <option th:each="option : ${packagingOptions}"
+                                                    th:value="${option.packagingOptionId()}"
+                                                    th:text="|${option.name} (+${#numbers.formatInteger(option.price, 0, 'COMMA')}원)|"
+                                                    th:selected="${option.packagingOptionId() == 0}">
+                                                선택 안함 (+0원)
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <small class="form-text text-muted text-xs text-right mt-1">
+                                        상품 소계: <span class="font-weight-bold" th:text="|₩${item.totalPrice}|">₩35,000</span>
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="text-right text-gray-700 font-weight-bold">
+                                상품 총 금액: <span id="itemSectionTotalPriceDisplay" th:text="|₩${totalPrice}|">₩35,000</span>
+                            </div>
+                            <input type="hidden" name="totalPrice" th:value="${totalPrice}">
+                        </div>
+                    </div>
+
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">2. 주문자 정보</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label for="ordererName" class="col-sm-3 col-form-label">이름</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="ordererName" name="ordererName" th:value="${ordererName}" placeholder="이름">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="ordererEmail" class="col-sm-3 col-form-label">이메일</label>
+                                <div class="col-sm-9">
+                                    <input type="email" class="form-control" id="ordererEmail" name="ordererEmail" th:value="${ordererEmail}" placeholder="user@example.com">
+                                </div>
+                            </div>
+                            <div class="form-group row mb-0">
+                                <label for="ordererPhone" class="col-sm-3 col-form-label">휴대폰</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="ordererPhone" name="ordererPhone" th:value="${ordererPhone}" placeholder="010-0000-0000">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">3. 배송 정보</h6>
+
+                            <button type="button" class="btn btn-primary btn-sm"
+                                    data-toggle="modal" data-target="#addressModal">
+                                배송지 목록에서 선택
+                            </button>
+
+                        </div>
+                        <div class="card-body">
+
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="sameAsOrderer">
+                                <label class="form-check-label" for="sameAsOrderer">
+                                    주문자 정보와 동일 (클릭 시 아래 자동 입력)
+                                </label>
+                            </div>
+
+                            <script>
+                                const sameAsOrdererCheckbox = document.getElementById('sameAsOrderer');
+
+                                sameAsOrdererCheckbox.addEventListener('change', function () {
+                                    const ordererName = document.getElementById('ordererName');
+                                    const ordererPhone = document.getElementById('ordererPhone');
+                                    const shipName = document.getElementById('shipName');
+                                    const shipPhone = document.getElementById('shipPhone');
+
+                                    if (this.checked) {
+                                        shipName.value = ordererName.value;
+                                        shipPhone.value = ordererPhone.value;
+                                        shipName.readOnly = true;
+                                        shipPhone.readOnly = true;
+                                    } else {
+                                        shipName.value = '';
+                                        shipPhone.value = '';
+                                        shipName.readOnly = false;
+                                        shipPhone.readOnly = false;
+                                    }
+                                });
+
+                            </script>
+
+                            <hr>
+
+                            <h6 class="font-weight-bold text-gray-700 mb-3">배송지 입력</h6>
+                            <div class="form-group row">
+                                <label for="shipName" class="col-sm-3 col-form-label">받는 분</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="shipName" name="recipientName" placeholder="이름">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="shipPhone" class="col-sm-3 col-form-label">휴대폰</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="shipPhone" name="recipientPhone" placeholder="010-0000-0000">
+                                </div>
+                            </div>
+
+                            <script>
+                                function goPopup() {
+                                    window.open("/addressPopup", "pop", // TODO 주소 매핑 변경 필요
+                                        "width=570,height=420,scrollbars=yes,resizable=yes");
+                                }
+
+                                function addressCallback(
+                                    roadAddrPart1, addrDetail, zipNo
+                                ) {
+                                    document.getElementById("roadAddrPart1").value = roadAddrPart1;
+                                    document.getElementById("addrDetail").value = addrDetail;
+                                    document.getElementById("zipNo").value = zipNo;
+                                }
+                            </script>
+                            <div class="form-group row">
+                                <label for="zipNo" class="col-sm-3 col-form-label">주소</label>
+                                <div class="col-sm-5">
+                                    <input type="text" class="form-control" id="zipNo" name="zipCode" placeholder="우편번호" readonly required>
+                                </div>
+                                <div class="col-sm-4">
+                                    <button type="button" class="btn btn-secondary btn-block" onclick="goPopup()">우편번호 찾기</button>
+                                </div>
+                            </div>
+                            <div class="form-group row mb-0">
+                                <div class="col-sm-9 offset-sm-3">
+                                    <input type="text" class="form-control mb-2" id="roadAddrPart1" name="addressRoadname" placeholder="기본 주소" readonly required>
+                                    <input type="text" class="form-control" id="addrDetail" name="addressDetail" placeholder="상세 주소" required>
+                                </div>
+                            </div>
+                            <div class="form-group row mt-3"> <label for="shipDate" class="col-sm-3 col-form-label">도착 희망일</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control" id="shipDate" name="deliveryDate">
+                                        <option value="fastest" selected>가장 빠른 날짜</option>
+                                        <option value="2025-11-14">2025-11-14 (금)</option>
+                                        <option value="2025-11-15">2025-11-15 (토)</option>
+                                        <option value="2025-11-17">2025-11-17 (월)</option>
+                                        <option value="2025-11-18">2025-11-18 (화)</option>
+                                        <option value="2025-11-19">2025-11-19 (수)</option>
+                                        <option value="2025-11-20">2025-11-20 (목)</option>
+                                    </select>
+                                    <small class="form-text text-muted">
+                                        오늘(11/13)로부터 +2일 ~ +7일까지 선택 가능합니다.
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="form-group row mt-3">
+                                <label for="deliveryRequest" class="col-sm-3 col-form-label">배송 요청사항</label>
+                                <div class="col-sm-9">
+                                    <textarea class="form-control" id="deliveryRequest" name="deliveryRequest" rows="2" placeholder="예: 문 앞에 놓아주세요"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">4. 결제 수단</h6>
+                        </div>
+                        <div class="card-body">
+                            <input type="hidden" id="paymentMethodInput" name="paymentMethod" value="CARD">
+
+                            <ul class="nav nav-pills nav-fill mb-3" id="paymentMethodSelect" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="CARD-tab" data-toggle="pill" href="#pills-card-content"
+                                       role="tab" onclick="updatePaymentMethod('CARD')">
+                                        <i class="fas fa-credit-card"></i> 카드
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="VIRTUAL_ACCOUNT-tab" data-toggle="pill" href="#pills-vaccount-content"
+                                       role="tab" onclick="updatePaymentMethod('VIRTUAL_ACCOUNT')">
+                                        <i class="fas fas-university"></i> 가상계좌
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="CULTURE_GIFT_CERTIFICATE-tab" data-toggle="pill" href="#pills-culture-content"
+                                       role="tab" onclick="updatePaymentMethod('CULTURE_GIFT_CERTIFICATE')">
+                                        <i class="fas fa-gift"></i> 문화상품권
+                                    </a>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="paymentMethodSelectContent">
+                                <div class="tab-pane fade show active" id="pills-card-content" role="tabpanel">
+                                    <p class="text-xs text-gray-600 text-center m-0">신용카드 및 간편결제를 이용합니다.</p>
+                                </div>
+                                <div class="tab-pane fade" id="pills-vaccount-content" role="tabpanel">
+                                    <p class="text-xs text-gray-600 text-center m-0">주문 후 생성되는 가상계좌로 입금합니다.</p>
+                                </div>
+                                <div class="tab-pane fade" id="pills-culture-content" role="tabpanel">
+                                    <p class="text-xs text-gray-600 text-center m-0">문화상품권(컬쳐랜드)으로 결제합니다.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="card shadow mb-4 sticky-top" style="top: 20px; z-index: 1;">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">결제 요약</h6>
+                        </div>
+                        <div class="card-body">
+
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-gray-700">총 상품 금액</span>
+                                <span class="font-weight-bold" id="totalPriceDisplay" th:text="|₩${bookPrice}|">₩35,000</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-gray-700">배송비</span>
+                                <span class="font-weight-bold" id="deliveryCostDisplay">₩0</span>
+                                <input type="hidden" name="deliveryCost" id="deliveryCostInput" value="0">
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-gray-700">포장비</span>
+                                <span class="font-weight-bold text-dark" id="packagingCostDisplay">+₩0</span>
+                                <input type="hidden" name="packagingCost" id="packagingCostInput" value="0">
+                            </div>
+
+                            <hr>
+
+                            <div class="mb-3">
+                                <label for="usePoints" class="text-gray-700 font-weight-bold">포인트 사용</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control form-control-sm" id="usePoints" name="pointUsed" placeholder="0" value="0" min="0">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary btn-sm" type="button">전액 사용</button>
+                                    </div>
+                                </div>
+                                <small class="form-text text-muted">
+                                    보유 포인트: <span class="text-primary font-weight-bold"
+                                                  th:text="${#numbers.formatInteger(points, 0, 'COMMA')}">0</span> P
+                                </small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="text-gray-700 font-weight-bold">쿠폰 할인</label>
+                                <button type="button" class="btn btn-primary btn-block btn-sm"
+                                        data-toggle="modal" data-target="#couponModal">
+                                    쿠폰 선택 및 적용
+                                </button>
+                                <div id="appliedCouponInfo" class="text-xs text-danger mt-1">
+                                </div>
+                                <input type="hidden" name="usedCouponIds" id="usedCouponIds" value="">
+                            </div>
+
+                            <hr>
+
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-gray-700">포인트 할인</span>
+                                <span class="font-weight-bold text-danger" id="pointDiscountDisplay">-₩0</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-gray-700">쿠폰 할인</span>
+                                <span class="font-weight-bold text-danger" id="couponDiscountDisplay">-₩0</span>
+
+                                <input type="hidden" name="couponDiscount" id="discountAmountInput" value="0">
+                            </div>
+
+                            <hr>
+
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <span class="h5 font-weight-bold text-dark">최종 결제 금액</span>
+                                <span class="h4 font-weight-bold text-danger" id="finalTotalDisplay">₩10,000</span>
+                                <input type="hidden" name="payPrice" id="finalPaymentAmountInput" value="0">
+                                <input type="hidden" name="orderName" th:value="${orderName}">
+                            </div>
+
+                            <div class="form-check mt-4 mb-3">
+                                <input class="form-check-input" type="checkbox" id="agreeCheckout" name="agreeCheckout" required>
+                                <label class="form-check-label text-xs" for="agreeCheckout">
+                                    주문 상품 정보 및 결제대행 서비스 이용약관에 동의합니다.
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-lg btn-block" id="payment-button">
+                                결제하기
+                            </button>
+
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<!--    TODO 쿠폰 적용시킨 값 화면에 보여주려면 할인되는 금액도 히든 같은걸로 불러와야겠네 -->
+    <div class="modal fade" id="couponModal" tabindex="-1" role="dialog" aria-labelledby="couponModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="couponModalLabel">쿠폰 적용</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h6 class="font-weight-bold text-primary">적용 가능 쿠폰</h6>
+                    <div class="list-group list-group-flush mb-3">
+                        <div class="list-group-item">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="coupon_id_1" id="coupon1">
+                                <label class="form-check-label" for="coupon1">
+                                    <span class="font-weight-bold text-dark">10% 할인 쿠폰 (최대 5,000원)</span><br>
+                                    <small class="text-muted">30,000원 이상 구매 시</small>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="coupon_id_2" id="coupon2">
+                                <label class="form-check-label" for="coupon2">
+                                    <span class="font-weight-bold text-dark">배송비 무료 쿠폰</span><br>
+                                    <small class="text-muted">20,000원 이상 구매 시</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <h6 class="font-weight-bold text-gray-500">사용 불가 쿠폰</h6>
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="couponDisabled1" disabled>
+                                <label class="form-check-label text-gray-500" for="couponDisabled1">
+                                    <span class="font-weight-bold">신규가입 1,000원 할인 쿠폰</span><br>
+                                    <small>(사용 조건 미충족: 50,000원 이상 구매 시)</small>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="couponDisabled2" disabled>
+                                <label class="form-check-label text-gray-500" for="couponDisabled2">
+                                    <span class="font-weight-bold">생일 축하 2,000원 할인 쿠폰</span><br>
+                                    <small>(기간 만료: 2025-11-10 까지)</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">닫기</button>
+                    <button class="btn btn-primary" type="button" id="applyCouponConfirm">적용하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addressModal" tabindex="-1" role="dialog" aria-labelledby="addressModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addressModalLabel">배송지 선택</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <div th:if="${addressList != null && !addressList.isEmpty()}">
+                        <h6 class="font-weight-bold text-primary">등록된 배송지 (최대 10개)</h6>
+                        <p class="text-xs text-muted">주소를 클릭하면 배송지 입력칸에 자동으로 적용됩니다.</p>
+
+                        <div class="list-group">
+                            <a href="#" class="list-group-item list-group-item-action" data-dismiss="modal">
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" data-dismiss="modal">
+                            </a>
+                        </div>
+                    </div>
+
+                    <div th:if="${addressList == null || addressList.isEmpty()}">
+                        <h6 class="font-weight-bold text-gray-700">등록된 배송지가 없습니다.</h6>
+                        <p class="text-gray-600">
+                            모달을 닫고 '새 주소'를 직접 입력하시거나, '마이페이지'에서 자주 쓰는 배송지를 등록하실 수 있습니다.
+                        </p>
+                        <div class="text-center my-4">
+                            <i class="fas fa-box-open fa-4x text-gray-300"></i>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">닫기 (새 주소 직접 입력)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script th:inline="javascript">
+        const orderName = /*[[${orderName}]]*/ "주문명";
+        const serverPackagingOptions = /*[[${packagingOptions}]]*/ [];
+        const userHeldPoints = /*[[${points}]]*/ 0;
+
+        let initialTotalPrice = 0;
+        let totalPackagingCost = 0;
+        let totalDeliveryCost = 0;
+        let currentCouponDiscount = 0;
+        let currentFinalTotal = initialTotalPrice; // 현재 총액은 상품 총액에서 시작
+
+        // 포장 옵션 값 매핑 (DTO는 Long ID를 기대합니다)
+        const packagingCostMap = {};
+        serverPackagingOptions.forEach(option => {
+            packagingCostMap[option.packagingOptionId] = option.price;
+        });
+
+        function updatePaymentMethod(method) {
+            document.getElementById('paymentMethodInput').value = method;
+        }
+
+        function updateFinalAmount() {
+
+            initialTotalPrice = parseInt(document.querySelector('input[name="finalAmount"]').value) || 0;
+            currentFinalTotal = initialTotalPrice;
+
+            let tempPkgCost = 0;
+            // 포장 옵션 값 계산
+            document.querySelectorAll('.packaging-select').forEach(select => {
+                const id = parseInt(select.value) || 0;
+                tempPkgCost += packagingCostMap[id] || 0;
+            });
+            totalPackagingCost = tempPkgCost;
+
+            // 포인트 사용 금액 반영
+            const usedPoints = parseInt(document.getElementById('usePoints').value) || 0;
+            totalDiscountAmount = usedPoints + currentCouponDiscount;
+
+            // 배송비 결정 - 현재 5만원 이상 무료
+            totalDeliveryCost = (initialTotalPrice + totalPackagingCost >= 50000) ? 0 : 3000;
+
+            // 최종 결제 금액 계산
+            currentFinalTotal = initialTotalPrice + totalPackagingCost + totalDeliveryCost - totalDiscountAmount;
+
+            if (currentFinalTotal < 0) currentFinalTotal = 0;
+
+            const formatedPrice = "₩" + initialTotalPrice.toLocaleString();
+
+
+            document.getElementById("finalTotalDisplay").innerText = "₩" + currentFinalTotal.toLocaleString();
+            document.getElementById("finalPaymentAmountInput").value = currentFinalTotal;
+
+            document.getElementById("packagingCostDisplay").innerText = "+₩" + totalPackagingCost.toLocaleString();
+            document.getElementById("packagingCostInput").value = totalPackagingCost;
+
+            document.getElementById("deliveryCostDisplay").innerText = (totalDeliveryCost > 0 ? "+" : "") + "₩" + totalDeliveryCost.toLocaleString();
+            document.getElementById("deliveryCostInput").value = totalDeliveryCost;
+
+            document.getElementById("pointDiscountDisplay").innerText = "-₩" + usedPoints.toLocaleString();
+            document.getElementById("couponDiscountDisplay").innerText = "-₩" + currentCouponDiscount.toLocaleString();
+            document.getElementById("discountAmountInput").value = currentCouponDiscount;
+
+            document.getElementById("totalPriceDisplay").innerText = formatedPrice;
+            document.getElementById("itemSectionTotalPriceDisplay").innerText = formatedPrice;
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+
+            // 포장 옵션 변경 시 최종 금액 업데이트
+            document.querySelectorAll('.packaging-select').forEach(select => {
+                select.addEventListener('change', function () {
+                    updateFinalAmount();
+                });
+            });
+
+            // 포인트 사용
+            document.getElementById('usePoints').addEventListener('input', function() {
+                let inputVal = parseInt(this.value) || 0;
+
+                let currentPayableAmount = initialTotalPrice + totalPackagingCost + totalDeliveryCost - currentCouponDiscount;
+                if (currentPayableAmount < 0) currentPayableAmount = 0;
+                let realMaxLimit = Math.min(userHeldPoints, currentPayableAmount);
+
+                if (inputVal > realMaxLimit) {
+                    alert("보유 포인트를 초과하여 사용할 수 없습니다.");
+                    this.value = realMaxLimit;
+                }
+
+                updateFinalAmount();
+            });
+
+            // 포인트 전액 사용 버튼
+            const pointBtn = document.querySelector('.input-group-append button');
+            if(pointBtn) {
+                pointBtn.addEventListener('click', function() {
+                    // 상품금액 + 포장비 + 배송비 - 쿠폰할인
+                    let currentCost = initialTotalPrice + totalPackagingCost + totalDeliveryCost - currentCouponDiscount;
+                    document.getElementById('usePoints').value = Math.min(userHeldPoints, currentCost);
+
+                    updateFinalAmount();
+                });
+            }
+
+            updateFinalAmount();
+
+            const orderForm = document.getElementById("orderForm");
+
+            orderForm.addEventListener("submit", function(event) {
+                event.preventDefault();
+
+                if (!document.getElementById('agreeCheckout').checked) {
+                    alert("주문 상품 정보 및 결제대행 서비스 이용약관에 동의해야 합니다.");
+                    return;
+                }
+
+                const orderData = {};
+
+                orderData.recipientName = document.getElementById('shipName').value;
+                orderData.addressRoadname = document.getElementById('roadAddrPart1').value;
+                orderData.addressDetail = document.getElementById('addrDetail').value;
+                orderData.zipCode = document.getElementById('zipNo').value;
+                orderData.recipientPhone = document.getElementById('shipPhone').value;
+                orderData.deliveryRequest = document.getElementById('deliveryRequest').value;
+                orderData.deliveryDate = document.getElementById('shipDate').value; // YYYY-MM-DD 형식 문자열
+
+                orderData.totalPrice = parseInt(document.querySelector('input[name="totalPrice"]').value) || 0;
+                orderData.deliveryCost = parseInt(document.getElementById('deliveryCostInput').value) || 0;
+                orderData.packagingCost = parseInt(document.getElementById('packagingCostInput').value) || 0;
+                orderData.couponDiscount = parseInt(document.getElementById('discountAmountInput').value) || 0;
+                orderData.pointUsed = parseInt(document.getElementById('usePoints').value) || 0;
+                orderData.payPrice = parseInt(document.getElementById('finalPaymentAmountInput').value) || 0;
+
+                const orderItems = [];
+                const itemRows = document.querySelectorAll('.row.mb-4.border-bottom.pb-4.align-items-center');
+
+                itemRows.forEach((itemElement) => {
+                    const bookId = parseInt(itemElement.querySelector('input[name$=".bookId"]').value) || 0;
+                    const quantity = parseInt(itemElement.querySelector('input[name$=".quantity"]').value) || 0;
+                    const salePrice = parseInt(itemElement.querySelector('input[name$=".salePrice"]').value) || 0;
+
+                    // 책(Row) 안에 있는 포장 옵션 select들을 모두 찾아서 배열로 만듦
+                    const packagingIds = [];
+                    itemElement.querySelectorAll('.packaging-select').forEach(select => {
+                        const val = parseInt(select.value);
+                        if (!isNaN(val)) {
+                            packagingIds.push(val);
+                        }
+                    });
+
+                    const itemDto = {
+                        bookId: bookId,
+                        quantity: quantity,
+                        salePrice: salePrice,
+                        packagingOptionIds: packagingIds
+                    };
+
+                    orderItems.push(itemDto);
+                });
+
+                orderData.orderItems = orderItems;
+
+
+                fetch("/api/v1/orders", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(orderData)
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(error => {
+                                throw new Error(error.message || `주문 생성 실패. 상태 코드: ${response.status}`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(orderResponse => {
+                        console.log("주문이 성공적으로 생성되었습니다.", orderResponse);
+
+                        const orderId = orderResponse.orderId || orderResponse;
+                        const payPrice = orderResponse.payPrice || orderData.payPrice;
+                        const paymentMethod = document.getElementById("paymentMethodInput").value;
+
+                        window.location.href = `/orders/toss-prepare?orderId=${orderId}&orderName=${orderName}&payPrice=${payPrice}&paymentMethod=${paymentMethod}`;
+                    })
+                    .catch(error => {
+                        console.error("❌ 주문/결제 처리 중 에러 발생:", error);
+                        alert("주문 처리 중 오류가 발생했습니다: " + error.message);
+                    });
+            });
+        });
+
+    </script>
+</div>
+</body>
+</html>

@@ -10,3 +10,6 @@ eureka:
 
 server:
   port: 8080
+
+toss:
+  clientKey: test_ck_d46qopOB896MwPXRBMod3ZmM75y0

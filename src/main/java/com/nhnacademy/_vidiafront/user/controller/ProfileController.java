@@ -26,7 +26,7 @@ public class ProfileController {
         UserProfileResponse user = userApiClient.getUserProfile();
         model.addAttribute("user", user);
         model.addAttribute("request", new UpdateUserRequest(user.name(), user.phone()));
-        return "/mypage/profile/info";
+        return "mypage/profile/info";
     }
 
     /**
@@ -51,7 +51,7 @@ public class ProfileController {
      */
     @GetMapping("/password")
     public String changePasswordForm() {
-        return "/mypage/profile/password";
+        return "mypage/profile/password";
     }
 
     /**
@@ -61,7 +61,7 @@ public class ProfileController {
     public String changePassword(ChangePasswordRequest changePasswordRequest,
                                  BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return "/mypage/profile/password";
+            return "mypage/profile/password";
         }
 
         userApiClient.changePassword(changePasswordRequest);

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"> <head>
+    <meta charset="UTF-8">
+    <title>주소 처리중...</title>
+
+    <script th:inline="javascript">
+        function initCallback() {
+
+            const params = /*[[${addressData}]]*/ {};
+
+            opener.addressCallback(
+                params.roadAddrPart1,
+                params.addrDetail,
+                params.zipNo,
+            );
+
+            window.close();
+        }
+    </script>
+</head>
+<body onload="initCallback()">
+</body>
+</html>

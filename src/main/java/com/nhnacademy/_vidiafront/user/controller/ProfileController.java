@@ -2,7 +2,6 @@ package com.nhnacademy._vidiafront.user.controller;
 
 import com.nhnacademy._vidiafront.user.client.UserApiClient;
 import com.nhnacademy._vidiafront.user.dto.request.ChangePasswordRequest;
-import com.nhnacademy._vidiafront.user.dto.request.DeleteUserRequest;
 import com.nhnacademy._vidiafront.user.dto.request.UpdateUserRequest;
 import com.nhnacademy._vidiafront.user.dto.response.UserProfileResponse;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +26,7 @@ public class ProfileController {
         UserProfileResponse user = userApiClient.getUserProfile();
         model.addAttribute("user", user);
         model.addAttribute("request", new UpdateUserRequest(user.name(), user.phone()));
-        return "/user/mypage/profile/info";
+        return "/mypage/profile/info";
     }
 
     /**
@@ -52,7 +51,7 @@ public class ProfileController {
      */
     @GetMapping("/password")
     public String changePasswordForm() {
-        return "/user/mypage/profile/password";
+        return "/mypage/profile/password";
     }
 
     /**
@@ -62,7 +61,7 @@ public class ProfileController {
     public String changePassword(ChangePasswordRequest changePasswordRequest,
                                  BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return "/user/mypage/profile/password";
+            return "/mypage/profile/password";
         }
 
         userApiClient.changePassword(changePasswordRequest);

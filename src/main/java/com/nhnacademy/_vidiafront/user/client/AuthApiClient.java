@@ -1,6 +1,7 @@
 package com.nhnacademy._vidiafront.user.client;
 
 import com.nhnacademy._vidiafront.user.dto.auth.request.FindIdRequest;
+import com.nhnacademy._vidiafront.user.dto.auth.request.FindPasswordRequest;
 import com.nhnacademy._vidiafront.user.dto.user.request.UserSignupRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -45,5 +46,13 @@ public class AuthApiClient {
     /**
      * 회원 비밀번호 찾기
      */
+    public String findUserPassword(FindPasswordRequest findPasswordRequest) {
+        return restClient.post()
+                .uri("/auth/find-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(findPasswordRequest)
+                .retrieve()
+                .body(String.class);
+    }
 
 }

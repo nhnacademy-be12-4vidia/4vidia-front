@@ -1,4 +1,4 @@
-package com.nhnacademy._vidiafront.user.dto.request;
+package com.nhnacademy._vidiafront.user.dto.address.request;
 
 public record AddressRequest(
         String alias,        // 별칭

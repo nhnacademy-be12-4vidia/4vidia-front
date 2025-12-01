@@ -1,4 +1,4 @@
-package com.nhnacademy._vidiafront.user.dto.response;
+package com.nhnacademy._vidiafront.user.dto.auth.response;
 
 
 // 로그인 응답

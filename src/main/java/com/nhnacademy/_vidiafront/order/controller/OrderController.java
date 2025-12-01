@@ -8,7 +8,7 @@ import com.nhnacademy._vidiafront.order.dto.packaging.response.PackagingOptionRe
 import com.nhnacademy._vidiafront.order.dto.payment.requset.PaymentConfirmRequest;
 import com.nhnacademy._vidiafront.user.client.AddressApiClient;
 import com.nhnacademy._vidiafront.user.client.UserApiClient;
-import com.nhnacademy._vidiafront.user.dto.response.UserProfileResponse;
+import com.nhnacademy._vidiafront.user.dto.user.response.UserProfileResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

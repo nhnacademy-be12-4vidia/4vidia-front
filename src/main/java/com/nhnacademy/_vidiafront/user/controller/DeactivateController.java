@@ -22,7 +22,7 @@ public class DeactivateController {
      */
     @GetMapping
     public String deactivateUserForm() {
-        return "/mypage/deactive/leave";
+        return "mypage/deactive/leave";
     }
 
     /**
@@ -32,7 +32,7 @@ public class DeactivateController {
     public String deleteUser(DeleteUserRequest deleteUserRequest,
                              BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return "/mypage/deactive/leave";
+            return "mypage/deactive/leave";
         }
 
         userApiClient.deleteUser(deleteUserRequest);

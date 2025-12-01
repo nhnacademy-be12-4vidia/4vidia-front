@@ -2,6 +2,10 @@ spring:
   application:
     name: 4vidia-front
 
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
 
 eureka:
   client:

@@ -37,16 +37,13 @@ public class AuthController {
         return "/user/signupForm";
     }
 
-
-
     /**
      * 회원가입
      * */
     @PostMapping("/signup")
     public String signup(UserSignupRequest userSignupRequest) {
-        String result = userApiClient.signup(userSignupRequest);
-        log.debug("Signup result: {}", result);
-        return result;
+        userApiClient.signup(userSignupRequest);
+        return "redirect:/auth/login";
     }
 
 }

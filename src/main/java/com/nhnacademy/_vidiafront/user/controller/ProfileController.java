@@ -32,7 +32,7 @@ public class ProfileController {
     /**
      * 회원정보 수정
      * */
-    @PostMapping
+    @PutMapping
     public String updateUserProfile(UpdateUserRequest updateUserRequest,
                                     Model model) {
 //        String result = userApiClient.updateUserProfile(updateUserRequest);
@@ -57,7 +57,7 @@ public class ProfileController {
     /**
      * 비밀번호 수정
      * */
-    @PostMapping("/password")
+    @PutMapping("/password")
     public String changePassword(ChangePasswordRequest changePasswordRequest,
                                  BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {

@@ -1,8 +1,7 @@
 package com.nhnacademy._vidiafront.global.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.*;
 
 @ControllerAdvice
 public class GlobalControllerAdvice {

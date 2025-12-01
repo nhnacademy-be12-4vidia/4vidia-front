@@ -15,7 +15,7 @@
         <h2 class="text-center mb-5">주소 수정</h2>
 
         <!-- 수정 폼 -->
-        <form th:action="@{/mypage/addresses/{addressId}(addressId=${address.userAddressId})}"
+        <form th:action="@{/mypage/address/{addressId}(addressId=${address.addressId()})}"
               method="post"
               id="editAddressForm">
             <input type="hidden" name="_method" value="put">
@@ -29,11 +29,11 @@
 
             <script>
                 function searchPostcode() {
-                    window.open("/addressPopup", "pop", // TODO 주소 매핑 변경 필요
+                    window.open("/mypage/address/jusoPopup", "pop", // TODO 주소 매핑 변경 필요
                         "width=570,height=420,scrollbars=yes,resizable=yes");
                 }
 
-                function addressCallback(
+                function jusoCallBack(
                     roadAddrPart1, addrDetail, zipNo
                 ) {
                     // DTO 필드명에 맞게 HTML input의 id/name을 사용하여 값을 설정
@@ -69,7 +69,7 @@
 
             <div class="d-flex justify-content-end mt-4">
                 <button type="submit" class="btn btn-primary me-2">수정 완료</button>
-                <a href="/mypage/addresses" class="btn btn-secondary">취소</a>
+                <a href="/mypage/address" class="btn btn-secondary">취소</a>
             </div>
         </form>
     </div>

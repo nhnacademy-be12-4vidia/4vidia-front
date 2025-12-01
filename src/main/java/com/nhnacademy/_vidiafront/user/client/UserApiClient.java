@@ -1,10 +1,9 @@
 package com.nhnacademy._vidiafront.user.client;
 
-import com.nhnacademy._vidiafront.user.dto.request.ChangePasswordRequest;
-import com.nhnacademy._vidiafront.user.dto.request.DeleteUserRequest;
-import com.nhnacademy._vidiafront.user.dto.request.UpdateUserRequest;
-import com.nhnacademy._vidiafront.user.dto.request.UserSignupRequest;
-import com.nhnacademy._vidiafront.user.dto.response.UserProfileResponse;
+import com.nhnacademy._vidiafront.user.dto.user.request.ChangePasswordRequest;
+import com.nhnacademy._vidiafront.user.dto.user.request.DeleteUserRequest;
+import com.nhnacademy._vidiafront.user.dto.user.request.UpdateUserRequest;
+import com.nhnacademy._vidiafront.user.dto.user.response.UserProfileResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -20,18 +19,6 @@ public class UserApiClient {
     // 테스트용
     private static final int TEST_ID = 8;
     private static final String X_USER_ID = "X-User-Id";
-
-    /**
-     * POST 회원가입
-     * */
-    public Void signup(UserSignupRequest userSignupRequest) {
-        return restClient.post()
-                .uri(USER_SERVICE + "/my/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(userSignupRequest)
-                .retrieve()
-                .body(Void.class);
-    }
 
     /**
      * GET 회원정보 조회
@@ -84,11 +71,5 @@ public class UserApiClient {
                 .retrieve()
                 .body(Void.class);
     }
-
-
-
-
-
-
 
 }

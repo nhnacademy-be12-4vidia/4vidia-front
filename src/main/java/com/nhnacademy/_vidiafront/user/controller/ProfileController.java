@@ -1,9 +1,9 @@
 package com.nhnacademy._vidiafront.user.controller;
 
 import com.nhnacademy._vidiafront.user.client.UserApiClient;
-import com.nhnacademy._vidiafront.user.dto.request.ChangePasswordRequest;
-import com.nhnacademy._vidiafront.user.dto.request.UpdateUserRequest;
-import com.nhnacademy._vidiafront.user.dto.response.UserProfileResponse;
+import com.nhnacademy._vidiafront.user.dto.user.request.ChangePasswordRequest;
+import com.nhnacademy._vidiafront.user.dto.user.request.UpdateUserRequest;
+import com.nhnacademy._vidiafront.user.dto.user.response.UserProfileResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;

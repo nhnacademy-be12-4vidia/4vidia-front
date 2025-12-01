@@ -1,7 +1,7 @@
 package com.nhnacademy._vidiafront.user.controller;
 
 import com.nhnacademy._vidiafront.user.client.UserApiClient;
-import com.nhnacademy._vidiafront.user.dto.request.DeleteUserRequest;
+import com.nhnacademy._vidiafront.user.dto.user.request.DeleteUserRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;

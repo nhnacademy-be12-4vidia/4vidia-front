@@ -1,7 +1,7 @@
 package com.nhnacademy._vidiafront.user.controller;
 
-import com.nhnacademy._vidiafront.user.client.UserApiClient;
-import com.nhnacademy._vidiafront.user.dto.request.UserSignupRequest;
+import com.nhnacademy._vidiafront.user.client.AuthApiClient;
+import com.nhnacademy._vidiafront.user.dto.user.request.UserSignupRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
-    private final UserApiClient userApiClient;
+    private final AuthApiClient authApiClient;
 
     /**
      * 로그인 폼
@@ -42,7 +42,7 @@ public class AuthController {
      * */
     @PostMapping("/signup")
     public String signup(UserSignupRequest userSignupRequest) {
-        userApiClient.signup(userSignupRequest);
+        authApiClient.signup(userSignupRequest);
         return "redirect:/auth/login";
     }
 

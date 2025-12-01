@@ -14,6 +14,7 @@ import org.springframework.web.client.RestClient;
 @RequiredArgsConstructor
 public class UserApiClient {
     private final RestClient restClient;
+
     private static final String USER_SERVICE = "/api/v1/user-service";
 
     // 테스트용

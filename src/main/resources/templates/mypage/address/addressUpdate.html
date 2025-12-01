@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>주소 수정</title>
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+<div layout:fragment="content">
+    <div class="container mt-5" style="max-width: 700px;">
+        <h2 class="text-center mb-5">주소 수정</h2>
+
+        <!-- 수정 폼 -->
+        <form th:action="@{/mypage/addresses/{addressId}(addressId=${address.userAddressId})}"
+              method="post"
+              id="editAddressForm">
+            <input type="hidden" name="_method" value="put">
+
+            <div class="form-group mb-3">
+                <label>별칭*</label>
+                <input type="text" name="alias" class="form-control"
+                       th:value="${address.alias}" required>
+            </div>
+
+
+            <script>
+                function searchPostcode() {
+                    window.open("/addressPopup", "pop", // TODO 주소 매핑 변경 필요
+                        "width=570,height=420,scrollbars=yes,resizable=yes");
+                }
+
+                function addressCallback(
+                    roadAddrPart1, addrDetail, zipNo
+                ) {
+                    // DTO 필드명에 맞게 HTML input의 id/name을 사용하여 값을 설정
+                    document.getElementById("zipNo").value = zipNo;
+                    document.getElementById("roadAddrPart1").value = roadAddrPart1;
+                    document.getElementById("addrDetail").value = addrDetail;
+
+                    // 상세 주소 입력 필드에 포커스
+                    document.getElementById("addrDetail").focus();
+                }
+            </script>
+            <div class="form-group mb-3">
+                <label>우편번호*</label>
+                <div class="d-flex">
+                    <input type="text" id="zipNo" name="zipCode" class="form-control me-2"
+                           th:value="${address.zipCode}" readonly required>
+                    <button type="button" class="btn btn-secondary"
+                            onclick="searchPostcode()">우편번호 찾기</button>
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label>도로명 주소*</label>
+                <input type="text" id="roadAddrPart1" name="roadAddress" class="form-control"
+                       th:value="${address.roadAddress}" readonly required>
+            </div>
+
+            <div class="form-group mb-3">
+                <label>상세 주소*</label>
+                <input type="text" id="addrDetail" name="addressDetail" class="form-control"
+                       th:value="${address.addressDetail}" required>
+            </div>
+
+            <div class="d-flex justify-content-end mt-4">
+                <button type="submit" class="btn btn-primary me-2">수정 완료</button>
+                <a href="/mypage/addresses" class="btn btn-secondary">취소</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

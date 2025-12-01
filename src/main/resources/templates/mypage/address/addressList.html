@@ -22,7 +22,7 @@
             if (deleteSelectedBtn) {
                 deleteSelectedBtn.addEventListener('click', deleteSelectedAddresses);
             }
-            // 참고: addressCallback 함수는 모달 내부에 인라인으로 남겨둡니다.
+            // 참고: jusoCallBack 함수는 모달 내부에 인라인으로 남겨둡니다.
         });
 
 
@@ -42,7 +42,7 @@
 
             const addressId = selected[0];
 
-            fetch(`/mypage/addresses/default/${addressId}`, { method: "PUT" })
+            fetch(`/mypage/address/default/${addressId}`, { method: "PUT" })
                 .then(res => {
                     if (res.ok) {
                         location.reload();
@@ -61,7 +61,6 @@
                     alert("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
                 });
         }
-
         function deleteSelectedAddresses() {
             const selected = getSelectedAddresses();
             // 이 경고 메시지가 나오는지 확인
@@ -72,7 +71,7 @@
             if (!confirm("선택한 주소를 모두 삭제하시겠습니까?")) return;
 
             Promise.all(
-                selected.map(id => fetch(`/mypage/addresses/${id}`, { method: "DELETE" }))
+                selected.map(id => fetch(`/mypage/address/${id}`, { method: "DELETE" }))
             ).then(() => location.reload())
                 .catch(() => alert("삭제 중 오류 발생"));
         }
@@ -129,19 +128,19 @@
                 </td>
 
                 <td>
-                    <a th:href="@{/mypage/addresses/{addressId}/edit(addressId=${addr.userAddressId()})}"
+                    <a th:href="@{/mypage/address/{addressId}/edit(addressId=${addr.addressId()})}"
                        class="btn btn-sm btn-outline-primary me-2">수정</a>
                 </td>
             </tr>
 
 
             <th:block th:each="addr : ${addressList}"
-                      th:with="isDefault=${defaultAddress != null and defaultAddress.userAddressId() == addr.userAddressId()}">
+                      th:with="isDefault=${defaultAddress != null and defaultAddress.addressId() == addr.addressId()}">
                 <tr th:unless="${isDefault}">
 
                     <td>
                         <input type="checkbox" name="selectedAddress"
-                               th:value="${addr.userAddressId}">
+                               th:value="${addr.addressId}">
                     </td>
 
                     <td>
@@ -153,13 +152,13 @@
                     </td>
 
                     <td>
-                        <a th:href="@{/mypage/addresses/{addressId}/edit(addressId=${addr.userAddressId})}"
+                        <a th:href="@{/mypage/address/{addressId}/edit(addressId=${addr.addressId})}"
                            class="btn btn-sm btn-outline-primary me-2">수정</a>
 
-                        <form th:action="@{/mypage/addresses/{addressId}(addressId=${addr.userAddressId})}"
+                        <form th:action="@{/mypage/address/{addressId}(addressId=${addr.addressId})}"
                               method="post" style="display:inline;"
                               onsubmit="return confirm('정말 이 주소를 삭제하시겠습니까?');">
-                            <input type="hidden" name="_method" value="delete"/>
+                            <input type="hidden" name="_method" value="DELETE"/>
                             <button type="submit" class="btn btn-sm btn-outline-danger">
                                 삭제
                             </button>
@@ -187,7 +186,7 @@
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-body">
-                    <form id="addAddressForm" method="post" th:action="@{/mypage/addresses}">
+                    <form id="addAddressForm" method="post" th:action="@{/mypage/address}">
                         <div class="form-group mb-3">
                             <label>별칭*</label>
                             <input type="text" name="alias" class="form-control" required>
@@ -195,10 +194,10 @@
 
                         <script>
                             function searchPostcode() {
-                                window.open("/addressPopup", "pop",
+                                window.open("/mypage/address/jusoPopup", "pop",
                                     "width=570,height=420,scrollbars=yes,resizable=yes");
                             }
-                            function addressCallback(roadAddrPart1, addrDetail, zipNo) {
+                            function jusoCallBack(roadAddrPart1, addrDetail, zipNo) {
                                 document.getElementById("zipNo").value = zipNo;
                                 document.getElementById("roadAddrPart1").value = roadAddrPart1;
                                 document.getElementById("addrDetail").value = addrDetail;

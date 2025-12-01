@@ -26,7 +26,7 @@ public class AuthController {
      * */
     @GetMapping("/login")
     public String loginForm() {
-        return "/user/loginForm";
+        return "/auth/loginForm";
     }
 
     /**
@@ -34,7 +34,7 @@ public class AuthController {
      * */
     @GetMapping("/signup")
     public String signupForm() {
-        return "/user/signupForm";
+        return "/auth/signupForm";
     }
 
     /**

@@ -9,11 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-/**
- * GET  /auth/login
- * GET  /auth/signup
- * POST /auth/signup
- * */
 @Slf4j
 @Controller
 @RequestMapping("/auth")

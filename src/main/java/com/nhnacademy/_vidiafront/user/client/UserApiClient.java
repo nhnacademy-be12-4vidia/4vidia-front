@@ -21,7 +21,7 @@ public class UserApiClient {
     private static final String X_USER_ID = "X-User-Id";
 
     /**
-     * GET 회원정보 조회
+     * 회원정보 조회
      * */
     public UserProfileResponse getUserProfile() {
         return restClient.get()
@@ -33,7 +33,7 @@ public class UserApiClient {
     }
 
     /**
-     * PATCH 회원정보 수정
+     * 회원정보 수정
      * */
     public UserProfileResponse updateUserProfile(UpdateUserRequest updateUserRequest) {
         return restClient.put()
@@ -46,7 +46,7 @@ public class UserApiClient {
     }
 
     /**
-     * PUT 비밀번호 수정
+     * 비밀번호 수정
      * */
     public Void changePassword(ChangePasswordRequest changePasswordRequest) {
         return restClient.put()
@@ -60,7 +60,7 @@ public class UserApiClient {
 
 
     /**
-     * PUT 회원탈퇴
+     * 회원탈퇴
      */
     public Void deleteUser(DeleteUserRequest deleteUserRequest) {
         return restClient.put()

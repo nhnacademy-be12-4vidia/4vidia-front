@@ -1,7 +1,4 @@
-package com.nhnacademy._vidiafront.user.dto.request;
-
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+package com.nhnacademy._vidiafront.user.dto.address.request;
 
 // 주소 등록 DTO
 public record CreateAddressRequest(

@@ -1,4 +1,6 @@
-package com.nhnacademy._vidiafront.user.dto.response;
+package com.nhnacademy._vidiafront.user.dto.user.response;
+
+import com.nhnacademy._vidiafront.user.dto.address.response.AddressResponse;
 
 import java.time.LocalDate;
 

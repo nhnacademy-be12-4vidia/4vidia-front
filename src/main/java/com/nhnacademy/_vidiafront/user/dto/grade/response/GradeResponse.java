@@ -1,4 +1,4 @@
-package com.nhnacademy._vidiafront.user.dto.response;
+package com.nhnacademy._vidiafront.user.dto.grade.response;
 
 import lombok.Builder;
 

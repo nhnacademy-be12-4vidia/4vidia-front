@@ -6,7 +6,6 @@ import com.nhnacademy._vidiafront.order.dto.order.response.DeliveryDateResponse;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderResponse;
 import com.nhnacademy._vidiafront.order.dto.packaging.response.PackagingOptionResponse;
 import com.nhnacademy._vidiafront.order.dto.payment.requset.PaymentConfirmRequest;
-import com.nhnacademy._vidiafront.user.client.AddressApiClient;
 import com.nhnacademy._vidiafront.user.client.UserApiClient;
 import com.nhnacademy._vidiafront.user.dto.user.response.UserProfileResponse;
 import jakarta.servlet.http.HttpServletRequest;

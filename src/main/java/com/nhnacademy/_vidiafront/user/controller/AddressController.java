@@ -28,14 +28,14 @@ public class AddressController {
     // 도로명 찾기 팝업창
     @GetMapping("/jusoPopup")
     public String jusoPopup() {
-        return "/mypage/address/jusoPopup";
+        return "mypage/address/jusoPopup";
     }
 
     @PostMapping("/jusoCallback")
     public String jusoCallback(@RequestParam Map<String, String> addressData, Model model) {
         model.addAttribute("jusoData", addressData);
 
-        return "/mypage/address/jusoCallback";
+        return "mypage/address/jusoCallback";
     }
 
     // --------------------------------------------------------
@@ -51,7 +51,7 @@ public class AddressController {
         UserProfileResponse userProfile = userApiClient.getUserProfile();
         model.addAttribute("defaultAddress", userProfile.defaultAddress());
 
-        return "/mypage/address/addressList";
+        return "mypage/address/addressList";
     }
 
 
@@ -84,7 +84,7 @@ public class AddressController {
         AddressResponse addressResponse = addressApiClient.getAddress(addressId);
         model.addAttribute("address", addressResponse);
 
-        return "/mypage/address/addressUpdate";
+        return "mypage/address/addressUpdate";
     }
 
     // 주소수정

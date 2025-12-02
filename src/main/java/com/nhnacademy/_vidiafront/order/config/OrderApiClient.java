@@ -20,6 +20,8 @@ public class OrderApiClient {
     private final RestClient restClient;
     private static final String ORDER_SERVICE = "/api/v1/order-service";
 
+    private static final String TEST_ID = "1";
+
     // PackagingOption 종류 가져오기
     public List<PackagingOptionResponse> getPackagingOptions() {
         ParameterizedTypeReference<List<PackagingOptionResponse>> typeReference =
@@ -30,6 +32,7 @@ public class OrderApiClient {
             packagingOptions = restClient.get()
                     .uri(ORDER_SERVICE + "/packaging-options")
                     .accept(MediaType.APPLICATION_JSON)
+                    .header("X-User-Id", TEST_ID) //
                     .retrieve()
                     .body(typeReference);
         } catch (RestClientException e) {
@@ -46,6 +49,7 @@ public class OrderApiClient {
             order = restClient.get()
                     .uri(ORDER_SERVICE + "/orders/{orderId}", orderId)
                     .accept(MediaType.APPLICATION_JSON)
+                    .header("X-User-Id", TEST_ID) //
                     .retrieve()
                     .body(OrderResponse.class);
         } catch (RestClientException e) {
@@ -64,6 +68,7 @@ public class OrderApiClient {
             deliveryDates = restClient.get()
                     .uri(ORDER_SERVICE + "/delivery-dates")
                     .accept(MediaType.APPLICATION_JSON)
+                    .header("X-User-Id", TEST_ID) //
                     .retrieve()
                     .body(typeReference);
         } catch (RestClientException e) {
@@ -82,6 +87,7 @@ public class OrderApiClient {
             orderPreviewResponses = restClient.get()
                     .uri(ORDER_SERVICE + "/orders")
                     .accept(MediaType.APPLICATION_JSON)
+                    .header("X-User-Id", TEST_ID) //
                     .retrieve()
                     .body(typeReference);
         } catch (RestClientException e) {

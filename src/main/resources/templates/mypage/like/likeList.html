@@ -45,13 +45,6 @@
                                          th:alt="${item.bookTitle()}"
                                          class="rounded"
                                          style="width: 110px; height: 160px; object-fit: cover;">
-
-                                    <div class="badge badge-danger position-absolute"
-                                         th:with="discountRate=${(item.priceStandard() - item.priceSales()) * 100 / item.priceStandard()}"
-                                         th:if="${item.priceStandard() > item.priceSales()}"
-                                         style="top: 8px; left: 8px;">
-                                        <span th:text="${#numbers.formatDecimal(discountRate, 0, 'COMMA', 0, 'POINT')} + '%'"></span>
-                                    </div>
                                 </div>
 
                                 <div class="flex-grow-1">
@@ -74,13 +67,20 @@
                                     </div>
 
                                     <div class="mb-3">
-                                        <div th:if="${item.priceStandard() > item.priceSales()}">
-                                            <span class="text-dark font-weight-bold"
-                                                  th:text="${#numbers.formatInteger(item.priceSales(), 1, 'COMMA')} + '원'">
+                                        <div th:if="${item.priceStandard() > item.priceSales()}"
+                                             class="d-flex align-items-center gap-2"> <span class="text-dark font-weight-bold"
+                                                                                            th:text="${#numbers.formatInteger(item.priceSales(), 1, 'COMMA')} + '원'">
                                                 </span>
+
                                             <span class="text-muted small"
                                                   style="text-decoration: line-through;"
                                                   th:text="${#numbers.formatInteger(item.priceStandard(), 1, 'COMMA')} + '원'">
+                                            </span>
+
+                                            <span class="badge bg-danger">
+                                                <span th:with="discountRate=${(item.priceStandard() - item.priceSales()) * 100 / item.priceStandard()}"
+                                                      th:text="${#numbers.formatDecimal(discountRate, 0, 'COMMA', 0, 'POINT')} + '%'">
+                                                </span>
                                             </span>
                                         </div>
 
@@ -93,12 +93,12 @@
 
                                     <div class="d-flex gap-2">
 
-                                        <div th:if="${item.stockStatus() == 'IN_STOCK'}" class="w-100 d-flex gap-2">
+                                        <div th:if="${item.stockStatus() == 'IN_STOCK' or item.stockStatus() == 'PRE_ORDER'}" class="w-100 d-flex gap-2">
 
                                             <form th:action="@{/cart/add}" method="post" class="flex-fill">
                                                 <input type="hidden" name="bookId" th:value="${item.bookId()}">
                                                 <button class="btn btn-primary btn-block">
-                                                    <i class="fas fa-shopping-cart mr-1"></i> 장바구니 담기 (프론트에추가안됨)
+                                                    <i class="fas fa-shopping-cart mr-1"></i> 장바구니 담기
                                                 </button>
                                             </form>
 
@@ -112,13 +112,19 @@
                                             </form>
                                         </div>
 
-                                        <div th:if="${item.stockStatus() != 'IN_STOCK'}"
-                                             class="w-100 text-center text-gray-500 bg-light py-2 rounded">
-                                            일시품절
+                                        <div th:if="${item.stockStatus() == 'OUT_OF_STOCK'}" class="w-100">
+                                            <button class="btn btn-light w-100 text-gray-500 bg-light rounded" disabled>
+                                                일시 품절
+                                            </button>
+                                        </div>
+
+                                        <div th:if="${item.stockStatus() == 'OUT_OF_PRINT'}" class="w-100">
+                                            <button class="btn btn-light w-100 text-gray-500 bg-light rounded" disabled>
+                                                절판
+                                            </button>
                                         </div>
 
                                     </div>
-
                                 </div>
                             </div>
                         </div>

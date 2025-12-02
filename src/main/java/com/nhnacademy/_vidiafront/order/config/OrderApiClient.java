@@ -73,7 +73,7 @@ public class OrderApiClient {
     }
 
     //주문내역 미리보기
-    public List<OrderPreviewResponse> getOrderPreview(String userId) {
+    public List<OrderPreviewResponse> getOrderPreview() {
         ParameterizedTypeReference<List<OrderPreviewResponse>> typeReference =
                 new ParameterizedTypeReference<List<OrderPreviewResponse>>() {};
 

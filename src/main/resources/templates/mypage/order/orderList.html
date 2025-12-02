@@ -51,17 +51,19 @@
                                  class="rounded shadow-sm" style="width: 80px; height: 112px; object-fit: cover;">
 
                             <div class="flex-grow-1">
-                                <h4 class="text-gray-900 mb-1" th:text="${book.bookTitle()}" style="font-size: 1rem; font-weight: 600;"><!--클린 코드--></h4>
+                                <h4 class="text-gray-900 mb-1" th:text="${book.bookTitle()}"
+                                    style="font-size: 1rem; font-weight: 600;"><!--클린 코드--></h4>
                                 <p class="text-gray-500 small mb-2" th:text="${book.bookAuthor()}"><!--로버트 C. 마틴--></p>
                                 <div class="d-flex align-items-center justify-content-between">
                                     <span class="text-gray-600 small" th:text="'수량: ' + ${book.quantity()}">수량: 1</span>
-                                    <span class="text-gray-900 font-weight-bold" th:text="${#numbers.formatDecimal(book.salePrice(), 0, 'COMMA', 0, 'POINT') + '원'}">33,000원</span>
+                                    <span class="text-gray-900 font-weight-bold"
+                                          th:text="${#numbers.formatDecimal(book.salePrice(), 0, 'COMMA', 0, 'POINT') + '원'}">33,000원</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-<!--                    <div class="mt-4 pt-3 border-top border-gray-200 d-flex align-items-center justify-content-between">-->
+                    <!--                    <div class="mt-4 pt-3 border-top border-gray-200 d-flex align-items-center justify-content-between">-->
 <!--                        <span class="text-gray-900 font-weight-bold">총 주문 금액</span>-->
 <!--                        <span class="text-primary font-weight-bold" th:text="${#numbers.formatDecimal(order.total, 0, 'COMMA', 0, 'POINT') + '원'}" style="font-size: 1.1rem;">33,000원</span>-->
 <!--                    </div>-->

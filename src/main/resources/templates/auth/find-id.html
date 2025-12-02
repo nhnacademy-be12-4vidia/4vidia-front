@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>아이디 찾기</title>
+</head>
+
+<body>
+<div layout:fragment="content">
+
+    <div class="fixed-container" style="width: 500px; margin: 0 auto;">
+        <h2 class="mt-5 mb-4 text-center fw-bold">아이디 찾기</h2>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+
+                <form method="post" th:action="@{/auth/find-id}">
+                    <!-- 이름 -->
+                    <div class="mb-3">
+                        <label for="name" class="form-label fw-bold">이름</label>
+                        <input type="text" id="name" class="form-control"
+                               name="name" placeholder="이름을 입력해주세요" required>
+                    </div>
+
+                    <!-- 생년월일 -->
+                    <div class="mb-3">
+                        <label for="birthday" class="form-label fw-bold">생년월일</label>
+                        <input type="text" id="birthday" class="form-control"
+                               name="birthday"
+                               placeholder="예: 1999-01-01"
+                               pattern="\d{4}-\d{2}-\d{2}"
+                               title="yyyy-mm-dd 형식을 지켜주세요" required>
+                    </div>
+
+                    <!-- 전화번호 -->
+                    <div class="mb-4">
+                        <label for="phone" class="form-label fw-bold">전화번호</label>
+                        <input type="tel" id="phone" class="form-control"
+                               name="phone" placeholder="예: 010-1234-5678" required>
+                    </div>
+
+                    <!-- 버튼 -->
+                    <div class="d-grid gap-2 mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg">아이디 찾기</button>
+                    </div>
+
+                    <div class="mt-3 text-center d-flex justify-content-between px-2">
+                        <a th:href="@{/auth/login}" class="text-decoration-none text-secondary small">로그인으로 돌아가기</a>
+                        <a th:href="@{/auth/find-password}" class="text-decoration-none text-secondary small">비밀번호 찾기</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+
+<th:block layout:fragment="script">
+    <script th:if="${foundEmail}">
+        alert("회원님의 아이디는 [[${foundEmail}]] 입니다.");
+        window.location.href = "/auth/login";
+    </script>
+
+    <script th:if="${success}">
+        alert("[[${success}]]");
+        window.location.href = "/auth/login";
+    </script>
+
+    <script th:if="${error}">
+        alert("[[${error}]]");
+    </script>
+</th:block>
+</html>

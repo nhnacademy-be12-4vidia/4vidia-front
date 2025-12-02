@@ -1,6 +1,8 @@
 name: 4vidia-front
 on:
   pull_request:
+    types:
+      - closed
     branches:
       - main
       - dev

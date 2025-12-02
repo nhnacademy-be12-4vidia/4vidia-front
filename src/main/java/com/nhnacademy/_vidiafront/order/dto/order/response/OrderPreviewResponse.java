@@ -22,6 +22,5 @@ public record OrderPreviewResponse(
             Integer quantity,
             Integer salePrice,
             ConfirmStatus confirmStatus
-    ) {
-    }
+    ) { }
 }

@@ -15,7 +15,7 @@
         </div>
 
         <div class="row">
-            <form id="orderForm" action="/api/v1/orders" method="POST" class="col-lg-12 row p-0">
+            <form id="orderForm" action="/orders" method="POST" class="col-lg-12 row p-0">
                 <div class="col-lg-7">
 
                     <div class="card shadow mb-4">
@@ -68,7 +68,7 @@
                             </div>
 
                             <div class="text-right text-gray-700 font-weight-bold">
-                                상품 총 금액: <span id="itemSectionTotalPriceDisplay" th:text="|₩${totalPrice}|">₩35,000</span>
+                                상품 총 금액: <span id="itemSectionTotalPriceDisplay" th:text="|₩${finalAmount}|">₩35,000</span>
                             </div>
                             <input type="hidden" name="totalPrice" th:value="${totalPrice}">
                         </div>
@@ -94,7 +94,7 @@
                             <div class="form-group row mb-0">
                                 <label for="ordererPhone" class="col-sm-3 col-form-label">휴대폰</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="ordererPhone" name="ordererPhone" th:value="${ordererPhone}" placeholder="010-0000-0000">
+                                    <input type="text" class="form-control" id="ordererPhone" name="ordererPhone" th:value="${ordererPhone}" placeholder="01000000000">
                                 </div>
                             </div>
                         </div>
@@ -155,17 +155,17 @@
                             <div class="form-group row">
                                 <label for="shipPhone" class="col-sm-3 col-form-label">휴대폰</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="shipPhone" name="recipientPhone" placeholder="010-0000-0000">
+                                    <input type="text" class="form-control" id="shipPhone" name="recipientPhone" placeholder="01000000000">
                                 </div>
                             </div>
 
                             <script>
                                 function goPopup() {
-                                    window.open("/addressPopup", "pop", // TODO 주소 매핑 변경 필요
+                                    window.open("/mypage/address/jusoPopup", "pop", // TODO 주소 매핑 변경 필요
                                         "width=570,height=420,scrollbars=yes,resizable=yes");
                                 }
 
-                                function addressCallback(
+                                function jusoCallBack(
                                     roadAddrPart1, addrDetail, zipNo
                                 ) {
                                     document.getElementById("roadAddrPart1").value = roadAddrPart1;
@@ -188,19 +188,21 @@
                                     <input type="text" class="form-control" id="addrDetail" name="addressDetail" placeholder="상세 주소" required>
                                 </div>
                             </div>
-                            <div class="form-group row mt-3"> <label for="shipDate" class="col-sm-3 col-form-label">도착 희망일</label>
+                            <div class="form-group row mt-3">
+                                <label for="shipDate" class="col-sm-3 col-form-label">도착 희망일</label>
                                 <div class="col-sm-9">
                                     <select class="form-control" id="shipDate" name="deliveryDate">
+
                                         <option value="fastest" selected>가장 빠른 날짜</option>
-                                        <option value="2025-11-14">2025-11-14 (금)</option>
-                                        <option value="2025-11-15">2025-11-15 (토)</option>
-                                        <option value="2025-11-17">2025-11-17 (월)</option>
-                                        <option value="2025-11-18">2025-11-18 (화)</option>
-                                        <option value="2025-11-19">2025-11-19 (수)</option>
-                                        <option value="2025-11-20">2025-11-20 (목)</option>
+
+                                        <option th:each="date : ${deliveryDates}"
+                                                th:value="${date.value}"
+                                                th:text="${date.displayDate}">
+                                        </option>
+
                                     </select>
                                     <small class="form-text text-muted">
-                                        오늘(11/13)로부터 +2일 ~ +7일까지 선택 가능합니다.
+                                        오늘로부터 +2일 ~ +7일까지 선택 가능합니다.
                                     </small>
                                 </div>
                             </div>
@@ -263,9 +265,13 @@
                         </div>
                         <div class="card-body">
 
+                            <input type="hidden" id="serverTotalPrice" name="totalPrice" th:value="${finalAmount}">
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-gray-700">총 상품 금액</span>
-                                <span class="font-weight-bold" id="totalPriceDisplay" th:text="|₩${bookPrice}|">₩35,000</span>
+                                <span class="font-weight-bold" id="totalPriceDisplay"
+                                      th:text="|₩${#numbers.formatInteger(finalAmount, 0, 'COMMA')}|">
+                                    ₩0
+                                </span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-gray-700">배송비</span>
@@ -427,12 +433,29 @@
                         <p class="text-xs text-muted">주소를 클릭하면 배송지 입력칸에 자동으로 적용됩니다.</p>
 
                         <div class="list-group">
-                            <a href="#" class="list-group-item list-group-item-action" data-dismiss="modal">
-                            </a>
-                            <a href="#" class="list-group-item list-group-item-action" data-dismiss="modal">
+                            <a href="#"
+                               th:each="addr : ${addressList}"
+                               class="list-group-item list-group-item-action address-select-item d-flex justify-content-between align-items-center"
+
+                               data-dismiss="modal"
+                               th:data-alias="${addr.alias ?: ''}"
+                               th:data-roadname="${addr.roadAddress ?: ''}"
+                               th:data-zipcode="${addr.zipCode ?: ''}"
+                               th:data-detail="${addr.addressDetail ?: ''}">
+
+                                <span class="font-weight-bold text-dark text-truncate"
+                                      style="max-width: 30%;"
+                                      th:text="${addr.alias}">
+                                    별칭
+                                </span>
+
+                                <small class="text-muted text-right"
+                                       style="max-width: 65%; word-break: break-all;"
+                                       th:text="|${addr.roadAddress ?: ''} ${addr.addressDetail ?: ''}|">
+                                    도로명주소 + 상세주소
+                                </small>
                             </a>
                         </div>
-                    </div>
 
                     <div th:if="${addressList == null || addressList.isEmpty()}">
                         <h6 class="font-weight-bold text-gray-700">등록된 배송지가 없습니다.</h6>
@@ -458,17 +481,19 @@
         const serverPackagingOptions = /*[[${packagingOptions}]]*/ [];
         const userHeldPoints = /*[[${points}]]*/ 0;
 
+        // 포장 옵션 값
+        const packagingCostMap = {};
+        if (serverPackagingOptions) {
+            serverPackagingOptions.forEach(option => {
+                packagingCostMap[option.packagingOptionId] = option.price;
+            });
+        }
+
         let initialTotalPrice = 0;
         let totalPackagingCost = 0;
         let totalDeliveryCost = 0;
         let currentCouponDiscount = 0;
-        let currentFinalTotal = initialTotalPrice; // 현재 총액은 상품 총액에서 시작
-
-        // 포장 옵션 값 매핑 (DTO는 Long ID를 기대합니다)
-        const packagingCostMap = {};
-        serverPackagingOptions.forEach(option => {
-            packagingCostMap[option.packagingOptionId] = option.price;
-        });
+        let currentFinalTotal = initialTotalPrice;
 
         function updatePaymentMethod(method) {
             document.getElementById('paymentMethodInput').value = method;
@@ -476,85 +501,104 @@
 
         function updateFinalAmount() {
 
-            initialTotalPrice = parseInt(document.querySelector('input[name="finalAmount"]').value) || 0;
-            currentFinalTotal = initialTotalPrice;
+            const totalPriceInput = document.getElementById('serverTotalPrice');
+            initialTotalPrice = totalPriceInput ? (parseInt(totalPriceInput.value) || 0) : 0;
 
+            // 포장비
             let tempPkgCost = 0;
-            // 포장 옵션 값 계산
             document.querySelectorAll('.packaging-select').forEach(select => {
-                const id = parseInt(select.value) || 0;
-                tempPkgCost += packagingCostMap[id] || 0;
+                const selectedVal = parseInt(select.value) || 0;
+                if (packagingCostMap[selectedVal]) {
+                    tempPkgCost += packagingCostMap[selectedVal];
+                }
             });
             totalPackagingCost = tempPkgCost;
 
-            // 포인트 사용 금액 반영
+            //포인트 사용액
             const usedPoints = parseInt(document.getElementById('usePoints').value) || 0;
-            totalDiscountAmount = usedPoints + currentCouponDiscount;
 
-            // 배송비 결정 - 현재 5만원 이상 무료
-            totalDeliveryCost = (initialTotalPrice + totalPackagingCost >= 50000) ? 0 : 3000;
+            // 배송비 - 5만원 이상이면 0원
+            const subTotal = initialTotalPrice + totalPackagingCost;
+            totalDeliveryCost = (subTotal >= 50000) ? 0 : 3000;
 
-            // 최종 결제 금액 계산
-            currentFinalTotal = initialTotalPrice + totalPackagingCost + totalDeliveryCost - totalDiscountAmount;
+            // 총 할인액 (포인트 + 쿠폰)
+            const totalDiscountAmount = usedPoints + currentCouponDiscount;
 
+            // 최종 금액
+            currentFinalTotal = subTotal + totalDeliveryCost - totalDiscountAmount;
             if (currentFinalTotal < 0) currentFinalTotal = 0;
 
-            const formatedPrice = "₩" + initialTotalPrice.toLocaleString();
+            const fmt = (num) => "₩" + num.toLocaleString();
 
+            document.getElementById("totalPriceDisplay").innerText = fmt(initialTotalPrice);
+            document.getElementById("packagingCostDisplay").innerText = "+" + fmt(totalPackagingCost);
 
-            document.getElementById("finalTotalDisplay").innerText = "₩" + currentFinalTotal.toLocaleString();
-            document.getElementById("finalPaymentAmountInput").value = currentFinalTotal;
+            document.getElementById("deliveryCostDisplay").innerText = totalDeliveryCost > 0 ? "+" + fmt(totalDeliveryCost) : "무료";
 
-            document.getElementById("packagingCostDisplay").innerText = "+₩" + totalPackagingCost.toLocaleString();
+            document.getElementById("pointDiscountDisplay").innerText = "-" + fmt(usedPoints);
+            document.getElementById("couponDiscountDisplay").innerText = "-" + fmt(currentCouponDiscount);
+            document.getElementById("finalTotalDisplay").innerText = fmt(currentFinalTotal);
+
+            // hidden input
             document.getElementById("packagingCostInput").value = totalPackagingCost;
-
-            document.getElementById("deliveryCostDisplay").innerText = (totalDeliveryCost > 0 ? "+" : "") + "₩" + totalDeliveryCost.toLocaleString();
             document.getElementById("deliveryCostInput").value = totalDeliveryCost;
-
-            document.getElementById("pointDiscountDisplay").innerText = "-₩" + usedPoints.toLocaleString();
-            document.getElementById("couponDiscountDisplay").innerText = "-₩" + currentCouponDiscount.toLocaleString();
             document.getElementById("discountAmountInput").value = currentCouponDiscount;
-
-            document.getElementById("totalPriceDisplay").innerText = formatedPrice;
-            document.getElementById("itemSectionTotalPriceDisplay").innerText = formatedPrice;
+            document.getElementById("finalPaymentAmountInput").value = currentFinalTotal;
         }
 
         document.addEventListener("DOMContentLoaded", function() {
 
             // 포장 옵션 변경 시 최종 금액 업데이트
-            document.querySelectorAll('.packaging-select').forEach(select => {
-                select.addEventListener('change', function () {
-                    updateFinalAmount();
+            const packagingSelects = document.querySelectorAll('.packaging-select');
+            if (packagingSelects.length > 0) {
+                packagingSelects.forEach(select => {
+                    select.addEventListener('change', function () {
+                        updateFinalAmount();
+                    });
                 });
-            });
+            }
 
             // 포인트 사용
-            document.getElementById('usePoints').addEventListener('input', function() {
-                let inputVal = parseInt(this.value) || 0;
+            const pointInput = document.getElementById('usePoints');
+            if (pointInput) {
+                pointInput.addEventListener('input', function() {
+                    let inputVal = parseInt(this.value) || 0;
 
-                let currentPayableAmount = initialTotalPrice + totalPackagingCost + totalDeliveryCost - currentCouponDiscount;
-                if (currentPayableAmount < 0) currentPayableAmount = 0;
-                let realMaxLimit = Math.min(userHeldPoints, currentPayableAmount);
+                    let currentPayable = initialTotalPrice + totalPackagingCost + totalDeliveryCost - currentCouponDiscount;
+                    if (currentPayable < 0) currentPayable = 0;
 
-                if (inputVal > realMaxLimit) {
-                    alert("보유 포인트를 초과하여 사용할 수 없습니다.");
-                    this.value = realMaxLimit;
-                }
-
-                updateFinalAmount();
-            });
+                    let realMax = Math.min(userHeldPoints, currentPayable);
+                    if (inputVal > realMax) {
+                        this.value = realMax;
+                    }
+                    updateFinalAmount();
+                });
+            }
 
             // 포인트 전액 사용 버튼
             const pointBtn = document.querySelector('.input-group-append button');
             if(pointBtn) {
                 pointBtn.addEventListener('click', function() {
                     // 상품금액 + 포장비 + 배송비 - 쿠폰할인
-                    let currentCost = initialTotalPrice + totalPackagingCost + totalDeliveryCost - currentCouponDiscount;
-                    document.getElementById('usePoints').value = Math.min(userHeldPoints, currentCost);
-
+                    let currentPayable = initialTotalPrice + totalPackagingCost + totalDeliveryCost - currentCouponDiscount;
+                    if (currentPayable < 0) currentPayable = 0;
+                    document.getElementById('usePoints').value = Math.min(userHeldPoints, currentPayable);
                     updateFinalAmount();
                 });
             }
+
+            // 배송지 모달
+            document.querySelectorAll('.address-select-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const roadAddress = this.getAttribute('data-roadname');
+                    const zipCode = this.getAttribute('data-zipcode');
+                    const addressDetail = this.getAttribute('data-detail');
+
+                    document.getElementById("roadAddrPart1").value = roadAddress;
+                    document.getElementById("addrDetail").value = addressDetail;
+                    document.getElementById("zipNo").value = zipCode;
+                });
+            });
 
             updateFinalAmount();
 
@@ -615,10 +659,10 @@
                 orderData.orderItems = orderItems;
 
 
-                fetch("/api/v1/orders", {
+                fetch("/orders", {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify(orderData)
                 })
@@ -647,6 +691,6 @@
         });
 
     </script>
-</div>
+    </div>
 </body>
 </html>

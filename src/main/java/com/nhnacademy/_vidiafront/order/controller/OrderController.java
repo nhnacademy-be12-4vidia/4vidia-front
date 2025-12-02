@@ -60,7 +60,8 @@ public class OrderController {
             userId = guestId;
 
         } else { // 회원일 경우
-            userId = memberId;
+            //userId = memberId;
+            userId = 8L;
             UserProfileResponse userProfile = userApiClient.getUserProfile();
             //TODO 유저의 주소목록 가져오기
 

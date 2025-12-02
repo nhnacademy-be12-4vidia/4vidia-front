@@ -102,10 +102,12 @@
                                                 </button>
                                             </form>
 
-                                            <form th:action="@{/order/buy-now}" method="post">
+                                            <form th:action="@{/orders}" method="get">
+                                                <input type="hidden" name="direct" value="true">
                                                 <input type="hidden" name="bookId" th:value="${item.bookId()}">
+                                                <input type="hidden" name="quantity" th:value="${1}">
                                                 <button class="btn btn-secondary">
-                                                    바로 구매 (프론트에 추가 됨??)
+                                                    바로 구매
                                                 </button>
                                             </form>
                                         </div>

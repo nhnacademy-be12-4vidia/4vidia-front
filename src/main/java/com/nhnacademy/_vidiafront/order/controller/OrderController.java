@@ -6,7 +6,6 @@ import com.nhnacademy._vidiafront.order.dto.order.response.DeliveryDateResponse;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderResponse;
 import com.nhnacademy._vidiafront.order.dto.packaging.response.PackagingOptionResponse;
 import com.nhnacademy._vidiafront.order.dto.payment.requset.PaymentConfirmRequest;
-import com.nhnacademy._vidiafront.user.client.AddressApiClient;
 import com.nhnacademy._vidiafront.user.client.UserApiClient;
 import com.nhnacademy._vidiafront.user.dto.user.response.UserProfileResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -61,7 +60,8 @@ public class OrderController {
             userId = guestId;
 
         } else { // 회원일 경우
-            userId = memberId;
+            //userId = memberId;
+            userId = 8L;
             UserProfileResponse userProfile = userApiClient.getUserProfile();
             //TODO 유저의 주소목록 가져오기
 

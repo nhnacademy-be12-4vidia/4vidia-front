@@ -2,6 +2,7 @@ package com.nhnacademy._vidiafront.order.config;
 
 import com.nhnacademy._vidiafront.global.exception.ApiRequestException;
 import com.nhnacademy._vidiafront.order.dto.order.response.DeliveryDateResponse;
+import com.nhnacademy._vidiafront.order.dto.order.response.OrderPreviewResponse;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderResponse;
 import com.nhnacademy._vidiafront.order.dto.packaging.response.PackagingOptionResponse;
 import lombok.RequiredArgsConstructor;
@@ -69,6 +70,24 @@ public class OrderApiClient {
             throw new ApiRequestException("api DeliveryDate 가져오기 실패" + e.getMessage());
         }
         return deliveryDates;
+    }
+
+    //주문내역 미리보기
+    public List<OrderPreviewResponse> getOrderPreview(String userId) {
+        ParameterizedTypeReference<List<OrderPreviewResponse>> typeReference =
+                new ParameterizedTypeReference<List<OrderPreviewResponse>>() {};
+
+        List<OrderPreviewResponse> orderPreviewResponses;
+        try {
+            orderPreviewResponses = restClient.get()
+                    .uri(ORDER_SERVICE + "/orders")
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .body(typeReference);
+        } catch (RestClientException e) {
+            throw new ApiRequestException("api OrderPreviewResponse 가져오기 실패" + e.getMessage());
+        }
+        return orderPreviewResponses;
     }
 
 

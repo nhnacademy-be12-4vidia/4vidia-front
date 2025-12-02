@@ -6,6 +6,7 @@ import com.nhnacademy._vidiafront.order.dto.order.response.DeliveryDateResponse;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderResponse;
 import com.nhnacademy._vidiafront.order.dto.packaging.response.PackagingOptionResponse;
 import com.nhnacademy._vidiafront.order.dto.payment.requset.PaymentConfirmRequest;
+import com.nhnacademy._vidiafront.user.client.AddressApiClient;
 import com.nhnacademy._vidiafront.user.client.UserApiClient;
 import com.nhnacademy._vidiafront.user.dto.address.response.AddressResponse;
 import com.nhnacademy._vidiafront.user.dto.user.response.UserProfileResponse;
@@ -62,7 +63,8 @@ public class OrderController {
 
         } else { // 회원일 경우
             //userId = memberId;
-            userId = 8L;
+            userId = 1L; //임시데이터
+
             UserProfileResponse userProfile = userApiClient.getUserProfile();
 
             List<AddressResponse> addressResponses = addressApiClient.getAddresseList();
@@ -181,8 +183,8 @@ public class OrderController {
 
     @GetMapping("/{id}/success")
     public String handlePaymentSuccess(@RequestParam String paymentKey,
-                                      @RequestParam String orderId,
-                                      @RequestParam int amount,
+                                       @RequestParam String orderId,
+                                       @RequestParam int amount,
                                        @PathVariable long id) {
 
         PaymentConfirmRequest confirmRequest = new PaymentConfirmRequest(paymentKey, orderId, amount);

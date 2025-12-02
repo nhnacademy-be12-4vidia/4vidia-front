@@ -2,7 +2,9 @@ package com.nhnacademy._vidiafront.order.controller;
 
 import com.nhnacademy._vidiafront.order.config.OrderApiClient;
 import com.nhnacademy._vidiafront.order.config.PaymentApiClient;
+import com.nhnacademy._vidiafront.order.dto.order.request.OrderCreateRequest;
 import com.nhnacademy._vidiafront.order.dto.order.response.DeliveryDateResponse;
+import com.nhnacademy._vidiafront.order.dto.order.response.OrderCreateResponse;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderResponse;
 import com.nhnacademy._vidiafront.order.dto.packaging.response.PackagingOptionResponse;
 import com.nhnacademy._vidiafront.order.dto.payment.requset.PaymentConfirmRequest;
@@ -13,6 +15,7 @@ import com.nhnacademy._vidiafront.user.dto.user.response.UserProfileResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -58,7 +61,8 @@ public class OrderController {
                                 @RequestParam Boolean direct, // 바로 주문인지 장바구니에서 오는지
                                 Model model) {
         Long userId = null;
-        if (memberId == null) { // 비회원일 경우
+//        if (memberId == null) { // 비회원일 경우
+        if (memberId != null) { // 임시 데이터 삭제 예정
             userId = guestId;
 
         } else { // 회원일 경우
@@ -135,14 +139,21 @@ public class OrderController {
         List<PackagingOptionResponse> packagingOptions = orderApiClient.getPackagingOptions();
         List<DeliveryDateResponse> deliveryDateResponses = orderApiClient.getDeliveryDates();
 
-        model.addAttribute("finalAmount", finalAmount);
+        model.addAttribute("finalAmount", finalAmount); //null값??? 또는 html 확인
         model.addAttribute("cartItems", cartItems);
         model.addAttribute("orderName", orderName);
         model.addAttribute("packagingOptions", packagingOptions);
-        model.addAttribute("deliveryDateResponses", deliveryDateResponses);
+        model.addAttribute("deliveryDates", deliveryDateResponses);
 
 
         return "order/order";
+    }
+
+    @PostMapping
+    public ResponseEntity<OrderCreateResponse> createOrder(@RequestBody OrderCreateRequest orderCreateRequest) {
+        OrderCreateResponse orderId = orderApiClient.saveOrder(orderCreateRequest);
+
+        return ResponseEntity.ok(orderId);
     }
 
     @GetMapping("/toss-prepare")

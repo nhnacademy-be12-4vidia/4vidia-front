@@ -1,7 +1,9 @@
 package com.nhnacademy._vidiafront.order.config;
 
 import com.nhnacademy._vidiafront.global.exception.ApiRequestException;
+import com.nhnacademy._vidiafront.order.dto.order.request.OrderCreateRequest;
 import com.nhnacademy._vidiafront.order.dto.order.response.DeliveryDateResponse;
+import com.nhnacademy._vidiafront.order.dto.order.response.OrderCreateResponse;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderPreviewResponse;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderResponse;
 import com.nhnacademy._vidiafront.order.dto.packaging.response.PackagingOptionResponse;
@@ -66,7 +68,7 @@ public class OrderApiClient {
         List<DeliveryDateResponse> deliveryDates;
         try {
             deliveryDates = restClient.get()
-                    .uri(ORDER_SERVICE + "/delivery-dates")
+                    .uri(ORDER_SERVICE + "/orders/delivery-dates")
                     .accept(MediaType.APPLICATION_JSON)
                     .header("X-User-Id", TEST_ID) //
                     .retrieve()
@@ -95,6 +97,25 @@ public class OrderApiClient {
         }
         return orderPreviewResponses;
     }
+
+
+    public OrderCreateResponse saveOrder(OrderCreateRequest orderCreateRequest) {
+
+        OrderCreateResponse orderId;
+        try {
+            orderId = restClient.post()
+                    .uri(ORDER_SERVICE + "/orders")
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header("X-User-Id", TEST_ID) //
+                    .body(orderCreateRequest)
+                    .retrieve()
+                    .body(OrderCreateResponse.class);
+        } catch (RestClientException e) {
+            throw new ApiRequestException("api Order 저장 실패" + e.getMessage());
+        }
+        return orderId;
+    }
+
 
 
 

@@ -6,6 +6,4 @@ public record AddressResponse(
     String roadAddress,
     String zipCode,
     String addressDetail
-)
-{
-}
+) { }

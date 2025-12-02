@@ -2,6 +2,7 @@ package com.nhnacademy._vidiafront.order.config;
 
 import com.nhnacademy._vidiafront.global.exception.ApiRequestException;
 import com.nhnacademy._vidiafront.order.dto.order.response.DeliveryDateResponse;
+import com.nhnacademy._vidiafront.order.dto.order.response.OrderPreviewResponse;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderResponse;
 import com.nhnacademy._vidiafront.order.dto.packaging.response.PackagingOptionResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,8 @@ public class OrderApiClient {
     private final RestClient restClient;
     private static final String ORDER_SERVICE = "/api/v1/order-service";
 
+    private static final String TEST_ID = "1";
+
     // PackagingOption 종류 가져오기
     public List<PackagingOptionResponse> getPackagingOptions() {
         ParameterizedTypeReference<List<PackagingOptionResponse>> typeReference =
@@ -29,6 +32,7 @@ public class OrderApiClient {
             packagingOptions = restClient.get()
                     .uri(ORDER_SERVICE + "/packaging-options")
                     .accept(MediaType.APPLICATION_JSON)
+                    .header("X-User-Id", TEST_ID) //
                     .retrieve()
                     .body(typeReference);
         } catch (RestClientException e) {
@@ -45,6 +49,7 @@ public class OrderApiClient {
             order = restClient.get()
                     .uri(ORDER_SERVICE + "/orders/{orderId}", orderId)
                     .accept(MediaType.APPLICATION_JSON)
+                    .header("X-User-Id", TEST_ID) //
                     .retrieve()
                     .body(OrderResponse.class);
         } catch (RestClientException e) {
@@ -63,12 +68,32 @@ public class OrderApiClient {
             deliveryDates = restClient.get()
                     .uri(ORDER_SERVICE + "/delivery-dates")
                     .accept(MediaType.APPLICATION_JSON)
+                    .header("X-User-Id", TEST_ID) //
                     .retrieve()
                     .body(typeReference);
         } catch (RestClientException e) {
             throw new ApiRequestException("api DeliveryDate 가져오기 실패" + e.getMessage());
         }
         return deliveryDates;
+    }
+
+    //주문내역 미리보기
+    public List<OrderPreviewResponse> getOrderPreview(String userId) {
+        ParameterizedTypeReference<List<OrderPreviewResponse>> typeReference =
+                new ParameterizedTypeReference<List<OrderPreviewResponse>>() {};
+
+        List<OrderPreviewResponse> orderPreviewResponses;
+        try {
+            orderPreviewResponses = restClient.get()
+                    .uri(ORDER_SERVICE + "/orders")
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header("X-User-Id", TEST_ID) //
+                    .retrieve()
+                    .body(typeReference);
+        } catch (RestClientException e) {
+            throw new ApiRequestException("api OrderPreviewResponse 가져오기 실패" + e.getMessage());
+        }
+        return orderPreviewResponses;
     }
 
 

@@ -14,12 +14,15 @@ public class PaymentApiClient {
     private final RestClient restClient;
     private static final String ORDER_SERVICE = "/api/v1/order-service";
 
+    private static final String TEST_ID = "1";
+
     // 결제 확정 및 결제 저장
     public void confirmPayment(PaymentConfirmRequest confirmRequest, long id) {
         try {
             restClient.post()
                     .uri(ORDER_SERVICE + "/orders/{orderId}/success", id)
                     .accept(MediaType.APPLICATION_JSON)
+                    .header("X-User-Id", TEST_ID) //
                     .body(confirmRequest)
                     .retrieve()
                     .toBodilessEntity();

@@ -8,6 +8,7 @@ import com.nhnacademy._vidiafront.order.dto.packaging.response.PackagingOptionRe
 import com.nhnacademy._vidiafront.order.dto.payment.requset.PaymentConfirmRequest;
 import com.nhnacademy._vidiafront.user.client.AddressApiClient;
 import com.nhnacademy._vidiafront.user.client.UserApiClient;
+import com.nhnacademy._vidiafront.user.dto.address.response.AddressResponse;
 import com.nhnacademy._vidiafront.user.dto.user.response.UserProfileResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ public class OrderController {
     private final OrderApiClient orderApiClient;
     private final UserApiClient userApiClient;
     private final PaymentApiClient paymentApiClient;
-    //private final AddressApiClient addressApiClient;
+    private final AddressApiClient addressApiClient;
 
     @Value("${toss.clientKey}")
     private String TOSS_CLIENT_KEY;
@@ -54,21 +55,24 @@ public class OrderController {
     @GetMapping
     public String showOrderPage(@RequestHeader(value = "X-User-Id", required = false) Long memberId,
                                 @RequestHeader(value = "X-Guest-Id", required = false) Long guestId,
-                                @PathVariable Boolean direct, // 바로 주문인지 장바구니에서 오는지
+                                @RequestParam Boolean direct, // 바로 주문인지 장바구니에서 오는지
                                 Model model) {
         Long userId = null;
         if (memberId == null) { // 비회원일 경우
             userId = guestId;
 
         } else { // 회원일 경우
-            userId = memberId;
+            //userId = memberId;
+            userId = 1L; //임시데이터
+
             UserProfileResponse userProfile = userApiClient.getUserProfile();
-            //TODO 유저의 주소목록 가져오기
+
+            List<AddressResponse> addressResponses = addressApiClient.getAddresseList();
 
             model.addAttribute("ordererName", userProfile.name());
             model.addAttribute("ordererEmail", userProfile.email());
             model.addAttribute("ordererPhone", userProfile.phone());
-            model.addAttribute("addressList", new ArrayList<>());
+            model.addAttribute("addressList", addressResponses);
             model.addAttribute("points", userProfile.point());
 
             //TODO 유저의 보유쿠폰 리스트 (적용가능한것과 불가능한것 리스트)

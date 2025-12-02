@@ -49,7 +49,7 @@ public class AuthController {
     //아이디 찾기
     @GetMapping("/find-id")
     public String findIdPage(Model model) {
-        return "/auth/find-id";
+        return "auth/find-id";
     }
 
     @PostMapping("/find-id")
@@ -76,7 +76,7 @@ public class AuthController {
     //비밀번호 찾기
     @GetMapping("/find-password")
     public String findPasswordPage() {
-        return "/auth/find-password";
+        return "auth/find-password";
     }
 
     @PostMapping("/find-password")

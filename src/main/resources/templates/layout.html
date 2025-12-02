@@ -44,7 +44,7 @@
                     <a class="collapse-item" th:href="@{/mypage/profile}" th:classappend="${currentUri == '/mypage/profile' ? 'active' : ''}">회원정보</a>
                     <a class="collapse-item" th:href="@{/mypage/address}" th:classappend="${currentUri == '/mypage/address' ? 'active' : ''}">회원주소 관리</a>
                     <a class="collapse-item" th:href="@{/mypage/order}" th:classappend="${currentUri == '/mypage/order' ? 'active' : ''}">주문 관리</a>
-<!--                    <a class="collapse-item" th:href="@{/mypage/returns}" th:classappend="${currentUri == '/mypage/orders' ? 'active' : ''}">반품 관리</a>-->
+                    <a class="collapse-item" th:href="@{/mypage/point}" th:classappend="${currentUri == '/mypage/point' ? 'active' : ''}">포인트 내역</a>
                     <a class="collapse-item" th:href="@{/mypage/like}" th:classappend="${currentUri == '/mypage/like' ? 'active' : ''}">좋아요 리스트</a>
                     <a class="collapse-item" th:href="@{/mypage/deactivate}" th:classappend="${currentUri == '/mypage/deactivate' ? 'active' : ''}">회원 탈퇴</a>
                 </div>
@@ -167,6 +167,6 @@
 <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/vendor/jquery-easing/jquery.easing.min.js}"></script>
 <script th:src="@{/js/sb-admin-2.min.js}"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

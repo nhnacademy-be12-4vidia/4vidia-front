@@ -27,22 +27,22 @@
                     <span class="text-gray-400">|</span>
                 </div>
 
-                <span th:classappend="${order.deliveryStatus() == 'DELIVERED' ? 'text-success bg-success-light' :
-                                                (order.deliveryStatus() == 'SHIPPING' ? 'text-info bg-info-light' :
-                                                (order.deliveryStatus() == 'WAITING' ? 'text-warning bg-warning-light' :
+                <span th:classappend="${order.deliveryStatus().name() == 'DELIVERED' ? 'text-success bg-success-light' :
+                                                (order.deliveryStatus().name() == 'SHIPPING' ? 'text-info bg-info-light' :
+                                                (order.deliveryStatus().name() == 'WAITING' ? 'text-warning bg-warning-light' :
                                                 'text-secondary bg-secondary-light'))}"
                       class="px-3 py-1 rounded-pill small font-weight-bold d-inline-flex align-items-center"
                       style="--bs-bg-opacity: .1; padding: .25rem .75rem;">
 
-                            <i th:classappend="${order.deliveryStatus() == 'DELIVERED' ? 'fa-check-circle text-success' :
-                                               (order.deliveryStatus() == 'SHIPPING' ? 'fa-truck text-info' :
-                                               (order.deliveryStatus() == 'WAITING' ? 'fa-box-open text-warning' :
+                            <i th:classappend="${order.deliveryStatus().name() == 'DELIVERED' ? 'fa-check-circle text-success' :
+                                               (order.deliveryStatus().name() == 'SHIPPING' ? 'fa-truck text-info' :
+                                               (order.deliveryStatus().name() == 'WAITING' ? 'fa-box-open text-warning' :
                                                'fa-box text-secondary'))}"
                                class="fas fa-sm mr-2"></i>
 
-                            <span th:text="${order.deliveryStatus() == 'DELIVERED' ? '배송 완료' :
-                                            (order.deliveryStatus() == 'SHIPPING' ? '배송 중' :
-                                            (order.deliveryStatus() == 'WAITING' ? '배송 준비중' : '취소됨'))}">
+                            <span th:text="${order.deliveryStatus().name() == 'DELIVERED' ? '배송 완료' :
+                                            (order.deliveryStatus().name() == 'SHIPPING' ? '배송 중' :
+                                            (order.deliveryStatus().name() == 'WAITING' ? '배송 준비중' : '취소됨'))}">
                             </span>
                         </span>
             </div>
@@ -71,7 +71,7 @@
                     주문 상세
                 </a>
 
-                <button th:if="${order.deliveryStatus() == 'DELIVERED'}"
+                <button th:if="${order.deliveryStatus().name() == 'DELIVERED'}"
                         class="btn btn-primary text-white flex-grow-1" style="flex: 1;">
                     리뷰 작성
                 </button>

@@ -60,16 +60,26 @@
                                     </button>
                                     <hr>
                                 </form>
-                                <hr>
                                 <div th:if="${param.error == 'dormant'}" class="alert alert-warning">
                                     휴면 계정입니다. 인증 후 이용해주세요.
                                 </div>
 
-                                <!--                                    <div class="text-center">-->
-                                <!--                                        <a class="small" href="../../../../../../Downloads/startbootstrap-sb-admin-2-gh-pages/forgot-password.html">Forgot Password?</a>-->
-                                <!--                                    </div>-->
-                                <div class="text-center">
-                                    <a class="small" href="/auth/signup">Create an Account!</a>
+                                <style>
+                                    .login-links a {
+                                        color: #4e73df;
+                                        font-size: 0.85rem;
+                                        text-decoration: none;
+                                        font-weight: 500;
+                                    }
+                                    .login-links a:hover {
+                                        text-decoration: underline;
+                                    }
+                                </style>
+
+                                <div class="text-center mt-4 login-links">
+                                    <a href="/auth/find-id" class="small mx-2">아이디 찾기</a> |
+                                    <a href="/auth/find-password" class="small mx-2">비밀번호 찾기</a> |
+                                    <a href="/auth/signup" class="small mx-2">회원가입</a>
                                 </div>
                             </div>
                         </div>

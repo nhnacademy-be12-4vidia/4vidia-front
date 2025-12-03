@@ -1,5 +1,6 @@
 package com.nhnacademy._vidiafront.order.config;
 
+import com.nhnacademy._vidiafront.order.dto.payment.requset.PaymentCancelRequest;
 import com.nhnacademy._vidiafront.order.dto.payment.requset.PaymentConfirmRequest;
 import com.nhnacademy._vidiafront.order.exception.ApiPaymentException;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,21 @@ public class PaymentApiClient {
                     .toBodilessEntity();
         } catch (RestClientException e) {
             throw new ApiPaymentException("api 결제 확정 및 저장 실패" + e.getMessage());
+        }
+    }
+
+    //TODO 결제 취소(부분반품)인데 배송 전 전체 취소만 해당 - 출고일 이후는 포인트로 돌려줌
+    public void cancelPayment(PaymentCancelRequest cancelRequest, long orderId) {
+        try {
+            restClient.post()
+                    .uri(ORDER_SERVICE + "/orders/{orderId}/cancel", orderId)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header("X-User-Id", TEST_ID) //
+                    .body(cancelRequest)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (RestClientException e) {
+            throw new ApiPaymentException("api 결제 취소 실패" + e.getMessage());
         }
     }
 

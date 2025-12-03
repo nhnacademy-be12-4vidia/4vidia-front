@@ -24,14 +24,16 @@ public record OrderResponse(
         LocalDate actualDeliveryDate, //null값 가져올수도있음
         int totalPrice,
         int payPrice,
-        List<OrderItemResponse> orderItems
+        List<OrderBookResponse> orderItems
 ) {
-    public record OrderItemResponse(
+    public record OrderBookResponse(
             Long orderItemId,
             Long bookId,
+            String bookTitle,
+            String bookAuthor,
+            String bookImageUrl,
             Integer quantity,
             Integer salePrice,
             ConfirmStatus confirmStatus
     ) { }
-
 }

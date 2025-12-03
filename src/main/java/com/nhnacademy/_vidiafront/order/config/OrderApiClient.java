@@ -1,7 +1,6 @@
 package com.nhnacademy._vidiafront.order.config;
 
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
-import com.nhnacademy._vidiafront.global.exception.ApiRequestException;
 import com.nhnacademy._vidiafront.order.dto.order.request.OrderCreateRequest;
 import com.nhnacademy._vidiafront.order.dto.order.response.DeliveryDateResponse;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderCreateResponse;
@@ -10,10 +9,8 @@ import com.nhnacademy._vidiafront.order.dto.order.response.OrderResponse;
 import com.nhnacademy._vidiafront.order.dto.packaging.response.PackagingOptionResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
 
 import java.util.List;
 
@@ -23,8 +20,6 @@ public class OrderApiClient {
     private final RestClient restClient;
     private static final String ORDER_SERVICE = "/api/v1/order-service";
     private final BackendApiClient backendApiClient;
-
-    private static final String TEST_ID = "1";
 
     // PackagingOption 종류 가져오기
     public List<PackagingOptionResponse> getPackagingOptions() {

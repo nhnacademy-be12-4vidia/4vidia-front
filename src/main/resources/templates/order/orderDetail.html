@@ -3,55 +3,175 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout.html}">
 <head>
-    <title>결제 성공</title>
-    <script src="https://js.tosspayments.com/v2/standard"></script>
-    <link rel="icon" href="https://static.toss.im/icons/png/4x/icon-toss-logo.png" />
+    <title>주문 상세 내역</title>
 </head>
-<!-- TODO 일단 데이터 확인을 위한 페이지 - 실제 구현시 수정 필요 -->
 <body>
 <div layout:fragment="content">
 
     <div class="container-fluid">
 
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">결제 완료</h1>
+            <h1 class="h3 mb-0 text-gray-800">주문 상세 내역</h1>
+            <a href="/" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+                <i class="fas fa-arrow-left fa-sm text-white-50"></i> 홈으로
+            </a>
         </div>
 
-        <div class="box_section" style="width: 600px">
-            <img width="100px" src="https://static.toss.im/illusts/check-blue-spot-ending-frame.png" />
-            <h2>결제를 완료했어요</h2>
+        <div class="row" th:if="${order != null}">
 
-            <div class="p-grid typography--p" style="margin-top: 50px">
-                <div class="p-grid-col text--left"><b>결제금액</b></div>
-                <div class="p-grid-col text--right" id="amountDisplay"></div>
-                <div class="p-grid-col text--right" th:text="${order.payPrice} + '원'"></div>
+            <div class="col-lg-8">
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            주문 번호: <span th:text="${order.orderId}">1001</span>
+                        </h6>
+                        <span class="badge badge-primary px-3 py-2"
+                              style="font-size: 0.9rem;"
+                              th:text="${order.deliveryStatus}">배송 준비중</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3 text-xs text-gray-600 font-weight-bold">
+                            주문 일시: <span th:text="${#temporals.format(order.createdAt, 'yyyy-MM-dd HH:mm:ss')}">2025-12-03 10:00:00</span>
+                        </div>
+                        <hr>
+
+                        <div th:each="item : ${order.orderItems}" class="row mb-4 border-bottom pb-4 align-items-center">
+
+                            <div class="col-md-2 text-center">
+                                <img th:if="${item.bookImageUrl != null}"
+                                     th:src="${item.bookImageUrl}"
+                                     class="img-fluid rounded border"
+                                     alt="Book Cover" style="max-height: 100px;">
+                                <div th:unless="${item.bookImageUrl != null}" class="bg-light rounded p-3">
+                                    <i class="fas fa-book fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+
+                            <div class="col-md-7">
+                                <h5 class="font-weight-bold text-dark mb-1">
+                                    <a href="#" th:text="${item.bookTitle}" class="text-dark text-decoration-none">책 제목</a>
+                                </h5>
+                                <p class="text-sm text-gray-600 mb-2">
+                                    <span th:text="${item.bookAuthor}">저자명</span>
+                                </p>
+
+                                <p class="mb-2">
+                                    <span class="badge badge-light border text-gray-600" th:text="${item.confirmStatus}">구매확정</span>
+                                </p>
+
+                                <div class="d-flex align-items-center">
+                                    <span class="font-weight-bold mr-2"
+                                          th:text="|₩${#numbers.formatInteger(item.salePrice, 0, 'COMMA')}|">₩35,000</span>
+                                    <span class="text-xs text-gray-600" th:text="|x ${item.quantity}권|">x 1권</span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3 text-right">
+                                <small class="text-muted">상품 소계</small><br>
+                                <span class="font-weight-bold text-dark h5"
+                                      th:text="|₩${#numbers.formatInteger(item.salePrice * item.quantity, 0, 'COMMA')}|">
+                                    ₩35,000
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">배송 정보</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-3 font-weight-bold text-gray-700">받는 분</div>
+                            <div class="col-md-9" th:text="${order.recipientName}">홍길동</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-3 font-weight-bold text-gray-700">연락처</div>
+                            <div class="col-md-9" th:text="${order.recipientPhone}">010-1234-5678</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-3 font-weight-bold text-gray-700">주소</div>
+                            <div class="col-md-9">
+                                (<span th:text="${order.zipCode}">12345</span>)<br>
+                                <span th:text="${order.addressRoadname}">도로명 주소</span><br>
+                                <span th:text="${order.addressDetail}">상세 주소</span>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row mb-3">
+                            <div class="col-md-3 font-weight-bold text-gray-700">희망 도착일</div>
+                            <div class="col-md-9" th:text="${order.deliveryDate}">2025-12-05</div>
+                        </div>
+                        <div class="row mb-3" th:if="${order.actualDeliveryDate != null}">
+                            <div class="col-md-3 font-weight-bold text-primary">실제 도착일</div>
+                            <div class="col-md-9 text-primary font-weight-bold" th:text="${order.actualDeliveryDate}">2025-12-05</div>
+                        </div>
+                        <div class="row mb-0">
+                            <div class="col-md-3 font-weight-bold text-gray-700">배송 요청사항</div>
+                            <div class="col-md-9 text-gray-600" th:text="${order.deliveryRequest}">없음</div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-            <div class="p-grid typography--p" style="margin-top: 10px">
-                <div class="p-grid-col text--left"><b>주문번호</b></div>
-                <div class="p-grid-col text--right" id="orderIdDisplay"></div>
-                <div class="p-grid-col text--right" th:text="${order.orderId}"></div>
+
+            <div class="col-lg-4">
+                <div class="card shadow mb-4 sticky-top" style="top: 20px; z-index: 1;">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">결제 요약</h6>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-gray-700">총 상품 금액</span>
+                            <span class="font-weight-bold"
+                                  th:text="|₩${#numbers.formatInteger(order.totalPrice, 0, 'COMMA')}|">₩35,000</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-2"
+                             th:with="calcDeliveryCost=${order.payPrice - order.totalPrice + order.pointUsed + order.couponDiscount}">
+                            <span class="text-gray-700">배송비 (+포장비)</span>
+                            <span class="font-weight-bold"
+                                  th:text="|+₩${#numbers.formatInteger(calcDeliveryCost, 0, 'COMMA')}|">₩3,000</span>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-gray-700">포인트 사용</span>
+                            <span class="font-weight-bold text-danger"
+                                  th:text="|-₩${#numbers.formatInteger(order.pointUsed, 0, 'COMMA')}|">-₩0</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-gray-700">쿠폰 할인</span>
+                            <span class="font-weight-bold text-danger"
+                                  th:text="|-₩${#numbers.formatInteger(order.couponDiscount, 0, 'COMMA')}|">-₩0</span>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="h5 font-weight-bold text-dark">최종 결제 금액</span>
+                            <span class="h4 font-weight-bold text-primary"
+                                  th:text="|₩${#numbers.formatInteger(order.payPrice, 0, 'COMMA')}|">₩30,000</span>
+                        </div>
+
+                    </div>
+                </div>
             </div>
-            <div class="p-grid" style="margin-top: 30px">
-                <button class="button p-grid-col5" onclick="location.href='/';">홈으로</button> <!-- TODO 홈페이지 주소 -->
-            </div>
+
+        </div> <div th:if="${order == null}" class="text-center py-5">
+        <div class="mb-4">
+            <i class="fas fa-exclamation-circle fa-4x text-gray-300"></i>
         </div>
-
-        <div class="box_section" style="width: 600px; text-align: left; margin-top: 20px;">
-            <b>Response Data (JSON):</b> <!-- 주문 내역 가져와서 보여주기 -->
-            <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin-top: 5px;">
-                <pre id="response" style="white-space: pre-wrap; margin: 0;"></pre>
-            </div>
-        </div>
-
-        <script th:inline="javascript"> //TODO 확인용. 완성되면 지우기
-            /* Thymeleaf가 서버의 객체를 자바스크립트 변수로 변환해줍니다 */
-            const orderData = /*[[${order}]]*/ {};
-
-            // 객체를 예쁜 JSON 문자열로 변환하여 화면에 출력
-            document.getElementById("response").textContent = JSON.stringify(orderData, null, 4);
-        </script>
+        <h3 class="text-gray-800 font-weight-bold">주문 정보를 불러올 수 없습니다.</h3>
+        <p class="text-gray-600 mb-4">존재하지 않는 주문이거나 접근 권한이 없습니다.</p>
+        <a href="/" class="btn btn-primary">메인으로 돌아가기</a>
     </div>
 
+    </div>
 </div>
 </body>
 </html>

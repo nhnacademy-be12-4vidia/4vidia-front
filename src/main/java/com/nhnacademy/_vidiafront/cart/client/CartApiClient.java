@@ -1,5 +1,6 @@
 package com.nhnacademy._vidiafront.cart.client;
 
+import com.nhnacademy._vidiafront.cart.dto.request.AddCartItemRequest;
 import com.nhnacademy._vidiafront.cart.dto.request.CartUpdateBookRequest;
 import com.nhnacademy._vidiafront.cart.dto.response.CartResponse;
 import com.nhnacademy._vidiafront.cart.dto.response.CartUpdateBookResponse;
@@ -63,4 +64,12 @@ public class CartApiClient {
     public String deleteGuestCart(){
         return backendApiClient.delete(CART_SERVICE + "/guest", String.class);
     }
+
+    /**
+     * 장바구니에 아이템 담기
+     */
+    public AddCartItemRequest addItem(AddCartItemRequest addCartItemRequest) {
+        return backendApiClient.post(CART_SERVICE + "/cart/items", addCartItemRequest, AddCartItemRequest.class);
+    }
+
 }

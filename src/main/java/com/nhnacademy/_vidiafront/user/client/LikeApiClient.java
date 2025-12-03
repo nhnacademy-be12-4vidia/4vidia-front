@@ -1,5 +1,6 @@
 package com.nhnacademy._vidiafront.user.client;
 
+import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.user.dto.like.response.LikeResponse;
 import com.nhnacademy._vidiafront.user.dto.user.request.UserSignupRequest;
 import lombok.RequiredArgsConstructor;
@@ -13,8 +14,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class LikeApiClient {
-    private final RestClient restClient;
-
+    private final BackendApiClient backendApiClient;
     private static final String USER_SERVICE = "/api/v1/user-service";
 
     // 테스트용
@@ -26,36 +26,21 @@ public class LikeApiClient {
      * GET 좋아요 리스트 조회
      * */
     public List<LikeResponse> getLikeList() {
-        return restClient.get()
-                .uri(USER_SERVICE + "/my/likes")
-                .accept(MediaType.APPLICATION_JSON)
-                .header(X_USER_ID, String.valueOf(TEST_ID))
-                .retrieve()
-                .body(new ParameterizedTypeReference<>() {});
+        return backendApiClient.get(USER_SERVICE + "/my/likes", new ParameterizedTypeReference<>() {});
     }
 
     /**
      * POST 좋아요 등록
      */
-    public void addLike(Long bookId) {
-        restClient.post()
-                .uri(USER_SERVICE + "/my/likes/" + bookId)
-                .header(X_USER_ID, String.valueOf(TEST_ID))
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .toBodilessEntity();
-    }
+//    public void addLike(Long bookId) {
+//        return backendApiClient.post()
+//    }
 
     /**
      * DELETE 좋아요 삭제
      */
-    public void deleteLike(Long bookId) {
-        restClient.delete()
-                .uri(USER_SERVICE + "/my/likes/" + bookId)
-                .header(X_USER_ID, String.valueOf(TEST_ID))
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .toBodilessEntity();
+    public Void deleteLike(Long bookId) {
+        return backendApiClient.delete(USER_SERVICE + "/my/likes/" + bookId, Void.class);
     }
 
 

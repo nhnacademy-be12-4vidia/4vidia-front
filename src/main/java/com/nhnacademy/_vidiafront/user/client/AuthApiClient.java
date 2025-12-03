@@ -1,54 +1,53 @@
 package com.nhnacademy._vidiafront.user.client;
 
+import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.user.dto.auth.request.FindIdRequest;
 import com.nhnacademy._vidiafront.user.dto.auth.request.FindPasswordRequest;
+import com.nhnacademy._vidiafront.user.dto.auth.request.LoginRequest;
+import com.nhnacademy._vidiafront.user.dto.auth.response.TokenResponse;
 import com.nhnacademy._vidiafront.user.dto.user.request.UserSignupRequest;
+import com.nhnacademy._vidiafront.user.dto.user.response.UserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 @Component
 @RequiredArgsConstructor
 public class AuthApiClient {
-    private final RestClient restClient;
+    private final BackendApiClient backendApiClient;
 
     private static final String USER_SERVICE = "/api/v1/user-service";
+    private static final String AUTH = "/api/v1/auth";
 
     /**
      * POST 회원가입
-     * */
+     *
+     */
     public Void signup(UserSignupRequest userSignupRequest) {
-        return restClient.post()
-                .uri(USER_SERVICE + "/auth/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(userSignupRequest)
-                .retrieve()
-                .body(Void.class);
+        return backendApiClient.post(USER_SERVICE + "/auth/signup", userSignupRequest, Void.class);
     }
 
     /**
      * 회원 아이디(email) 찾기
      */
     public String findUserId(FindIdRequest findIdRequest) {
-        return restClient.post()
-                .uri("/auth/find-id")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(findIdRequest)
-                .retrieve()
-                .body(String.class);
+        return backendApiClient.post("/auth/find-id", findIdRequest, String.class);
     }
 
     /**
      * 회원 비밀번호 찾기
      */
     public String findUserPassword(FindPasswordRequest findPasswordRequest) {
-        return restClient.post()
-                .uri("/auth/find-password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(findPasswordRequest)
-                .retrieve()
-                .body(String.class);
+        return backendApiClient.post("/auth/find-password", findPasswordRequest, String.class);
     }
 
+    /**
+     * post 로 로그인
+     */
+    public TokenResponse login(LoginRequest loginRequest) {
+        return backendApiClient.post(AUTH + "/auth/login", loginRequest, TokenResponse.class);
+    }
 }

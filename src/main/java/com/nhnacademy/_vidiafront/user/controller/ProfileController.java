@@ -4,6 +4,7 @@ import com.nhnacademy._vidiafront.user.client.UserApiClient;
 import com.nhnacademy._vidiafront.user.dto.user.request.ChangePasswordRequest;
 import com.nhnacademy._vidiafront.user.dto.user.request.UpdateUserRequest;
 import com.nhnacademy._vidiafront.user.dto.user.response.UserProfileResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -22,7 +23,7 @@ public class ProfileController {
      * 회원정보 조회 폼
      * */
     @GetMapping
-    public String getUserProfileForm(Model model) {
+    public String getUserProfileForm(HttpServletRequest request, Model model) {
         UserProfileResponse user = userApiClient.getUserProfile();
         model.addAttribute("user", user);
         model.addAttribute("request", new UpdateUserRequest(user.name(), user.phone()));

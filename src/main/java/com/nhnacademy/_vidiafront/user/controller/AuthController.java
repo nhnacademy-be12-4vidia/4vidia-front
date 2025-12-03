@@ -1,11 +1,20 @@
 package com.nhnacademy._vidiafront.user.controller;
 
+import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.user.client.AuthApiClient;
 import com.nhnacademy._vidiafront.user.dto.auth.request.FindIdRequest;
 import com.nhnacademy._vidiafront.user.dto.auth.request.FindPasswordRequest;
+import com.nhnacademy._vidiafront.user.dto.auth.request.LoginRequest;
+import com.nhnacademy._vidiafront.user.dto.auth.response.TokenResponse;
 import com.nhnacademy._vidiafront.user.dto.user.request.UserSignupRequest;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,6 +29,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthApiClient authApiClient;
+    private final BackendApiClient backendApiClient;
 
     /**
      * 로그인 폼
@@ -29,6 +39,38 @@ public class AuthController {
         return "auth/loginForm";
     }
 
+    @PostMapping("/login")
+    public String loginForm(LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) {
+        TokenResponse tokenResponse = authApiClient.login(loginRequest);
+        String accessToken = tokenResponse.accessToken();
+        String refreshToken = tokenResponse.refreshToken();
+
+
+        HttpSession session = request.getSession(true);
+        session.setAttribute("accessToken", accessToken);
+
+        Cookie refreshCookie = new Cookie("refresh", refreshToken);
+        refreshCookie.setHttpOnly(true);           // 브라우저 JS 접근 불가
+        refreshCookie.setSecure(false);             // HTTPS 환경이면 true
+        refreshCookie.setPath("/");
+        refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
+        response.addCookie(refreshCookie);
+
+        return "redirect:/";
+
+    }
+    @PostMapping("/logout")
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
+        backendApiClient.post("/api/v1/auth/auth/logout", "hi", String.class);
+
+        if (request.getSession(false) != null) {
+            request.getSession(false).invalidate();
+        }
+
+        deleteCookie("JSESSIONID", response);
+        deleteCookie("refresh", response);
+        return "redirect:/";
+    }
     /**
      * 회원가입 폼
      * */
@@ -91,5 +133,12 @@ public class AuthController {
         }
     }
 
-
+    private void deleteCookie(String name, HttpServletResponse response) {
+        Cookie cookie = new Cookie(name, null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true); // HTTPS 환경이면 true
+        cookie.setPath("/");
+        cookie.setMaxAge(0); // 즉시 만료
+        response.addCookie(cookie);
+    }
 }

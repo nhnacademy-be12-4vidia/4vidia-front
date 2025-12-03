@@ -8,6 +8,7 @@ import com.nhnacademy._vidiafront.order.dto.order.response.OrderCreateResponse;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderResponse;
 import com.nhnacademy._vidiafront.order.dto.packaging.response.PackagingOptionResponse;
 import com.nhnacademy._vidiafront.order.dto.payment.requset.PaymentConfirmRequest;
+import com.nhnacademy._vidiafront.order.dto.payment.response.PaymentResponse;
 import com.nhnacademy._vidiafront.user.client.AddressApiClient;
 import com.nhnacademy._vidiafront.user.client.UserApiClient;
 import com.nhnacademy._vidiafront.user.dto.address.response.AddressResponse;
@@ -33,6 +34,7 @@ public class OrderController {
     private final UserApiClient userApiClient;
     private final PaymentApiClient paymentApiClient;
     private final AddressApiClient addressApiClient;
+    //private final BookApiClient bookApiClient;
 
     @Value("${toss.clientKey}")
     private String TOSS_CLIENT_KEY;
@@ -59,15 +61,10 @@ public class OrderController {
     public String showOrderPage(@RequestHeader(value = "X-User-Id", required = false) Long memberId,
                                 @RequestHeader(value = "X-Guest-Id", required = false) Long guestId,
                                 @RequestParam Boolean direct, // 바로 주문인지 장바구니에서 오는지
+                                @RequestParam long bookId,
+                                @RequestParam int quantity,
                                 Model model) {
-        Long userId = null;
-//        if (memberId == null) { // 비회원일 경우
-        if (memberId != null) { // 임시 데이터 삭제 예정
-            userId = guestId;
-
-        } else { // 회원일 경우
-            //userId = memberId;
-            userId = 1L; //임시데이터
+        if (memberId != null){ // 회원일 경우
 
             UserProfileResponse userProfile = userApiClient.getUserProfile();
 
@@ -87,7 +84,8 @@ public class OrderController {
 
         List<CartItemDisplayDto> cartItems = new ArrayList<>();
         if (direct) { //바로 주문일 떄
-            //TODO 도서 상세에서 뭘 주지? - 일단 임시데이터 바로 주문 도서 종류 1개
+            // TODO bookId로 책 정보 가져와서 수량까지 담아 보내기
+            //bookApiClient.
             cartItems.add(new CartItemDisplayDto(
                     1001L,
                     new CartItemDisplayDto.BookDisplayDto(
@@ -151,7 +149,7 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<OrderCreateResponse> createOrder(@RequestBody OrderCreateRequest orderCreateRequest) {
-        OrderCreateResponse orderId = orderApiClient.saveOrder(orderCreateRequest);
+        OrderCreateResponse orderId = orderApiClient.saveOrder(orderCreateRequest); //주문과정 1번
 
         return ResponseEntity.ok(orderId);
     }
@@ -163,7 +161,7 @@ public class OrderController {
                                   @RequestParam int payPrice,
                                   Model model) {
 
-        String sendOrderId = "ORD-" + UUID.randomUUID();
+        String sendOrderId = "ORD-" + UUID.randomUUID(); //주문과정 2번
 
         model.addAttribute("tossClientKey", TOSS_CLIENT_KEY);
         model.addAttribute("orderId", orderId);
@@ -198,11 +196,20 @@ public class OrderController {
                                        @RequestParam int amount,
                                        @PathVariable long id) {
 
-        PaymentConfirmRequest confirmRequest = new PaymentConfirmRequest(paymentKey, orderId, amount);
+        PaymentConfirmRequest confirmRequest = new PaymentConfirmRequest(paymentKey, orderId, amount); //주문과정 3번
 
-        paymentApiClient.confirmPayment(confirmRequest, id);
+        paymentApiClient.confirmPayment(confirmRequest, id);//
 
-        return "redirect:/orders/" + id;
+        return "redirect:/orders/success/" + id; //
+    }
+
+    @GetMapping("/success/{orderId}")
+    public String successOrder(@PathVariable long orderId,
+                               Model model) {
+        PaymentResponse paymentResponse = paymentApiClient.getPayment(orderId); //주문과정 6번
+        model.addAttribute("payment", paymentResponse);
+
+        return "order/orderSuccess";
     }
 
 

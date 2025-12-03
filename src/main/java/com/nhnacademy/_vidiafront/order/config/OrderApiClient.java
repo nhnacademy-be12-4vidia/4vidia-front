@@ -7,6 +7,7 @@ import com.nhnacademy._vidiafront.order.dto.order.response.OrderCreateResponse;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderPreviewResponse;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderResponse;
 import com.nhnacademy._vidiafront.order.dto.packaging.response.PackagingOptionResponse;
+import com.nhnacademy._vidiafront.order.dto.payment.response.PaymentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
@@ -40,7 +41,7 @@ public class OrderApiClient {
         ParameterizedTypeReference<List<DeliveryDateResponse>> typeReference =
                 new ParameterizedTypeReference<List<DeliveryDateResponse>>() {};
 
-        List<DeliveryDateResponse> deliveryDateResponses = backendApiClient.get(ORDER_SERVICE + "/delivery-dates", typeReference);
+        List<DeliveryDateResponse> deliveryDateResponses = backendApiClient.get(ORDER_SERVICE + "/orders/delivery-dates", typeReference);
         return deliveryDateResponses;
     }
 

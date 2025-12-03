@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout.html}">
+<head>
+    <title>주문 완료</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <div class="container-fluid">
+
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">결제 결과</h1>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+
+                <div class="card shadow mb-4 border-left-success">
+                    <div class="card-body text-center p-5">
+
+                        <div class="mb-4">
+                            <img width="120px" src="https://static.toss.im/illusts/check-blue-spot-no-loop.png" alt="Success Icon"/>
+                        </div>
+
+                        <h2 class="h4 text-gray-900 font-weight-bold mb-2">결제가 완료되었습니다!</h2>
+                        <p class="text-gray-600 mb-4">
+                            주문해 주셔서 감사합니다.<br>
+                            고객님의 주문이 정상적으로 처리되었습니다.
+                        </p>
+
+                        <div class="bg-gray-100 rounded p-4 mb-4 text-left">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="font-weight-bold text-gray-700">주문 번호</span>
+                                <span class="text-gray-800 font-weight-bold" th:text="${payment.orderId}">20241203-001</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="font-weight-bold text-gray-700">결제 상태</span>
+                                <span class="text-success font-weight-bold" th:text="${payment.payStatus}">DONE</span>
+                            </div>
+                            <hr class="sidebar-divider my-2">
+                            <div class="d-flex justify-content-between mt-2">
+                                <span class="font-weight-bold text-gray-900" style="font-size: 1.1rem;">총 결제 금액</span>
+                                <span class="text-primary font-weight-bold" style="font-size: 1.1rem;"
+                                      th:text="${#numbers.formatInteger(payment.amount, 0, 'COMMA')} + '원'">
+                                    35,000원
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6">
+                                <a th:href="@{/orders/{id}(id=${payment.orderId})}" class="btn btn-primary btn-block btn-lg">
+                                    <i class="fas fa-file-invoice mr-2"></i>주문상세
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a th:href="@{/}" class="btn btn-secondary btn-block btn-lg">
+                                    <i class="fas fa-home mr-2"></i>홈으로
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+</body>
+</html>

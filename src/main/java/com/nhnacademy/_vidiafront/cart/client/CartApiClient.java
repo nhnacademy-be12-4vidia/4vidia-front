@@ -25,42 +25,42 @@ public class CartApiClient {
      * 장바구니 도서 수량 수정
      */
     public void updateItem(Long bookId, CartUpdateBookRequest cartUpdateBookRequest){
-        backendApiClient.put(CART_SERVICE + "/items/" + bookId, cartUpdateBookRequest, Void.class);
+        backendApiClient.put(CART_SERVICE + "/cart/items/" + bookId, cartUpdateBookRequest, Void.class);
     }
 
     /**
      * 장바구니 도서 삭제
      */
     public void deleteItem(Long bookId){
-        backendApiClient.delete(CART_SERVICE + "/items/" + bookId, Void.class);
+        backendApiClient.delete(CART_SERVICE + "/cart/items/" + bookId, Void.class);
     }
 
     /**
      * 장바구니 비우기
      */
     public void clearCart(){
-        backendApiClient.delete(CART_SERVICE + "/items", Void.class);
+        backendApiClient.delete(CART_SERVICE + "/cart/items", Void.class);
     }
 
     /**
      * 비회원 장바구니 상태 조회
      */
     public GuestCartStatusResponse getGuestCartStatus(){
-        return backendApiClient.get(CART_SERVICE + "/guest/status", GuestCartStatusResponse.class);
+        return backendApiClient.get(CART_SERVICE + "/cart/guest/status", GuestCartStatusResponse.class);
     }
 
     /**
      * 비회원 -> 회원 머지 (팝업에서 yes)
      */
     public void mergeGuestCartToUser(){
-        backendApiClient.postNoBody(CART_SERVICE + "/merge-guest", Void.class);
+        backendApiClient.postNoBody(CART_SERVICE + "/cart/merge-guest", Void.class);
     }
 
     /**
      * 비회원 장바구니 삭제 (팝업에서 no)
      */
     public void deleteGuestCart(){
-        backendApiClient.delete(CART_SERVICE + "/guest", Void.class);
+        backendApiClient.delete(CART_SERVICE + "/cart/guest", Void.class);
     }
 
     /**

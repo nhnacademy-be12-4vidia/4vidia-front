@@ -3,6 +3,8 @@ package com.nhnacademy._vidiafront.user.controller;
 import com.nhnacademy._vidiafront.user.client.LikeApiClient;
 import com.nhnacademy._vidiafront.user.dto.like.response.LikeResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -35,5 +37,20 @@ public class LikeController {
     }
 
 
+
+
+
     // 좋아요 등록을 마이페이지에서 하지는 않음 ㅇㅇ
+    // 아래는 도서에서 사용할 테스트용
+    @DeleteMapping("/test")
+    public ResponseEntity<Void> deleteLikeTest(@RequestParam Long bookId) {
+        likeApiClient.deleteLike(bookId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/test")
+    public ResponseEntity<Void> addLikeTest(@RequestParam Long bookId) {
+        likeApiClient.addLike(bookId);
+        return ResponseEntity.ok().build();
+    }
 }

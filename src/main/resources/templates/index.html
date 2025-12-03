@@ -71,6 +71,11 @@
             color: #666;
         }
 
+        /* 좋아요가 눌렸을 때의 상태 */
+        .btn-heart i.fas {
+            color: #e74a3b;
+        }
+
         .btn-heart:hover i {
             color: #e74a3b;
         }
@@ -131,228 +136,194 @@
             transform: scale(1.05);
         }
     </style>
+    <script>
+        // 좋아요/찜하기 토글 (AJAX/Fetch API 사용)
+        function toggleLike(button) {
+            const bookId = button.getAttribute('data-book-id');
+            const icon = button.querySelector('i');
+            const isLiked = icon.classList.contains('fas');
+
+            let method = isLiked ? 'DELETE' : 'POST';
+            let url = `/mypage/like/test?bookId=${bookId}`;
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        icon.classList.toggle('far');
+                        icon.classList.toggle('fas');
+                        alert(isLiked ? `[${bookId}] 찜 취소되었습니다.` : `[${bookId}] 찜 등록되었습니다!`);
+                    } else if (response.status === 401) {
+                        alert('처리 실패: 로그인이 필요합니다.');
+                    } else {
+                        alert('처리 실패: 서버 오류이거나 잘못된 요청입니다. (상태: ' + response.status + ')');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('요청 중 네트워크 오류가 발생했습니다.');
+                });
+        }
+    </script>
 </head>
 
 
 <body>
-<!-- 페이지 컨텐츠 -->
 <div layout:fragment="content">
-<div class="container-fluid">
-    <!-- 헤더 -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <div>
-            <h1 class="h3 mb-2 text-gray-800">베스트셀러 도서</h1>
-            <p class="mb-0 text-gray-600">4VIDIA에서 가장 인기있는 도서들을 만나보세요</p>
+    <div class="container-fluid">
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="h3 mb-2 text-gray-800">베스트셀러 도서</h1>
+                <p class="mb-0 text-gray-600">4VIDIA에서 가장 인기있는 도서들을 만나보세요</p>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <a href="#" class="category-pill active" data-category="all">전체</a>
+            <a href="#" class="category-pill" data-category="문학">문학</a>
+            <a href="#" class="category-pill" data-category="소설">소설</a>
+            <a href="#" class="category-pill" data-category="에세이">에세이</a>
+            <a href="#" class="category-pill" data-category="자기계발">자기계발</a>
+            <a href="#" class="category-pill" data-category="교육">교육</a>
+            <a href="#" class="category-pill" data-category="여행">여행</a>
+        </div>
+
+        <div class="row">
+            <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                <div class="card book-card">
+                    <div class="card-img-wrapper">
+                        <span class="badge badge-danger badge-best">BEST</span>
+                        <button type="button"
+                                class="btn-heart"
+                                data-book-id="1"
+                                onclick="toggleLike(this)">
+                            <i class="far fa-heart"></i>
+                        </button>
+                        <img class="card-img-top" src="https://image.aladin.co.kr/product/25433/80/cover/e572537345_1.jpg?w=400" alt="클래식 문학">
+                    </div>
+                    <div class="card-body">
+                        <div class="category-badge mb-1">문학</div>
+                        <h5 class="card-title mb-1">책제목1</h5>
+                        <p class="text-muted small mb-2">세계문학전집</p>
+                        <div class="mb-2">
+                            <span class="rating"><i class="fas fa-star"></i> 4.8</span>
+                            <span class="text-muted small">(128)</span>
+                        </div>
+                        <div class="mb-3">
+                            <span class="price-original">18,000원</span>
+                            <span class="price-current ml-2">15,000원</span>
+                        </div>
+                        <form th:action="@{/cart/add}" method="post" class="flex-fill">
+                            <input type="hidden" name="bookId" th:value="${1}">
+                            <button class="btn btn-primary btn-block">
+                                <i class="fas fa-shopping-cart mr-1"></i> 장바구니 담기
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                <div class="card book-card">
+                    <div class="card-img-wrapper">
+                        <span class="badge badge-success badge-new">NEW</span>
+                        <button type="button"
+                                class="btn-heart"
+                                data-book-id="5"
+                                onclick="toggleLike(this)">
+                            <i class="far fa-heart"></i>
+                        </button>
+                        <img class="card-img-top" src="https://image.aladin.co.kr/product/27983/44/cover/k032734221_1.jpg?w=400" alt="독서의 즐거움">
+                    </div>
+                    <div class="card-body">
+                        <div class="category-badge mb-1">에세이</div>
+                        <h5 class="card-title mb-1">책제목2</h5>
+                        <p class="text-muted small mb-2">박지원</p>
+                        <div class="mb-2">
+                            <span class="rating"><i class="fas fa-star"></i> 4.5</span>
+                            <span class="text-muted small">(128)</span>
+                        </div>
+                        <div class="mb-3">
+                            <span class="price-original">15,000원</span>
+                            <span class="price-current">5,000원</span>
+                        </div>
+                        <form th:action="@{/cart/add}" method="post" class="flex-fill">
+                            <input type="hidden" name="bookId" th:value="${5}">
+                            <button class="btn btn-primary btn-block">
+                                <i class="fas fa-shopping-cart mr-1"></i> 장바구니 담기
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                <div class="card book-card">
+                    <div class="card-img-wrapper">
+                        <button type="button"
+                                class="btn-heart"
+                                data-book-id="8"
+                                onclick="toggleLike(this)">
+                            <i class="far fa-heart"></i>
+                        </button>
+                        <img class="card-img-top" src="https://image.aladin.co.kr/product/28383/37/cover/k652835711_1.jpg?w=400" alt="현대 교육학">
+                    </div>
+                    <div class="card-body">
+                        <div class="category-badge mb-1">교육</div>
+                        <h5 class="card-title mb-1">책제목3</h5>
+                        <p class="text-muted small mb-2">김교수</p>
+                        <div class="mb-2">
+                            <span class="rating"><i class="fas fa-star"></i> 4.6</span>
+                            <span class="text-muted small">(128)</span>
+                        </div>
+                        <div class="mb-3">
+                            <span class="price-original">38,000원</span>
+                            <span class="price-current ml-2">32,000원</span>
+                        </div>
+                        <form th:action="@{/cart/add}" method="post" class="flex-fill">
+                            <input type="hidden" name="bookId" th:value="${8}">
+                            <button class="btn btn-primary btn-block">
+                                <i class="fas fa-shopping-cart mr-1"></i> 장바구니 담기
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                <div class="card book-card">
+                    <div class="card-img-wrapper">
+                        <span class="badge badge-success badge-new">NEW</span>
+                        <button type="button"
+                                class="btn-heart"
+                                data-book-id="99"
+                                onclick="toggleLike(this)">
+                            <i class="far fa-heart"></i>
+                        </button>
+                        <img class="card-img-top" src="https://images.unsplash.com/photo-1558210834-473f430c09ac?w=400" alt="커피와 독서">
+                    </div>
+                    <div class="card-body">
+                        <div class="category-badge mb-1">라이프스타일</div>
+                        <h5 class="card-title mb-1">X</h5>
+                        <p class="text-muted small mb-2">X</p>
+                        <div class="mb-2">
+                            <span class="rating"><i class="fas fa-star"></i> 4.7</span>
+                            <span class="text-muted small">(128)</span>
+                        </div>
+                        <div class="mb-3">
+                            <span class="price-current">0원</span>
+                        </div>
+                        <button class="btn btn-primary btn-block">장바구니 담기X</button>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
-
-    <!-- 카테고리 필터 -->
-    <div class="mb-4">
-        <a href="#" class="category-pill active" data-category="all">전체</a>
-        <a href="#" class="category-pill" data-category="문학">문학</a>
-        <a href="#" class="category-pill" data-category="소설">소설</a>
-        <a href="#" class="category-pill" data-category="에세이">에세이</a>
-        <a href="#" class="category-pill" data-category="자기계발">자기계발</a>
-        <a href="#" class="category-pill" data-category="교육">교육</a>
-        <a href="#" class="category-pill" data-category="여행">여행</a>
-    </div>
-
-    <!-- 도서 그리드 -->
-    <div class="row">
-        <!-- 책 1 -->
-        <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
-            <div class="card book-card">
-                <div class="card-img-wrapper">
-                    <span class="badge badge-danger badge-best">BEST</span>
-                    <button class="btn-heart"><i class="far fa-heart"></i></button>
-                    <img class="card-img-top" src="https://images.unsplash.com/photo-1419640303358-44f0d27f48e7?w=400" alt="클래식 문학">
-                </div>
-                <div class="card-body">
-                    <div class="category-badge mb-1">문학</div>
-                    <h5 class="card-title mb-1">클래식 문학 컬렉션</h5>
-                    <p class="text-muted small mb-2">세계문학전집</p>
-                    <div class="mb-2">
-                        <span class="rating"><i class="fas fa-star"></i> 4.8</span>
-                        <span class="text-muted small">(128)</span>
-                    </div>
-                    <div class="mb-3">
-                        <span class="price-original">35,000원</span>
-                        <span class="price-current ml-2">28,000원</span>
-                    </div>
-                    <button class="btn btn-primary btn-block">장바구니 담기</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 책 2 -->
-        <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
-            <div class="card book-card">
-                <div class="card-img-wrapper">
-                    <span class="badge badge-success badge-new">NEW</span>
-                    <button class="btn-heart"><i class="far fa-heart"></i></button>
-                    <img class="card-img-top" src="https://images.unsplash.com/photo-1628012230086-f6ca7d84a2bb?w=400" alt="독서의 즐거움">
-                </div>
-                <div class="card-body">
-                    <div class="category-badge mb-1">에세이</div>
-                    <h5 class="card-title mb-1">독서의 즐거움</h5>
-                    <p class="text-muted small mb-2">박지원</p>
-                    <div class="mb-2">
-                        <span class="rating"><i class="fas fa-star"></i> 4.5</span>
-                        <span class="text-muted small">(128)</span>
-                    </div>
-                    <div class="mb-3">
-                        <span class="price-current">16,500원</span>
-                    </div>
-                    <button class="btn btn-primary btn-block">장바구니 담기</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 책 3 -->
-        <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
-            <div class="card book-card">
-                <div class="card-img-wrapper">
-                    <button class="btn-heart"><i class="far fa-heart"></i></button>
-                    <img class="card-img-top" src="https://images.unsplash.com/photo-1666281269793-da06484657e8?w=400" alt="현대 교육학">
-                </div>
-                <div class="card-body">
-                    <div class="category-badge mb-1">교육</div>
-                    <h5 class="card-title mb-1">현대 교육학 개론</h5>
-                    <p class="text-muted small mb-2">김교수</p>
-                    <div class="mb-2">
-                        <span class="rating"><i class="fas fa-star"></i> 4.6</span>
-                        <span class="text-muted small">(128)</span>
-                    </div>
-                    <div class="mb-3">
-                        <span class="price-original">38,000원</span>
-                        <span class="price-current ml-2">32,000원</span>
-                    </div>
-                    <button class="btn btn-primary btn-block">장바구니 담기</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 책 4 -->
-        <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
-            <div class="card book-card">
-                <div class="card-img-wrapper">
-                    <span class="badge badge-success badge-new">NEW</span>
-                    <button class="btn-heart"><i class="far fa-heart"></i></button>
-                    <img class="card-img-top" src="https://images.unsplash.com/photo-1558210834-473f430c09ac?w=400" alt="커피와 독서">
-                </div>
-                <div class="card-body">
-                    <div class="category-badge mb-1">라이프스타일</div>
-                    <h5 class="card-title mb-1">커피와 함께하는 독서</h5>
-                    <p class="text-muted small mb-2">이작가</p>
-                    <div class="mb-2">
-                        <span class="rating"><i class="fas fa-star"></i> 4.7</span>
-                        <span class="text-muted small">(128)</span>
-                    </div>
-                    <div class="mb-3">
-                        <span class="price-current">14,800원</span>
-                    </div>
-                    <button class="btn btn-primary btn-block">장바구니 담기</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 책 5 -->
-        <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
-            <div class="card book-card">
-                <div class="card-img-wrapper">
-                    <span class="badge badge-danger badge-best">BEST</span>
-                    <button class="btn-heart"><i class="far fa-heart"></i></button>
-                    <img class="card-img-top" src="https://images.unsplash.com/photo-1568667256531-7d5ac92eaa7a?w=400" alt="도서관 여행">
-                </div>
-                <div class="card-body">
-                    <div class="category-badge mb-1">여행</div>
-                    <h5 class="card-title mb-1">세계 도서관 여행</h5>
-                    <p class="text-muted small mb-2">최독서</p>
-                    <div class="mb-2">
-                        <span class="rating"><i class="fas fa-star"></i> 4.9</span>
-                        <span class="text-muted small">(128)</span>
-                    </div>
-                    <div class="mb-3">
-                        <span class="price-current">25,000원</span>
-                    </div>
-                    <button class="btn btn-primary btn-block">장바구니 담기</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 책 6 -->
-        <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
-            <div class="card book-card">
-                <div class="card-img-wrapper">
-                    <button class="btn-heart"><i class="far fa-heart"></i></button>
-                    <img class="card-img-top" src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400" alt="학습법">
-                </div>
-                <div class="card-body">
-                    <div class="category-badge mb-1">자기계발</div>
-                    <h5 class="card-title mb-1">효과적인 학습법</h5>
-                    <p class="text-muted small mb-2">정학습</p>
-                    <div class="mb-2">
-                        <span class="rating"><i class="fas fa-star"></i> 4.4</span>
-                        <span class="text-muted small">(128)</span>
-                    </div>
-                    <div class="mb-3">
-                        <span class="price-original">22,000원</span>
-                        <span class="price-current ml-2">18,500원</span>
-                    </div>
-                    <button class="btn btn-primary btn-block">장바구니 담기</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 책 7 -->
-        <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
-            <div class="card book-card">
-                <div class="card-img-wrapper">
-                    <span class="badge badge-danger badge-best">BEST</span>
-                    <button class="btn-heart"><i class="far fa-heart"></i></button>
-                    <img class="card-img-top" src="https://images.unsplash.com/photo-1628012230086-f6ca7d84a2bb?w=400" alt="베스트 소설">
-                </div>
-                <div class="card-body">
-                    <div class="category-badge mb-1">소설</div>
-                    <h5 class="card-title mb-1">베스트 소설 모음</h5>
-                    <p class="text-muted small mb-2">현대작가</p>
-                    <div class="mb-2">
-                        <span class="rating"><i class="fas fa-star"></i> 4.6</span>
-                        <span class="text-muted small">(128)</span>
-                    </div>
-                    <div class="mb-3">
-                        <span class="price-current">19,800원</span>
-                    </div>
-                    <button class="btn btn-primary btn-block">장바구니 담기</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 책 8 -->
-        <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
-            <div class="card book-card">
-                <div class="card-img-wrapper">
-                    <span class="badge badge-success badge-new">NEW</span>
-                    <button class="btn-heart"><i class="far fa-heart"></i></button>
-                    <img class="card-img-top" src="https://images.unsplash.com/photo-1568667256531-7d5ac92eaa7a?w=400" alt="도서관의 비밀">
-                </div>
-                <div class="card-body">
-                    <div class="category-badge mb-1">미스터리</div>
-                    <h5 class="card-title mb-1">도서관의 비밀</h5>
-                    <p class="text-muted small mb-2">안서재</p>
-                    <div class="mb-2">
-                        <span class="rating"><i class="fas fa-star"></i> 4.3</span>
-                        <span class="text-muted small">(128)</span>
-                    </div>
-                    <div class="mb-3">
-                        <span class="price-current">21,000원</span>
-                    </div>
-                    <button class="btn btn-primary btn-block">장바구니 담기</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 </div>
 <script>
     // 페이지가 로드되면 레이아웃을 불러옵니다
@@ -421,17 +392,19 @@
                     jQuery(this).addClass('active');
                 });
 
-                // 하트 버튼
-                jQuery('.btn-heart').on('click', function(e) {
-                    e.preventDefault();
-                    jQuery(this).find('i').toggleClass('far fas');
-                });
+                // --- 중요: 기존의 좋아요 버튼 jQuery 로직은 제거 (toggleLike 함수와 충돌 방지) ---
 
                 // 장바구니 담기
                 jQuery('.btn-primary').on('click', function(e) {
-                    if (jQuery(this).text().trim() === '장바구니 담기') {
-                        e.preventDefault();
-                        alert('장바구니에 담겼습니다!');
+                    // 장바구니 담기 버튼만 처리 (X 버튼이 아닌 경우)
+                    const buttonText = jQuery(this).text().trim();
+                    if (buttonText === '장바구니 담기') {
+                        // 실제 Thymeleaf 폼을 사용하는 경우, 폼 제출은 계속 진행
+                        alert('장바구니에 담겼습니다! (서버 요청)');
+                        // 폼 제출을 막지 않음
+                    } else if (buttonText === '장바구니 담기X') {
+                        e.preventDefault(); // 하드코딩된 X 버튼은 동작 방지
+                        alert('장바구니 담기X 버튼');
                     }
                 });
             }

@@ -30,7 +30,7 @@ public class LikeApiClient {
      * POST 좋아요 등록
      */
     public Void addLike(Long bookId) {
-        return backendApiClient.postNoBody(USER_SERVICE + "/my/likes", Void.class);
+        return backendApiClient.postNoBody(USER_SERVICE + "/my/likes/" + bookId, Void.class);
     }
 
     /**

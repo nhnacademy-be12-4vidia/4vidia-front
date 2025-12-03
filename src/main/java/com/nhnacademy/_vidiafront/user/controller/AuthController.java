@@ -61,7 +61,7 @@ public class AuthController {
     }
     @PostMapping("/logout")
     public String logout(HttpServletRequest request, HttpServletResponse response) {
-        backendApiClient.post("/api/v1/auth/auth/logout", "hi", String.class);
+        backendApiClient.postNoBody("/api/v1/auth/auth/logout", String.class);
 
         if (request.getSession(false) != null) {
             request.getSession(false).invalidate();

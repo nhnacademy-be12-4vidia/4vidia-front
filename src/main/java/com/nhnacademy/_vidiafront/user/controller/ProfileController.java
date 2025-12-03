@@ -23,7 +23,7 @@ public class ProfileController {
      * 회원정보 조회 폼
      * */
     @GetMapping
-    public String getUserProfileForm(HttpServletRequest request, Model model) {
+    public String getUserProfileForm(Model model) {
         UserProfileResponse user = userApiClient.getUserProfile();
         model.addAttribute("user", user);
         model.addAttribute("request", new UpdateUserRequest(user.name(), user.phone()));

@@ -22,7 +22,7 @@ eureka:
       defaultZone: http://${ADMIN_ID}:${ADMIN_PASSWORD}@4vidia-discovery-1:8080/eureka/
 
 server:
-  port: 8081
+  port: 8080
 
 toss:
   clientKey: test_ck_d46qopOB896MwPXRBMod3ZmM75y0

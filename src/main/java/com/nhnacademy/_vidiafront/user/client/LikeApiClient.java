@@ -2,12 +2,9 @@ package com.nhnacademy._vidiafront.user.client;
 
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.user.dto.like.response.LikeResponse;
-import com.nhnacademy._vidiafront.user.dto.user.request.UserSignupRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
 
 import java.util.List;
 
@@ -32,9 +29,9 @@ public class LikeApiClient {
     /**
      * POST 좋아요 등록
      */
-//    public void addLike(Long bookId) {
-//        return backendApiClient.post()
-//    }
+    public Void addLike(Long bookId) {
+        return backendApiClient.postNoBody(USER_SERVICE + "/my/likes", Void.class);
+    }
 
     /**
      * DELETE 좋아요 삭제

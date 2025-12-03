@@ -123,18 +123,20 @@
 
                             <div class="dropdown-divider"></div>
 
-                            <form action="/auth/logout" method="POST" id="logoutForm">
-                                <a class="dropdown-item" href="javascript:document.getElementById('logoutForm').submit();">
-                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Logout
-                                </a>
-                            </form>
                         </div>
                     </li>
-                    <li class="nav-item mx-2 d-flex align-items-center">
+                    <li class="nav-item mx-2 d-flex align-items-center" th:if="${session.accessToken == null}">
                         <a class="btn btn-primary btn-sm" href="/auth/login">
                             <i class="fas fa-sign-in-alt mr-1"></i> 로그인
                         </a>
+                    </li>
+
+                    <li class="nav-item mx-2 d-flex align-items-center" th:if="${session.accessToken != null}">
+                        <form action="/auth/logout" method="post">
+                            <button class="btn btn-danger btn-sm" type="submit">
+                                <i class="fas fa-sign-out-alt mr-1"></i> 로그아웃
+                            </button>
+                        </form>
                     </li>
                 </ul>
             </nav>

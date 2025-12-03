@@ -44,8 +44,9 @@
             <div class="col-md-4">
                 <div class="point-card expire-box">
                     <div class="fw-semibold">소멸 예정 포인트</div>
-                    <div class="display-6 fw-bold" th:text="${expireSoon} + 'P'"></div>
-                    <div class="small"> ~ 30일 기준</div>
+                    <div class="display-6 fw-bold"
+                         th:text="${expireSoon.expirePoint} + 'P'"></div>
+                    <div class="small"> ~ 7일 기준</div>
                 </div>
             </div>
         </div>
@@ -84,12 +85,21 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <div class="fw-semibold" th:text="${history.reason}"></div>
-                        <div class="text-muted small" th:text="${history.date}"></div>
+                        <div class="text-muted small"
+                             th:text="${#temporals.format(history.createdAt, 'yyyy-MM-dd HH:mm')}"></div>
+
+                        <!-- 만료일 (적립일 때만) -->
+                        <div th:if="${history.expiredAt != null}"
+                             class="text-muted small"
+                             th:text="'만료일: ' + ${#temporals.format(history.expiredAt, 'yyyy-MM-dd')}"></div>
                     </div>
-                    <div th:if="${history.amount > 0}" class="text-plus" th:text="'+' + ${history.amount} + 'P'"></div>
-                    <div th:if="${history.amount < 0}" class="text-minus" th:text="${history.amount} + 'P'"></div>
+
+                    <!-- 포인트 금액 + / - -->
+                    <div th:if="${history.price > 0}" class="text-plus"
+                         th:text="'+' + ${history.price} + 'P'"></div>
+                    <div th:if="${history.price < 0}" class="text-minus"
+                         th:text="${history.price} + 'P'"></div>
                 </div>
-                <div class="small text-muted mt-1" th:text="'잔액 ' + ${history.balance} + 'P'"></div>
             </div>
         </div>
 

@@ -93,7 +93,7 @@ public class AddressController {
                                 AddressRequest addressRequest,
                                 Model model) {
         AddressResponse addressResponse = addressApiClient.updateAddress(addressId, addressRequest);
-        model.addAttribute("address", addressResponse);
+//        model.addAttribute("address", addressResponse); 필요없음.
         return "redirect:/mypage/address";
     }
 

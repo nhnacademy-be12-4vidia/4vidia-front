@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin-layout}">
+
+<head>
+    <link th:href="@{/css/sb-admin-2.min.css}" rel="stylesheet">
+    <style>
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        /* 테이블 더 깔끔하게 */
+        .table thead th {
+            background-color: #f8f9fc !important;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-bottom: 2px solid #e3e6f0;
+        }
+        .table td {
+            vertical-align: middle;
+            padding: 14px 12px;
+            font-size: 0.9rem;
+        }
+        .table-hover tbody tr {
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        /* form 박스 카드 스타일 */
+        .form-box {
+            background: #fdfdfd;
+            border: 1px solid #e8e8e8;
+            padding: 15px 18px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .form-box .form-label {
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .price-input, .reward-input {
+            max-width: 120px;
+        }
+    </style>
+</head>
+
+<body>
+<div layout:fragment="pageContent">
+
+    <h1 class="h3 mb-3 text-gray-800">포인트 정책 관리</h1>
+
+    <div class="card shadow-sm p-3">
+
+        <table class="table table-hover align-middle">
+            <thead class="thead-light">
+            <tr>
+                <th style="width: 60px;">ID</th>
+                <th style="width: 180px;">정책 이름</th>
+                <th style="width: 360px;">포인트 설정</th>
+            </tr>
+            </thead>
+
+            <tbody>
+
+            <tr th:each="p : ${policies}" class="policy-row">
+
+                <td th:text="${p.pointPolicyId()}"></td>
+                <td><strong th:text="${p.pointName()}"></strong></td>
+
+                <td>
+                    <form th:action="@{'/admin/points/' + ${p.pointPolicyId()}}"
+                          method="post" class="form-box">
+
+                        <input type="hidden" name="pointName" th:value="${p.pointName()}"/>
+                        <input type="hidden" value="patch" name="_method"/>
+
+                        <div class="row g-3">
+
+                            <!-- 금액 입력 -->
+                            <div class="col-6">
+                                <label class="form-label">포인트 금액</label>
+                                <input type="number" name="price"
+                                       th:value="${p.price()}"
+                                       min="1"
+                                       class="form-control price-input">
+                            </div>
+
+                        </div>
+
+                        <div class="text-end mt-3">
+                            <button type="submit" class="btn btn-primary btn-sm modifyBtn">수정</button>
+                        </div>
+
+                    </form>
+                </td>
+
+            </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", ()=>
+
+            // 수정 alert
+            document.addEventListener("DOMContentLoaded", () => {
+                const urlParams = new URLSearchParams(window.location.search);
+
+                if (urlParams.get("success") === "true") {
+                    alert("정상적으로 수정되었습니다.");
+                }
+
+                if (urlParams.get("success") === "false") {
+                    alert("수정에 실패했습니다.");
+                }
+            })
+        );
+    </script>
+
+</div>
+</body>
+</html>

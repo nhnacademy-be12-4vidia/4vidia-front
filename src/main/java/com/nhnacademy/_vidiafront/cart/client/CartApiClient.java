@@ -26,8 +26,8 @@ public class CartApiClient {
      * 장바구니 도서 수량 수정
      */
     // TODO putNoBody : Request 넣을 수 있게 메서드 추가해주시면 안되는건가여......
-    public CartUpdateBookResponse updateItem(Long bookId, CartUpdateBookRequest cartUpdateBookRequest){
-        return backendApiClient.put(CART_SERVICE + "/items/" + bookId, cartUpdateBookRequest, CartUpdateBookResponse.class);
+    public Void updateItem(Long bookId, Integer quantity){
+        return backendApiClient.put(CART_SERVICE + "/items/" + bookId, quantity , Void.class);
     }
 
     /**

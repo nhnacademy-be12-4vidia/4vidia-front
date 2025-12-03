@@ -1,42 +1,84 @@
 <!DOCTYPE html>
-<html lang="kr">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout.html}">
 <head>
-  <meta charset="utf-8" />
-  <link rel="icon" href="https://static.toss.im/icons/png/4x/icon-toss-logo.png" />
-  <link rel="stylesheet" type="text/css" href="style.css" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>토스페이먼츠 샘플 프로젝트</title>
+  <title>결제 실패</title>
 </head>
-
-<!--TODO 결제실패 화면-->
 <body>
-<div id="info" class="box_section" style="width: 600px">
-  <img width="100px" src="https://static.toss.im/lotties/error-spot-no-loop-space-apng.png" />
-  <h2>결제를 실패했어요</h2>
+<div layout:fragment="content">
 
-  <div class="p-grid typography--p" style="margin-top: 50px">
-    <div class="p-grid-col text--left"><b>에러메시지</b></div>
-    <div class="p-grid-col text--right" id="message"></div>
+  <div class="container-fluid">
+
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+      <h1 class="h3 mb-0 text-gray-800">결제 결과</h1>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-6 col-md-8">
+
+        <div class="card shadow mb-4 border-left-danger">
+          <div class="card-body text-center p-5">
+
+            <div class="mb-4">
+              <img width="120px" src="https://static.toss.im/lotties/error-spot-no-loop-space-apng.png" alt="Error Icon"/>
+            </div>
+
+            <h2 class="h4 text-gray-900 font-weight-bold mb-2">결제에 실패했습니다</h2>
+            <p class="text-gray-600 mb-4">
+              요청하신 결제 처리가 거절되었습니다.<br>
+              아래 에러 사유를 확인해 주세요.
+            </p>
+
+            <div class="bg-gray-100 rounded p-4 mb-4 text-left">
+              <div class="d-flex justify-content-between mb-2">
+                <span class="font-weight-bold text-gray-700">에러 메시지</span>
+                <span class="text-danger font-weight-bold" id="message"></span>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span class="font-weight-bold text-gray-700">에러 코드</span>
+                <span class="text-gray-600" id="code"></span>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-6">
+                <a href="/cart" class="btn btn-primary btn-block btn-lg">
+                  <i class="fas fa-shopping-cart mr-2"></i>장바구니로
+                </a>
+              </div>
+              <div class="col-6">
+                <a href="/" class="btn btn-secondary btn-block btn-lg">
+                  <i class="fas fa-home mr-2"></i>홈으로
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
   </div>
-  <div class="p-grid typography--p" style="margin-top: 10px">
-    <div class="p-grid-col text--left"><b>에러코드</b></div>
-    <div class="p-grid-col text--right" id="code"></div>
-  </div>
-  <div class="p-grid">
-    <button class="button p-grid-col5" onclick="location.href='https://docs.tosspayments.com/guides/v2/payment-widget/integration';">연동 문서</button>
-    <button class="button p-grid-col5" onclick="location.href='https://discord.gg/A4fRFXQhRu';" style="background-color: #e8f3ff; color: #1b64da">실시간 문의</button>
-  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // URL의 쿼리 파라미터(?code=...&message=...)를 읽어옵니다.
+      const urlParams = new URLSearchParams(window.location.search);
+
+      const codeElement = document.getElementById("code");
+      const messageElement = document.getElementById("message");
+
+      // 값이 있으면 화면에 표시, 없으면 '알 수 없음' 표시
+      const errorCode = urlParams.get("code");
+      const errorMessage = urlParams.get("message");
+
+      codeElement.textContent = errorCode || "UNKNOWN_ERROR";
+      messageElement.textContent = errorMessage || "알 수 없는 이유로 결제가 실패했습니다.";
+    });
+  </script>
+
 </div>
-
-<script>
-  const urlParams = new URLSearchParams(window.location.search);
-
-  const codeElement = document.getElementById("code");
-  const messageElement = document.getElementById("message");
-
-  codeElement.textContent = urlParams.get("code");
-  messageElement.textContent = urlParams.get("message");
-</script>
 </body>
 </html>

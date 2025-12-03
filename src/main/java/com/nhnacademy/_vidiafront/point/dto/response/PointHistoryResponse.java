@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public record PointHistoryResponse(
         LocalDateTime createdAt,
-        int price,
+        Integer price,
         String reason,
         Long orderId,
         LocalDateTime expiredAt

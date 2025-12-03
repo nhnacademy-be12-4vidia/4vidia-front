@@ -31,7 +31,7 @@ public class OrderApiClient {
 
     //Order 한개 내역 (연결된 오더아이템도)가져오기
     public OrderResponse getOrderById(long orderId) {
-        OrderResponse orderResponse = backendApiClient.get(ORDER_SERVICE + "/orders/{orderId}".formatted(orderId), OrderResponse.class);
+        OrderResponse orderResponse = backendApiClient.get(ORDER_SERVICE + "/orders/" + orderId, OrderResponse.class);
         return orderResponse;
     }
 

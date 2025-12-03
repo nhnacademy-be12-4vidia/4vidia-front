@@ -18,7 +18,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,7 +36,7 @@ public class OrderController {
     public String showOrderPage(@ModelAttribute OrderPageRequest orderPageRequest,
                                 Model model) {
 
-        List<OrderCheckoutRequest> orderCheckoutRequests = new ArrayList<>();
+        List<OrderCheckoutRequest> orderCheckoutRequests;
 
         if (orderPageRequest.orderCheckoutRequests() != null) {
             orderCheckoutRequests =  orderPageRequest.orderCheckoutRequests();

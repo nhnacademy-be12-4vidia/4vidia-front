@@ -2,15 +2,120 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
+
 <head>
     <meta charset="UTF-8">
     <title>포인트 내역</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        .point-card { border-radius: 16px; padding: 28px; }
+        .remain-box { background: #2D64F6; color: white; }
+        .expire-box {
+            background: #FFF8E8;
+            border: 2px solid #F7A93B;
+            color: #E38912;
+        }
+        .benefit-card {
+            background: #F6F8FA;
+            border-radius: 14px;
+            padding: 18px;
+        }
+        .history-item { border-bottom: 1px solid #EEE; padding: 20px 5px; }
+        .text-plus { color: #05944F; font-weight: 600; }
+        .text-minus { color: #CC2B2B; font-weight: 600; }
+        .remain-label { opacity: 0.8; margin-top: 4px; }
+    </style>
 </head>
+
 <body>
 <div layout:fragment="content">
+    <div class="container mt-5" style="max-width: 900px;">
 
-    여기 안에 수정 ㄱ
+        <!-- 상단 카드 -->
+        <div class="row g-3">
+            <div class="col-md-8">
+                <div class="point-card remain-box">
+                    <div class="fw-semibold">보유 포인트</div>
+                    <div class="display-5 fw-bold" th:text="${remain} + 'P'"></div>
+                    <div class="remain-label">사용 가능한 포인트</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="point-card expire-box">
+                    <div class="fw-semibold">소멸 예정 포인트</div>
+                    <div class="display-6 fw-bold" th:text="${expireSoon} + 'P'"></div>
+                    <div class="small"> ~ 30일 기준</div>
+                </div>
+            </div>
+        </div>
 
+        <!-- 혜택 섹션 -->
+        <div class="mt-4">
+            <h5 class="fw-bold mb-3">포인트 혜택</h5>
+
+            <div class="d-flex gap-3 flex-wrap">
+                <div class="benefit-card flex-fill text-center">
+                    <div class="fw-bold">🛒 구매 적립</div>
+                    <div class="small text-muted mt-1">도서 구매금액의 2% 적립</div>
+                </div>
+
+                <div class="benefit-card flex-fill text-center">
+                    <div class="fw-bold">⭐ 리뷰 적립</div>
+                    <div class="small text-muted mt-1">리뷰 작성 시 500P 적립</div>
+                </div>
+
+                <div class="benefit-card flex-fill text-center">
+                    <div class="fw-bold">🎁 이벤트</div>
+                    <div class="small text-muted mt-1">다양한 이벤트 추가 적립</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 포인트 내역 리스트 -->
+        <div class="mt-5">
+            <h5 class="fw-bold mb-3">포인트 내역</h5>
+
+            <div th:if="${historyPage == null or historyPage.content.isEmpty()}" class="text-center text-muted py-5">
+                포인트 내역이 없습니다.
+            </div>
+
+            <div th:each="history : ${historyPage.content}" class="history-item">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="fw-semibold" th:text="${history.reason}"></div>
+                        <div class="text-muted small" th:text="${history.date}"></div>
+                    </div>
+                    <div th:if="${history.amount > 0}" class="text-plus" th:text="'+' + ${history.amount} + 'P'"></div>
+                    <div th:if="${history.amount < 0}" class="text-minus" th:text="${history.amount} + 'P'"></div>
+                </div>
+                <div class="small text-muted mt-1" th:text="'잔액 ' + ${history.balance} + 'P'"></div>
+            </div>
+        </div>
+
+        <!-- 페이징 -->
+        <div class="mt-4 d-flex justify-content-center" th:if="${historyPage.totalPages > 1}">
+            <nav>
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${historyPage.first} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/mypage/point(page=${historyPage.number - 1})}">&laquo;</a>
+                    </li>
+
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, historyPage.totalPages - 1)}"
+                        th:classappend="${historyPage.number == i} ? 'active'">
+                        <a class="page-link" th:href="@{/mypage/point(page=${i})}" th:text="${i + 1}"></a>
+                    </li>
+
+                    <li class="page-item" th:classappend="${historyPage.last} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/mypage/point(page=${historyPage.number + 1})}">&raquo;</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+    </div>
 </div>
 </body>
 </html>

@@ -33,9 +33,9 @@ public class CartController {
     // 수량 변경
     @PutMapping("/items/{bookId}")
     public String updateQuantity(@PathVariable Long bookId,
-                                 Integer quantity
+                                 CartUpdateBookRequest cartUpdateBookRequest
     ) {
-        cartApiClient.updateItem(bookId, quantity);
+        cartApiClient.updateItem(bookId, cartUpdateBookRequest);
         return "redirect:/cart";
     }
 

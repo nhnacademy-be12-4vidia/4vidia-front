@@ -3,7 +3,6 @@ package com.nhnacademy._vidiafront.cart.client;
 import com.nhnacademy._vidiafront.cart.dto.request.AddCartItemRequest;
 import com.nhnacademy._vidiafront.cart.dto.request.CartUpdateBookRequest;
 import com.nhnacademy._vidiafront.cart.dto.response.CartResponse;
-import com.nhnacademy._vidiafront.cart.dto.response.CartUpdateBookResponse;
 import com.nhnacademy._vidiafront.cart.dto.response.GuestCartStatusResponse;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import lombok.RequiredArgsConstructor;
@@ -25,23 +24,22 @@ public class CartApiClient {
     /**
      * 장바구니 도서 수량 수정
      */
-    // TODO putNoBody : Request 넣을 수 있게 메서드 추가해주시면 안되는건가여......
-    public Void updateItem(Long bookId, Integer quantity){
-        return backendApiClient.put(CART_SERVICE + "/items/" + bookId, quantity , Void.class);
+    public void updateItem(Long bookId, CartUpdateBookRequest cartUpdateBookRequest){
+        backendApiClient.put(CART_SERVICE + "/items/" + bookId, cartUpdateBookRequest, Void.class);
     }
 
     /**
      * 장바구니 도서 삭제
      */
-    public String deleteItem(Long bookId){
-        return backendApiClient.delete(CART_SERVICE + "/items/" + bookId, String.class);
+    public void deleteItem(Long bookId){
+        backendApiClient.delete(CART_SERVICE + "/items/" + bookId, Void.class);
     }
 
     /**
      * 장바구니 비우기
      */
-    public String clearCart(){
-        return backendApiClient.delete(CART_SERVICE + "/items", String.class);
+    public void clearCart(){
+        backendApiClient.delete(CART_SERVICE + "/items", Void.class);
     }
 
     /**
@@ -54,22 +52,22 @@ public class CartApiClient {
     /**
      * 비회원 -> 회원 머지 (팝업에서 yes)
      */
-    public String mergeGuestCartToUser(){
-        return backendApiClient.postNoBody(CART_SERVICE + "/merge-guest", String.class);
+    public void mergeGuestCartToUser(){
+        backendApiClient.postNoBody(CART_SERVICE + "/merge-guest", Void.class);
     }
 
     /**
      * 비회원 장바구니 삭제 (팝업에서 no)
      */
-    public String deleteGuestCart(){
-        return backendApiClient.delete(CART_SERVICE + "/guest", String.class);
+    public void deleteGuestCart(){
+        backendApiClient.delete(CART_SERVICE + "/guest", Void.class);
     }
 
     /**
      * 장바구니에 아이템 담기
      */
-    public AddCartItemRequest addItem(AddCartItemRequest addCartItemRequest) {
-        return backendApiClient.post(CART_SERVICE + "/cart/items", addCartItemRequest, AddCartItemRequest.class);
+    public void addItem(AddCartItemRequest addCartItemRequest) {
+        backendApiClient.post(CART_SERVICE + "/cart/items", addCartItemRequest, Void.class);
     }
 
 }

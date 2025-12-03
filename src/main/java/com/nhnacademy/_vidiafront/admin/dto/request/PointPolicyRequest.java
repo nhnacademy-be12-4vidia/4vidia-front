@@ -1,4 +1,4 @@
-package com.nhnacademy._vidiafront.admin.dto.pointpolicy.request;
+package com.nhnacademy._vidiafront.admin.dto.request;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

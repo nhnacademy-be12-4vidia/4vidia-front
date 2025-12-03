@@ -6,9 +6,7 @@ import com.nhnacademy._vidiafront.user.dto.address.request.CreateAddressRequest;
 import com.nhnacademy._vidiafront.user.dto.address.response.AddressResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
 
 import java.util.List;
 

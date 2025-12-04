@@ -18,9 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
@@ -131,6 +129,12 @@ public class AuthController {
             rttr.addFlashAttribute("error","일치하는 회원 정보가 없습니다.");
             return "redirect:/auth/find-password";
         }
+    }
+
+    @GetMapping("/check-email")
+    @ResponseBody
+    public String existsEmail(@RequestParam String email) {
+        return authApiClient.existsByEmail(email);
     }
 
     private void deleteCookie(String name, HttpServletResponse response) {

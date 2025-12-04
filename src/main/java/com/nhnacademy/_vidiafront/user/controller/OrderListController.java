@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -21,17 +19,21 @@ import java.util.stream.Collectors;
 @RequestMapping("/mypage/order")
 @Controller
 public class OrderListController {
+
     private final OrderApiClient orderApiClient;
 
     /**
-     * 주문관리 페이지 폼 (임시)
-     * */
+     * 주문관리 페이지
+     */
     @GetMapping
-    public String orderList(@RequestParam(value = "status", required = false, defaultValue = "ALL") String status,
-                            Model model) {
+    public String orderList(
+            @RequestParam(value = "status", required = false, defaultValue = "ALL") String status,
+            Model model
+    ) {
 
         List<OrderPreviewResponse> allOrders = getSortedOrderList();
 
+        // 상태 카운트 계산 → 기본값 포함
         Map<String, Long> statusCounts = calculateStatusCounts(allOrders);
 
         String currentStatus = status.toUpperCase();
@@ -39,72 +41,92 @@ public class OrderListController {
         model.addAttribute("statusCounts", statusCounts);
         model.addAttribute("totalOrders", (long) allOrders.size());
 
+        // 필터링
         List<OrderPreviewResponse> filteredOrders = filterOrdersByStatus(allOrders, currentStatus);
         model.addAttribute("orders", filteredOrders);
 
+        // 상태명 한글화
         model.addAttribute("statusNameMap", getStatusKoreanNameMap());
 
         return "mypage/order/orderList";
     }
 
+    /**
+     * 주문 목록을 가져와 날짜 기준 최신순 정렬
+     */
     private List<OrderPreviewResponse> getSortedOrderList() {
-        List<OrderPreviewResponse> orders = orderApiClient.getOrderPreview();
+        try {
+            List<OrderPreviewResponse> orders = orderApiClient.getOrderPreview();
 
-        return orders.stream()
-                .sorted(Comparator.comparing(OrderPreviewResponse::createdAt).reversed())
-                .collect(Collectors.toList());
+            if (orders == null) {
+                return Collections.emptyList();
+            }
+
+            return orders.stream()
+                    .sorted(Comparator.comparing(OrderPreviewResponse::createdAt).reversed())
+                    .collect(Collectors.toList());
+
+        } catch (Exception e) {
+            log.error("Failed to fetch order preview list: {}", e.getMessage());
+            return Collections.emptyList();
+        }
     }
 
-    // 주문 통계 Map 계산 (Map<String(Enum Name), Long(Count)>)
+    /**
+     * 상태 카운트 계산 + 반드시 기본값 세팅
+     */
     private Map<String, Long> calculateStatusCounts(List<OrderPreviewResponse> orders) {
+
+        // 실제 주문 상태 카운트
         Map<String, Long> counts = orders.stream()
                 .map(order -> order.deliveryStatus().name())
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
-        Long canceledCount = counts.getOrDefault("CANCELED", 0L);
+        // 기본값 설정 (뷰에서 null 방지)
+        counts.putIfAbsent("WAITING", 0L);
+        counts.putIfAbsent("SHIPPING", 0L);
+        counts.putIfAbsent("DELIVERED", 0L);
+        counts.putIfAbsent("CANCELED", 0L);
 
-        // DB에 CANCELED만 있다면, 임의로 취소와 교환/반품을 분할하거나 합산하여 전달합니다.
-        // 여기서는 CANCELED를 합산하고, 두 개 탭에는 0을 넣어둡니다.
-        counts.put("CANCELED_ONLY", canceledCount);
-        counts.put("EXCHANGE_RETURN", 0L);
+        // UI 전용 필드
+        counts.put("CANCELED_ONLY", counts.get("CANCELED"));
+        counts.put("EXCHANGE_RETURN", 0L); // 아직 미구현
 
         return counts;
     }
 
-
-    // 선택된 상태에 따라 목록 필터링
+    /**
+     * 선택된 상태에 따라 필터링
+     */
     private List<OrderPreviewResponse> filterOrdersByStatus(List<OrderPreviewResponse> allOrders, String status) {
+
         if ("ALL".equalsIgnoreCase(status)) {
             return allOrders;
         }
 
-        final String finalFilterStatus;
+        String filter = status.toUpperCase();
 
-        String upperStatus = status.toUpperCase();
-
-        // 조건에 따라 최종 필터링 상태를 결정
-        if ("CANCELED_ONLY".equalsIgnoreCase(upperStatus) || "EXCHANGE_RETURN".equalsIgnoreCase(upperStatus)) {
-            // CANCELED_ONLY 또는 EXCHANGE_RETURN 탭을 눌렀을 경우, 백엔드 상태는 CANCELED로 필터링
-            finalFilterStatus = "CANCELED";
-        } else {
-            // 그 외의 경우 (WAITING, SHIPPING, DELIVERED)는 입력 상태 그대로 사용
-            finalFilterStatus = upperStatus;
+        // 취소/교환/반품 → CANCELED 로 묶기
+        if ("CANCELED_ONLY".equals(filter) || "EXCHANGE_RETURN".equals(filter)) {
+            filter = "CANCELED";
         }
 
-        // finalFilterStatus는 선언 후 값이 변경된 적이 없으므로,
+        String finalFilter = filter;
+
         return allOrders.stream()
-                .filter(order -> order.deliveryStatus().name().equalsIgnoreCase(finalFilterStatus))
+                .filter(order -> order.deliveryStatus().name().equalsIgnoreCase(finalFilter))
                 .collect(Collectors.toList());
     }
 
-    // 한글 상태명을 쉽게 사용하기 위한 Map 추가
+    /**
+     * UI용 한글 상태명
+     */
     private Map<String, String> getStatusKoreanNameMap() {
         return Map.of(
                 "WAITING", "배송 준비중",
                 "SHIPPING", "배송 중",
                 "DELIVERED", "배송 완료",
                 "CANCELED", "취소됨"
-                // CANCELED_ONLY와 EXCHANGE_RETURN은 탭 레이블이므로 굳이 맵에 넣지 않아도 됨
         );
     }
 }

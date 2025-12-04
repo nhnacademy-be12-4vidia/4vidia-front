@@ -38,8 +38,6 @@ public class LikeController {
 
 
 
-
-
     // 좋아요 등록을 마이페이지에서 하지는 않음 ㅇㅇ
     // 아래는 도서에서 사용할 테스트용
     @DeleteMapping("/test")

@@ -22,7 +22,7 @@
                     <div class="p-5">
                         <h1 class="h4 text-gray-900 mb-4">회원가입</h1>
 
-                        <form class="user" action="/auth/signup" method="post">
+                        <form class="user" th:action="@{/auth/signup}" method="post">
                             <div class="form-group">
                                 <input type="text" name="name" class="form-control form-control-user"
                                        placeholder="이름" required>
@@ -30,18 +30,69 @@
 
                             <div class="form-group">
                                 <input type="tel" name="phone" class="form-control form-control-user"
-                                       value="010" placeholder="예: 01012345678" required>
+                                       placeholder="예: 01012345678"
+                                       pattern="01[016789][0-9]{7,8}"
+                                       title="숫자만 입력해주세요. 예: 01012345678"
+                                       required>
+                            </div>
+
+
+                            <script>
+                                function checkEmail() {
+                                    const email = document.getElementById('email').value;
+                                    const feedback = document.getElementById('emailFeedback');
+
+                                    if (!email) {
+                                        feedback.textContent = "이메일을 입력해주세요.";
+                                        feedback.style.color = "red";
+                                        return;
+                                    }
+
+                                    fetch(`/auth/check-email?email=${encodeURIComponent(email)}`, {
+                                        method: 'GET',
+                                        credentials: 'same-origin'
+                                    })
+                                        .then(function(res) {
+                                            if (!res.ok) {
+                                                throw new Error(`서버 응답이 정상적이지 않습니다. 상태: ${res.status}`);
+                                            }
+                                            return res.json(); // 이 시점에서 반드시 JSON이 와야 함
+                                        })
+                                        .then(function(exists) {
+                                            if (exists) {
+                                                feedback.textContent = "이미 사용 중인 이메일입니다.";
+                                                feedback.style.color = "red";
+                                            } else {
+                                                feedback.textContent = "사용 가능한 이메일입니다!";
+                                                feedback.style.color = "green";
+                                            }
+                                        })
+                                        .catch(function(err) {
+                                            feedback.textContent = "서버와 통신 중 오류가 발생했습니다.";
+                                            feedback.style.color = "red";
+                                            console.error('email check error:', err);
+                                        });
+                                }
+                            </script>
+                            <div class="form-group">
+                                <div class="d-flex">
+                                    <input type="email" id="email" name="email" class="form-control form-control-user"
+                                           placeholder="이메일" required>
+                                    <button type="button" class="btn btn-secondary ml-2" onclick="checkEmail()">중복확인</button>
+                                </div>
+                                <small id="emailFeedback" class="form-text text-muted"></small>
                             </div>
 
                             <div class="form-group">
-                                <input type="email" name="email" class="form-control form-control-user"
-                                       placeholder="이메일" required>
+                                <input type="password"
+                                       name="password"
+                                       class="form-control form-control-user"
+                                       placeholder="비밀번호"
+                                       required
+                                       pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,20}$"
+                                       title="비밀번호는 8~20자이며, 소문자, 숫자, 특수문자를 각각 1개 이상 포함해야 합니다.">
                             </div>
 
-                            <div class="form-group">
-                                <input type="password" name="password" class="form-control form-control-user"
-                                       placeholder="비밀번호" required>
-                            </div>
 
                             <div class="form-group">
                                 <p>생년월일</p>
@@ -68,4 +119,5 @@
 
 </div>
 </body>
+
 </html>

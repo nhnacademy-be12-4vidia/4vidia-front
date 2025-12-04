@@ -22,9 +22,10 @@ public record OrderResponse(
         LocalDate deliveryDate,
         DeliveryStatus deliveryStatus,
         LocalDate actualDeliveryDate, //null값 가져올수도있음
-        int totalPrice,
-        int payPrice,
-        List<OrderBookResponse> orderItems
+        int totalPrice, //도서 + 포장 + 배송
+        int payPrice,   //도서 + 포장 + 배송 - 포인트 - 쿠폰
+        List<OrderBookResponse> orderItems,
+        int itemsPrice  //순수 도서 금액 (도서 * 수량)의 합
 ) {
     public record OrderBookResponse(
             Long orderItemId,
@@ -34,6 +35,14 @@ public record OrderResponse(
             String bookImageUrl,
             Integer quantity,
             Integer salePrice,
-            ConfirmStatus confirmStatus
-    ) { }
+            ConfirmStatus confirmStatus,
+            List<PackagingResponse> packagingResponses,
+            int totalPackagingPrice
+    ) {
+        public record PackagingResponse(
+                Long packagingOptionId,
+                String name,
+                int price
+        ) { }
+    }
 }

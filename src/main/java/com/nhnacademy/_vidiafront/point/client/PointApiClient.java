@@ -23,7 +23,7 @@ public class PointApiClient {
      */
     public PointTotalResponse getPointTotal() {
         return backendApiClient.get(
-                USER_SERVICE+"/points/remain",PointTotalResponse.class
+                USER_SERVICE+"/my/points/remain",PointTotalResponse.class
         );
     }
 
@@ -32,7 +32,7 @@ public class PointApiClient {
      */
     public PointExpireSoon getExpireSoon(int days){
         return backendApiClient.get(
-                USER_SERVICE+"/points/expire-soon?days="+days,
+                USER_SERVICE+"/my/points/expire-soon?days="+days,
                 PointExpireSoon.class
         );
     }
@@ -43,7 +43,7 @@ public class PointApiClient {
      */
     public PointHistoryPageResponse getHistoryPage(int page, int limit) {
         return backendApiClient.get(
-                USER_SERVICE+"/points/history?page="+page+"&size="+limit,
+                USER_SERVICE+"/my/points/history?page="+page+"&size="+limit,
                 PointHistoryPageResponse.class
         );
     }

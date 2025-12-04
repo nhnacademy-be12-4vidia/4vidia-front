@@ -6,80 +6,148 @@
     <meta charset="utf-8">
     <title>4VIDIA - 도서 쇼핑몰</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
+        /* ------------------------------------------------ */
+        /*  공통 레이아웃 정리 */
+        /* ------------------------------------------------ */
+
+        .row {
+            display: flex;
+            flex-wrap: wrap !important;
+            justify-content: center;
+        }
+
+        /* ------------------------------------------------ */
+        /* 카드 Wrapper */
+        /* ------------------------------------------------ */
+        .book-card-wrapper {
+            flex-shrink: 0;
+            width: 250px;
+            padding: 0 0.75rem;
+            margin-bottom: 2.5rem;
+        }
+
+        /* ------------------------------------------------ */
+        /* 카드 디자인 */
+        /* ------------------------------------------------ */
         .book-card {
             border: none;
-            border-radius: 0.35rem;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-            transition: transform 0.2s, box-shadow 0.2s;
+            border-radius: 0.5rem;
+            width: 100%;
             height: 100%;
+            overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 0.25rem 1.25rem rgba(0,0,0,0.12);
+            transition: all 0.25s ease;
         }
 
         .book-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.25);
+            transform: translateY(-6px);
+            box-shadow: 0 0.75rem 2rem rgba(0,0,0,0.18);
         }
 
-        .book-card img {
-            border-top-left-radius: 0.35rem;
-            border-top-right-radius: 0.35rem;
+        /* 이미지 hover 확대 */
+        .card-img-wrapper {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-img-wrapper img {
+            width: 100%;
             height: 300px;
             object-fit: cover;
+            transition: transform 0.35s ease;
+        }
+
+        .book-card:hover .card-img-wrapper img {
+            transform: scale(1.07);
+        }
+
+        /* ------------------------------------------------ */
+        /* 뱃지(NEW, BEST) */
+        /* ------------------------------------------------ */
+        .badge-new,
+        .badge-best {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 5;
+            padding: 5px 10px;
+            border-radius: 0.35rem;
+            font-size: 0.75rem;
+            font-weight: 600;
         }
 
         .badge-new {
             background-color: #1cc88a;
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 1;
+            color: white;
         }
 
         .badge-best {
             background-color: #e74a3b;
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 1;
+            color: white;
         }
 
-        .badge-new.with-best {
-            top: 40px;
-        }
-
+        /* ------------------------------------------------ */
+        /* 좋아요 버튼 */
+        /* ------------------------------------------------ */
         .btn-heart {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            background: white;
+            top: 12px;
+            right: 12px;
+            z-index: 5;
+            width: 38px;
+            height: 38px;
             border: none;
             border-radius: 50%;
-            width: 35px;
-            height: 35px;
+            background: rgba(255,255,255,0.9);
             display: flex;
-            align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            z-index: 1;
+            align-items: center;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.18);
+            transition: background 0.15s, transform 0.2s;
         }
 
         .btn-heart:hover {
-            background-color: #ffe5e5;
+            background: #ffe5e5;
+            transform: scale(1.08);
         }
 
         .btn-heart i {
-            color: #666;
+            font-size: 1.1rem;
+            color: #777;
         }
 
-        /* 좋아요가 눌렸을 때의 상태 */
         .btn-heart i.fas {
             color: #e74a3b;
         }
 
-        .btn-heart:hover i {
-            color: #e74a3b;
+        /* ------------------------------------------------ */
+        /* 텍스트 영역 */
+        /* ------------------------------------------------ */
+        .card-body {
+            padding: 1rem;
         }
 
+        .category-badge {
+            color: #4e73df;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .card-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+
+        /* 평점 */
+        .rating {
+            color: #f6c23e;
+            font-size: 0.9rem;
+        }
+
+        /* 가격 */
         .price-original {
             text-decoration: line-through;
             color: #858796;
@@ -89,52 +157,91 @@
         .price-current {
             color: #4e73df;
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1.15rem;
         }
 
-        .category-badge {
-            color: #4e73df;
-            font-size: 0.75rem;
+        /* ------------------------------------------------ */
+        /* 버튼 스타일 */
+        /* ------------------------------------------------ */
+        .book-card .card-body form {
+            margin-bottom: 0.6rem;
+        }
+
+        .book-card .card-body form:last-child {
+            margin-bottom: 0;
+        }
+
+        .btn-block {
+            width: 100%;
+            padding: 0.55rem 0;
             font-weight: 600;
+            border-radius: 0.35rem;
         }
 
-        .rating {
-            color: #f6c23e;
+        .btn-primary {
+            background: #4e73df;
+            border: none;
         }
 
+        .btn-primary:hover {
+            background: #365acb;
+        }
+
+        .btn-secondary {
+            background: #858796;
+            border: none;
+        }
+
+        .btn-secondary:hover {
+            background: #6c6f7a;
+        }
+
+        /* ------------------------------------------------ */
+        /* 카테고리 Pill */
+        /* ------------------------------------------------ */
         .category-pill {
-            padding: 0.5rem 1.25rem;
-            border-radius: 50px;
-            border: 1px solid #e3e6f0;
+            padding: 0.5rem 1.3rem;
+            border-radius: 30px;
+            border: 1px solid #d8dce6;
             background: white;
-            color: #5a5c69;
-            text-decoration: none;
-            display: inline-block;
-            margin-right: 0.5rem;
+            color: #61636b;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-right: 0.4rem;
             margin-bottom: 0.5rem;
-            transition: all 0.2s;
+            display: inline-block;
+            transition: all 0.2s ease;
         }
 
-        .category-pill:hover,
+        .category-pill:hover {
+            background: #4e73df;
+            border-color: #4e73df;
+            color: white;
+        }
+
         .category-pill.active {
             background: #4e73df;
             color: white;
-            border-color: #4e73df;
-            text-decoration: none;
         }
 
-        .card-img-wrapper {
-            position: relative;
-            overflow: hidden;
+        /* ------------------------------------------------ */
+        /* 반응형 디자인 */
+        /* ------------------------------------------------ */
+        @media (max-width: 992px) {
+            .book-card-wrapper {
+                width: 45%;
+            }
         }
 
-        .card-img-wrapper img {
-            transition: transform 0.3s ease;
+        @media (max-width: 576px) {
+            .book-card-wrapper {
+                width: 90%;
+            }
+            .card-img-wrapper img {
+                height: 260px;
+            }
         }
 
-        .book-card:hover .card-img-wrapper img {
-            transform: scale(1.05);
-        }
     </style>
     <script>
         // 좋아요/찜하기 토글 (AJAX/Fetch API 사용)
@@ -174,15 +281,16 @@
 
 <body>
 <div layout:fragment="content">
-    <div class="container-fluid">
-        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <div class="container">
+
+        <div class="d-sm-flex align-items-center justify-content-center mb-4 text-center w-100">
             <div>
                 <h1 class="h3 mb-2 text-gray-800">베스트셀러 도서</h1>
                 <p class="mb-0 text-gray-600">4VIDIA에서 가장 인기있는 도서들을 만나보세요</p>
             </div>
         </div>
 
-        <div class="mb-4">
+        <div class="mb-4 text-center">
             <a href="#" class="category-pill active" data-category="all">전체</a>
             <a href="#" class="category-pill" data-category="문학">문학</a>
             <a href="#" class="category-pill" data-category="소설">소설</a>
@@ -192,8 +300,9 @@
             <a href="#" class="category-pill" data-category="여행">여행</a>
         </div>
 
-        <div class="row">
-            <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+        <div class="row justify-content-center">
+
+            <div class="book-card-wrapper">
                 <div class="card book-card">
                     <div class="card-img-wrapper">
                         <span class="badge badge-danger badge-best">BEST</span>
@@ -217,28 +326,25 @@
                             <span class="price-original">18,000원</span>
                             <span class="price-current ml-2">15,000원</span>
                         </div>
-                        <div class="d-flex justify-content-between">
+                        <form th:action="@{/cart/add}" method="post">
+                            <input type="hidden" name="bookId" th:value="${1}">
+                            <button class="btn btn-primary btn-block">
+                                <i class="fas fa-shopping-cart mr-1"></i> 장바구니
+                            </button>
+                        </form>
 
-                            <form th:action="@{/cart/add}" method="post" class="w-50 mr-1">
-                                <input type="hidden" name="bookId" th:value="${1}">
-                                <button class="btn btn-primary btn-block">
-                                    <i class="fas fa-shopping-cart mr-1"></i> 장바구니 담기
-                                </button>
-                            </form>
-
-                            <form th:action="@{/orders}" method="post" class="w-50 ml-1">
-                                <input type="hidden" name="bookId" th:value="${1}">
-                                <input type="hidden" name="quantity" value="1">
-                                <button type="submit" class="btn btn-secondary btn-block">
-                                    바로 구매
-                                </button>
-                            </form>
-                        </div>
+                        <form th:action="@{/orders}" method="post">
+                            <input type="hidden" name="bookId" th:value="${1}">
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="btn btn-secondary btn-block">
+                                바로 구매
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
 
-            <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+            <div class="book-card-wrapper">
                 <div class="card book-card">
                     <div class="card-img-wrapper">
                         <span class="badge badge-success badge-new">NEW</span>
@@ -262,28 +368,25 @@
                             <span class="price-original">15,000원</span>
                             <span class="price-current">5,000원</span>
                         </div>
-                        <div class="d-flex justify-content-between">
+                        <form th:action="@{/cart/add}" method="post">
+                            <input type="hidden" name="bookId" th:value="${5}">
+                            <button class="btn btn-primary btn-block">
+                                <i class="fas fa-shopping-cart mr-1"></i> 장바구니
+                            </button>
+                        </form>
 
-                            <form th:action="@{/cart/add}" method="post" class="w-50 mr-1">
-                                <input type="hidden" name="bookId" th:value="${5}">
-                                <button class="btn btn-primary btn-block">
-                                    <i class="fas fa-shopping-cart mr-1"></i> 장바구니 담기
-                                </button>
-                            </form>
-
-                            <form th:action="@{/orders}" method="post" class="w-50 ml-1">
-                                <input type="hidden" name="bookId" th:value="${5}">
-                                <input type="hidden" name="quantity" value="1">
-                                <button type="submit" class="btn btn-secondary btn-block">
-                                    바로 구매
-                                </button>
-                            </form>
-                        </div>
+                        <form th:action="@{/orders}" method="post">
+                            <input type="hidden" name="bookId" th:value="${5}">
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="btn btn-secondary btn-block">
+                                바로 구매
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
 
-            <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+            <div class="book-card-wrapper">
                 <div class="card book-card">
                     <div class="card-img-wrapper">
                         <button type="button"
@@ -306,31 +409,26 @@
                             <span class="price-original">38,000원</span>
                             <span class="price-current ml-2">32,000원</span>
                         </div>
+                        <form th:action="@{/cart/add}" method="post">
+                            <input type="hidden" name="bookId" th:value="${8}">
+                            <button class="btn btn-primary btn-block">
+                                <i class="fas fa-shopping-cart mr-1"></i> 장바구니
+                            </button>
+                        </form>
 
-                        <div class="d-flex justify-content-between">
+                        <form th:action="@{/orders}" method="post">
+                            <input type="hidden" name="bookId" th:value="${8}">
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="btn btn-secondary btn-block">
+                                바로 구매
+                            </button>
+                        </form>
 
-                            <form th:action="@{/cart/add}" method="post" class="w-50 mr-1">
-                                <input type="hidden" name="bookId" th:value="${8}">
-                                <button class="btn btn-primary btn-block">
-                                    <i class="fas fa-shopping-cart mr-1"></i> 장바구니 담기
-                                </button>
-                            </form>
-
-                            <form th:action="@{/orders}" method="post" class="w-50 ml-1">
-                                <input type="hidden" name="bookId" th:value="${8}">
-                                <input type="hidden" name="quantity" value="1">
-                                <button type="submit" class="btn btn-secondary btn-block">
-                                    바로 구매
-                                </button>
-                            </form>
-                        </div>
-
-                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+            <div class="book-card-wrapper">
                 <div class="card book-card">
                     <div class="card-img-wrapper">
                         <span class="badge badge-success badge-new">NEW</span>
@@ -340,30 +438,86 @@
                                 onclick="toggleLike(this)">
                             <i class="far fa-heart"></i>
                         </button>
-                        <img class="card-img-top" src="https://images.unsplash.com/photo-1558210834-473f430c09ac?w=400" alt="커피와 독서">
+                        <img class="card-img-top" src="https://image.aladin.co.kr/product/18458/37/cover/1503831965_2.jpg?w=400" alt="커피와 독서">
                     </div>
                     <div class="card-body">
                         <div class="category-badge mb-1">라이프스타일</div>
-                        <h5 class="card-title mb-1">X</h5>
-                        <p class="text-muted small mb-2">X</p>
+                        <h5 class="card-title mb-1">반달은 반쪽인가</h5>
+                        <p class="text-muted small mb-2"></p>
                         <div class="mb-2">
                             <span class="rating"><i class="fas fa-star"></i> 4.7</span>
                             <span class="text-muted small">(128)</span>
                         </div>
                         <div class="mb-3">
-                            <span class="price-current">0원</span>
+                            <span class="price-current">0원 X</span>
                         </div>
-                        <button class="btn btn-primary btn-block">장바구니 담기X</button>
+                        <form th:action="@{/cart/add}" method="post">
+                            <input type="hidden" name="bookId" th:value="${12}">
+                            <button class="btn btn-primary btn-block">
+                                <i class="fas fa-shopping-cart mr-1"></i> 장바구니
+                            </button>
+                        </form>
+                        <form th:action="@{/orders}" method="post">
+                            <input type="hidden" name="bookId" th:value="${12}">
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="btn btn-secondary btn-block">
+                                바로 구매
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
 
+            <div class="book-card-wrapper">
+                <div class="card book-card">
+                    <div class="card-img-wrapper">
+                        <span class="badge badge-danger badge-best">BEST</span>
+                        <button type="button"
+                                class="btn-heart"
+                                data-book-id="10"
+                                onclick="toggleLike(this)">
+                            <i class="far fa-heart"></i>
+                        </button>
+                        <img class="card-img-top" src="https://image.aladin.co.kr/product/18662/37/cover/153834162x_2.jpg?w=400" alt="베스트 경제 도서">
+                    </div>
+                    <div class="card-body">
+                        <div class="category-badge mb-1">경제/경영</div>
+                        <h5 class="card-title mb-1">이건 좀 아닌 것 같아! 10 - 완결</h5>
+                        <p class="text-muted small mb-2">김철수</p>
+                        <div class="mb-2">
+                            <span class="rating"><i class="fas fa-star"></i> 4.9</span>
+                            <span class="text-muted small">(99)</span>
+                        </div>
+                        <div class="mb-3">
+                            <span class="price-original">25,000원 X</span>
+                            <span class="price-current ml-2">22,500원 X</span>
+                        </div>
+                        <form th:action="@{/cart/add}" method="post">
+                            <input type="hidden" name="bookId" th:value="${17}">
+                            <button class="btn btn-primary btn-block">
+                                <i class="fas fa-shopping-cart mr-1"></i> 장바구니
+                            </button>
+                        </form>
+                        <form th:action="@{/orders}" method="post">
+                            <input type="hidden" name="bookId" th:value="${17}">
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="btn btn-secondary btn-block">
+                                바로 구매
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
+
+
     </div>
+</div>
 </div>
 <script>
     // 페이지가 로드되면 레이아웃을 불러옵니다
     window.addEventListener('DOMContentLoaded', function() {
+        // ... (레이아웃 로드 스크립트는 변경 없음) ...
         fetch('layout.html')
             .then(response => response.text())
             .then(html => {
@@ -434,11 +588,11 @@
                 jQuery('.btn-primary').on('click', function(e) {
                     // 장바구니 담기 버튼만 처리 (X 버튼이 아닌 경우)
                     const buttonText = jQuery(this).text().trim();
-                    if (buttonText === '장바구니 담기') {
+                    if (buttonText === '장바구니') {
                         // 실제 Thymeleaf 폼을 사용하는 경우, 폼 제출은 계속 진행
                         alert('장바구니에 담겼습니다! (서버 요청)');
                         // 폼 제출을 막지 않음
-                    } else if (buttonText === '장바구니 담기X') {
+                    } else if (buttonText === '장바구니X') {
                         e.preventDefault(); // 하드코딩된 X 버튼은 동작 방지
                         alert('장바구니 담기X 버튼');
                     }

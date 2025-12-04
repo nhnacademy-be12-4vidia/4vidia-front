@@ -2,14 +2,14 @@ package com.nhnacademy._vidiafront.point.client;
 
 
 
+import com.nhnacademy._vidiafront.admin.dto.request.PointPolicyRequest;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
+import com.nhnacademy._vidiafront.point.dto.request.PointPolicyRewardRequest;
 import com.nhnacademy._vidiafront.point.dto.response.PointExpireSoon;
 import com.nhnacademy._vidiafront.point.dto.response.PointHistoryPageResponse;
 import com.nhnacademy._vidiafront.point.dto.response.PointTotalResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
 
 @Component
 @RequiredArgsConstructor
@@ -46,6 +46,13 @@ public class PointApiClient {
                 USER_SERVICE+"/my/points/history?page="+page+"&size="+limit,
                 PointHistoryPageResponse.class
         );
+    }
+
+    /**
+     * 정책 적립
+     */
+    public void rewardByPolicy(PointPolicyRewardRequest pointPolicyRewardRequest){
+        backendApiClient.post(USER_SERVICE + "/points/policy-reward", pointPolicyRewardRequest, Void.class);
     }
 
 }

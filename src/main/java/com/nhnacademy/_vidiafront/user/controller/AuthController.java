@@ -1,6 +1,9 @@
 package com.nhnacademy._vidiafront.user.controller;
 
+import com.nhnacademy._vidiafront.admin.dto.request.PointPolicyRequest;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
+import com.nhnacademy._vidiafront.point.client.PointApiClient;
+import com.nhnacademy._vidiafront.point.dto.request.PointPolicyRewardRequest;
 import com.nhnacademy._vidiafront.user.client.AuthApiClient;
 import com.nhnacademy._vidiafront.user.dto.auth.request.FindIdRequest;
 import com.nhnacademy._vidiafront.user.dto.auth.request.FindPasswordRequest;
@@ -28,6 +31,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class AuthController {
     private final AuthApiClient authApiClient;
     private final BackendApiClient backendApiClient;
+    private final PointApiClient pointApiClient;
 
     /**
      * 로그인 폼
@@ -82,7 +86,8 @@ public class AuthController {
      * */
     @PostMapping("/signup")
     public String signup(UserSignupRequest userSignupRequest) {
-        authApiClient.signup(userSignupRequest);
+        Long userId = authApiClient.signup(userSignupRequest);
+        pointApiClient.rewardByPolicy(new PointPolicyRewardRequest(userId,1L));
         return "redirect:/auth/login";
     }
 

@@ -1,15 +1,15 @@
 package com.nhnacademy._vidiafront.point.client;
 
-
-
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
+import com.nhnacademy._vidiafront.point.dto.request.PointOrderRewardRequest;
+import com.nhnacademy._vidiafront.point.dto.request.PointPolicyRewardRequest;
+import com.nhnacademy._vidiafront.point.dto.request.PointRefundRewardRequest;
+import com.nhnacademy._vidiafront.point.dto.request.PointUseRequest;
 import com.nhnacademy._vidiafront.point.dto.response.PointExpireSoon;
 import com.nhnacademy._vidiafront.point.dto.response.PointHistoryPageResponse;
 import com.nhnacademy._vidiafront.point.dto.response.PointTotalResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
 
 @Component
 @RequiredArgsConstructor
@@ -48,4 +48,34 @@ public class PointApiClient {
         );
     }
 
+    /**
+     * 정책 적립
+     */
+    public void rewardByPolicy(PointPolicyRewardRequest pointPolicyRewardRequest){
+        backendApiClient.post(USER_SERVICE + "/points/policy-reward", pointPolicyRewardRequest, Void.class);
+    }
+
+    /**
+     * 주문 적립
+     * @param pointOrderRewardRequest
+     */
+    public void rewardByOrder(PointOrderRewardRequest pointOrderRewardRequest){
+        backendApiClient.post(USER_SERVICE + "/my/points/reward", pointOrderRewardRequest, Void.class);
+    }
+
+    /**
+     * 환불 적립
+     */
+    public void rewardByRefund(PointRefundRewardRequest pointRefundRequest){
+        backendApiClient.post(USER_SERVICE + "/my/points/refund", pointRefundRequest, Void.class);
+    }
+
+    /**
+     * 주문 사용
+     */
+    public void usePoint(PointUseRequest pointUseRequest){
+        backendApiClient.post(USER_SERVICE + "/my/points/use", pointUseRequest, Void.class);
+    }
+
+    // TODO 유효기간 만료로 인한 차감은 따로 없어도 되는건가?
 }

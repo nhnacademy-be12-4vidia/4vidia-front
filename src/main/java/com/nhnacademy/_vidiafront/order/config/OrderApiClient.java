@@ -40,11 +40,11 @@ public class OrderApiClient {
         ParameterizedTypeReference<List<OrderPreviewResponse>> typeReference =
                 new ParameterizedTypeReference<List<OrderPreviewResponse>>() {};
 
-        List<OrderPreviewResponse> orderPreviewResponses = backendApiClient.get(ORDER_SERVICE + "/orders", typeReference);
+        List<OrderPreviewResponse> orderPreviewResponses = backendApiClient.get(ORDER_SERVICE + "/my/orders", typeReference);
         return orderPreviewResponses;
     }
 
     public OrderCreateResponse saveOrder(OrderCreateRequest orderCreateRequest) {
-        return backendApiClient.post(ORDER_SERVICE + "/orders", orderCreateRequest, OrderCreateResponse.class);
+        return backendApiClient.post(ORDER_SERVICE + "/orders/create", orderCreateRequest, OrderCreateResponse.class);
     }
 }

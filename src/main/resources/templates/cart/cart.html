@@ -204,8 +204,13 @@
                         <div class="h5 mb-0 font-weight-bold text-success" id="selectedTotalAmount">
                             0원
                         </div>
-                        <button class="btn btn-primary btn-sm mt-2"
-                                onclick="location.href='/order'">
+                        <form id="orderForm" th:action="@{/orders}" method="post" style="display: none;">
+                            <!-- CSRF 쓰면 여기 _csrf hidden 필드 넣어주면 됨 -->
+                            <!-- <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" /> -->
+                        </form>
+                        <button type="button"
+                                class="btn btn-primary btn-sm mt-2"
+                                onclick="submitOrder()">
                             주문하기
                         </button>
                     </div>

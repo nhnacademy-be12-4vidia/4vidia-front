@@ -1,5 +1,4 @@
 // /static/js/cart.js
-
 document.addEventListener("DOMContentLoaded", function () {
     const selectAll = document.getElementById("selectAll");
     const rows = Array.from(document.querySelectorAll(".cart-item-row"));
@@ -112,3 +111,50 @@ document.addEventListener("DOMContentLoaded", function () {
         qtyInput.addEventListener("change", onQtyChange);
     });
 });
+
+function submitOrder() {
+    const checked = document.querySelectorAll('.cart-item-checkbox:checked');
+
+    if (checked.length === 0) {
+        alert('주문할 상품을 하나 이상 선택해주세요.');
+        return;
+    }
+
+    const form = document.getElementById('orderForm');
+
+    // 1) 기존에 붙어 있던 orderCheckoutRequests 관련 hidden input 제거
+    Array.from(form.querySelectorAll('input[name^="orderCheckoutRequests["]'))
+        .forEach(e => e.remove());
+
+    let index = 0;
+
+    checked.forEach(cb => {
+        const row = cb.closest('.cart-item-row');
+        const qtyInput = row.querySelector('.cart-qty-input');
+
+        const bookId = cb.value;             // 체크박스 value = bookId (지금 구조)
+        const quantity = qtyInput.value;     // 그 줄의 수량 input 값
+
+        // 2) orderCheckoutRequests[index].bookId
+        const bookIdHidden = document.createElement('input');
+        bookIdHidden.type = 'hidden';
+        bookIdHidden.name = `orderCheckoutRequests[${index}].bookId`;
+        bookIdHidden.value = bookId;
+        form.appendChild(bookIdHidden);
+
+        // 3) orderCheckoutRequests[index].quantity
+        const quantityHidden = document.createElement('input');
+        quantityHidden.type = 'hidden';
+        quantityHidden.name = `orderCheckoutRequests[${index}].quantity`;
+        quantityHidden.value = quantity;
+        form.appendChild(quantityHidden);
+
+        index++;
+    });
+
+    // 👉 이 경우 bookId, quantity(단일 필드)는 전송하지 않으므로
+    //    OrderPageRequest.bookId / quantity 는 null,
+    //    orderCheckoutRequests 에만 값이 들어가게 됨.
+
+    form.submit();
+}

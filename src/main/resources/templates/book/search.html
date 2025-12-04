@@ -81,6 +81,39 @@
       font-weight: 600;
     }
   </style>
+    <script>
+        // 좋아요/찜하기 토글 (AJAX/Fetch API 사용)
+        function toggleLike(button) {
+            const bookId = button.getAttribute('data-book-id');
+            const icon = button.querySelector('i');
+            const isLiked = icon.classList.contains('fas');
+
+            let method = isLiked ? 'DELETE' : 'POST';
+            let url = `/mypage/like/test?bookId=${bookId}`;
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        icon.classList.toggle('far');
+                        icon.classList.toggle('fas');
+                        alert(isLiked ? `[${bookId}] 찜 취소되었습니다.` : `[${bookId}] 찜 등록되었습니다!`);
+                    } else if (response.status === 401) {
+                        alert('처리 실패: 로그인이 필요합니다.');
+                    } else {
+                        alert('처리 실패: 서버 오류이거나 잘못된 요청입니다. (상태: ' + response.status + ')');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('요청 중 네트워크 오류가 발생했습니다.');
+                });
+        }
+    </script>
 </head>
 
 <body>
@@ -123,13 +156,15 @@
            th:each="book : ${books}">
         <div class="card book-card">
           <div class="card-img-wrapper">
-            <!-- 좋아요 버튼 (JS는 필요 시 인덱스 페이지와 동일한 toggleLike 사용) -->
-            <button type="button"
-                    class="btn-heart"
-                    th:attr="data-book-id=${book.id}">
-              <i class="far fa-heart"></i>
-            </button>
-            <img class="card-img-top"
+              <!-- 좋아요 버튼 -->
+              <button type="button"
+                      class="btn-heart"
+                      th:attr="data-book-id=${book.id}"
+                      onclick="toggleLike(this)">
+                  <i class="far fa-heart"></i>
+              </button>
+
+              <img class="card-img-top"
                  th:src="${book.imageUrl}"
                  alt="표지 이미지">
           </div>

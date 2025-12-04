@@ -138,8 +138,8 @@ public class AuthController {
 
     @GetMapping("/check-email")
     @ResponseBody
-    public String existsEmail(@RequestParam String email) {
-        return authApiClient.existsByEmail(email);
+    public Boolean existsEmail(@RequestParam String email) {
+        return Boolean.parseBoolean(authApiClient.existsByEmail(email));
     }
 
     private void deleteCookie(String name, HttpServletResponse response) {

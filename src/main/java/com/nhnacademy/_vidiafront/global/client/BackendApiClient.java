@@ -2,6 +2,7 @@ package com.nhnacademy._vidiafront.global.client;
 
 import com.nhnacademy._vidiafront.global.exception.ApiRequestException;
 import com.nhnacademy._vidiafront.user.dto.auth.response.TokenResponse;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +25,13 @@ public class BackendApiClient {
     // ------------------- GET -------------------
     public <T> T get(String uri, Class<T> responseType) {
         String token = (String) request.getSession().getAttribute("accessToken");
+        String guestId = extractGuestId();
 
         try {
             return restClient.get()
                     .uri(uri)
                     .header("Authorization", token != null ? "Bearer " + token : "")
+                    .header("X-Guest-Id", guestId != null ? guestId : "")
                     .retrieve()
                     .body(responseType);
         } catch (HttpClientErrorException.Unauthorized ex) {
@@ -38,6 +41,7 @@ public class BackendApiClient {
                 return restClient.get()
                         .uri(uri)
                         .header("Authorization", "Bearer " + tokenResponse.accessToken())
+                        .header("X-Guest-Id", guestId != null ? guestId : "")
                         .retrieve()
                         .body(responseType);
             } else {
@@ -51,11 +55,13 @@ public class BackendApiClient {
     public <T> T get(String uri, ParameterizedTypeReference<T> typeReference) {
 
         String token = (String) request.getSession().getAttribute("accessToken");
+        String guestId = extractGuestId();
 
         try {
             return restClient.get()
                     .uri(uri)
                     .header("Authorization", token != null ? "Bearer " + token : "")
+                    .header("X-Guest-Id", guestId != null ? guestId : "")
                     .retrieve()
                     .body(typeReference);
 
@@ -66,6 +72,7 @@ public class BackendApiClient {
                 return restClient.get()
                         .uri(uri)
                         .header("Authorization", "Bearer " + tokenResponse.accessToken())
+                        .header("X-Guest-Id", guestId != null ? guestId : "")
                         .retrieve()
                         .body(typeReference);
             } else {
@@ -78,11 +85,13 @@ public class BackendApiClient {
     // ------------------- POST -------------------
     public <T, R> T post(String uri, R body, Class<T> responseType) {
         String token = (String) request.getSession().getAttribute("accessToken");
+        String guestId = extractGuestId();
         try {
             return restClient.post()
                     .uri(uri)
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Authorization", token != null ? "Bearer " + token : "")
+                    .header("X-Guest-Id", guestId != null ? guestId : "")
                     .body(body)
                     .retrieve()
                     .body(responseType);
@@ -94,6 +103,7 @@ public class BackendApiClient {
                         .uri(uri)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenResponse.accessToken())
+                        .header("X-Guest-Id", guestId != null ? guestId : "")
                         .body(body)
                         .retrieve()
                         .body(responseType);
@@ -107,11 +117,13 @@ public class BackendApiClient {
 
     public <T, R> T postNoBody(String uri, Class<T> responseType) {
         String token = (String) request.getSession().getAttribute("accessToken");
+        String guestId = extractGuestId();
         try {
             return restClient.post()
                     .uri(uri)
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Authorization", token != null ? "Bearer " + token : "")
+                    .header("X-Guest-Id", guestId != null ? guestId : "")
                     .retrieve()
                     .body(responseType);
         } catch (HttpClientErrorException.Unauthorized ex) {
@@ -122,6 +134,7 @@ public class BackendApiClient {
                         .uri(uri)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenResponse.accessToken())
+                        .header("X-Guest-Id", guestId != null ? guestId : "")
                         .retrieve()
                         .body(responseType);
             } else {
@@ -135,11 +148,13 @@ public class BackendApiClient {
     // ------------------- PUT -------------------
     public <T, R> T put(String uri, R body, Class<T> responseType) {
         String token = (String) request.getSession().getAttribute("accessToken");
+        String guestId = extractGuestId();
         try {
             return restClient.put()
                     .uri(uri)
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Authorization", token != null ? "Bearer " + token : "")
+                    .header("X-Guest-Id", guestId != null ? guestId : "")
                     .body(body)
                     .retrieve()
                     .body(responseType);
@@ -151,6 +166,7 @@ public class BackendApiClient {
                         .uri(uri)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenResponse.accessToken())
+                        .header("X-Guest-Id", guestId != null ? guestId : "")
                         .body(body)
                         .retrieve()
                         .body(responseType);
@@ -163,11 +179,13 @@ public class BackendApiClient {
     }
     public <T, R> T putNoBody(String uri, Class<T> responseType) {
         String token = (String) request.getSession().getAttribute("accessToken");
+        String guestId = extractGuestId();
         try {
             return restClient.put()
                     .uri(uri)
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Authorization", token != null ? "Bearer " + token : "")
+                    .header("X-Guest-Id", guestId != null ? guestId : "")
                     .retrieve()
                     .body(responseType);
         } catch (HttpClientErrorException.Unauthorized ex) {
@@ -178,6 +196,7 @@ public class BackendApiClient {
                         .uri(uri)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenResponse.accessToken())
+                        .header("X-Guest-Id", guestId != null ? guestId : "")
                         .retrieve()
                         .body(responseType);
             } else {
@@ -191,10 +210,12 @@ public class BackendApiClient {
     // ------------------- DELETE -------------------
     public <T> T delete(String uri, Class<T> responseType) {
         String token = (String) request.getSession().getAttribute("accessToken");
+        String guestId = extractGuestId();
         try {
             return restClient.delete()
                     .uri(uri)
                     .header("Authorization", token != null ? "Bearer " + token : "")
+                    .header("X-Guest-Id", guestId != null ? guestId : "")
                     .retrieve()
                     .body(responseType);
         } catch (HttpClientErrorException.Unauthorized ex) {
@@ -204,6 +225,7 @@ public class BackendApiClient {
                 return restClient.delete()
                         .uri(uri)
                         .header("Authorization", "Bearer " + tokenResponse.accessToken())
+                        .header("X-Guest-Id", guestId != null ? guestId : "")
                         .retrieve()
                         .body(responseType);
             } else {
@@ -225,5 +247,17 @@ public class BackendApiClient {
         } catch (HttpClientErrorException.Unauthorized ex) {
             return null;
         }
+    }
+    private String extractGuestId() {
+        if (request.getCookies() == null) {
+            return null;
+        }
+
+        for (Cookie cookie : request.getCookies()) {
+            if ("guest_id".equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
     }
 }

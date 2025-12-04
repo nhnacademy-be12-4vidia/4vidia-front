@@ -15,7 +15,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ApiRequestException.class)
     public String handleApiClientError(ApiRequestException e, Model model) {
 
-        log.error("API 호출 중 에러 발생: {}", e.getMessage());
+        log.error("API 호출 중 에러 발생: {}{}", e.getMessage(), e.getStackTrace());
 
         model.addAttribute("errorMessage", e.getMessage());
 

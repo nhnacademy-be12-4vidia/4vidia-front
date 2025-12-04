@@ -1,6 +1,7 @@
 package com.nhnacademy._vidiafront.order.config;
 
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
+import com.nhnacademy._vidiafront.order.dto.order.request.OrderCheckoutListRequest;
 import com.nhnacademy._vidiafront.order.dto.order.request.OrderCheckoutRequest;
 import com.nhnacademy._vidiafront.order.dto.order.request.OrderCreateRequest;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderCheckoutResponse;
@@ -23,7 +24,8 @@ public class OrderApiClient {
 
     //주문아이템 정보 넘기고 주문 화면에 필요한 정보 가져오기
     public OrderCheckoutResponse getOrderCheckout(List<OrderCheckoutRequest> orderCheckoutRequests) {
-        OrderCheckoutResponse orderCheckoutResponse = backendApiClient.post(ORDER_SERVICE + "/orders", orderCheckoutRequests, OrderCheckoutResponse.class);
+        OrderCheckoutListRequest orderCheckoutListRequest = new OrderCheckoutListRequest(orderCheckoutRequests);
+        OrderCheckoutResponse orderCheckoutResponse = backendApiClient.post(ORDER_SERVICE + "/orders", orderCheckoutListRequest, OrderCheckoutResponse.class);
         return orderCheckoutResponse;
     }
 

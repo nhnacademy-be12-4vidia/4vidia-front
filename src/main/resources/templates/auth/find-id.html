@@ -39,7 +39,10 @@
                     <div class="mb-4">
                         <label for="phone" class="form-label fw-bold">전화번호</label>
                         <input type="tel" id="phone" class="form-control"
-                               name="phone" placeholder="예: 010-1234-5678" required>
+                               name="phone" placeholder="예: 01012345678"
+                               pattern="01[016789][0-9]{7,8}"
+                               title="숫자만 입력해주세요. 예: 01012345678"
+                               required>
                     </div>
 
                     <!-- 버튼 -->
@@ -55,23 +58,17 @@
             </div>
         </div>
     </div>
+    <th:block layout:fragment="script">
+        <script th:if="${foundEmail}">
+            alert("회원님의 아이디는 [[${foundEmail}]] 입니다.");
+            window.location.href = "/auth/login";
+        </script>
+
+        <script th:if="${error}">
+            alert("[[${error}]]");
+        </script>
+    </th:block>
 </div>
-
-<th:block layout:fragment="script">
-    <script th:if="${foundEmail}">
-        alert("회원님의 아이디는 [[${foundEmail}]] 입니다.");
-        window.location.href = "/auth/login";
-    </script>
-
-    <script th:if="${success}">
-        alert("[[${success}]]");
-        window.location.href = "/auth/login";
-    </script>
-
-    <script th:if="${error}">
-        alert("[[${error}]]");
-    </script>
-</th:block>
 
 </body>
 </html>

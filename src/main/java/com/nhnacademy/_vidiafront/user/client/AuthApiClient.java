@@ -34,14 +34,14 @@ public class AuthApiClient {
      * 회원 아이디(email) 찾기
      */
     public String findUserId(FindIdRequest findIdRequest) {
-        return backendApiClient.post("/auth/find-id", findIdRequest, String.class);
+        return backendApiClient.post(USER_SERVICE + "/auth/find-id", findIdRequest, String.class);
     }
 
     /**
      * 회원 비밀번호 찾기
      */
     public String findUserPassword(FindPasswordRequest findPasswordRequest) {
-        return backendApiClient.post("/auth/find-password", findPasswordRequest, String.class);
+        return backendApiClient.post(USER_SERVICE + "/auth/find-password", findPasswordRequest, String.class);
     }
 
     /**

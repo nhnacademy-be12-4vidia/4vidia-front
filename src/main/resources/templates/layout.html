@@ -74,17 +74,38 @@
                     <i class="fa fa-bars"></i>
                 </button>
 
-                <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-                    <div class="input-group">
-                        <input type="text" class="form-control bg-light border-0 small"
-                               placeholder="도서 검색...">
-                        <div class="input-group-append">
-                            <button class="btn btn-primary" type="button">
-                                <i class="fas fa-search fa-sm"></i>
-                            </button>
-                        </div>
+              <form th:action="@{/books/search}" method="get"
+                    class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search"
+                    style="width: 70%; max-width: 40rem;">
+
+                <div class="d-flex align-items-center w-100">
+                  <div class="input-group flex-grow-1" style="width: auto;">
+                    <input type="text"
+                           class="form-control bg-light border-0 small"
+                           placeholder="도서 검색..."
+                           name="keyword"
+                           th:value="${param.keyword}">
+                    <div class="input-group-append">
+                      <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search fa-sm"></i>
+                      </button>
                     </div>
-                </form>
+                  </div>
+
+                  <div class="custom-control custom-switch ml-2" style="white-space: nowrap;">
+                    <input class="custom-control-input"
+                           type="checkbox"
+                           id="useSemanticCheck"
+                           name="useSemantic"
+                           value="true"
+                           th:checked="${param.useSemantic}">
+                    <label class="custom-control-label small mb-0" for="useSemanticCheck">
+                      AI 검색 사용
+                    </label>
+                  </div>
+                </div>
+              </form>
+
 
                 <ul class="navbar-nav ml-auto ">
                     <li class="nav-item dropdown no-arrow mx-1">

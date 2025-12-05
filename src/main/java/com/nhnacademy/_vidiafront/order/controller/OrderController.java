@@ -56,7 +56,8 @@ public class OrderController {
         model.addAttribute("cartItems", response.bookItems());
         model.addAttribute("finalAmount", response.finalAmount()); // (첵 판매가 * 수량)의 합
 
-        model.addAttribute("couponList", response.couponResponses());
+        model.addAttribute("possibleCoupons", response.possibleCoupons());
+        model.addAttribute("impossibleCoupons", response.impossibleCoupons());
         model.addAttribute("packagingOptions", response.packagingOptions());
         model.addAttribute("deliveryDates", response.deliveryDateResponses());
 

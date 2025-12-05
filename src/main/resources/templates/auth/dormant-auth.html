@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>휴면 계정 인증</title>
+
+    <!-- SB Admin2 CSS -->
+    <link th:href="@{/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css">
+    <link th:href="@{/css/sb-admin-2.min.css}" rel="stylesheet">
+
+    <style>
+        .small-guide {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-primary">
+
+<div class="container">
+
+    <div class="card o-hidden border-0 shadow-lg my-5">
+        <div class="card-body p-0">
+
+            <div class="row">
+                <div class="col-lg-6 d-none d-lg-block bg-password-image"></div>
+
+                <div class="col-lg-6">
+                    <div class="p-5">
+
+                        <div class="text-center">
+                            <h1 class="h4 text-gray-900 mb-4">휴면 계정 인증</h1>
+                            <p class="mb-4">
+                                Dooray로 인증코드를 전송하기 위한 Webhook URL을 입력한 후,<br>
+                                전송된 인증코드를 아래에 입력해주세요.
+                            </p>
+                        </div>
+
+                        <!-- 에러 메시지 -->
+                        <div th:if="${param.error}" class="alert alert-danger">
+                            잘못된 인증코드입니다.
+                        </div>
+
+                        <!-- 성공 메시지 -->
+                        <div th:if="${param.success}" class="alert alert-success">
+                            인증 완료! 로그인해주세요.
+                        </div>
+
+                        <!-- Dooray Webhook URL 입력 + 인증 코드 요청 -->
+                        <form class="user mb-4" th:action="@{/dormant/send-code}" method="post">
+                            <input type="hidden" name="email" th:value="${email}"/>
+
+                            <div class="form-group">
+                                <input type="text" name="webhookUrl" class="form-control form-control-user"
+                                       placeholder="Dooray Webhook URL 입력"
+                                       required>
+                                <div class="small-guide mt-2">
+                                    예) https://hook.dooray.com/services/xxxx/yyyy/zzzz
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-info btn-user btn-block">
+                                <i class="fas fa-paper-plane mr-1"></i> 인증코드 전송
+                            </button>
+                        </form>
+
+                        <hr>
+
+                        <!-- 인증 코드 입력 -->
+                        <form class="user" th:action="@{/dormant/verify}" method="post">
+                            <input type="hidden" name="email" th:value="${email}"/>
+
+                            <div class="form-group">
+                                <input type="text" name="code" class="form-control form-control-user"
+                                       placeholder="인증코드 입력"
+                                       maxlength="8"
+                                       required>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-user btn-block">
+                                휴면 해제하기
+                            </button>
+                        </form>
+
+                        <hr>
+
+                        <div class="text-center">
+                            <a class="small" href="/login">로그인 페이지로 돌아가기</a>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- Scripts -->
+<script th:src="@{/vendor/jquery/jquery.min.js}"></script>
+<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/vendor/jquery-easing/jquery.easing.min.js}"></script>
+<script th:src="@{/js/sb-admin-2.min.js}"></script>
+
+</body>
+</html>

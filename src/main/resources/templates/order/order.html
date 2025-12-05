@@ -501,6 +501,7 @@
         }
 
         let selectedCoupons = [];
+
         let initialTotalPrice = 0;
         let totalPackagingCost = 0;
         let totalDeliveryCost = 0;
@@ -634,7 +635,7 @@
 
                     // 2. 전역 변수에 반영
                     currentCouponDiscount = totalDiscount;
-                    selectedCouponIds = ids; // [핵심] 여기에 ID 리스트 저장됨
+                    selectedCoupons = ids; // [핵심] 여기에 ID 리스트 저장됨
 
                     // 3. UI 업데이트 (선택된 쿠폰 정보 표시)
                     const infoDiv = document.getElementById('appliedCouponInfo');

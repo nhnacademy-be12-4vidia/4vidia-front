@@ -1,5 +1,6 @@
 package com.nhnacademy._vidiafront.user.controller;
 
+import com.nhnacademy._vidiafront.admin.dto.request.PointPolicyRequest;
 import com.nhnacademy._vidiafront.cart.client.CartApiClient;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.point.client.PointApiClient;

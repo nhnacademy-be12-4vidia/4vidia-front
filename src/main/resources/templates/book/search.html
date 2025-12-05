@@ -157,12 +157,15 @@
         <div class="card book-card">
           <div class="card-img-wrapper">
               <!-- 좋아요 버튼 -->
-              <button type="button"
-                      class="btn-heart"
-                      th:attr="data-book-id=${book.id}"
-                      onclick="toggleLike(this)">
-                  <i class="far fa-heart"></i>
-              </button>
+            <!-- 좋아요 버튼 -->
+            <button type="button"
+                    class="btn-heart"
+                    th:classappend="${book.liked} ? ' liked' : ''"
+                    th:attr="data-book-id=${book.id},data-liked=${book.liked}"
+                    onclick="toggleLike(this)">
+              <i class="fa-heart"
+                 th:classappend="${book.liked} ? ' fas' : ' far'"></i>
+            </button>
 
               <img class="card-img-top"
                  th:src="${book.imageUrl}"

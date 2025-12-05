@@ -5,10 +5,9 @@
       layout:decorate="~{layout}">
 
 <head>
-  <meta charset="UTF-8">
-  <title>4VIDIA - 도서 상세</title>
-
-  <style>
+    <meta charset="UTF-8">
+    <title>4VIDIA - 도서 상세</title>
+    <style>
     .book-cover-main {
       width: 100%;
       max-width: 320px;
@@ -74,6 +73,7 @@
       color: #858796;
     }
   </style>
+    <script th:src="@{/js/askMoveCart.js}"></script>
 </head>
 
 <body>
@@ -84,10 +84,10 @@
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
       <div>
         <h1 class="h3 mb-1 text-gray-800"
-            th:text="${book.book.title} ?: '제목 미정'">도서 제목</h1>
+            th:text="${book.title} ?: '제목 미정'">도서 제목</h1>
         <p class="book-subtitle mb-0"
-           th:if="${book.book.subtitle != null and !#strings.isEmpty(book.book.subtitle)}"
-           th:text="${book.book.subtitle}">부제목</p>
+           th:if="${book.subtitle != null and !#strings.isEmpty(book.subtitle)}"
+           th:text="${book.subtitle}">부제목</p>
       </div>
     </div>
 
@@ -98,7 +98,7 @@
         <div class="card">
           <div class="card-body d-flex justify-content-center">
             <img class="book-cover-main"
-                 th:src="${#lists.isEmpty(book.book.imageUrls) ? '/img/default-book-cover.png' : book.book.imageUrls[0]}"
+                 th:src="${#lists.isEmpty(book.imageUrls) ? '/img/default-book-cover.png' : book.imageUrls[0]}"
                  alt="도서 표지">
           </div>
         </div>
@@ -111,9 +111,9 @@
             <!-- 저자 영역 -->
             <div class="mb-2">
               <span class="text-muted small">저자</span><br>
-              <span th:if="${#lists.isEmpty(book.book.authors)}">저자 정보 없음</span>
-              <span th:if="${!#lists.isEmpty(book.book.authors)}">
-                <span th:each="author, stat : ${book.book.authors}">
+              <span th:if="${#lists.isEmpty(book.authors)}">저자 정보 없음</span>
+              <span th:if="${!#lists.isEmpty(book.authors)}">
+                <span th:each="author, stat : ${book.authors}">
                   <a th:href="@{/books/search(keyword=${author.name})}"
                      th:text="${author.name}">저자명</a>
                   <span th:if="${!stat.last}">, </span>
@@ -125,10 +125,10 @@
             <div class="book-meta-row">
               <div class="book-meta-label">출판사</div>
               <div>
-                <span th:if="${book.book.publisherInfo == null}">정보 없음</span>
-                <a th:if="${book.book.publisherInfo != null}"
+                <span th:if="${book.publisherInfo == null}">정보 없음</span>
+                <a th:if="${book.publisherInfo != null}"
                    th:href="@{/books/search(keyword=${book.publisherInfo.name})}"
-                   th:text="${book.book.publisherInfo.name}">
+                   th:text="${book.publisherInfo.name}">
                   출판사명
                 </a>
               </div>
@@ -137,7 +137,7 @@
             <!-- 출간일 -->
             <div class="book-meta-row">
               <div class="book-meta-label">출간일</div>
-              <div th:text="${book.book.publishedDate != null ? #temporals.format(book.book.publishedDate, 'yyyy-MM-dd') : '정보 없음'}">
+              <div th:text="${book.publishedDate != null ? #temporals.format(book.publishedDate, 'yyyy-MM-dd') : '정보 없음'}">
                 2025-01-01
               </div>
             </div>
@@ -146,10 +146,10 @@
             <div class="book-meta-row">
               <div class="book-meta-label">카테고리</div>
               <div>
-                <span th:if="${book.book.categoryInfo == null}">정보 없음</span>
-                <a th:if="${book.book.categoryInfo != null}"
-                   th:href="@{/books/search(categoryId=${book.book.categoryInfo.id})}"
-                   th:text="${book.book.categoryInfo.name}">
+                <span th:if="${book.categoryInfo == null}">정보 없음</span>
+                <a th:if="${book.categoryInfo != null}"
+                   th:href="@{/books/search(categoryId=${book.categoryInfo.id})}"
+                   th:text="${book.categoryInfo.name}">
                   카테고리명
                 </a>
               </div>
@@ -158,7 +158,7 @@
             <!-- ISBN -->
             <div class="book-meta-row">
               <div class="book-meta-label">ISBN</div>
-              <div th:text="${book.book.isbn != null and !#strings.isEmpty(book.book.isbn) ? book.book.isbn : '정보 없음'}">
+              <div th:text="${book.isbn != null and !#strings.isEmpty(book.isbn) ? book.isbn : '정보 없음'}">
                 9780000000000
               </div>
             </div>
@@ -166,13 +166,13 @@
             <!-- 언어 / 쪽수 -->
             <div class="book-meta-row">
               <div class="book-meta-label">언어</div>
-              <div th:text="${book.book.language != null and !#strings.isEmpty(book.book.language) ? book.book.language : '정보 없음'}">
+              <div th:text="${book.language != null and !#strings.isEmpty(book.language) ? book.language : '정보 없음'}">
                 Korean
               </div>
             </div>
             <div class="book-meta-row">
               <div class="book-meta-label">쪽수</div>
-              <div th:text="${book.book.pageCount != null ? book.book.pageCount + '쪽' : '정보 없음'}">
+              <div th:text="${book.pageCount != null ? book.pageCount + '쪽' : '정보 없음'}">
                 320쪽
               </div>
             </div>
@@ -181,23 +181,23 @@
             <hr>
             <div class="d-flex align-items-baseline mb-2">
               <span class="price-sales"
-                    th:text="${book.book.priceSales != null ? #numbers.formatInteger(book.book.priceSales, 0, 'COMMA') + '원' : '가격 미정'}">
+                    th:text="${book.priceSales != null ? #numbers.formatInteger(book.priceSales, 0, 'COMMA') + '원' : '가격 미정'}">
                 15,000원
               </span>
               <span class="price-standard ms-2"
-                    th:if="${book.book.priceStandard != null and book.book.priceSales != null and book.book.priceStandard > book.book.priceSales}"
-                    th:text="${#numbers.formatInteger(book.book.priceStandard, 0, 'COMMA')} + '원'">
+                    th:if="${book.priceStandard != null and book.priceSales != null and book.priceStandard > book.priceSales}"
+                    th:text="${#numbers.formatInteger(book.priceStandard, 0, 'COMMA')} + '원'">
                 18,000원
               </span>
             </div>
 
             <div class="mb-2">
-              <span th:if="${book.book.stock != null and book.book.stock > 0}"
+              <span th:if="${book.stock != null and book.stock > 0}"
                     class="stock-status-in"
-                    th:text="'재고 있음 (' + ${book.book.stock} + '권)'">
+                    th:text="'재고 있음 (' + ${book.stock} + '권)'">
                 재고 있음 (10권)
               </span>
-              <span th:unless="${book.book.stock != null and book.book.stock > 0}"
+              <span th:unless="${book.stock != null and book.stock > 0}"
                     class="stock-status-out">
                 품절 또는 재고 정보 없음
               </span>
@@ -205,7 +205,7 @@
 
             <div class="mb-3">
               <span class="badge bg-light text-dark border"
-                    th:text="${book.book.packagingAvailable ? '선물 포장 가능' : '포장 불가 또는 정보 없음'}">
+                    th:text="${book.packagingAvailable ? '선물 포장 가능' : '포장 불가 또는 정보 없음'}">
                 선물 포장 가능
               </span>
             </div>
@@ -214,16 +214,17 @@
             <div class="mt-3">
               <!-- 장바구니 담기 -->
               <form th:action="@{/cart/add}" method="post" class="d-inline-block mr-2">
-                <input type="hidden" name="bookId" th:value="${book.book.id}">
+                <input type="hidden" name="bookId" th:value="${book.id}">
                 <input type="hidden" name="quantity" value="1">
-                <button class="btn btn-primary" type="submit">
-                  <i class="fas fa-shopping-cart mr-1"></i> 장바구니 담기
-                </button>
+                  <button class="btn btn-primary btn-block"
+                          th:onclick="|addToCartAndConfirmMove('${book.id}', '1'); return false;|">>
+                      <i class="fas fa-shopping-cart mr-1"></i> 장바구니 담기
+                  </button>
               </form>
 
               <!-- 바로구매 -->
               <form th:action="@{/order/direct}" method="post" class="d-inline-block">
-                <input type="hidden" name="bookId" th:value="${book.book.id}">
+                <input type="hidden" name="bookId" th:value="${book.id}">
                 <input type="hidden" name="quantity" value="1">
                 <button class="btn btn-success" type="submit">
                   바로구매
@@ -237,12 +238,12 @@
         <div class="card">
           <div class="card-body">
             <h6 class="text-gray-800 mb-3">태그</h6>
-            <div th:if="${#lists.isEmpty(book.book.tags)}">
+            <div th:if="${#lists.isEmpty(book.tags)}">
               <span class="text-muted small">등록된 태그가 없습니다.</span>
             </div>
-            <div th:if="${!#lists.isEmpty(book.book.tags)}">
+            <div th:if="${!#lists.isEmpty(book.tags)}">
               <a class="badge badge-pill badge-secondary book-tag-badge"
-                 th:each="tag : ${book.book.tags}"
+                 th:each="tag : ${book.tags}"
                  th:text="${tag}"
                  th:href="@{/books/search(keyword=${tag})}">
                 태그
@@ -263,11 +264,11 @@
           </div>
           <div class="card-body">
             <div class="book-description"
-                 th:if="${book.book.description != null and !#strings.isEmpty(book.book.description)}"
-                 th:text="${book.book.description}">
+                 th:if="${book.description != null and !#strings.isEmpty(book.description)}"
+                 th:text="${book.description}">
               책 소개 내용이 들어갑니다.
             </div>
-            <div th:unless="${book.book.description != null and !#strings.isEmpty(book.book.description)}"
+            <div th:unless="${book.description != null and !#strings.isEmpty(book.description)}"
                  class="text-muted small">
               등록된 소개글이 없습니다.
             </div>
@@ -281,11 +282,11 @@
           </div>
           <div class="card-body">
             <div class="book-index"
-                 th:if="${book.book.bookIndex != null and !#strings.isEmpty(book.book.bookIndex)}"
-                 th:text="${book.book.bookIndex}">
+                 th:if="${book.bookIndex != null and !#strings.isEmpty(book.bookIndex)}"
+                 th:text="${book.bookIndex}">
               목차 내용이 들어갑니다.
             </div>
-            <div th:unless="${book.book.bookIndex != null and !#strings.isEmpty(book.book.bookIndex)}"
+            <div th:unless="${book.bookIndex != null and !#strings.isEmpty(book.bookIndex)}"
                  class="text-muted small">
               등록된 목차 정보가 없습니다.
             </div>
@@ -354,7 +355,7 @@
                 <li class="page-item"
                     th:classappend="${book.reviews.page == 0} ? ' disabled'">
                   <a class="page-link"
-                     th:href="@{|/books/${book.book.id}?reviewPage=${book.reviews.page - 1}&reviewSize=${book.reviews.size}|}">
+                     th:href="@{|/books/${book.id}?reviewPage=${book.reviews.page - 1}&reviewSize=${book.reviews.size}|}">
                     이전
                   </a>
                 </li>
@@ -365,7 +366,7 @@
                     th:classappend="${i == book.reviews.page} ? ' active'">
                   <a class="page-link"
                      th:text="${i + 1}"
-                     th:href="@{|/books/${book.book.id}?reviewPage=${i}&reviewSize=${book.reviews.size}|}">
+                     th:href="@{|/books/${book.id}?reviewPage=${i}&reviewSize=${book.reviews.size}|}">
                   </a>
                 </li>
 
@@ -373,7 +374,7 @@
                 <li class="page-item"
                     th:classappend="${book.reviews.page + 1 >= book.reviews.totalPages} ? ' disabled'">
                   <a class="page-link"
-                     th:href="@{|/books/${book.book.id}?reviewSize=${book.reviews.size}&reviewPage=${book.reviews.page + 1}|}">
+                     th:href="@{|/books/${book.id}?reviewSize=${book.reviews.size}&reviewPage=${book.reviews.page + 1}|}">
                     다음
                   </a>
                 </li>

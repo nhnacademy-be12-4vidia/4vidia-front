@@ -1,6 +1,5 @@
 package com.nhnacademy._vidiafront.user.controller;
 
-import com.nhnacademy._vidiafront.admin.dto.request.PointPolicyRequest;
 import com.nhnacademy._vidiafront.cart.client.CartApiClient;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.point.client.PointApiClient;
@@ -17,12 +16,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
@@ -45,46 +43,63 @@ public class AuthController {
 
     @PostMapping("/login")
     public String loginForm(LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) {
-        // 백엔드에서 회원탈퇴했는지 검증
-        // 0(활성 ACTIVE), 1(휴먼 DORMANT), 2(탈퇴 DELETED)
-        String userStatus = authApiClient.findStatusByEmail(loginRequest.email());
-        log.info("userStatus: {}", userStatus);
-        // todo : 휴먼(1)은 -> 아이디만 휴먼이면 바로 휴먼창으로 가서 -> 휴먼풀기 (아이디,인증번호,비밀번호) -> 풀리면 다시 로그인으로
-        // todo : 탈퇴(2)는 -> 탈퇴한 회원이면 -> 메시지만 보여주고 끝?
+        try {
+
+            // 휴먼이면 -> 휴먼인증으로 이동
+            if (authApiClient.isDormant(loginRequest)) {
+                request.setAttribute("email", loginRequest.email());
+                return "auth/dormant-auth";
+            }
+
+            // 아니면 로그인 ㄱ
+            TokenResponse tokenResponse = authApiClient.login(loginRequest);
+            String accessToken = tokenResponse.accessToken();
+            String refreshToken = tokenResponse.refreshToken();
 
 
+            HttpSession session = request.getSession(true);
+            session.setAttribute("accessToken", accessToken);
 
-        if (userStatus.equals("DORMANT")) {
-            // 휴먼일때
-            request.setAttribute("loginRequest", loginRequest);
-            return "auth/dormant"; // 나중에 수정 (휴먼 페이지)
-        } else if (userStatus.equals("DELETED")) {
-            // 탈퇴회원일때
-            // 메세지 ?
+            Cookie refreshCookie = new Cookie("refresh", refreshToken);
+            refreshCookie.setHttpOnly(true);           // 브라우저 JS 접근 불가
+            refreshCookie.setSecure(false);             // HTTPS 환경이면 true
+            refreshCookie.setPath("/");
+            refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
+            response.addCookie(refreshCookie);
+
+            cartApiClient.loginSync();
+
+            return "redirect:/";
+        } catch (HttpClientErrorException e) { // todo : 아래는 어케 쓰는거지?  백엔드에서 던진 예외처리 메세지 어케 씀??
+            // 1. HTTP 통신 예외 Catch
+            int statusCode = e.getRawStatusCode(); // HTTP 상태 코드 확인
+
+            if (statusCode == 401 || statusCode == 404) {
+                // 401 Unauthorized (비밀번호 불일치) 또는 404 Not Found (이메일 없음) 일 때
+                request.setAttribute("errorMessage", "아이디 또는 비밀번호가 일치하지 않습니다.");
+                return "auth/loginForm";
+            } else if (statusCode == 403) {
+                // 403 Forbidden 일 때 (백엔드의 UserNotFoundException -> 탈퇴 계정)
+                // 백엔드에서 탈퇴 회원을 예외로 처리했으므로, 여기서 잡아 메시지를 보여줍니다.
+                request.setAttribute("errorMessage", "탈퇴한 회원입니다. 다시 가입해 주세요.");
+                return "auth/loginForm";
+            } else {
+                // 기타 HTTP 에러
+                log.error("Login HTTP Error: {}", e.getMessage());
+                request.setAttribute("errorMessage", "서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+                return "auth/loginForm";
+            }
+        } catch (Exception e) {
+            // 네트워크 오류 등 기타 예외
+            log.error("Login Unknown Error: {}", e.getMessage());
+            request.setAttribute("errorMessage", "로그인 중 예상치 못한 오류가 발생했습니다."); // todo 왜 전부 이걸로 뜨지?
             return "auth/loginForm";
         }
-
-
-        TokenResponse tokenResponse = authApiClient.login(loginRequest);
-        String accessToken = tokenResponse.accessToken();
-        String refreshToken = tokenResponse.refreshToken();
-
-
-        HttpSession session = request.getSession(true);
-        session.setAttribute("accessToken", accessToken);
-
-        Cookie refreshCookie = new Cookie("refresh", refreshToken);
-        refreshCookie.setHttpOnly(true);           // 브라우저 JS 접근 불가
-        refreshCookie.setSecure(false);             // HTTPS 환경이면 true
-        refreshCookie.setPath("/");
-        refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
-        response.addCookie(refreshCookie);
-
-        cartApiClient.loginSync();
-
-        return "redirect:/";
-
     }
+
+
+
+
     @PostMapping("/logout")
     public String logout(HttpServletRequest request, HttpServletResponse response) {
         backendApiClient.postNoBody("/api/v1/auth/auth/logout", String.class);

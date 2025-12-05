@@ -64,9 +64,9 @@ public class AuthApiClient {
     }
 
     /**
-     * 회원 상태 조회
+     * 로그인 후 -> 휴먼 여부 확인
      */
-    public String findStatusByEmail(String email) {
-        return backendApiClient.get(USER_SERVICE + "/auth/find-email?email=" + URLEncoder.encode(email, StandardCharsets.UTF_8), String.class);
+    public Boolean isDormant(LoginRequest loginRequest) {
+        return backendApiClient.post(USER_SERVICE + "/auth/check-dormant", loginRequest, Boolean.class);
     }
 }

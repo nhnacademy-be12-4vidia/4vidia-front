@@ -6,6 +6,7 @@ import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.point.client.PointApiClient;
 import com.nhnacademy._vidiafront.point.dto.request.PointPolicyRewardRequest;
 import com.nhnacademy._vidiafront.user.client.AuthApiClient;
+import com.nhnacademy._vidiafront.user.client.UserApiClient;
 import com.nhnacademy._vidiafront.user.dto.auth.request.FindIdRequest;
 import com.nhnacademy._vidiafront.user.dto.auth.request.FindPasswordRequest;
 import com.nhnacademy._vidiafront.user.dto.auth.request.LoginRequest;
@@ -34,6 +35,8 @@ public class AuthController {
     private final PointApiClient pointApiClient;
 
     private final CartApiClient  cartApiClient;
+    private final UserApiClient userApiClient;
+
     /**
      * 로그인 폼
      * */
@@ -44,58 +47,34 @@ public class AuthController {
 
     @PostMapping("/login")
     public String loginForm(LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) {
-        try {
+        TokenResponse tokenResponse = authApiClient.login(loginRequest);
 
-            // 휴먼이면 -> 휴먼인증으로 이동
-            if (authApiClient.isDormant(loginRequest)) {
-                request.setAttribute("email", loginRequest.email());
-                return "auth/dormant-auth";
-            }
-
-            // 아니면 로그인 ㄱ
-            TokenResponse tokenResponse = authApiClient.login(loginRequest);
-            String accessToken = tokenResponse.accessToken();
-            String refreshToken = tokenResponse.refreshToken();
-
-
-            HttpSession session = request.getSession(true);
-            session.setAttribute("accessToken", accessToken);
-
-            Cookie refreshCookie = new Cookie("refresh", refreshToken);
-            refreshCookie.setHttpOnly(true);           // 브라우저 JS 접근 불가
-            refreshCookie.setSecure(false);             // HTTPS 환경이면 true
-            refreshCookie.setPath("/");
-            refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
-            response.addCookie(refreshCookie);
-
-            cartApiClient.loginSync();
-
-            return "redirect:/";
-        } catch (HttpClientErrorException e) { // todo : 아래는 어케 쓰는거지?  백엔드에서 던진 예외처리 메세지 어케 씀??
-            // 1. HTTP 통신 예외 Catch
-            int statusCode = e.getRawStatusCode(); // HTTP 상태 코드 확인
-
-            if (statusCode == 401 || statusCode == 404) {
-                // 401 Unauthorized (비밀번호 불일치) 또는 404 Not Found (이메일 없음) 일 때
-                request.setAttribute("errorMessage", "아이디 또는 비밀번호가 일치하지 않습니다.");
-                return "auth/loginForm";
-            } else if (statusCode == 403) {
-                // 403 Forbidden 일 때 (백엔드의 UserNotFoundException -> 탈퇴 계정)
-                // 백엔드에서 탈퇴 회원을 예외로 처리했으므로, 여기서 잡아 메시지를 보여줍니다.
-                request.setAttribute("errorMessage", "탈퇴한 회원입니다. 다시 가입해 주세요.");
-                return "auth/loginForm";
-            } else {
-                // 기타 HTTP 에러
-                log.error("Login HTTP Error: {}", e.getMessage());
-                request.setAttribute("errorMessage", "서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
-                return "auth/loginForm";
-            }
-        } catch (Exception e) {
-            // 네트워크 오류 등 기타 예외
-            log.error("Login Unknown Error: {}", e.getMessage());
-            request.setAttribute("errorMessage", "로그인 중 예상치 못한 오류가 발생했습니다."); // todo 왜 전부 이걸로 뜨지?
-            return "auth/loginForm";
+        String email = loginRequest.email();
+        // 휴먼이면 -> 휴먼인증으로 이동
+        if (authApiClient.isDormant(email)) {
+            request.setAttribute("email", email);
+            return "auth/dormant-auth";
         }
+
+        userApiClient.updateLastLoginAt(email);
+
+        String accessToken = tokenResponse.accessToken();
+        String refreshToken = tokenResponse.refreshToken();
+
+
+        HttpSession session = request.getSession(true);
+        session.setAttribute("accessToken", accessToken);
+
+        Cookie refreshCookie = new Cookie("refresh", refreshToken);
+        refreshCookie.setHttpOnly(true);           // 브라우저 JS 접근 불가
+        refreshCookie.setSecure(false);             // HTTPS 환경이면 true
+        refreshCookie.setPath("/");
+        refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
+        response.addCookie(refreshCookie);
+
+        cartApiClient.loginSync();
+
+        return "redirect:/";
     }
 
     @PostMapping("/logout")

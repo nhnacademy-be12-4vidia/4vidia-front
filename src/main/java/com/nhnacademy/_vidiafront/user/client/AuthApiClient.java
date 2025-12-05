@@ -62,4 +62,11 @@ public class AuthApiClient {
     public String existsByEmail(String email) {
         return backendApiClient.get(USER_SERVICE + "/auth/check-email?email=" + URLEncoder.encode(email, StandardCharsets.UTF_8), String.class);
     }
+
+    /**
+     * 회원 상태 조회
+     */
+    public String findStatusByEmail(String email) {
+        return backendApiClient.get(USER_SERVICE + "/auth/find-email?email=" + URLEncoder.encode(email, StandardCharsets.UTF_8), String.class);
+    }
 }

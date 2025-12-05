@@ -45,6 +45,26 @@ public class AuthController {
 
     @PostMapping("/login")
     public String loginForm(LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) {
+        // 백엔드에서 회원탈퇴했는지 검증
+        // 0(활성 ACTIVE), 1(휴먼 DORMANT), 2(탈퇴 DELETED)
+        String userStatus = authApiClient.findStatusByEmail(loginRequest.email());
+        log.info("userStatus: {}", userStatus);
+        // todo : 휴먼(1)은 -> 아이디만 휴먼이면 바로 휴먼창으로 가서 -> 휴먼풀기 (아이디,인증번호,비밀번호) -> 풀리면 다시 로그인으로
+        // todo : 탈퇴(2)는 -> 탈퇴한 회원이면 -> 메시지만 보여주고 끝?
+
+
+
+        if (userStatus.equals("DORMANT")) {
+            // 휴먼일때
+            request.setAttribute("loginRequest", loginRequest);
+            return "auth/dormant"; // 나중에 수정 (휴먼 페이지)
+        } else if (userStatus.equals("DELETED")) {
+            // 탈퇴회원일때
+            // 메세지 ?
+            return "auth/loginForm";
+        }
+
+
         TokenResponse tokenResponse = authApiClient.login(loginRequest);
         String accessToken = tokenResponse.accessToken();
         String refreshToken = tokenResponse.refreshToken();

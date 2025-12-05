@@ -81,6 +81,7 @@
       font-weight: 600;
     }
   </style>
+    <script th:src="@{/js/askMoveCart.js}"></script>
     <script>
         // 좋아요/찜하기 토글 (AJAX/Fetch API 사용)
         function toggleLike(button) {
@@ -200,9 +201,10 @@
             <!-- 장바구니 담기 -->
             <form th:action="@{/cart/add}" method="post" class="mt-auto">
               <input type="hidden" name="bookId" th:value="${book.id}">
-              <button class="btn btn-primary btn-block" type="submit">
-                <i class="fas fa-shopping-cart mr-1"></i> 장바구니 담기
-              </button>
+                <button class="btn btn-primary btn-block"
+                        th:onclick="|addToCartAndConfirmMove('${book.id}', '1'); return false;|">
+                    <i class="fas fa-shopping-cart mr-1"></i> 장바구니 담기
+                </button>
             </form>
           </div>
         </div>

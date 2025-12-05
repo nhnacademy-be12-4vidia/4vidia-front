@@ -243,6 +243,7 @@
         }
 
     </style>
+    <script th:src="@{/js/askMoveCart.js}"></script>
     <script>
         // 좋아요/찜하기 토글 (AJAX/Fetch API 사용)
         function toggleLike(button) {
@@ -328,7 +329,7 @@
                         </div>
                         <form th:action="@{/cart/add}" method="post">
                             <input type="hidden" name="bookId" th:value="${1}">
-                            <button class="btn btn-primary btn-block">
+                            <button class="btn btn-primary btn-block" onclick="addToCartAndConfirmMove('1', '1'); return false;">
                                 <i class="fas fa-shopping-cart mr-1"></i> 장바구니
                             </button>
                         </form>
@@ -367,13 +368,12 @@
                         <div class="mb-3">
                             <span class="price-original">15,000원</span>
                             <span class="price-current">5,000원</span>
-                        </div>
-                        <form th:action="@{/cart/add}" method="post">
-                            <input type="hidden" name="bookId" th:value="${5}">
-                            <button class="btn btn-primary btn-block">
-                                <i class="fas fa-shopping-cart mr-1"></i> 장바구니
-                            </button>
-                        </form>
+                        </div><form th:action="@{/cart/add}" method="post">
+                        <input type="hidden" name="bookId" th:value="${5}">
+                        <button class="btn btn-primary btn-block" onclick="addToCartAndConfirmMove('5', '1'); return false;">
+                            <i class="fas fa-shopping-cart mr-1"></i> 장바구니
+                        </button>
+                    </form>
 
                         <form th:action="@{/orders}" method="post">
                             <input type="hidden" name="bookId" th:value="${5}">
@@ -411,7 +411,7 @@
                         </div>
                         <form th:action="@{/cart/add}" method="post">
                             <input type="hidden" name="bookId" th:value="${8}">
-                            <button class="btn btn-primary btn-block">
+                            <button class="btn btn-primary btn-block" onclick="addToCartAndConfirmMove('8', '1'); return false;">
                                 <i class="fas fa-shopping-cart mr-1"></i> 장바구니
                             </button>
                         </form>
@@ -453,7 +453,7 @@
                         </div>
                         <form th:action="@{/cart/add}" method="post">
                             <input type="hidden" name="bookId" th:value="${12}">
-                            <button class="btn btn-primary btn-block">
+                            <button class="btn btn-primary btn-block" onclick="addToCartAndConfirmMove('12', '1'); return false;">
                                 <i class="fas fa-shopping-cart mr-1"></i> 장바구니
                             </button>
                         </form>
@@ -494,7 +494,7 @@
                         </div>
                         <form th:action="@{/cart/add}" method="post">
                             <input type="hidden" name="bookId" th:value="${17}">
-                            <button class="btn btn-primary btn-block">
+                            <button class="btn btn-primary btn-block" onclick="addToCartAndConfirmMove('17', '1'); return false;">
                                 <i class="fas fa-shopping-cart mr-1"></i> 장바구니
                             </button>
                         </form>
@@ -567,39 +567,6 @@
                 console.error('레이아웃을 불러오는데 실패했습니다:', error);
             });
     });
-
-    // 페이지별 스크립트 초기화
-    function initPageScripts() {
-        // jQuery가 로드될 때까지 기다립니다
-        const waitForJQuery = setInterval(function() {
-            if (typeof jQuery !== 'undefined') {
-                clearInterval(waitForJQuery);
-
-                // 카테고리 필터
-                jQuery('.category-pill').on('click', function(e) {
-                    e.preventDefault();
-                    jQuery('.category-pill').removeClass('active');
-                    jQuery(this).addClass('active');
-                });
-
-                // --- 중요: 기존의 좋아요 버튼 jQuery 로직은 제거 (toggleLike 함수와 충돌 방지) ---
-
-                // 장바구니 담기
-                jQuery('.btn-primary').on('click', function(e) {
-                    // 장바구니 담기 버튼만 처리 (X 버튼이 아닌 경우)
-                    const buttonText = jQuery(this).text().trim();
-                    if (buttonText === '장바구니') {
-                        // 실제 Thymeleaf 폼을 사용하는 경우, 폼 제출은 계속 진행
-                        alert('장바구니에 담겼습니다! (서버 요청)');
-                        // 폼 제출을 막지 않음
-                    } else if (buttonText === '장바구니X') {
-                        e.preventDefault(); // 하드코딩된 X 버튼은 동작 방지
-                        alert('장바구니 담기X 버튼');
-                    }
-                });
-            }
-        }, 100);
-    }
 </script>
 </body>
 </html>

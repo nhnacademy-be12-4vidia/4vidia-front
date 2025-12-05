@@ -98,13 +98,10 @@ public class AuthController {
         }
     }
 
-
-
-
     @PostMapping("/logout")
     public String logout(HttpServletRequest request, HttpServletResponse response) {
         backendApiClient.postNoBody("/api/v1/auth/auth/logout", String.class);
-
+        cartApiClient.logoutSync();
 
         if (request.getSession(false) != null) {
             request.getSession(false).invalidate();
@@ -113,7 +110,6 @@ public class AuthController {
         deleteCookie("JSESSIONID", response);
         deleteCookie("refresh", response);
 
-//        cartApiClient.logoutSync();
         return "redirect:/";
     }
     /**

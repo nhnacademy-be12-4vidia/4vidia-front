@@ -46,6 +46,7 @@ public class DeactivateController {
         userApiClient.deleteUser(deleteUserRequest);
         // todo 로그아웃 시키고, 로그인 페이지로 이동시켜야함 (수정필요)
         backendApiClient.postNoBody("/api/v1/auth/auth/logout", String.class);
+        cartApiClient.deleteCart();
 
         if (request.getSession(false) != null) {
             request.getSession(false).invalidate();
@@ -53,8 +54,6 @@ public class DeactivateController {
 
         deleteCookie("JSESSIONID", response);
         deleteCookie("refresh", response);
-
-//        cartApiClient.deleteCart();
 
         return "redirect:/";
     }

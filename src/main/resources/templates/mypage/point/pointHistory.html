@@ -84,10 +84,11 @@
             <div th:each="history : ${historyPage.content}" class="history-item">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <div class="fw-semibold" th:if="${history.policyName() != null}"
-                             th:text="${history.policyName()} + ' 적립'"></div>
-                        <div class="fw-semibold" th:if="${history.policyName() == null}"
-                             th:text="${history.reason}"></div>
+                        <div class="fw-semibold"
+                             th:text="${history.policyName() != null} ? ${history.policyName()} + ' 적립' : ${history.reason}">
+                        </div>
+
+
                         <div class="text-muted small"
                              th:text="${#temporals.format(history.createdAt, 'yyyy-MM-dd HH:mm')}"></div>
 

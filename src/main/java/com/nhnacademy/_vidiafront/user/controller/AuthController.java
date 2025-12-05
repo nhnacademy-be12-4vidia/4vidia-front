@@ -1,6 +1,7 @@
 package com.nhnacademy._vidiafront.user.controller;
 
 import com.nhnacademy._vidiafront.admin.dto.request.PointPolicyRequest;
+import com.nhnacademy._vidiafront.cart.client.CartApiClient;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.point.client.PointApiClient;
 import com.nhnacademy._vidiafront.point.dto.request.PointPolicyRewardRequest;
@@ -33,6 +34,7 @@ public class AuthController {
     private final BackendApiClient backendApiClient;
     private final PointApiClient pointApiClient;
 
+    private final CartApiClient  cartApiClient;
     /**
      * 로그인 폼
      * */
@@ -58,6 +60,8 @@ public class AuthController {
         refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
         response.addCookie(refreshCookie);
 
+        cartApiClient.loginSync();
+
         return "redirect:/";
 
     }
@@ -71,6 +75,8 @@ public class AuthController {
 
         deleteCookie("JSESSIONID", response);
         deleteCookie("refresh", response);
+
+//        cartApiClient.logoutSync();
         return "redirect:/";
     }
     /**

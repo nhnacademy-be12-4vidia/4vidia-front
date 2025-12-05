@@ -70,4 +70,25 @@ public class CartApiClient {
         backendApiClient.post(CART_SERVICE + "/cart/items", addCartItemRequest, Void.class);
     }
 
+    /**
+     * 로그인 직후 호출
+     */
+    public void loginSync(){
+        backendApiClient.postNoBody(CART_SERVICE+"/cart/login-sync", Void.class);
+    }
+
+    /**
+     * 로그아웃 직후 호출
+     */
+    public void logoutSync(){
+        backendApiClient.postNoBody(CART_SERVICE+"/cart/logout-sync", Void.class);
+    }
+
+    /**
+     * 회원 탈퇴
+     */
+    public void deleteCart(){
+        backendApiClient.delete(CART_SERVICE+"/cart", Void.class);
+    }
+
 }

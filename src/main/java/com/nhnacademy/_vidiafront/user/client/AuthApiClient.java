@@ -54,6 +54,8 @@ public class AuthApiClient {
         return backendApiClient.post(AUTH + "/auth/login", loginRequest, TokenResponse.class);
     }
 
+
+
     /**
      * 이메일 중복여부
      */

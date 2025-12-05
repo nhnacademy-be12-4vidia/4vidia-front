@@ -1,5 +1,6 @@
 package com.nhnacademy._vidiafront.user.controller;
 
+import com.nhnacademy._vidiafront.cart.client.CartApiClient;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.user.client.UserApiClient;
 import com.nhnacademy._vidiafront.user.dto.user.request.DeleteUserRequest;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class DeactivateController {
     private final UserApiClient userApiClient;
     private final BackendApiClient backendApiClient;
+    private final CartApiClient cartApiClient;
 
     /**
      * 회원탈퇴 폼
@@ -51,6 +53,9 @@ public class DeactivateController {
 
         deleteCookie("JSESSIONID", response);
         deleteCookie("refresh", response);
+
+//        cartApiClient.deleteCart();
+
         return "redirect:/";
     }
     private void deleteCookie(String name, HttpServletResponse response) {

@@ -1,7 +1,10 @@
 package com.nhnacademy._vidiafront.user.controller;
 
+import com.nhnacademy._vidiafront.admin.dto.request.PointPolicyRequest;
 import com.nhnacademy._vidiafront.cart.client.CartApiClient;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
+import com.nhnacademy._vidiafront.point.client.PointApiClient;
+import com.nhnacademy._vidiafront.point.dto.request.PointPolicyRewardRequest;
 import com.nhnacademy._vidiafront.user.client.AuthApiClient;
 import com.nhnacademy._vidiafront.user.dto.auth.request.FindIdRequest;
 import com.nhnacademy._vidiafront.user.dto.auth.request.FindPasswordRequest;
@@ -19,9 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
@@ -31,6 +32,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class AuthController {
     private final AuthApiClient authApiClient;
     private final BackendApiClient backendApiClient;
+    private final PointApiClient pointApiClient;
+
     private final CartApiClient  cartApiClient;
     /**
      * 로그인 폼
@@ -89,7 +92,8 @@ public class AuthController {
      * */
     @PostMapping("/signup")
     public String signup(UserSignupRequest userSignupRequest) {
-        authApiClient.signup(userSignupRequest);
+        Long userId = authApiClient.signup(userSignupRequest);
+        pointApiClient.rewardByPolicy(new PointPolicyRewardRequest(userId,1L));
         return "redirect:/auth/login";
     }
 
@@ -136,6 +140,12 @@ public class AuthController {
             rttr.addFlashAttribute("error","일치하는 회원 정보가 없습니다.");
             return "redirect:/auth/find-password";
         }
+    }
+
+    @GetMapping("/check-email")
+    @ResponseBody
+    public Boolean existsEmail(@RequestParam String email) {
+        return Boolean.parseBoolean(authApiClient.existsByEmail(email));
     }
 
     private void deleteCookie(String name, HttpServletResponse response) {

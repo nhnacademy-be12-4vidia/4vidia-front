@@ -14,6 +14,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 @Component
 @RequiredArgsConstructor
 public class AuthApiClient {
@@ -26,8 +29,8 @@ public class AuthApiClient {
      * POST 회원가입
      *
      */
-    public void signup(UserSignupRequest userSignupRequest) {
-        backendApiClient.post(USER_SERVICE + "/auth/signup", userSignupRequest, Void.class);
+    public Long signup(UserSignupRequest userSignupRequest) {
+        return backendApiClient.post(USER_SERVICE + "/auth/signup", userSignupRequest, Long.class);
     }
 
     /**
@@ -52,4 +55,11 @@ public class AuthApiClient {
     }
 
 
+
+    /**
+     * 이메일 중복여부
+     */
+    public String existsByEmail(String email) {
+        return backendApiClient.get(USER_SERVICE + "/auth/check-email?email=" + URLEncoder.encode(email, StandardCharsets.UTF_8), String.class);
+    }
 }

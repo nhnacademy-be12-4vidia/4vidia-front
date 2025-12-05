@@ -32,7 +32,7 @@ public class OrderController {
     @Value("${toss.clientKey}")
     private String TOSS_CLIENT_KEY;
 
-    @PostMapping //TODO Get은 리스트 받기 힘들어서 post 써야해. 어떡할래?
+    @PostMapping
     public String showOrderPage(@ModelAttribute OrderPageRequest orderPageRequest,
                                 Model model) {
 
@@ -63,14 +63,14 @@ public class OrderController {
         return "order/order";
     }
 
-    @PostMapping("/create")
+    @PostMapping("/create") // 주문 저장
     public ResponseEntity<OrderCreateResponse> createOrder(@RequestBody OrderCreateRequest orderCreateRequest) {
         OrderCreateResponse orderId = orderApiClient.saveOrder(orderCreateRequest); //주문과정 1번
 
         return ResponseEntity.ok(orderId);
     }
 
-    @GetMapping("/toss-prepare")
+    @GetMapping("/toss-prepare") //tossPayment 결제 준비
     public String prepareTossPage(@RequestParam long orderId,
                                   @RequestParam String orderName,
                                   @RequestParam String paymentMethod,

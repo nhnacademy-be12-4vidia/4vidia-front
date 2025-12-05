@@ -1,6 +1,8 @@
 package com.nhnacademy._vidiafront.book.client;
 
 import com.nhnacademy._vidiafront.book.dto.request.BookSearchRequest;
+import com.nhnacademy._vidiafront.book.dto.response.BookDetailResponse;
+import com.nhnacademy._vidiafront.book.dto.response.BookDetailWithReviewResponse;
 import com.nhnacademy._vidiafront.book.dto.response.BookListResponse;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.global.dto.PageResponse;
@@ -51,5 +53,14 @@ public class BookApiClient {
 
         return backendApiClient.get(url, new ParameterizedTypeReference<PageResponse<BookListResponse>>() {}
         );
+    }
+
+    public BookDetailWithReviewResponse bookDetails(Long bookId) {
+
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder
+            .fromPath(BOOK_SERVICE + "/books/" + bookId);
+
+        return backendApiClient.get(uriBuilder.toUriString(), BookDetailWithReviewResponse.class);
+
     }
 }

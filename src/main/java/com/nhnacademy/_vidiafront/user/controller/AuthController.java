@@ -69,6 +69,7 @@ public class AuthController {
     public String logout(HttpServletRequest request, HttpServletResponse response) {
         backendApiClient.postNoBody("/api/v1/auth/auth/logout", String.class);
 
+
         if (request.getSession(false) != null) {
             request.getSession(false).invalidate();
         }
@@ -151,7 +152,7 @@ public class AuthController {
     private void deleteCookie(String name, HttpServletResponse response) {
         Cookie cookie = new Cookie(name, null);
         cookie.setHttpOnly(true);
-        cookie.setSecure(true); // HTTPS 환경이면 true
+        cookie.setSecure(false); // HTTPS 환경이면 true
         cookie.setPath("/");
         cookie.setMaxAge(0); // 즉시 만료
         response.addCookie(cookie);

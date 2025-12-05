@@ -15,7 +15,8 @@ public record OrderCheckoutResponse(
         List<AddressResponse> addressResponses,
 
         List<DeliveryDateResponse> deliveryDateResponses,
-        List<OrderPageCouponResponse> couponResponses,
+        List<OrderPageCouponResponse> possibleCoupons,
+        List<OrderPageCouponResponse> impossibleCoupons,
         List<PackagingOptionResponse> packagingOptions
 ) {
     public record OrderBookResponse(

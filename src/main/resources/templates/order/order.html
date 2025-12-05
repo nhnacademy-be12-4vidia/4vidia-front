@@ -353,8 +353,7 @@
     </div>
 
 <!--    TODO 쿠폰 적용시킨 값 화면에 보여주려면 할인되는 금액도 히든 같은걸로 불러와야겠네 -->
-    <div class="modal fade" id="couponModal" tabindex="-1" role="dialog" aria-labelledby="couponModalLabel"
-         aria-hidden="true">
+    <div class="modal fade" id="couponModal" tabindex="-1" role="dialog" aria-labelledby="couponModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -364,49 +363,61 @@
                     </button>
                 </div>
                 <div class="modal-body">
+
                     <h6 class="font-weight-bold text-primary">적용 가능 쿠폰</h6>
+
                     <div class="list-group list-group-flush mb-3">
-                        <div class="list-group-item">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="coupon_id_1" id="coupon1">
-                                <label class="form-check-label" for="coupon1">
-                                    <span class="font-weight-bold text-dark">10% 할인 쿠폰 (최대 5,000원)</span><br>
-                                    <small class="text-muted">30,000원 이상 구매 시</small>
-                                </label>
-                            </div>
+                        <div th:if="${#lists.isEmpty(possibleCoupons)}" class="text-center py-3 text-muted">
+                            사용 가능한 쿠폰이 없습니다.
                         </div>
-                        <div class="list-group-item">
+
+                        <div class="list-group-item" th:each="coupon : ${possibleCoupons}">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="coupon_id_2" id="coupon2">
-                                <label class="form-check-label" for="coupon2">
-                                    <span class="font-weight-bold text-dark">배송비 무료 쿠폰</span><br>
-                                    <small class="text-muted">20,000원 이상 구매 시</small>
+                                <input class="form-check-input coupon-checkbox" type="checkbox"
+                                       th:value="${coupon.couponId}"
+                                       th:id="|coupon_${coupon.couponId}|"
+                                       th:data-discount="${coupon.discountPrice}">
+
+                                <label class="form-check-label w-100" th:for="|coupon_${coupon.couponId}|">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="font-weight-bold text-dark" th:text="${coupon.policyName}">쿠폰명</span>
+                                        <span class="text-primary font-weight-bold"
+                                              th:text="|-₩${#numbers.formatInteger(coupon.discountPrice, 0, 'COMMA')}|">
+                                        -₩5,000
+                                    </span>
+                                    </div>
+                                    <small class="text-muted">
+                                        <span th:if="${coupon.discountType == 'RATE'}" th:text="|${coupon.discountValue}% 할인|">10% 할인</span>
+                                        <span th:if="${coupon.discountType == 'PRICE'}" th:text="|${#numbers.formatInteger(coupon.discountValue, 0, 'COMMA')}원 할인|">1000원 할인</span>
+                                        | 유효기간: <span th:text="${#temporals.format(coupon.expireAt, 'yyyy-MM-dd')}">2025-12-31</span> 까지
+                                    </small>
                                 </label>
                             </div>
                         </div>
                     </div>
+
                     <hr>
+
                     <h6 class="font-weight-bold text-gray-500">사용 불가 쿠폰</h6>
+
                     <div class="list-group list-group-flush">
-                        <div class="list-group-item">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="couponDisabled1" disabled>
-                                <label class="form-check-label text-gray-500" for="couponDisabled1">
-                                    <span class="font-weight-bold">신규가입 1,000원 할인 쿠폰</span><br>
-                                    <small>(사용 조건 미충족: 50,000원 이상 구매 시)</small>
-                                </label>
-                            </div>
+                        <div th:if="${#lists.isEmpty(impossibleCoupons)}" class="text-center py-3 text-xs text-gray-400">
+                            내역이 없습니다.
                         </div>
-                        <div class="list-group-item">
+
+                        <div class="list-group-item" th:each="coupon : ${impossibleCoupons}">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="couponDisabled2" disabled>
-                                <label class="form-check-label text-gray-500" for="couponDisabled2">
-                                    <span class="font-weight-bold">생일 축하 2,000원 할인 쿠폰</span><br>
-                                    <small>(기간 만료: 2025-11-10 까지)</small>
+                                <input class="form-check-input" type="checkbox" disabled>
+                                <label class="form-check-label text-gray-500 w-100">
+                                    <span class="font-weight-bold" th:text="${coupon.policyName}">쿠폰명</span><br>
+                                    <small class="text-danger" th:text="${coupon.reason}">
+                                        (사용 조건 미충족)
+                                    </small>
                                 </label>
                             </div>
                         </div>
                     </div>
+
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">닫기</button>
@@ -489,6 +500,7 @@
             });
         }
 
+        let selectedCoupons = [];
         let initialTotalPrice = 0;
         let totalPackagingCost = 0;
         let totalDeliveryCost = 0;
@@ -602,6 +614,44 @@
 
             updateFinalAmount();
 
+            const applyCouponBtn = document.getElementById('applyCouponConfirm');
+            if (applyCouponBtn) {
+                applyCouponBtn.addEventListener('click', function() {
+                    let totalDiscount = 0;
+                    const ids = []; // 임시 ID 저장소
+
+                    // 1. 체크된 박스들만 찾음
+                    const checkedBoxes = document.querySelectorAll('.coupon-checkbox:checked');
+
+                    checkedBoxes.forEach(box => {
+                        // ID 수집 (value 값)
+                        ids.push(parseInt(box.value));
+
+                        // 할인 금액 합산 (data-discount 값)
+                        const discount = parseInt(box.getAttribute('data-discount')) || 0;
+                        totalDiscount += discount;
+                    });
+
+                    // 2. 전역 변수에 반영
+                    currentCouponDiscount = totalDiscount;
+                    selectedCouponIds = ids; // [핵심] 여기에 ID 리스트 저장됨
+
+                    // 3. UI 업데이트 (선택된 쿠폰 정보 표시)
+                    const infoDiv = document.getElementById('appliedCouponInfo');
+                    if (ids.length > 0) {
+                        infoDiv.innerText = `${ids.length}개의 쿠폰 적용 (-${totalDiscount.toLocaleString()}원)`;
+                        infoDiv.classList.remove('text-danger');
+                        infoDiv.classList.add('text-primary');
+                    } else {
+                        infoDiv.innerText = "";
+                    }
+
+                    // 4. 전체 금액 재계산 및 모달 닫기
+                    updateFinalAmount();
+                    $('#couponModal').modal('hide');
+                });
+            }
+
             const orderForm = document.getElementById("orderForm");
 
             orderForm.addEventListener("submit", function(event) {
@@ -657,7 +707,7 @@
                 });
 
                 orderData.orderItems = orderItems;
-
+                orderData.coupons = selectedCoupons;
 
                 fetch("/orders/create", {
                     method: 'POST',

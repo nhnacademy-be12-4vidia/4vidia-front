@@ -1,5 +1,6 @@
 package com.nhnacademy._vidiafront.user.controller;
 
+import com.nhnacademy._vidiafront.cart.client.CartApiClient;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.user.client.AuthApiClient;
 import com.nhnacademy._vidiafront.user.dto.auth.request.FindIdRequest;
@@ -30,7 +31,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class AuthController {
     private final AuthApiClient authApiClient;
     private final BackendApiClient backendApiClient;
-
+    private final CartApiClient  cartApiClient;
     /**
      * 로그인 폼
      * */
@@ -56,6 +57,8 @@ public class AuthController {
         refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
         response.addCookie(refreshCookie);
 
+        cartApiClient.loginSync();
+
         return "redirect:/";
 
     }
@@ -69,6 +72,8 @@ public class AuthController {
 
         deleteCookie("JSESSIONID", response);
         deleteCookie("refresh", response);
+
+//        cartApiClient.logoutSync();
         return "redirect:/";
     }
     /**

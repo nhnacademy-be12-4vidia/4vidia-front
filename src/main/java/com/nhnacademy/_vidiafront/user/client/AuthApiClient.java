@@ -26,8 +26,8 @@ public class AuthApiClient {
      * POST 회원가입
      *
      */
-    public Void signup(UserSignupRequest userSignupRequest) {
-        return backendApiClient.post(USER_SERVICE + "/auth/signup", userSignupRequest, Void.class);
+    public void signup(UserSignupRequest userSignupRequest) {
+        backendApiClient.post(USER_SERVICE + "/auth/signup", userSignupRequest, Void.class);
     }
 
     /**
@@ -50,4 +50,6 @@ public class AuthApiClient {
     public TokenResponse login(LoginRequest loginRequest) {
         return backendApiClient.post(AUTH + "/auth/login", loginRequest, TokenResponse.class);
     }
+
+
 }

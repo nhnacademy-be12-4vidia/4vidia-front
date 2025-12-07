@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/admin-layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>도서 등록</title>
+    <!-- TOAST UI Editor CSS -->
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+</head>
+
+<body>
+<div layout:fragment="pageContent">
+    <div class="container-fluid">
+        <h1 class="h3 mb-4 text-gray-800">도서 등록</h1>
+
+        <!-- ISBN Search Section -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">ISBN 검색</h6>
+            </div>
+            <div class="card-body">
+                <div class="input-group">
+                    <input type="text" id="isbnInput" class="form-control" placeholder="ISBN을 입력하세요 (13자리)">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="button" id="btnSearchIsbn">검색</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registration Form -->
+        <form id="bookRegisterForm" method="post" action="/admin/books/register">
+            <div class="form-group">
+                <label for="description">도서 설명</label>
+                <!-- Editor Container -->
+                <div id="editor"></div>
+                <!-- Hidden input to store the editor content -->
+                <input type="hidden" id="description" name="description">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">등록</button>
+        </form>
+    </div>
+
+    <!-- TOAST UI Editor JS -->
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+    
+    <script>
+        const Editor = toastui.Editor;
+
+        const editor = new Editor({
+            el: document.querySelector('#editor'),
+            height: '500px',
+            initialEditType: 'markdown',
+            previewStyle: 'vertical'
+        });
+
+        // Form submit handler
+        document.getElementById('bookRegisterForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (confirm('등록하시겠습니까?')) {
+                const description = editor.getMarkdown();
+                document.getElementById('description').value = description;
+                this.submit();
+            }
+        });
+
+        // ISBN Search Button Handler (Placeholder)
+        document.getElementById('btnSearchIsbn').addEventListener('click', function() {
+            const isbn = document.getElementById('isbnInput').value;
+            if(isbn) {
+                alert('ISBN 검색: ' + isbn + ' (기능 구현 예정)');
+            } else {
+                alert('ISBN을 입력해주세요.');
+            }
+        });
+    </script>
+</div>
+</body>
+</html>

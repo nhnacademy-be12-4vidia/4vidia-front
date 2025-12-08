@@ -62,4 +62,18 @@ public class GlobalExceptionHandler {
 
         return "알 수 없는 오류가 발생했습니다.";
     }
+
+    @ExceptionHandler(HttpClientErrorException.Forbidden.class)
+    public String handleConflict(HttpClientErrorException.Forbidden ex, Model model) {
+
+        log.error("403 Conflict 발생: {}", ex.getResponseBodyAsString());
+
+        // ProblemDetail JSON 파싱
+        String message = extractMessage(ex.getResponseBodyAsString());
+
+        model.addAttribute("errorMessage", message);
+
+        // 원하는 에러 페이지로 이동
+        return "error/errorPage";
+    }
 }

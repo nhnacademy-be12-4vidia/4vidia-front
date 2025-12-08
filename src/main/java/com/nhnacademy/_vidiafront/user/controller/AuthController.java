@@ -200,21 +200,6 @@ public class AuthController {
         return "redirect:/auth/dormant-auth";
     }
 
-//    @PostMapping("/dormant/verify")
-//    public String verifyDormantCode(@RequestParam String email,
-//                                    @RequestParam String code,
-//                                    RedirectAttributes rttr) {
-//
-//        try {
-//            authApiClient.verifyDormantCode(email, code);
-//            rttr.addAttribute("success", true);
-//            return "redirect:/auth/login";
-//        } catch (Exception e) {
-//            rttr.addAttribute("email", email);
-//            rttr.addAttribute("error", true);
-//            return "redirect:/auth/dormant-auth";
-//        }
-//    }
 @PostMapping("/dormant/verify")
 public String verifyDormantCode(@RequestParam String email,
                                 @RequestParam String code,

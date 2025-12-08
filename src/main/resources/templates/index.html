@@ -7,9 +7,10 @@
     <title>4VIDIA - 도서 쇼핑몰</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <style>
         /* ------------------------------------------------ */
-        /*  공통 레이아웃 정리 */
+        /* 공통 레이아웃 정리 */
         /* ------------------------------------------------ */
 
         .row {
@@ -276,6 +277,15 @@
                     alert('요청 중 네트워크 오류가 발생했습니다.');
                 });
         }
+
+        // **TODO: askMoveCart.js 파일의 addToCartAndConfirmMove 함수가 필요합니다.**
+        function addToCartAndConfirmMove(bookId, quantity) {
+            // 장바구니 추가 로직 실행 후 이동 여부 묻는 팝업을 띄우는 함수 (백엔드 구현 필요)
+            console.log(`장바구니에 상품 ${bookId}를 ${quantity}개 추가했습니다. (askMoveCart.js 대체)`);
+            if (confirm("장바구니에 상품을 추가했습니다. 지금 장바구니로 이동하시겠습니까?")) {
+                location.href = '/cart'; // 실제 장바구니 페이지 URL로 변경 필요
+            }
+        }
     </script>
 </head>
 
@@ -303,39 +313,62 @@
 
         <div class="row justify-content-center">
 
-            <div class="book-card-wrapper">
+            <div th:if="${#lists.isEmpty(books)}" class="col-12 text-center py-5">
+                <i class="fas fa-book-open fa-3x text-secondary mb-3"></i>
+                <p class="text-gray-600 font-weight-bold mb-0">도서가 없습니다.</p>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(books)}" th:each="book : ${books}" class="book-card-wrapper">
                 <div class="card book-card">
-                    <div class="card-img-wrapper">
-                        <span class="badge badge-danger badge-best">BEST</span>
-                        <button type="button"
-                                class="btn-heart"
-                                data-book-id="1"
-                                onclick="toggleLike(this)">
-                            <i class="far fa-heart"></i>
-                        </button>
-                        <img class="card-img-top" src="https://image.aladin.co.kr/product/25433/80/cover/e572537345_1.jpg?w=400" alt="클래식 문학">
-                    </div>
+                    <a th:href="@{/books/{bookId}(bookId=${book.bookId()})}" style="text-decoration: none; color: inherit;">
+                        <div class="card-img-wrapper">
+
+<!--                            <span th:if="${book.isBest()}" class="badge badge-danger badge-best">BEST</span>-->
+<!--                            <span th:unless="${book.isBest()}" th:if="${book.isNew()}" class="badge badge-success badge-new">NEW</span>-->
+
+                            <button type="button"
+                                    class="btn-heart"
+                                    th:attr="data-book-id=${book.bookId()}"
+                                    onclick="toggleLike(this)">
+                                <i th:classappend="${book.isLiked() ? 'fas' : 'far'}" class="fa-heart"></i>
+                            </button>
+
+                            <img class="card-img-top" th:src="${book.bookImageUrl()}" th:alt="${book.title()}">
+                        </div>
+                    </a>
                     <div class="card-body">
-                        <div class="category-badge mb-1">문학</div>
-                        <h5 class="card-title mb-1">책제목1</h5>
-                        <p class="text-muted small mb-2">세계문학전집</p>
+
+                        <div class="category-badge mb-1" th:text="${book.categoryName()}">카테고리</div>
+
+                        <a th:href="@{/books/{bookId}(bookId=${book.bookId()})}" style="text-decoration: none; color: inherit;">
+                            <h5 class="card-title mb-1" th:text="${book.title()}">책제목</h5>
+                        </a>
+
+                        <p class="text-muted small mb-2" th:text="${book.author()}">저자미상</p>
+
                         <div class="mb-2">
-                            <span class="rating"><i class="fas fa-star"></i> 4.8</span>
-                            <span class="text-muted small">(128)</span>
+                            <span class="rating"><i class="fas fa-star"></i> <span th:text="${book.rating()}">별점</span></span>
+                            <span class="text-muted small">(<span th:text="${book.reviewCount()}">리뷰개수</span>)</span>
                         </div>
+
                         <div class="mb-3">
-                            <span class="price-original">18,000원</span>
-                            <span class="price-current ml-2">15,000원</span>
+                            <span class="price-original"
+                                  th:text="${#numbers.formatDecimal(book.originalPrice(), 0, 'COMMA', 0, 'POINT') + '원'}">정가</span>
+                            <span class="price-current ml-2"
+                                  th:text="${#numbers.formatDecimal(book.currentPrice(), 0, 'COMMA', 0, 'POINT') + '원'}">현재가격</span>
                         </div>
+
                         <form th:action="@{/cart/add}" method="post">
-                            <input type="hidden" name="bookId" th:value="${55}">
-                            <button class="btn btn-primary btn-block" onclick="addToCartAndConfirmMove('55', '1'); return false;">
+                            <input type="hidden" name="bookId" th:value="${book.bookId()}">
+                            <input type="hidden" name="quantity" value="1">
+                            <button class="btn btn-primary btn-block"
+                                    th:onclick="|addToCartAndConfirmMove('${book.bookId()}', '1'); return false;|">
                                 <i class="fas fa-shopping-cart mr-1"></i> 장바구니
                             </button>
                         </form>
 
                         <form th:action="@{/orders}" method="post">
-                            <input type="hidden" name="bookId" th:value="${55}">
+                            <input type="hidden" name="bookId" th:value="${book.bookId()}">
                             <input type="hidden" name="quantity" value="1">
                             <button type="submit" class="btn btn-secondary btn-block">
                                 바로 구매
@@ -345,103 +378,19 @@
                 </div>
             </div>
 
-            <div class="book-card-wrapper">
-                <div class="card book-card">
-                    <div class="card-img-wrapper">
-                        <span class="badge badge-success badge-new">NEW</span>
-                        <button type="button"
-                                class="btn-heart"
-                                data-book-id="5"
-                                onclick="toggleLike(this)">
-                            <i class="far fa-heart"></i>
-                        </button>
-                        <img class="card-img-top" src="https://image.aladin.co.kr/product/27983/44/cover/k032734221_1.jpg?w=400" alt="독서의 즐거움">
-                    </div>
-                    <div class="card-body">
-                        <div class="category-badge mb-1">에세이</div>
-                        <h5 class="card-title mb-1">책제목2</h5>
-                        <p class="text-muted small mb-2">박지원</p>
-                        <div class="mb-2">
-                            <span class="rating"><i class="fas fa-star"></i> 4.5</span>
-                            <span class="text-muted small">(128)</span>
-                        </div>
-                        <div class="mb-3">
-                            <span class="price-original">15,000원</span>
-                            <span class="price-current">5,000원</span>
-                        </div><form th:action="@{/cart/add}" method="post">
-                        <input type="hidden" name="bookId" th:value="${56}">
-                        <button class="btn btn-primary btn-block" onclick="addToCartAndConfirmMove('56', '1'); return false;">
-                            <i class="fas fa-shopping-cart mr-1"></i> 장바구니
-                        </button>
-                    </form>
-
-                        <form th:action="@{/orders}" method="post">
-                            <input type="hidden" name="bookId" th:value="${56}">
-                            <input type="hidden" name="quantity" value="1">
-                            <button type="submit" class="btn btn-secondary btn-block">
-                                바로 구매
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
+        </div>
     </div>
 </div>
-</div>
+
 <script>
-    // 페이지가 로드되면 레이아웃을 불러옵니다
-    window.addEventListener('DOMContentLoaded', function() {
-        // ... (레이아웃 로드 스크립트는 변경 없음) ...
-        fetch('layout.html')
-            .then(response => response.text())
-            .then(html => {
-                // 임시 div에 레이아웃 HTML을 넣습니다
-                const temp = document.createElement('div');
-                temp.innerHTML = html;
+    // **참고:** 이 스크립트 블록은 Thymeleaf를 사용하는 서버 환경에서는 불필요하며,
+    // 기존 HTML의 하드코딩된 JavaScript 예시를 제거하기 위한 용도로 남겨둡니다.
+    // 레이아웃 스크립트는 서버에서 정상적으로 처리된다고 가정합니다.
 
-                // 현재 페이지의 내용을 저장합니다
-                const pageContent = document.body.innerHTML;
-
-                // body의 내용을 레이아웃으로 교체합니다
-                document.body.innerHTML = temp.querySelector('body').innerHTML;
-
-                // head의 스타일도 추가합니다
-                const layoutHead = temp.querySelector('head');
-                const currentHead = document.head;
-
-                // 레이아웃의 모든 링크와 스타일을 현재 head에 추가
-                Array.from(layoutHead.children).forEach(child => {
-                    if (child.tagName === 'LINK' || child.tagName === 'STYLE') {
-                        currentHead.appendChild(child.cloneNode(true));
-                    }
-                });
-
-                // 페이지 컨텐츠를 #page-content에 삽입합니다
-                const pageContentDiv = document.getElementById('page-content');
-                if (pageContentDiv) {
-                    pageContentDiv.innerHTML = pageContent;
-                }
-
-                // 레이아웃의 스크립트들을 실행합니다
-                const scripts = temp.querySelectorAll('script');
-                scripts.forEach(script => {
-                    const newScript = document.createElement('script');
-                    if (script.src) {
-                        newScript.src = script.src;
-                    } else {
-                        newScript.textContent = script.textContent;
-                    }
-                    document.body.appendChild(newScript);
-                });
-
-                // 페이지별 이벤트 리스너 추가
-                initPageScripts();
-            })
-            .catch(error => {
-                console.error('레이아웃을 불러오는데 실패했습니다:', error);
-            });
-    });
+    // 페이지별 이벤트 리스너 추가 (필요시)
+    function initPageScripts() {
+        // 여기에 페이지 로드 후 실행할 추가적인 JavaScript 코드를 넣을 수 있습니다.
+    }
 </script>
 </body>
 </html>

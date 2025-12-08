@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/admin-layout}">
+
+<head>
+    <link th:href="@{/css/sb-admin-2.min.css}" rel="stylesheet">
+    <style>
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        /* 테이블 더 깔끔하게 */
+        .table thead th {
+            background-color: #f8f9fc !important;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-bottom: 2px solid #e3e6f0;
+        }
+        .table td {
+            vertical-align: middle;
+            padding: 14px 12px;
+            font-size: 0.9rem;
+        }
+        .table-hover tbody tr {
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        /* form 박스 카드 스타일 */
+        .form-box {
+            background: #fdfdfd;
+            border: 1px solid #e8e8e8;
+            padding: 15px 18px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .form-box .form-label {
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .price-input, .reward-input {
+            max-width: 120px;
+        }
+    </style>
+</head>
+
+<body>
+<div layout:fragment="pageContent">
+
+    <h1 class="h3 mb-3 text-gray-800">등급 적립률 관리</h1>
+
+    <div class="card shadow-sm p-3">
+        <div th:if="${success != null}">
+            <script th:if="${success}" th:inline="javascript">
+                /*<![CDATA[*/ alert("정상적으로 수정되었습니다."); /*]]>*/
+            </script>
+            <script th:if="${!success}" th:inline="javascript">
+                /*<![CDATA[*/ alert("수정에 실패했습니다."); /*]]>*/
+            </script>
+        </div>
+
+
+        <table class="table table-hover align-middle">
+            <thead class="thead-light">
+            <tr>
+                <th style="width: 60px;">ID</th>
+                <th style="width: 180px;">등급 이름</th>
+                <th style="width: 360px;">적립률 설정</th>
+            </tr>
+            </thead>
+
+            <tbody>
+
+            <tr th:each="g : ${grades}" class="policy-row">
+
+                <td th:text="${g.gradeId()}"></td>
+                <td><strong th:text="${g.gradeName()}"></strong></td>
+
+                <td>
+                    <form th:action="@{'/admin/grades/' + ${g.gradeId()}}"
+                          method="post" class="form-box">
+
+                        <input type="hidden" name="gradeName" th:value="${g.gradeName()}"/>
+                        <input type="hidden" value="put" name="_method"/>
+
+                        <div class="row g-3">
+
+                            <div class="col-6">
+                                <label class="form-label">적립률</label>
+                                <input type="number" name="pointRate"
+                                       th:value="${g.pointRate()}"
+                                       min="1"
+                                       class="form-control price-input">
+                            </div>
+
+                        </div>
+
+                        <div class="text-end mt-3">
+                            <button type="submit" class="btn btn-primary btn-sm modifyBtn">수정</button>
+                        </div>
+
+                    </form>
+                </td>
+
+            </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</body>
+</html>

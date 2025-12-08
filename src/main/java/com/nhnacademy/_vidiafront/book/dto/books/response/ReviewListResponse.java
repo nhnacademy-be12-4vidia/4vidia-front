@@ -1,4 +1,4 @@
-package com.nhnacademy._vidiafront.book.dto.response;
+package com.nhnacademy._vidiafront.book.dto.books.response;
 
 import java.time.LocalDate;
 import java.util.List;

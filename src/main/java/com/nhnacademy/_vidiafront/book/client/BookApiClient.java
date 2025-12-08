@@ -1,13 +1,10 @@
 package com.nhnacademy._vidiafront.book.client;
 
-import com.nhnacademy._vidiafront.book.dto.request.BookSearchRequest;
-import com.nhnacademy._vidiafront.book.dto.response.BookDetailResponse;
-import com.nhnacademy._vidiafront.book.dto.response.BookDetailWithReviewResponse;
-import com.nhnacademy._vidiafront.book.dto.response.BookListResponse;
+import com.nhnacademy._vidiafront.book.dto.books.request.BookSearchRequest;
+import com.nhnacademy._vidiafront.book.dto.books.response.BookDetailWithReviewResponse;
+import com.nhnacademy._vidiafront.book.dto.books.response.BookListResponse;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.global.dto.PageResponse;
-import java.util.Arrays;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;

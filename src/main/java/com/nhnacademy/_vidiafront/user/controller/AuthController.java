@@ -18,12 +18,16 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.Map;
 
 @Slf4j
 @Controller
@@ -168,4 +172,110 @@ public class AuthController {
         cookie.setMaxAge(0); // 즉시 만료
         response.addCookie(cookie);
     }
+
+    @GetMapping("/dormant-auth")
+    public String dormantAuthPage(@RequestParam(required = false) String email,
+                                  @RequestParam(required = false) Boolean sent,
+                                  @RequestParam(required = false) Boolean error,
+                                  @RequestParam(required = false) Boolean success,
+                                  Model model) {
+
+        model.addAttribute("email", email);
+        model.addAttribute("sent", sent);
+        model.addAttribute("error", error);
+        model.addAttribute("success", success);
+
+        return "auth/dormant-auth";
+    }
+
+    @PostMapping("/dormant/send-code")
+    public String sendDormantCode(@RequestParam String email,
+                                  @RequestParam String webhookUrl,
+                                  RedirectAttributes rttr) {
+
+        authApiClient.sendDormantCode(email, webhookUrl);
+
+        rttr.addAttribute("email", email);
+        rttr.addAttribute("sent", true);
+        return "redirect:/auth/dormant-auth";
+    }
+
+//    @PostMapping("/dormant/verify")
+//    public String verifyDormantCode(@RequestParam String email,
+//                                    @RequestParam String code,
+//                                    RedirectAttributes rttr) {
+//
+//        try {
+//            authApiClient.verifyDormantCode(email, code);
+//            rttr.addAttribute("success", true);
+//            return "redirect:/auth/login";
+//        } catch (Exception e) {
+//            rttr.addAttribute("email", email);
+//            rttr.addAttribute("error", true);
+//            return "redirect:/auth/dormant-auth";
+//        }
+//    }
+@PostMapping("/dormant/verify")
+public String verifyDormantCode(@RequestParam String email,
+                                @RequestParam String code,
+                                RedirectAttributes rttr) {
+
+    try {
+        authApiClient.verifyDormantCode(email, code);
+        rttr.addAttribute("success", true);
+        return "redirect:/auth/dormant-auth";
+
+    } catch (Exception e) {
+        String msg;
+
+        // 메시지 상세 가능
+        if (e.getMessage().contains("EXPIRED")) {
+            msg = "인증코드가 만료되었습니다. 다시 요청해주세요.";
+        } else {
+            msg = "올바르지 않은 인증코드입니다.";
+        }
+
+        rttr.addAttribute("email", email);
+        rttr.addAttribute("errorMsg", msg);
+        return "redirect:/auth/dormant-auth";
+    }
+}
+
+    //메일로 휴면 인증
+    @GetMapping("/dormant-auth/email")
+    public String emailAuthPage(@RequestParam String email, Model model) {
+        model.addAttribute("email", email);
+        return "auth/email-dormant-auth";
+    }
+
+    @PostMapping("/dormant/send-code/email")
+    public String sendEmailCode(@RequestParam String email,
+                                @RequestParam String contactEmail,
+                                RedirectAttributes rttr) {
+
+        authApiClient.sendDormantCodeByEmail(email, contactEmail);
+
+        rttr.addAttribute("email", email);
+        rttr.addAttribute("sent", true);
+        return "redirect:/auth/dormant-auth/email";
+    }
+
+    @PostMapping("/dormant/verify/email")
+    public String verifyEmailCode(@RequestParam String email,
+                                  @RequestParam String code,
+                                  RedirectAttributes rttr) {
+        try {
+            authApiClient.verifyDormantCode(email, code);
+             rttr.addAttribute("email", email);
+             rttr.addAttribute("success", true);
+            return "redirect:/auth/dormant-auth/email";
+
+        } catch (Exception e) {
+            rttr.addAttribute("email", email);
+            rttr.addAttribute("errorMsg", "인증코드가 올바르지 않거나 만료되었습니다.");
+            return "redirect:/auth/dormant-auth/email";
+        }
+    }
+
+
 }

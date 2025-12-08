@@ -38,8 +38,11 @@ public class BackendApiClient {
                     .uri(uri)
                     .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
                     .header("X-Guest-Id", guestId != null ? guestId : "")
-                    .header("Cookie", refreshToken != null ? "refresh=" + refreshToken : "" )
-                    .retrieve()
+                    .cookies(cookies -> {
+                        if (refreshToken != null) {
+                            cookies.add("refresh", refreshToken);
+                        }
+                    })                    .retrieve()
                     .body(responseType);
         } catch (HttpClientErrorException.Unauthorized ex) {
             TokenResponse tokenResponse = reissue(refreshToken);
@@ -49,8 +52,11 @@ public class BackendApiClient {
                         .uri(uri)
                         .header("Authorization", "Bearer " + tokenResponse.accessToken())
                         .header("X-Guest-Id", guestId != null ? guestId : "")
-                        .header("Cookie", refreshToken != null ? "refresh=" + refreshToken : "" )
-                        .retrieve()
+                        .cookies(cookies -> {
+                            if (refreshToken != null) {
+                                cookies.add("refresh", refreshToken);
+                            }
+                        })                        .retrieve()
                         .body(responseType);
             } else {
                 throw ex;
@@ -74,8 +80,11 @@ public class BackendApiClient {
                     .uri(uri)
                     .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
                     .header("X-Guest-Id", guestId != null ? guestId : "")
-                    .header("Cookie", refreshToken != null ? "refresh=" + refreshToken : "" )
-                    .retrieve()
+                    .cookies(cookies -> {
+                        if (refreshToken != null) {
+                            cookies.add("refresh", refreshToken);
+                        }
+                    })                    .retrieve()
                     .body(typeReference);
 
         } catch (HttpClientErrorException.Unauthorized ex) {
@@ -87,8 +96,11 @@ public class BackendApiClient {
                         .uri(uri)
                         .header("Authorization", "Bearer " + tokenResponse.accessToken())
                         .header("X-Guest-Id", guestId != null ? guestId : "")
-                        .header("Cookie", refreshToken != null ? "refresh=" + refreshToken : "" )
-                        .retrieve()
+                        .cookies(cookies -> {
+                            if (refreshToken != null) {
+                                cookies.add("refresh", refreshToken);
+                            }
+                        })                        .retrieve()
                         .body(typeReference);
             } else {
                 throw ex;
@@ -113,8 +125,11 @@ public class BackendApiClient {
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
                     .header("X-Guest-Id", guestId != null ? guestId : "")
-                    .header("Cookie", refreshToken != null ? "refresh=" + refreshToken : "" )
-                    .body(body)
+                    .cookies(cookies -> {
+                        if (refreshToken != null) {
+                            cookies.add("refresh", refreshToken);
+                        }
+                    })                    .body(body)
                     .retrieve()
                     .body(responseType);
         } catch (HttpClientErrorException.Unauthorized ex) {
@@ -127,8 +142,11 @@ public class BackendApiClient {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenResponse.accessToken())
                         .header("X-Guest-Id", guestId != null ? guestId : "")
-                        .header("Cookie", refreshToken != null ? "refresh=" + refreshToken : "" )
-                        .body(body)
+                        .cookies(cookies -> {
+                            if (refreshToken != null) {
+                                cookies.add("refresh", refreshToken);
+                            }
+                        })                        .body(body)
                         .retrieve()
                         .body(responseType);
             } else {
@@ -154,8 +172,11 @@ public class BackendApiClient {
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
                     .header("X-Guest-Id", guestId != null ? guestId : "")
-                    .header("Cookie", refreshToken != null ? "refresh=" + refreshToken : "" )
-                    .retrieve()
+                    .cookies(cookies -> {
+                        if (refreshToken != null) {
+                            cookies.add("refresh", refreshToken);
+                        }
+                    })                    .retrieve()
                     .body(responseType);
         } catch (HttpClientErrorException.Unauthorized ex) {
             TokenResponse tokenResponse = reissue(refreshToken);
@@ -167,8 +188,11 @@ public class BackendApiClient {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenResponse.accessToken())
                         .header("X-Guest-Id", guestId != null ? guestId : "")
-                        .header("Cookie", refreshToken != null ? "refresh=" + refreshToken : "" )
-                        .retrieve()
+                        .cookies(cookies -> {
+                            if (refreshToken != null) {
+                                cookies.add("refresh", refreshToken);
+                            }
+                        })                        .retrieve()
                         .body(responseType);
             } else {
                 throw ex;
@@ -194,8 +218,11 @@ public class BackendApiClient {
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
                     .header("X-Guest-Id", guestId != null ? guestId : "")
-                    .header("Cookie", refreshToken != null ? "refresh=" + refreshToken : "" )
-                    .body(body)
+                    .cookies(cookies -> {
+                        if (refreshToken != null) {
+                            cookies.add("refresh", refreshToken);
+                        }
+                    })                    .body(body)
                     .retrieve()
                     .body(responseType);
         } catch (HttpClientErrorException.Unauthorized ex) {
@@ -208,8 +235,11 @@ public class BackendApiClient {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenResponse.accessToken())
                         .header("X-Guest-Id", guestId != null ? guestId : "")
-                        .header("Cookie", refreshToken != null ? "refresh=" + refreshToken : "" )
-                        .body(body)
+                        .cookies(cookies -> {
+                            if (refreshToken != null) {
+                                cookies.add("refresh", refreshToken);
+                            }
+                        })                        .body(body)
                         .retrieve()
                         .body(responseType);
             } else {
@@ -234,8 +264,11 @@ public class BackendApiClient {
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
                     .header("X-Guest-Id", guestId != null ? guestId : "")
-                    .header("Cookie", refreshToken != null ? "refresh=" + refreshToken : "" )
-                    .retrieve()
+                    .cookies(cookies -> {
+                        if (refreshToken != null) {
+                            cookies.add("refresh", refreshToken);
+                        }
+                    })                    .retrieve()
                     .body(responseType);
         } catch (HttpClientErrorException.Unauthorized ex) {
             TokenResponse tokenResponse = reissue(refreshToken);
@@ -247,8 +280,11 @@ public class BackendApiClient {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenResponse.accessToken())
                         .header("X-Guest-Id", guestId != null ? guestId : "")
-                        .header("Cookie", refreshToken != null ? "refresh=" + refreshToken : "" )
-                        .retrieve()
+                        .cookies(cookies -> {
+                            if (refreshToken != null) {
+                                cookies.add("refresh", refreshToken);
+                            }
+                        })                        .retrieve()
                         .body(responseType);
             } else {
                 throw ex;
@@ -273,8 +309,11 @@ public class BackendApiClient {
                     .uri(uri)
                     .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
                     .header("X-Guest-Id", guestId != null ? guestId : "")
-                    .header("Cookie", refreshToken != null ? "refresh=" + refreshToken : "" )
-                    .retrieve()
+                    .cookies(cookies -> {
+                        if (refreshToken != null) {
+                            cookies.add("refresh", refreshToken);
+                        }
+                    })                    .retrieve()
                     .body(responseType);
         } catch (HttpClientErrorException.Unauthorized ex) {
             TokenResponse tokenResponse = reissue(refreshToken);
@@ -285,8 +324,11 @@ public class BackendApiClient {
                         .uri(uri)
                         .header("Authorization", "Bearer " + tokenResponse.accessToken())
                         .header("X-Guest-Id", guestId != null ? guestId : "")
-                        .header("Cookie", refreshToken != null ? "refresh=" + refreshToken : "" )
-                        .retrieve()
+                        .cookies(cookies -> {
+                            if (refreshToken != null) {
+                                cookies.add("refresh", refreshToken);
+                            }
+                        })                        .retrieve()
                         .body(responseType);
             } else {
                 throw ex;
@@ -302,7 +344,11 @@ public class BackendApiClient {
             return restClient.post()
                     .uri(AUTH + "/auth/reissue")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .header("Cookie", refreshToken != null ? "refresh=" + refreshToken : "" )
+                    .cookies(cookies -> {
+                        if (refreshToken != null) {
+                            cookies.add("refresh", refreshToken);
+                        }
+                    })
                     .retrieve()
                     .body(TokenResponse.class);
         } catch (HttpClientErrorException.Unauthorized ex) {

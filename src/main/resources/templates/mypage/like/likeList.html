@@ -20,6 +20,8 @@
             }
         }
     </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script th:src="@{/js/askMoveCart.js}"></script>
 </head>
 <body>
 <div layout:fragment="content">
@@ -80,9 +82,10 @@
 
                                     <div class="mb-3">
                                         <div th:if="${item.priceStandard() > item.priceSales()}"
-                                             class="d-flex align-items-center gap-2"> <span class="text-dark font-weight-bold"
-                                                                                            th:text="${#numbers.formatInteger(item.priceSales(), 1, 'COMMA')} + '원'">
-                                                </span>
+                                             class="d-flex align-items-center gap-2">
+                                            <span class="text-dark font-weight-bold"
+                                                  th:text="${#numbers.formatInteger(item.priceSales(), 1, 'COMMA')} + '원'">
+                                            </span>
 
                                             <span class="text-muted small"
                                                   style="text-decoration: line-through;"
@@ -109,7 +112,8 @@
 
                                             <form th:action="@{/cart/add}" method="post" class="flex-fill">
                                                 <input type="hidden" name="bookId" th:value="${item.bookId()}">
-                                                <button class="btn btn-primary btn-block">
+                                                <button class="btn btn-primary btn-block"
+                                                        th:onclick="|addToCartAndConfirmMove('${item.bookId()}', '1'); return false;|">
                                                     <i class="fas fa-shopping-cart mr-1"></i> 장바구니 담기
                                                 </button>
                                             </form>

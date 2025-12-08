@@ -66,7 +66,7 @@ public class AuthApiClient {
     /**
      * 로그인 후 -> 휴먼 여부 확인
      */
-    public Boolean isDormant(LoginRequest loginRequest) {
-        return backendApiClient.post(USER_SERVICE + "/auth/check-dormant", loginRequest, Boolean.class);
+    public Boolean isDormant(String email) {
+        return backendApiClient.get(USER_SERVICE + "/auth/check-dormant?email=" + email, Boolean.class);
     }
 }

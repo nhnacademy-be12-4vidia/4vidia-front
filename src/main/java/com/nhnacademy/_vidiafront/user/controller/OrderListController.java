@@ -1,6 +1,6 @@
 package com.nhnacademy._vidiafront.user.controller;
 
-import com.nhnacademy._vidiafront.order.config.OrderApiClient;
+import com.nhnacademy._vidiafront.order.client.OrderApiClient;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderPreviewResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

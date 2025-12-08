@@ -1,7 +1,7 @@
 package com.nhnacademy._vidiafront.order.controller;
 
-import com.nhnacademy._vidiafront.order.config.OrderApiClient;
-import com.nhnacademy._vidiafront.order.config.PaymentApiClient;
+import com.nhnacademy._vidiafront.order.client.OrderApiClient;
+import com.nhnacademy._vidiafront.order.client.PaymentApiClient;
 import com.nhnacademy._vidiafront.order.dto.order.request.OrderCheckoutRequest;
 import com.nhnacademy._vidiafront.order.dto.order.request.OrderCreateRequest;
 import com.nhnacademy._vidiafront.order.dto.order.request.OrderPageRequest;

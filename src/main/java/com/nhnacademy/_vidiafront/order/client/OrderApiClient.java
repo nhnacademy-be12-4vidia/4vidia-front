@@ -1,4 +1,4 @@
-package com.nhnacademy._vidiafront.order.config;
+package com.nhnacademy._vidiafront.order.client;
 
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.order.dto.order.request.OrderCheckoutListRequest;
@@ -18,7 +18,6 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class OrderApiClient {
-    private final RestClient restClient;
     private static final String ORDER_SERVICE = "/api/v1/order-service";
     private final BackendApiClient backendApiClient;
 

@@ -1,4 +1,4 @@
-package com.nhnacademy._vidiafront.order.config;
+package com.nhnacademy._vidiafront.order.client;
 
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.order.dto.payment.requset.PaymentCancelRequest;

@@ -49,7 +49,7 @@
                                 <div class="col-md-4 packaging-select-group">
                                     <div th:each="num : ${#numbers.sequence(1, item.quantity)}" class="mb-2">
                                         <label class="text-xs font-weight-bold text-primary mb-1"
-                                               th:text="|🎁 ${num}번째 권 포장|">🎁 1번째 권 포장</label>
+                                               th:text="|🎁 ${num}번째 권 포장|">포장</label>
 
                                         <select class="form-control form-control-sm packaging-select">
                                             <option th:each="option : ${packagingOptions}"

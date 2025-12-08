@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -154,6 +155,48 @@ public class BackendApiClient {
             }
         } catch (Exception ex) {
             throw new ApiRequestException("Backend request failed"+ex.toString(), ex);
+        }
+    }
+
+    public <T> T postMultipartFile(String uri, MultiValueMap<String, Object> parts,
+        Class<T> responseType) {
+        HttpServletRequest request = getRequest();
+        HttpServletResponse response = getResponse();
+
+        HttpSession session = request.getSession(false);
+        String accessToken = session != null ? (String) session.getAttribute("accessToken") : null;
+        String guestId = extractGuestId(request);
+        String refreshToken = getRefreshTokenFromCookie(request);
+
+        try {
+            return restClient.post()
+                .uri(uri)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
+                .header("X-Guest-Id", guestId != null ? guestId : "")
+                .header("Cookie", refreshToken != null ? "refresh=" + refreshToken : "")
+                .body(parts)
+                .retrieve()
+                .body(responseType);
+        } catch (HttpClientErrorException.Unauthorized ex) {
+            TokenResponse tokenResponse = reissue(refreshToken);
+            boolean isReissue = reissueIfNeeded(tokenResponse, request, response);
+            if (isReissue) {
+                request.getSession(true).setAttribute("accessToken", tokenResponse.accessToken());
+                return restClient.post()
+                    .uri(uri)
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .header("Authorization", "Bearer " + tokenResponse.accessToken())
+                    .header("X-Guest-Id", guestId != null ? guestId : "")
+                    .header("Cookie", refreshToken != null ? "refresh=" + refreshToken : "")
+                    .body(parts)
+                    .retrieve()
+                    .body(responseType);
+            } else {
+                throw ex;
+            }
+        } catch (Exception ex) {
+            throw new ApiRequestException("Backend multipart request failed: " + ex, ex);
         }
     }
 

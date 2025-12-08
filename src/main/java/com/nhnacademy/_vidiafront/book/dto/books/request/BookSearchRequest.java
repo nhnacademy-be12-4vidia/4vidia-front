@@ -1,4 +1,4 @@
-package com.nhnacademy._vidiafront.book.dto.request;
+package com.nhnacademy._vidiafront.book.dto.books.request;
 
 import jakarta.validation.constraints.NotBlank;
 

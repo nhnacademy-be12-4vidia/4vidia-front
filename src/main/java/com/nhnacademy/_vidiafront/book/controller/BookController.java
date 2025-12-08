@@ -1,21 +1,17 @@
 package com.nhnacademy._vidiafront.book.controller;
 
 import com.nhnacademy._vidiafront.book.client.BookApiClient;
-import com.nhnacademy._vidiafront.book.dto.request.BookSearchRequest;
-import com.nhnacademy._vidiafront.book.dto.response.BookDetailResponse;
-import com.nhnacademy._vidiafront.book.dto.response.BookDetailWithReviewResponse;
-import com.nhnacademy._vidiafront.book.dto.response.BookListResponse;
+import com.nhnacademy._vidiafront.book.dto.books.request.BookSearchRequest;
+import com.nhnacademy._vidiafront.book.dto.books.response.BookDetailWithReviewResponse;
+import com.nhnacademy._vidiafront.book.dto.books.response.BookListResponse;
 import com.nhnacademy._vidiafront.global.dto.PageResponse;
 import java.util.List;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 

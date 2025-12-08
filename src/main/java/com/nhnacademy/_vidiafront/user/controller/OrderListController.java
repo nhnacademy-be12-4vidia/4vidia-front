@@ -1,14 +1,13 @@
 package com.nhnacademy._vidiafront.user.controller;
 
 import com.nhnacademy._vidiafront.order.client.OrderApiClient;
+import com.nhnacademy._vidiafront.order.client.OrderItemApiClient;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderPreviewResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 import java.util.function.Function;
@@ -21,6 +20,7 @@ import java.util.stream.Collectors;
 public class OrderListController {
 
     private final OrderApiClient orderApiClient;
+    private final OrderItemApiClient orderItemApiClient;
 
     /**
      * 주문관리 페이지
@@ -128,5 +128,25 @@ public class OrderListController {
                 "DELIVERED", "배송 완료",
                 "CANCELED", "취소됨"
         );
+    }
+
+
+    @PostMapping("/confirm-item")
+    @ResponseBody
+    public Map<String, Object> confirmItem(@RequestParam(value = "orderItemId") Long orderItemId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // API 호출을 통해 서버의 OrderItem 상태를 'CONFIRMED'로 변경
+            orderItemApiClient.confirmOrderItem(orderItemId);
+
+            response.put("success", true);
+            response.put("message", "구매 확정 성공");
+
+        } catch (Exception e) {
+            log.error("Failed to confirm order item {}: {}", orderItemId, e.getMessage());
+            response.put("success", false);
+            response.put("message", "구매 확정 처리 중 오류 발생: " + e.getMessage());
+        }
+        return response;
     }
 }

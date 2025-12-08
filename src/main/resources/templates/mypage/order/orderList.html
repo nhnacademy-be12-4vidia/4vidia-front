@@ -27,10 +27,11 @@
         .order-status-tab:hover {
             background-color: #f8f9fa;
         }
+        /* ✅ 수정: active 상태의 색상을 보라색 계열(#5b5b9e)로 변경 */
         .order-status-tab.active {
-            border-bottom-color: #0d6efd;
+            border-bottom-color: #5b5b9e;
             font-weight: bold;
-            color: #0d6efd !important;
+            color: #5b5b9e !important;
         }
         .tab-item-count {
             font-size: 1.5rem;
@@ -42,6 +43,72 @@
             margin-top: 0.25rem;
         }
     </style>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const confirmUrlBase = /*[[@{/mypage/order/confirm-item}]]*/ '/mypage/order/confirm-item';
+        const reviewUrlBase = /*[[@{/books}]]*/ '/books';
+
+        $(document).ready(function() {
+            // '구매 확정' 버튼 클릭 이벤트 핸들러
+            $('.btn-confirm-purchase').on('click', function(e) {
+                e.preventDefault();
+
+                const $this = $(this);
+                const orderItemId = $this.data('order-item-id');
+                const bookId = $this.data('book-id');
+
+                // 팝업 창을 띄워 사용자에게 확인 받기
+                if (confirm('구매를 확정하시겠습니까? 구매 확정 시 반품/교환 신청이 불가능할 수 있습니다.')) {
+
+                    $.ajax({
+                        url: `${confirmUrlBase}?orderItemId=${orderItemId}`,
+                        type: 'POST',
+                        dataType: 'json',
+                        success: function(response) {
+                            // 💡 백엔드 응답이 { success: true, ... } 형태일 때만 처리
+                            if (response.success) {
+                                alert('구매가 확정되었습니다. 이제 리뷰를 작성하실 수 있습니다.');
+
+                                // 버튼 컨테이너를 OrderItem ID로 찾기
+                                const $container = $this.closest('.item-actions-wrapper');
+
+                                // 1. '구매 확정' 버튼(`.confirm-wrapper`) 제거
+                                $container.find('.confirm-wrapper').remove();
+
+                                // 2. '리뷰 작성' 버튼 DOM을 새로 생성하여 삽입
+                                const reviewBtnHtml = `
+                                <div class="review-wrapper d-flex align-items-center" style="flex-shrink: 0;">
+                                    <a href="${reviewUrlBase}/${bookId}/reviews?orderItemId=${orderItemId}"
+                                       class="btn btn-primary text-white"
+                                       style="width: 100px; height: 38px; background-color: #5b5b9e; border-color: #5b5b9e;">
+                                        리뷰 작성
+                                    </a>
+                                </div>`;
+
+                                // 버튼 컨테이너에 리뷰 버튼 삽입
+                                $container.append(reviewBtnHtml);
+
+                                // 반품 버튼 숨기기 (구매 확정 후 반품 불가)
+                                const $returnBtn = $this.closest('.order-item-row').next('.order-actions').find('.btn-return-request');
+                                $returnBtn.remove();
+
+
+                            } else {
+                                alert('구매 확정에 실패했습니다: ' + (response.message || '알 수 없는 오류'));
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            alert('서버 오류로 구매 확정에 실패했습니다.');
+                            console.error("AJAX Error: ", status, error);
+                        }
+                    });
+                }
+            });
+        });
+        /*]]>*/
+    </script>
 </head>
 
 <body>
@@ -65,10 +132,8 @@
                     <a th:href="@{/mypage/order}"
                        th:classappend="${currentStatus == 'ALL' ? 'active' : 'text-muted'}"
                        class="order-status-tab d-flex flex-column align-items-center justify-content-center"
-                       style="position: relative;">
-                        <div class="tab-item-count" th:text="${totalOrders}">0</div>
-                        <div class="tab-item-label">주문내역</div>
-                        <i class="fas fa-question-circle small ml-1" style="position: absolute; right: 0.2rem; top: 0.2rem;"></i>
+                       style="position: relative;"> <div class="tab-item-count" th:text="${totalOrders}">0</div>
+                        <div class="tab-item-label">전체주문내역</div>
                     </a>
 
                     <a th:href="@{/mypage/order(status='WAITING')}"
@@ -113,174 +178,180 @@
 
                 </div>
             </div>
-        </div>
-
-        <div class="fixed-content-area py-3">
-
-            <div th:if="${#lists.isEmpty(orders)}" class="text-center py-5 border rounded-lg bg-light shadow-sm">
-                <i class="fas fa-exclamation-circle fa-2x text-warning mb-3"></i>
-                <p class="text-gray-600 font-weight-bold mb-0">해당 기간에 주문한 상품이 없습니다.</p>
-            </div>
-
-            <div th:each="order : ${orders}" class="bg-white rounded-lg shadow-sm p-4 mb-4 border border-gray-200">
-
-                <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom border-gray-200">
-                    <div class="d-flex align-items-center gap-4">
-                        <span class="text-gray-900 font-weight-bold"
-                              th:text="${#temporals.format(order.createdAt(), 'yyyy.MM.dd (HH:mm:ss)')}"></span>
-                        <span class="text-gray-400">|</span>
-                    </div>
-
-                    <span th:with="statusName=${order.deliveryStatus().name()}"
-                          th:classappend="${statusName == 'DELIVERED' ? 'text-success bg-success-light' :
-                                                (statusName == 'SHIPPING' ? 'text-info bg-info-light' :
-                                                (statusName == 'WAITING' ? 'text-warning bg-warning-light' :
-                                                'text-secondary bg-secondary-light'))}"
-                          class="px-3 py-1 rounded-pill small font-weight-bold d-inline-flex align-items-center"
-                          style="--bs-bg-opacity: .1; padding: .25rem .75rem;">
-
-                        <i th:classappend="${statusName == 'DELIVERED' ? 'fa-check-circle' :
-                                           (statusName == 'SHIPPING' ? 'fa-truck' :
-                                           (statusName == 'WAITING' ? 'fa-box-open' :
-                                           'fa-times-circle'))}"
-                           class="fas fa-sm mr-2"></i>
-
-                        <span th:text="${statusNameMap.get(statusName)}"></span>
-                    </span>
-                </div>
-
-                <div class="space-y-4">
-                    <div th:each="book, bookStat : ${order.orderItems()}" class="d-flex gap-4 mb-3">
-                        <img th:src="${book.bookImageUrl()}" th:alt="${book.bookTitle()}"
-                             class="rounded shadow-sm" style="width: 80px; height: 112px; object-fit: cover;">
-
-                        <div class="flex-grow-1 p-1 d-flex flex-column justify-content-between">
-                            <div>
-                                <h4 class="text-gray-900 mb-1" th:text="${book.bookTitle()}"
-                                    style="font-size: 1rem; font-weight: 600;"></h4>
-                                <p class="text-gray-500 small mb-2" th:text="${book.bookAuthor()}"></p>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-between pr-1">
-                                <span class="text-gray-600 small" th:text="'수량: ' + ${book.quantity()}"></span>
-                                <span class="text-gray-900 font-weight-bold"
-                                      th:text="${#numbers.formatDecimal(book.salePrice(), 0, 'COMMA', 0, 'POINT') + '원'}"></span>
-                            </div>
-                        </div>
-
-                        <div class="d-flex align-items-center" style="flex-shrink: 0;">
-                            <button th:onclick="'location.href=' + @{/books/{bookId}/reviews(bookId=${book.bookId()}, orderItemId=${book.orderItemId()})}"
-                                    class="btn btn-secondary text-white"
-                                    style="width: 100px; height: 38px;">
-                                리뷰 보기
-                            </button>
-                        </div>
-
-                        <div th:if="${order.deliveryStatus().name() == 'DELIVERED'}"
-                             class="d-flex align-items-center" style="flex-shrink: 0;">
-                            <button
-                                    th:onclick="'location.href=' + @{/orders/{orderId}/confirm-item(orderId=${order.orderId()}, orderItemId=${book.orderItemId()})}"
-                                    class="btn btn-success text-white"
-                                    style="width: 100px; height: 38px;">
-                                구매 확정
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-4 pt-3 border-top border-gray-200 d-flex gap-2">
-                    <a th:href="@{/orders/{orderId}(orderId=${order.orderId()})}"
-                       class="btn btn-light text-gray-700 flex-grow-1 hover-shadow" style="flex: 1;">
-                        주문 상세 보기
-                    </a>
-
-                    <a th:if="${order.deliveryStatus().name() == 'DELIVERED'}"
-                       th:href="@{/orders/{orderId}/return(orderId=${order.orderId()})}"
-                       class="btn btn-outline-secondary flex-grow-1" style="flex: 1;">
-                        반품 신청
-                    </a>
-
-                    <a th:if="${order.deliveryStatus().name() == 'SHIPPING'}" href="#"
-                       class="btn btn-info text-white flex-grow-1" style="flex: 1;">
-                        배송 조회
-                    </a>
-
-                </div>
-
-            </div>
-
             <div class="fixed-content-area py-3">
-                <p class="small text-muted border-top pt-2">
-                    * 배송조회는 택배사로 상품 전달 후 조회 가능합니다.
-                </p>
-            </div>
-        </div>
 
-    </div>
-
-    <div class="modal fade" id="orderSearchModal" tabindex="-1" aria-labelledby="orderSearchModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header d-flex justify-content-between align-items-center border-0 pb-0">
-                    <h5 class="modal-title font-weight-bold" id="orderSearchModalLabel">상세조회</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div th:if="${#lists.isEmpty(orders)}" class="text-center py-5 border rounded-lg bg-light shadow-sm">
+                    <i class="fas fa-exclamation-circle fa-2x text-warning mb-3"></i>
+                    <p class="text-gray-600 font-weight-bold mb-0">해당 기간에 주문한 상품이 없습니다.</p>
                 </div>
-                <form id="orderSearchForm" th:action="@{/mypage/order}" method="get">
-                    <div class="modal-body pt-0">
-                        <div class="small text-muted border-bottom pb-3 mb-3">
-                            <ul>
-                                <li>조회 기간 설정은 6개월 단위이며, 주문정보 조회는 최대 5년까지 가능합니다.</li>
-                                <li>필터 이용 시 선택한 주문정보만 조회 가능합니다.</li>
-                            </ul>
+                <div th:each="order : ${orders}" class="bg-white rounded-lg shadow-sm p-4 mb-4 border border-gray-200">
+
+                    <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom border-gray-200">
+                        <div class="d-flex align-items-center gap-4">
+                            <span class="text-gray-900 font-weight-bold"
+                                  th:text="${#temporals.format(order.createdAt(), 'yyyy.MM.dd (HH:mm:ss)')}"></span>
+                            <span class="text-gray-400">|</span>
                         </div>
 
-                        <div class="mb-4">
-                            <h6 class="font-weight-bold">기간 조회</h6>
-                            <div class="d-flex align-items-center gap-2 mt-2">
-                                <select class="form-select form-select-sm" style="width: 110px;" name="period">
-                                    <option value="1M">최근 1개월</option>
-                                    <option value="3M">최근 3개월</option>
-                                    <option value="6M">최근 6개월</option>
-                                </select>
-                                <input type="date" class="form-control form-control-sm" name="startDate" value="2025-11-03">
-                                <span>~</span>
-                                <input type="date" class="form-control form-control-sm" name="endDate" value="2025-12-03">
+                        <span th:with="statusName=${order.deliveryStatus().name()}"
+                              th:classappend="${statusName == 'DELIVERED' ? 'text-success bg-success-light' :
+                                                    (statusName == 'SHIPPING' ? 'text-info bg-info-light' :
+                                                    (statusName == 'WAITING' ? 'text-warning bg-warning-light' :
+                                                    'text-secondary bg-secondary-light'))}"
+                              class="px-3 py-1 rounded-pill small font-weight-bold d-inline-flex align-items-center"
+                              style="--bs-bg-opacity: .1; padding: .25rem .75rem;">
+
+                            <i th:classappend="${statusName == 'DELIVERED' ? 'fa-check-circle' :
+                                               (statusName == 'SHIPPING' ? 'fa-truck' :
+                                               (statusName == 'WAITING' ? 'fa-box-open' :
+                                               'fa-times-circle'))}"
+                               class="fas fa-sm mr-2"></i>
+
+                            <span th:text="${statusNameMap.get(statusName)}"></span>
+                        </span>
+                    </div>
+                    <div class="space-y-4">
+                        <div th:each="book, bookStat : ${order.orderItems()}" class="d-flex gap-4 mb-3 order-item-row">
+                            <img th:src="${book.bookImageUrl()}" th:alt="${book.bookTitle()}"
+                                 class="rounded shadow-sm" style="width: 80px; height: 112px; object-fit: cover;">
+
+                            <div class="flex-grow-1 p-1 d-flex flex-column justify-content-between">
+                                <div>
+                                    <h4 class="text-gray-900 mb-1" th:text="${book.bookTitle()}"
+                                        style="font-size: 1rem; font-weight: 600;"></h4>
+                                    <p class="text-gray-500 small mb-2" th:text="${book.bookAuthor()}"></p>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between pr-1">
+                                    <span class="text-gray-600 small" th:text="'수량: ' + ${book.quantity()}"></span>
+                                    <span class="text-gray-900 font-weight-bold"
+                                          th:text="${#numbers.formatDecimal(book.salePrice(), 0, 'COMMA', 0, 'POINT') + '원'}"></span>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="mb-4">
-                            <h6 class="font-weight-bold">주문 배송 상태</h6>
-                            <select class="form-select form-select-sm mt-2" name="status">
-                                <option value="ALL">전체</option>
-                                <option value="WAITING">배송 준비중</option>
-                                <option value="SHIPPING">배송 중</option>
-                                <option value="DELIVERED">배송 완료</option>
-                                <option value="CANCELED_ONLY">취소</option>
-                                <option value="EXCHANGE_RETURN">교환/반품</option>
-                            </select>
-                        </div>
+                            <div th:if="${order.deliveryStatus().name() == 'DELIVERED'}"
+                                 class="d-flex align-items-center gap-2 item-actions-wrapper"
+                                 style="flex-shrink: 0;"
+                                 th:id="'item-actions-' + ${book.orderItemId()}">
 
-                        <div class="mb-4">
-                            <h6 class="font-weight-bold">검색</h6>
-                            <div class="d-flex align-items-center gap-2 mt-2">
-                                <select class="form-select form-select-sm" style="width: 110px;" name="searchType">
-                                    <option value="bookTitle">상품명</option>
-                                </select>
-                                <input type="text" class="form-control form-control-sm" name="searchKeyword" placeholder="상품명을 입력해 주세요.">
+                                <div class="confirm-wrapper d-flex align-items-center" style="flex-shrink: 0;"
+                                     th:if="${book.confirmStatus() != null and book.confirmStatus().name() == 'UNCONFIRMED'}">
+                                    <a href="#"
+                                       th:data-order-item-id="${book.orderItemId()}"
+                                       th:data-book-id="${book.bookId()}"
+                                       class="btn btn-success text-white btn-confirm-purchase d-flex align-items-center justify-content-center"
+                                       style="width: 100px; height: 38px;">
+                                        구매 확정
+                                    </a>
+                                </div>
+
+                                <div class="review-wrapper d-flex align-items-center" style="flex-shrink: 0;"
+                                     th:if="${book.confirmStatus() != null and book.confirmStatus().name() == 'CONFIRMED'}">
+                                    <a th:href="@{/books/{bookId}/reviews(bookId=${book.bookId()}, orderItemId=${book.orderItemId()})}"
+                                       class="btn btn-primary text-white"
+                                       style="width: 100px; height: 38px; background-color: #5b5b9e; border-color: #5b5b9e;">
+                                        리뷰 작성
+                                    </a>
+                                </div>
+
+                                <div class="status-info-wrapper d-flex align-items-center" style="flex-shrink: 0;"
+                                     th:if="${book.confirmStatus() != null and book.confirmStatus().name() == 'RETURNED'}">
+                                    <span class="text-danger small font-weight-bold" style="width: 100px; text-align: center;">반품 완료</span>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <div class="mt-4 pt-3 border-top border-gray-200 d-flex gap-2 order-actions">
+                        <a th:href="@{/orders/{orderId}(orderId=${order.orderId()})}"
+                           class="btn btn-light text-gray-700 flex-grow-1 shadow-sm" style="flex: 1;">
+                            주문 상세 보기
+                        </a>
 
-                    <div class="modal-footer border-0 pt-0">
-                        <div class="d-flex justify-content-end gap-2 w-100">
-                            <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('orderSearchForm').reset()">초기화</button>
-                            <button type="submit" class="btn btn-primary" style="background-color: #5b5b9e; border-color: #5b5b9e;">적용</button>
-                        </div>
+                        <a th:if="${order.deliveryStatus().name() == 'DELIVERED'}"
+                           th:href="@{/orders/{orderId}/return(orderId=${order.orderId()})}"
+                           class="btn btn-outline-secondary flex-grow-1 btn-return-request" style="flex: 1;">
+                            반품 신청
+                        </a>
+
+                        <a th:if="${order.deliveryStatus().name() == 'SHIPPING'}" href="#"
+                           class="btn btn-info text-white flex-grow-1" style="flex: 1;">
+                            배송 조회
+                        </a>
+
                     </div>
-                </form>
+                </div>
+                <div class="fixed-content-area py-3">
+                    <p class="small text-muted border-top pt-2">
+                        * 배송조회는 택배사로 상품 전달 후 조회 가능합니다.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="modal fade" id="orderSearchModal" tabindex="-1" aria-labelledby="orderSearchModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header d-flex justify-content-between align-items-center border-0 pb-0">
+                        <h5 class="modal-title font-weight-bold" id="orderSearchModalLabel">상세조회</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="orderSearchForm" th:action="@{/mypage/order}" method="get">
+                        <div class="modal-body pt-0">
+                            <div class="small text-muted border-bottom pb-3 mb-3">
+                                <ul>
+                                    <li>조회 기간 설정은 6개월 단위이며, 주문정보 조회는 최대 5년까지 가능합니다.</li>
+                                    <li>필터 이용 시 선택한 주문정보만 조회 가능합니다.</li>
+                                </ul>
+                            </div>
+
+                            <div class="mb-4">
+                                <h6 class="font-weight-bold">기간 조회</h6>
+                                <div class="d-flex align-items-center gap-2 mt-2">
+                                    <select class="form-select form-select-sm" style="width: 110px;" name="period">
+                                        <option value="1M">최근 1개월</option>
+                                        <option value="3M">최근 3개월</option>
+                                        <option value="6M">최근 6개월</option>
+                                    </select>
+                                    <input type="date" class="form-control form-control-sm" name="startDate" value="2025-11-03">
+                                    <span>~</span>
+                                    <input type="date" class="form-control form-control-sm" name="endDate" value="2025-12-03">
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <h6 class="font-weight-bold">주문 배송 상태</h6>
+                                <select class="form-select form-select-sm mt-2" name="status">
+                                    <option value="ALL">전체</option>
+                                    <option value="WAITING">배송 준비중</option>
+                                    <option value="SHIPPING">배송 중</option>
+                                    <option value="DELIVERED">배송 완료</option>
+                                    <option value="CANCELED_ONLY">취소</option>
+                                    <option value="EXCHANGE_RETURN">교환/반품</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <h6 class="font-weight-bold">검색</h6>
+                                <div class="d-flex align-items-center gap-2 mt-2">
+                                    <select class="form-select form-select-sm" style="width: 110px;" name="searchType">
+                                        <option value="bookTitle">상품명</option>
+                                    </select>
+                                    <input type="text" class="form-control form-control-sm" name="searchKeyword" placeholder="상품명을 입력해 주세요.">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer border-0 pt-0">
+                            <div class="d-flex justify-content-end gap-2 w-100">
+                                <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('orderSearchForm').reset()">초기화</button>
+                                <button type="submit" class="btn btn-primary" style="background-color: #5b5b9e; border-color: #5b5b9e;">적용</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-
 </div>
 </body>
 </html>

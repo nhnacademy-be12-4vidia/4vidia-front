@@ -16,6 +16,7 @@ import org.springframework.web.client.RestClient;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -69,4 +70,38 @@ public class AuthApiClient {
     public Boolean isDormant(String email) {
         return backendApiClient.get(USER_SERVICE + "/auth/check-dormant?email=" + email, Boolean.class);
     }
+
+    /**
+     * 휴면 인증코드 전송
+     */
+    public Void sendDormantCode(String email, String webhookUrl) {
+        return backendApiClient.post(
+                USER_SERVICE + "/auth/dormant/send-code",
+                java.util.Map.of("email", email, "webhookUrl", webhookUrl),
+                Void.class
+        );
+    }
+
+    /**
+     * 휴면 인증코드 검증
+     */
+    public Void verifyDormantCode(String email, String code) {
+        return backendApiClient.post(
+                USER_SERVICE + "/auth/dormant/verify",
+                java.util.Map.of("email", email, "code", code),
+                Void.class
+        );
+    }
+
+    /**
+     * 메일로 휴면 인증코드 전송
+     */
+    public Void sendDormantCodeByEmail(String email, String contactEmail) {
+        return backendApiClient.post(
+                USER_SERVICE + "/auth/dormant/send-code/email",
+                Map.of("email", email, "contactEmail", contactEmail),
+                Void.class
+        );
+    }
+
 }

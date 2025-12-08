@@ -42,7 +42,15 @@
                         <tr>
                             <th class="bg-light" style="width: 200px;">전화번호</th>
                             <td>
-                                <!-- todo : 수정완료 됐을 때, 알람창이든 뭐든 띄워줘야 할듯? -->
+                                <script th:inline="javascript">
+                                    // Spring Controller에서 'message'라는 Flash Attribute가 전달되었는지 확인합니다.
+                                    const successMessage = [[${message}]];
+
+                                    if (successMessage) {
+                                        // 메시지가 있으면 alert 팝업을 띄웁니다.
+                                        alert(successMessage);
+                                    }
+                                </script>
                                 <input type="tel" class="form-control"
                                        th:field="*{phone}"
                                        placeholder="예: 01012345678"

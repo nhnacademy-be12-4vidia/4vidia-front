@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -35,15 +36,12 @@ public class ProfileController {
      * */
     @PutMapping
     public String updateUserProfile(UpdateUserRequest updateUserRequest,
-                                    Model model) {
-//        String result = userApiClient.updateUserProfile(updateUserRequest);
-//        log.info("result : {}", result);
-        // todo: 궁금한거 - 위에서 받은 result값 처럼 로그로 찍기위해 string으로 리턴받아야하는지? void로 바꾸면 안되는지?
-        //  회원정보 수정 로직...
+                                    RedirectAttributes redirectAttributes) {
 
         UserProfileResponse user = userApiClient.updateUserProfile(updateUserRequest);
-        model.addAttribute("user", user);
-        log.debug("회원정보 수정 성공");
+        log.info("user profile updated: {}", user);
+
+        redirectAttributes.addFlashAttribute("message", "회원 정보가 수정되었습니다.");
         return "redirect:/mypage/profile";
     }
 
@@ -66,11 +64,7 @@ public class ProfileController {
         }
 
         userApiClient.changePassword(changePasswordRequest);
-        // todo : 비밀번호 수정 후, 로그아웃 시키기
         return "redirect:/mypage/profile";
     }
-
-
-
 
 }

@@ -99,8 +99,6 @@ public class AuthController {
     }
 
 
-
-
     @PostMapping("/logout")
     public String logout(HttpServletRequest request, HttpServletResponse response) {
         backendApiClient.postNoBody("/api/v1/auth/auth/logout", String.class);

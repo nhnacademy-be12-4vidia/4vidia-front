@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 
 @Controller
@@ -24,9 +25,16 @@ public class PointPolicyController {
 
     @PutMapping("/{policyId}")
     public String update(@PathVariable Long policyId,
-                         @Valid PointPolicyRequest request){
-        pointPolicyApiClient.updatePointPolicy(policyId, request);
+                         @Valid PointPolicyRequest request,
+                         RedirectAttributes redirectAttributes) {
+        try {
+            pointPolicyApiClient.updatePointPolicy(policyId, request);
+            redirectAttributes.addFlashAttribute("success", true);
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("success", false);
+        }
         return "redirect:/admin/points";
     }
+
 
 }

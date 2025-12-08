@@ -17,11 +17,11 @@ public class PointPolicyApiClient {
     private final BackendApiClient backendApiClient;
 
     public List<PointPolicyResponse> getPointPolicyList(){
-        return backendApiClient.get(POLICY_SERVICE + "/point-policies", new ParameterizedTypeReference<>(){});
+        return backendApiClient.get(POLICY_SERVICE + "/admin/point-policies", new ParameterizedTypeReference<>(){});
     }
 
     public void updatePointPolicy(Long pointPolicyId, PointPolicyRequest pointPolicyRequest){
-        backendApiClient.put(POLICY_SERVICE + "/point-policies/" + pointPolicyId, pointPolicyRequest , Void.class);
+        backendApiClient.put(POLICY_SERVICE + "/admin/point-policies/" + pointPolicyId, pointPolicyRequest , Void.class);
     }
 }
 

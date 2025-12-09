@@ -51,6 +51,12 @@ public class AuthController {
 
     @PostMapping("/login")
     public String loginForm(LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) {
+        if (request.getSession(false) != null) {
+            request.getSession(false).invalidate();
+        }
+        deleteCookie("JSESSIONID", response);
+        deleteCookie("refresh", response);
+
         TokenResponse tokenResponse = authApiClient.login(loginRequest);
 
         String email = loginRequest.email();

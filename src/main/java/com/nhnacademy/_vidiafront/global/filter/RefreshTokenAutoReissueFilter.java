@@ -19,6 +19,7 @@ import java.io.IOException;
 public class RefreshTokenAutoReissueFilter extends OncePerRequestFilter {
 
     private final RestClient restClient;
+    private final JwtUtil jwtUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -29,9 +30,10 @@ public class RefreshTokenAutoReissueFilter extends OncePerRequestFilter {
         String accessToken = session != null ? (String) session.getAttribute("accessToken") : null;
 
         String refreshToken = getRefreshToken(request);
+        boolean isAccessExpired = accessToken != null && jwtUtil.isTokenExpired(accessToken);
 
         // ✅ access 없고, refresh 존재할 때만 재발급
-        if (accessToken == null && refreshToken != null) {
+        if ((accessToken == null || isAccessExpired) && refreshToken != null) {
             try {
                 TokenResponse tokenResponse = restClient.post()
                         .uri("/api/v1/auth/auth/reissue")
@@ -43,8 +45,10 @@ public class RefreshTokenAutoReissueFilter extends OncePerRequestFilter {
                     request.getSession(true).setAttribute("accessToken", tokenResponse.accessToken());
 
                     Cookie cookie = new Cookie("refresh", tokenResponse.refreshToken());
-                    cookie.setHttpOnly(true);
+                    cookie.setHttpOnly(true);           // 브라우저 JS 접근 불가
+                    cookie.setSecure(false);             // HTTPS 환경이면 true
                     cookie.setPath("/");
+                    cookie.setMaxAge(7 * 24 * 60 * 60); // 7일
                     response.addCookie(cookie);
                 }
                 

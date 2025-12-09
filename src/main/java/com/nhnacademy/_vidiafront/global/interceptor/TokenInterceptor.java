@@ -29,7 +29,7 @@ public class TokenInterceptor implements ClientHttpRequestInterceptor {
 
                 // 3. Access Token이 있으면 Authorization 헤더에 추가
                 if (accessToken != null) {
-                    request.getHeaders().add("Authorization", "Bearer " + accessToken);
+                    request.getHeaders().set("Authorization", "Bearer " + accessToken);
                 }
             }
             // 토큰 없으면(비회원) 아무것도 안 하고 통과 -> 백엔드가 비회원 처리

@@ -1,10 +1,12 @@
 package com.nhnacademy._vidiafront.book.client;
 
+import com.nhnacademy._vidiafront.book.dto.books.request.BookBestRequest;
 import com.nhnacademy._vidiafront.book.dto.books.request.BookSearchRequest;
 import com.nhnacademy._vidiafront.book.dto.books.response.BookDetailWithReviewResponse;
 import com.nhnacademy._vidiafront.book.dto.books.response.BookListResponse;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.global.dto.PageResponse;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
@@ -59,5 +61,15 @@ public class BookApiClient {
 
         return backendApiClient.get(uriBuilder.toUriString(), BookDetailWithReviewResponse.class);
 
+    }
+
+    public List<BookListResponse> getBestSellerBook(BookBestRequest request) {
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder
+            .fromPath(BOOK_SERVICE + "/books/best-seller")
+            .queryParam("bookIdList", request.bookIdList());
+
+        String uri = uriBuilder.toUriString();
+
+        return backendApiClient.get(uri, new ParameterizedTypeReference<List<BookListResponse>>() {});
     }
 }

@@ -466,7 +466,7 @@
                                 </small>
                             </a>
                         </div>
-
+                    </div>
                     <div th:if="${addressList == null || addressList.isEmpty()}">
                         <h6 class="font-weight-bold text-gray-700">등록된 배송지가 없습니다.</h6>
                         <p class="text-gray-600">
@@ -626,25 +626,20 @@
             if (applyCouponBtn) {
                 applyCouponBtn.addEventListener('click', function() {
                     let totalDiscount = 0;
-                    const ids = []; // 임시 ID 저장소
+                    const ids = [];
 
-                    // 1. 체크된 박스들만 찾음
                     const checkedBoxes = document.querySelectorAll('.coupon-checkbox:checked');
 
                     checkedBoxes.forEach(box => {
-                        // ID 수집 (value 값)
                         ids.push(parseInt(box.value));
 
-                        // 할인 금액 합산 (data-discount 값)
                         const discount = parseInt(box.getAttribute('data-discount')) || 0;
                         totalDiscount += discount;
                     });
 
-                    // 2. 전역 변수에 반영
                     currentCouponDiscount = totalDiscount;
-                    selectedCoupons = ids; // [핵심] 여기에 ID 리스트 저장됨
+                    selectedCoupons = ids;
 
-                    // 3. UI 업데이트 (선택된 쿠폰 정보 표시)
                     const infoDiv = document.getElementById('appliedCouponInfo');
                     if (ids.length > 0) {
                         infoDiv.innerText = `${ids.length}개의 쿠폰 적용 (-${totalDiscount.toLocaleString()}원)`;
@@ -654,9 +649,8 @@
                         infoDiv.innerText = "";
                     }
 
-                    // 4. 전체 금액 재계산 및 모달 닫기
                     updateFinalAmount();
-                    $('#couponModal').modal('hide');
+                    $('#couponModal .btn-secondary').click();
                 });
             }
 
@@ -749,7 +743,6 @@
         });
 
     </script>
-    </div>
 </div>
 </body>
 </html>

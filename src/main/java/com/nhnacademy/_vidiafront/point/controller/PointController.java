@@ -22,6 +22,7 @@ public class PointController {
                             Model model) {
         Long userId = (Long) session.getAttribute("userId");
 
+        // TODO user.point 가져오기
         model.addAttribute("remain", pointApiClient.getPointTotal().totalPrice());
         model.addAttribute("expireSoon", pointApiClient.getExpireSoon(7));
         model.addAttribute("historyPage", pointApiClient.getHistoryPage(page, 10)); // 추가

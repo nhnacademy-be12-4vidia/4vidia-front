@@ -194,6 +194,8 @@ public class AuthController {
         return "auth/dormant-auth";
     }
 
+    // 두레이 인증코드 전송
+
     @PostMapping("/dormant/send-code")
     public String sendDormantCode(@RequestParam String email,
                                   @RequestParam String webhookUrl,
@@ -205,7 +207,7 @@ public class AuthController {
         rttr.addAttribute("sent", true);
         return "redirect:/auth/dormant-auth";
     }
-
+    // 두레이 인증코드 인증
 @PostMapping("/dormant/verify")
 public String verifyDormantCode(@RequestParam String email,
                                 @RequestParam String code,
@@ -232,13 +234,15 @@ public String verifyDormantCode(@RequestParam String email,
     }
 }
 
-    //메일로 휴면 인증
+
+    //메일로 휴면 인증 페이지 작성
     @GetMapping("/dormant-auth/email")
     public String emailAuthPage(@RequestParam String email, Model model) {
         model.addAttribute("email", email);
         return "auth/email-dormant-auth";
     }
 
+    // 메일로 인증코드 전송
     @PostMapping("/dormant/send-code/email")
     public String sendEmailCode(@RequestParam String email,
                                 @RequestParam String contactEmail,
@@ -250,6 +254,7 @@ public String verifyDormantCode(@RequestParam String email,
         rttr.addAttribute("sent", true);
         return "redirect:/auth/dormant-auth/email";
     }
+    // 메일로 인증코드 확인
 
     @PostMapping("/dormant/verify/email")
     public String verifyEmailCode(@RequestParam String email,
@@ -262,8 +267,17 @@ public String verifyDormantCode(@RequestParam String email,
             return "redirect:/auth/dormant-auth/email";
 
         } catch (Exception e) {
+            String msg;
+
+            // 메시지 상세 가능
+            if (e.getMessage().contains("EXPIRED")) {
+                msg = "인증코드가 만료되었습니다. 다시 요청해주세요.";
+            } else {
+                msg = "올바르지 않은 인증코드입니다.";
+            }
+
             rttr.addAttribute("email", email);
-            rttr.addAttribute("errorMsg", "인증코드가 올바르지 않거나 만료되었습니다.");
+            rttr.addAttribute("errorMsg", msg);
             return "redirect:/auth/dormant-auth/email";
         }
     }

@@ -193,7 +193,7 @@
                                 <div class="col-sm-9">
                                     <select class="form-control" id="shipDate" name="deliveryDate">
 
-                                        <option value="fastest" selected>가장 빠른 날짜</option>
+                                        <option th:value="${deliveryDates.getFirst().value()}" selected>가장 빠른 날짜</option>
 
                                         <option th:each="date : ${deliveryDates}"
                                                 th:value="${date.value}"
@@ -275,13 +275,13 @@
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-gray-700">배송비</span>
-                                <span class="font-weight-bold" id="deliveryCostDisplay">₩0</span>
+                                <span class="font-weight-bold" id="deliveryCostDisplay">0</span>
                                 <input type="hidden" name="deliveryCost" id="deliveryCostInput" value="0">
                             </div>
 
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-gray-700">포장비</span>
-                                <span class="font-weight-bold text-dark" id="packagingCostDisplay">+₩0</span>
+                                <span class="font-weight-bold text-dark" id="packagingCostDisplay">+0</span>
                                 <input type="hidden" name="packagingCost" id="packagingCostInput" value="0">
                             </div>
 
@@ -292,7 +292,7 @@
                                 <div class="input-group">
                                     <input type="number" class="form-control form-control-sm" id="usePoints" name="pointUsed" placeholder="0" value="0" min="0">
                                     <div class="input-group-append">
-                                        <button class="btn btn-outline-secondary btn-sm" type="button">전액 사용</button>
+                                        <button class="btn btn-outline-secondary btn-sm" type="button" id="btnUseAllPoints">전액 사용</button>
                                     </div>
                                 </div>
                                 <small class="form-text text-muted">
@@ -316,11 +316,11 @@
 
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-gray-700">포인트 할인</span>
-                                <span class="font-weight-bold text-danger" id="pointDiscountDisplay">-₩0</span>
+                                <span class="font-weight-bold text-danger" id="pointDiscountDisplay">-0</span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-gray-700">쿠폰 할인</span>
-                                <span class="font-weight-bold text-danger" id="couponDiscountDisplay">-₩0</span>
+                                <span class="font-weight-bold text-danger" id="couponDiscountDisplay">-0</span>
 
                                 <input type="hidden" name="couponDiscount" id="discountAmountInput" value="0">
                             </div>
@@ -352,7 +352,6 @@
         </div>
     </div>
 
-<!--    TODO 쿠폰 적용시킨 값 화면에 보여주려면 할인되는 금액도 히든 같은걸로 불러와야겠네 -->
     <div class="modal fade" id="couponModal" tabindex="-1" role="dialog" aria-labelledby="couponModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -589,13 +588,21 @@
             }
 
             // 포인트 전액 사용 버튼
-            const pointBtn = document.querySelector('.input-group-append button');
-            if(pointBtn) {
+            // 기존 코드 부분 교체: 포인트 전액 사용 버튼 로직
+
+// [수정] class selector 대신 ID로 정확하게 찾기
+            const pointBtn = document.getElementById('btnUseAllPoints');
+
+            if (pointBtn) {
                 pointBtn.addEventListener('click', function() {
-                    // 상품금액 + 포장비 + 배송비 - 쿠폰할인
+
+                    // (상품금액 + 포장비 + 배송비) - (쿠폰할인)
                     let currentPayable = initialTotalPrice + totalPackagingCost + totalDeliveryCost - currentCouponDiscount;
                     if (currentPayable < 0) currentPayable = 0;
-                    document.getElementById('usePoints').value = Math.min(userHeldPoints, currentPayable);
+                    const pointToUse = Math.min(userHeldPoints, currentPayable);
+                    const pointInput = document.getElementById('usePoints');
+                    pointInput.value = pointToUse;
+
                     updateFinalAmount();
                 });
             }

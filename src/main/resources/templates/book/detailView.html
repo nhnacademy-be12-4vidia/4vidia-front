@@ -320,6 +320,15 @@
                                    th:text="${review.content() != null and !#strings.isEmpty(review.content()) ? review.content() : '내용 없음'}">
                                     리뷰 내용이 들어갑니다.
                                 </p>
+
+                              <div class="mt-2"
+                                   th:if="${review.imageUrlList() != null and !#lists.isEmpty(review.imageUrlList())}">
+                                <img th:each="imgUrl : ${review.imageUrlList()}"
+                                     th:src="${imgUrl}"
+                                     alt="리뷰 이미지"
+                                     class="img-thumbnail me-2 mb-2"
+                                     style="width: 80px; height: 80px; object-fit: cover;">
+                              </div>
                             </div>
                         </div>
 

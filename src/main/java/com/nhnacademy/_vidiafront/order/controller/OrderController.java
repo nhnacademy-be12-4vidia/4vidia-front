@@ -83,7 +83,7 @@ public class OrderController {
         model.addAttribute("tossClientKey", TOSS_CLIENT_KEY);
         model.addAttribute("orderId", orderId);
         model.addAttribute("orderName", orderName);
-        model.addAttribute("customerEmail", "what@email.com"); //TODO order.html에서 값이 넘어와야할듯?
+        model.addAttribute("customerEmail", "");
         model.addAttribute("customerName", "홍길동");
         model.addAttribute("payPrice", payPrice);
         model.addAttribute("paymentMethod", paymentMethod);

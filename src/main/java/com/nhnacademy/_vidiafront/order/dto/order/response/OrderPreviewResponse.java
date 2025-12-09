@@ -11,7 +11,8 @@ public record OrderPreviewResponse(
         long userId,
         LocalDateTime createdAt,
         DeliveryStatus deliveryStatus,
-        List<OrderBookResponse> orderItems
+        List<OrderBookResponse> orderItems,
+        Boolean isReviewed
 ) {
     public record OrderBookResponse(
             Long orderItemId,

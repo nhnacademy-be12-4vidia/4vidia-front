@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/admin-layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>회원 상세</title>
+    <link th:href="@{/css/sb-admin-2.min.css}" rel="stylesheet">
+    <style>
+        .info-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 4px;
+        }
+        .info-value {
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+        .badge-status {
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+
+<body>
+<div layout:fragment="pageContent">
+
+    <!-- 상단 헤더 -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 text-gray-800 mb-0">회원 상세</h1>
+
+        <!-- 목록으로 돌아가기 (리스트 검색/페이지 유지) -->
+        <a th:href="@{/admin/users(page=${page}, keyword=${keyword}, status=${currentStatus})}"
+           class="btn btn-outline-secondary btn-sm">
+            ← 목록으로
+        </a>
+    </div>
+
+    <!-- 회원 기본 정보 카드 -->
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+
+            <div class="row g-3">
+
+                <div class="col-md-6">
+                    <div class="info-label">아이디(이메일)</div>
+                    <div class="info-value" th:text="${user.email()}">user@example.com</div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="info-label">이름</div>
+                    <div class="info-value" th:text="${user.name()}">홍길동</div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="info-label">전화번호</div>
+                    <div class="info-value" th:text="${user.phone()}">010-0000-0000</div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="info-label">생년월일</div>
+                    <div class="info-value" th:text="${user.birthDate()}">2000-01-01</div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="info-label">등급</div>
+                    <div class="info-value" th:text="${user.gradeName() != null ? user.gradeName() : '-'}">BASIC</div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="info-label">포인트</div>
+                    <div class="info-value" th:text="${user.point()}">0</div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="info-label">현재 상태</div>
+                    <div class="info-value">
+                        <span class="badge-status"
+                              th:text="${user.status()}"
+                              th:classappend="${
+                                   user.status() == 'ACTIVE' ? ' bg-primary text-white' :
+                                   (user.status() == 'DORMANT' ? ' bg-warning text-dark' : ' bg-danger text-white')
+                              }">
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="info-label">가입일</div>
+                    <div class="info-value" th:text="${user.joinedAt()}">2025-01-01T10:00:00</div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="info-label">마지막 로그인</div>
+                    <div class="info-value" th:text="${user.lastLoginAt()}">2025-01-02T09:00:00</div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 회원 상태 변경 폼 -->
+    <div class="card shadow-sm">
+        <div class="card-header py-2">
+            <h6 class="m-0 font-weight-bold text-primary">회원 상태 변경</h6>
+        </div>
+        <div class="card-body">
+
+            <form th:action="@{|/admin/users/${user.userId()}/status|}"
+                  method="post"
+                  class="row g-3">
+
+                <!-- 상태 선택 -->
+                <div class="col-md-4">
+                    <label class="form-label">변경할 상태</label>
+                    <select name="status" class="form-select form-select-sm">
+                        <option value="ACTIVE" th:selected="${user.status() == 'ACTIVE'}">ACTIVE (활성)</option>
+                        <option value="DORMANT" th:selected="${user.status() == 'DORMANT'}">DORMANT (휴면)</option>
+                        <option value="DELETED" th:selected="${user.status() == 'DELETED'}">DELETED (탈퇴)</option>
+                    </select>
+                </div>
+
+                <!-- hidden: 목록 검색/페이지 복원용 -->
+                <input type="hidden" name="page" th:value="${page}">
+                <input type="hidden" name="keyword" th:value="${keyword}">
+                <input type="hidden" name="currentStatus" th:value="${currentStatus}">
+
+                <div class="col-md-8 d-flex align-items-end justify-content-end">
+                    <button type="submit" class="btn btn-danger btn-sm"
+                            onclick="return confirm('회원 상태를 변경하시겠습니까?');">
+                        상태 변경
+                    </button>
+                </div>
+
+            </form>
+
+
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

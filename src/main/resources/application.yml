@@ -8,7 +8,8 @@ spring:
       password: "*N2vya7H@muDTwdNMR!"
       database: 386
       timeout: 5000ms
-
+  jwt:
+    secret: "qwertyujhgfdsazxcvbnjhgfdsqwertyuhgfdsazxcvb"
 
 
   mvc:

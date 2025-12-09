@@ -63,10 +63,9 @@ public class BookApiClient {
 
     }
 
-    public List<BookListResponse> getBestSellerBook(BookBestRequest request) {
+    public List<BookListResponse> getBestSellerBook() {
         UriComponentsBuilder uriBuilder = UriComponentsBuilder
-            .fromPath(BOOK_SERVICE + "/books/best-seller")
-            .queryParam("bookIdList", request.bookIdList());
+            .fromPath(BOOK_SERVICE + "/books/best-seller");
 
         String uri = uriBuilder.toUriString();
 

@@ -278,14 +278,6 @@
                 });
         }
 
-        // **TODO: askMoveCart.js 파일의 addToCartAndConfirmMove 함수가 필요합니다.**
-        function addToCartAndConfirmMove(bookId, quantity) {
-            // 장바구니 추가 로직 실행 후 이동 여부 묻는 팝업을 띄우는 함수 (백엔드 구현 필요)
-            console.log(`장바구니에 상품 ${bookId}를 ${quantity}개 추가했습니다. (askMoveCart.js 대체)`);
-            if (confirm("장바구니에 상품을 추가했습니다. 지금 장바구니로 이동하시겠습니까?")) {
-                location.href = '/cart'; // 실제 장바구니 페이지 URL로 변경 필요
-            }
-        }
     </script>
 </head>
 
@@ -313,14 +305,14 @@
 
         <div class="row justify-content-center">
 
-            <div th:if="${#lists.isEmpty(books)}" class="col-12 text-center py-5">
+            <div th:if="${#lists.isEmpty(bestSellerBook)}" class="col-12 text-center py-5">
                 <i class="fas fa-book-open fa-3x text-secondary mb-3"></i>
                 <p class="text-gray-600 font-weight-bold mb-0">도서가 없습니다.</p>
             </div>
 
-            <div th:unless="${#lists.isEmpty(books)}" th:each="book : ${books}" class="book-card-wrapper">
+            <div th:unless="${#lists.isEmpty(bestSellerBook)}" th:each="book : ${bestSellerBook}" class="book-card-wrapper">
                 <div class="card book-card">
-                    <a th:href="@{/books/{bookId}(bookId=${book.bookId()})}" style="text-decoration: none; color: inherit;">
+                    <a th:href="@{/books/{bookId}(bookId=${book.id()})}" style="text-decoration: none; color: inherit;">
                         <div class="card-img-wrapper">
 
 <!--                            <span th:if="${book.isBest()}" class="badge badge-danger badge-best">BEST</span>-->
@@ -328,47 +320,46 @@
 
                             <button type="button"
                                     class="btn-heart"
-                                    th:attr="data-book-id=${book.bookId()}"
+                                    th:attr="data-book-id=${book.id()}"
                                     onclick="toggleLike(this)">
-                                <i th:classappend="${book.isLiked() ? 'fas' : 'far'}" class="fa-heart"></i>
+                                <i th:classappend="${book.liked() ? 'fas' : 'far'}" class="fa-heart"></i>
                             </button>
 
-                            <img class="card-img-top" th:src="${book.bookImageUrl()}" th:alt="${book.title()}">
+                            <img class="card-img-top" th:src="${book.imageUrl()}" th:alt="${book.title()}">
                         </div>
                     </a>
                     <div class="card-body">
 
-                        <div class="category-badge mb-1" th:text="${book.categoryName()}">카테고리</div>
+<!--                        <div class="category-badge mb-1" th:text="${book..categoryName()}">카테고리</div>-->
 
-                        <a th:href="@{/books/{bookId}(bookId=${book.bookId()})}" style="text-decoration: none; color: inherit;">
+                        <a th:href="@{/books/{bookId}(bookId=${book.id()})}" style="text-decoration: none; color: inherit;">
                             <h5 class="card-title mb-1" th:text="${book.title()}">책제목</h5>
                         </a>
 
-                        <p class="text-muted small mb-2" th:text="${book.author()}">저자미상</p>
+                        <p class="text-muted small mb-2" th:text="${book.authorNames()}">저자미상</p>
 
                         <div class="mb-2">
-                            <span class="rating"><i class="fas fa-star"></i> <span th:text="${book.rating()}">별점</span></span>
-                            <span class="text-muted small">(<span th:text="${book.reviewCount()}">리뷰개수</span>)</span>
+<!--                            <span class="rating"><i class="fas fa-star"></i> <span th:text="${book.rating()}">별점</span></span>-->
+<!--                            <span class="text-muted small">(<span th:text="${book.reviewCount()}">리뷰개수</span>)</span>-->
                         </div>
 
                         <div class="mb-3">
                             <span class="price-original"
-                                  th:text="${#numbers.formatDecimal(book.originalPrice(), 0, 'COMMA', 0, 'POINT') + '원'}">정가</span>
+                                  th:text="${#numbers.formatDecimal(book.priceSales(), 0, 'COMMA', 0, 'POINT') + '원'}">정가</span>
                             <span class="price-current ml-2"
-                                  th:text="${#numbers.formatDecimal(book.currentPrice(), 0, 'COMMA', 0, 'POINT') + '원'}">현재가격</span>
+                                  th:text="${#numbers.formatDecimal(book.priceSales(), 0, 'COMMA', 0, 'POINT') + '원'}">현재가격</span>
                         </div>
 
-                        <form th:action="@{/cart/add}" method="post">
-                            <input type="hidden" name="bookId" th:value="${book.bookId()}">
-                            <input type="hidden" name="quantity" value="1">
+                        <form th:action="@{/cart/add}" method="post" class="mt-auto">
+                            <input type="hidden" name="bookId" th:value="${book.id}">
                             <button class="btn btn-primary btn-block"
-                                    th:onclick="|addToCartAndConfirmMove('${book.bookId()}', '1'); return false;|">
-                                <i class="fas fa-shopping-cart mr-1"></i> 장바구니
+                                    th:onclick="|addToCartAndConfirmMove('${book.id}', '1'); return false;|">
+                                <i class="fas fa-shopping-cart mr-1"></i> 장바구니 담기
                             </button>
                         </form>
 
                         <form th:action="@{/orders}" method="post">
-                            <input type="hidden" name="bookId" th:value="${book.bookId()}">
+                            <input type="hidden" name="bookId" th:value="${book.id()}">
                             <input type="hidden" name="quantity" value="1">
                             <button type="submit" class="btn btn-secondary btn-block">
                                 바로 구매

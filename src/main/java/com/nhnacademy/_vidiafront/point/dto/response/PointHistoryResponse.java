@@ -1,5 +1,6 @@
 package com.nhnacademy._vidiafront.point.dto.response;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record PointHistoryResponse(
@@ -7,5 +8,5 @@ public record PointHistoryResponse(
         Integer price,
         String reason,
         String policyName,
-        LocalDateTime expiredAt
+        LocalDate expiredDate
 ) {}

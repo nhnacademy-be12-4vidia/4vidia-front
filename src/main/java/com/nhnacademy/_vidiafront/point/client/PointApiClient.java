@@ -19,7 +19,7 @@ public class PointApiClient {
     private static final String USER_SERVICE = "/api/v1/user-service";
 
     /**
-     * 현재 보유 포인트 조회
+     * 현재 보유 포인트 조회 (회원에서 가져옴)
      */
     public PointTotalResponse getPointTotal() {
         return backendApiClient.get(
@@ -77,5 +77,10 @@ public class PointApiClient {
         backendApiClient.post(USER_SERVICE + "/my/points/use", pointUseRequest, Void.class);
     }
 
-    // TODO 유효기간 만료로 인한 차감은 따로 없어도 되는건가?
+    /**
+     * 포인트 취소
+     */
+    public void cancelUse(Long orderId){
+        backendApiClient.postNoBody(USER_SERVICE + "/my/points/cancel?orderId=" + orderId, Void.class);
+    }
 }

@@ -145,7 +145,7 @@
                                  th:with="calcDeliveryCost=${order.totalPrice - order.itemsPrice}">
                                 <span class="text-gray-700">배송비 (+포장비)</span>
                                 <span class="font-weight-bold"
-                                      th:text="|+₩${#numbers.formatInteger(calcDeliveryCost, 0, 'COMMA')}|">₩3,000</span>
+                                      th:text="|+${#numbers.formatInteger(calcDeliveryCost, 0, 'COMMA')}|">₩3,000</span>
                             </div>
 
                             <hr>
@@ -153,13 +153,13 @@
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-gray-700">포인트 사용</span>
                                 <span class="font-weight-bold text-danger"
-                                      th:text="|-₩${#numbers.formatInteger(order.pointUsed, 0, 'COMMA')}|">-₩0</span>
+                                      th:text="|-${#numbers.formatInteger(order.pointUsed, 0, 'COMMA')}|">-₩0</span>
                             </div>
 
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-gray-700">쿠폰 할인</span>
                                 <span class="font-weight-bold text-danger"
-                                      th:text="|-₩${#numbers.formatInteger(order.couponDiscount, 0, 'COMMA')}|">-₩0</span>
+                                      th:text="|-${#numbers.formatInteger(order.couponDiscount, 0, 'COMMA')}|">-₩0</span>
                             </div>
 
                             <hr>

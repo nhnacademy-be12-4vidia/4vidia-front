@@ -64,14 +64,12 @@
 
     <div class="container-fluid">
 
-        <!-- 페이지 타이틀 -->
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">장바구니</h1>
         </div>
 
         <div class="row">
 
-            <!-- 장바구니 비었을 때 -->
             <div th:if="${cart == null or #lists.isEmpty(cart.items)}"
                  class="col-12 d-flex justify-content-center mt-5">
                 <div class="text-center cart-empty-box">
@@ -83,11 +81,9 @@
                 </div>
             </div>
 
-            <!-- 장바구니에 상품이 있을 때 -->
             <div th:if="${cart != null and !#lists.isEmpty(cart.items)}"
                  class="col-12 col-xl-10">
 
-                <!-- 전체 선택 -->
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="selectAll">
@@ -97,7 +93,6 @@
                     </div>
                 </div>
 
-                <!-- 장바구니 아이템 반복 -->
                 <div th:each="item : ${cart.items}" class="mb-3">
                     <div class="card cart-item-card shadow-sm">
                         <div class="card-body">
@@ -105,7 +100,6 @@
                             <div class="row align-items-center cart-item-row"
                                  th:attr="data-unit-price=${item.book.priceStandard}">
 
-                                <!-- 왼쪽: 체크박스 + 이미지 + 책 정보 -->
                                 <div class="col-md-7 d-flex align-items-center cart-left">
 
                                     <div class="mr-3">
@@ -117,21 +111,25 @@
                                     </div>
 
                                     <div class="mr-3">
-                                        <div th:if="${item.book.imageUrl == null}" class="cart-book-thumb">
-                                            이미지
-                                        </div>
-                                        <div th:if="${item.book.imageUrl != null}">
-                                            <img th:src="${item.book.imageUrl}"
-                                                 alt="도서 이미지"
-                                                 style="width: 80px; height: 110px; object-fit: cover; border-radius: 4px;">
-                                        </div>
+                                        <a th:href="@{/books/{bookId}(bookId=${item.book.id})}" style="text-decoration: none;">
+                                            <div th:if="${item.book.imageUrl == null}" class="cart-book-thumb">
+                                                이미지
+                                            </div>
+                                            <div th:if="${item.book.imageUrl != null}">
+                                                <img th:src="${item.book.imageUrl}"
+                                                     alt="도서 이미지"
+                                                     style="width: 80px; height: 110px; object-fit: cover; border-radius: 4px;">
+                                            </div>
+                                        </a>
                                     </div>
 
                                     <div class="flex-fill">
-                                        <div class="cart-book-title"
-                                             th:text="${item.book.title}">
-                                            책 제목
-                                        </div>
+                                        <a th:href="@{/books/{bookId}(bookId=${item.book.id})}" style="text-decoration: none;">
+                                            <div class="cart-book-title"
+                                                 th:text="${item.book.title}">
+                                                책 제목
+                                            </div>
+                                        </a>
                                         <div class="cart-book-price mb-1">
                                             <span class="text-gray-600">가격&nbsp;</span>
                                             <span th:text="${#numbers.formatInteger(item.book.priceStandard, 0, 'COMMA')} + '원'">
@@ -142,7 +140,6 @@
 
                                 </div>
 
-                                <!-- 오른쪽: 수량 + 상품 금액 + 변경/삭제 버튼 -->
                                 <div class="col-md-5 mt-3 mt-md-0 d-flex justify-content-end">
                                     <div class="d-flex align-items-center">
 
@@ -195,7 +192,6 @@
                     </div>
                 </div>
 
-                <!-- 하단: 선택한 상품 금액 + 주문 버튼 -->
                 <div class="cart-bottom-summary d-flex justify-content-between align-items-center">
                     <div class="text-gray-700">
                         선택한 상품 금액
@@ -205,8 +201,6 @@
                             0원
                         </div>
                         <form id="orderForm" th:action="@{/orders}" method="post" style="display: none;">
-                            <!-- CSRF 쓰면 여기 _csrf hidden 필드 넣어주면 됨 -->
-                            <!-- <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" /> -->
                         </form>
                         <button type="button"
                                 class="btn btn-primary btn-sm mt-2"
@@ -222,7 +216,6 @@
 
     </div>
 
-    <!-- 비회원 장바구니 머지 여부 확인 모달 -->
     <div th:replace="~{cart/cart-guest-merge :: mergeModal}"></div>
 
     <script th:inline="javascript">

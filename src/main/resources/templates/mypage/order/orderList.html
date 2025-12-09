@@ -77,9 +77,9 @@
                                 // 1. '구매 확정' 버튼(`.confirm-wrapper`) 제거
                                 $container.find('.confirm-wrapper').remove();
 
-                                // 2. '리뷰 작성' 버튼 DOM을 새로 생성하여 삽입
-                                // ✅ 수정: response.isReviewed가 없거나 false인 경우에만 버튼을 생성하여 삽입
-                                if (!response.isReviewed) {
+                                // 2. '리뷰 작성' 버튼 또는 '작성 완료' 텍스트 DOM을 새로 생성하여 삽입
+                                if (response.isReviewed === false || response.isReviewed === undefined || response.isReviewed === null) {
+                                    // 리뷰가 아직 작성되지 않은 경우
                                     const reviewBtnHtml = `
                                     <div class="review-wrapper d-flex align-items-center" style="flex-shrink: 0;">
                                         <a href="${reviewUrlBase}/${bookId}/reviews?orderItemId=${orderItemId}"
@@ -88,11 +88,15 @@
                                             리뷰 작성
                                         </a>
                                     </div>`;
-
-                                    // 버튼 컨테이너에 리뷰 버튼 삽입
                                     $container.append(reviewBtnHtml);
+                                } else if (response.isReviewed === true) {
+                                    // 리뷰가 이미 작성된 경우
+                                    const reviewCompletedHtml = `
+                                     <div class="status-info-wrapper d-flex align-items-center justify-content-center" style="flex-shrink: 0; width: 100px; height: 38px;">
+                                         <span class="text-success small font-weight-bold" style="text-align: center;">리뷰 작성 완료</span>
+                                     </div>`;
+                                    $container.append(reviewCompletedHtml);
                                 }
-                                // else: 리뷰가 이미 작성된 경우 (isReviewed: true), 아무 버튼도 추가하지 않아 버튼이 보이지 않음
 
                                 // 반품 버튼 숨기기 (구매 확정 후 반품 불가)
                                 const $returnBtn = $this.closest('.order-item-row').next('.order-actions').find('.btn-return-request');
@@ -253,6 +257,12 @@
                                         리뷰 작성
                                     </a>
                                 </div>
+
+                                <div class="status-info-wrapper d-flex align-items-center justify-content-center" style="flex-shrink: 0; width: 100px; height: 38px;"
+                                     th:if="${book.confirmStatus() != null and book.confirmStatus().name() == 'CONFIRMED' and (book.isReviewed() != null and book.isReviewed() == true)}">
+                                    <span class="small font-weight-bold" style="text-align: center; color: #5b5b9e;">리뷰 작성 완료</span>
+                                </div>
+
                                 <div class="status-info-wrapper d-flex align-items-center" style="flex-shrink: 0;"
                                      th:if="${book.confirmStatus() != null and book.confirmStatus().name() == 'RETURNED'}">
                                     <span class="text-danger small font-weight-bold" style="width: 100px; text-align: center;">반품 완료</span>

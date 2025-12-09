@@ -233,6 +233,7 @@
                             <!-- 비밀번호 필드 -->
                             <div class="form-group">
                                 <label for="password">비밀번호</label>
+
                                 <div class="input-wrapper">
                                     <input type="password"
                                            id="password"
@@ -241,10 +242,14 @@
                                            placeholder="비밀번호"
                                            required
                                            pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,20}$"
-                                           title="비밀번호는 8~20자이며, 소문자, 숫자, 특수문자를 각각 1개 이상 포함해야 합니다."
                                            oninput="updateSignupButtonState()">
+
+                                    <small class="text-muted" style="margin-top: 4px; display: block;">
+                                        비밀번호는 영문자, 숫자, 특수문자를 포함하여 8~20자로 입력해주세요.
+                                    </small>
                                 </div>
                             </div>
+
 
                             <!-- 생년월일 필드 -->
                             <div class="form-group">

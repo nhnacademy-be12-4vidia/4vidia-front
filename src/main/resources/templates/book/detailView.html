@@ -324,7 +324,7 @@
                               <div class="mt-2"
                                    th:if="${review.imageUrlList() != null and !#lists.isEmpty(review.imageUrlList())}">
                                 <img th:each="imgUrl : ${review.imageUrlList()}"
-                                     th:src="${imgUrl}"
+                                     th:src="@{/proxy(url=${imgUrl})}"
                                      alt="리뷰 이미지"
                                      class="img-thumbnail me-2 mb-2"
                                      style="width: 80px; height: 80px; object-fit: cover;">

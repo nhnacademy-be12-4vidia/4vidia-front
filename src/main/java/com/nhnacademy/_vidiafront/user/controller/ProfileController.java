@@ -4,7 +4,6 @@ import com.nhnacademy._vidiafront.user.client.UserApiClient;
 import com.nhnacademy._vidiafront.user.dto.user.request.ChangePasswordRequest;
 import com.nhnacademy._vidiafront.user.dto.user.request.UpdateUserRequest;
 import com.nhnacademy._vidiafront.user.dto.user.response.UserProfileResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -37,12 +36,11 @@ public class ProfileController {
     @PutMapping
     public String updateUserProfile(UpdateUserRequest updateUserRequest,
                                     RedirectAttributes redirectAttributes) {
-
         UserProfileResponse user = userApiClient.updateUserProfile(updateUserRequest);
         log.info("user profile updated: {}", user);
 
         redirectAttributes.addFlashAttribute("message", "회원 정보가 수정되었습니다.");
-        return "redirect:/mypage/profile";
+        return "redirect:/mypage/profile"; // todo: 회원정보 조회,수정을 한페이지에서 하는데 너무 짜침, 수정도 너무 쉬움
     }
 
     /**

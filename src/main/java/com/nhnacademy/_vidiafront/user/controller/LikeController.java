@@ -3,7 +3,6 @@ package com.nhnacademy._vidiafront.user.controller;
 import com.nhnacademy._vidiafront.user.client.LikeApiClient;
 import com.nhnacademy._vidiafront.user.dto.like.response.LikeResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,8 +37,9 @@ public class LikeController {
 
 
 
+    // todo : 도서 하트버튼 맵핑주소 변경해야함
+    // todo : 도서 컨트롤러로 이동해야하는거 아님?
     // 좋아요 등록을 마이페이지에서 하지는 않음 ㅇㅇ
-    // 아래는 도서에서 사용할 테스트용
     @DeleteMapping("/test")
     public ResponseEntity<Void> deleteLikeTest(@RequestParam Long bookId) {
         likeApiClient.deleteLike(bookId);

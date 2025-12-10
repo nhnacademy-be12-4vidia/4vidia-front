@@ -13,32 +13,27 @@ import java.util.List;
 public class LikeApiClient {
     private final BackendApiClient backendApiClient;
     private static final String USER_SERVICE = "/api/v1/user-service";
-
-    // 테스트용
-    private static final int TEST_ID = 1;
-    private static final String X_USER_ID = "X-User-Id";
-
+    private static final String BASE_URL = "/users/me/likes";
+    // 기존 base url = "/my/likes" -> 수정 "/users/me/likes"
 
     /**
      * GET 좋아요 리스트 조회
      * */
     public List<LikeResponse> getLikeList() {
-        return backendApiClient.get(USER_SERVICE + "/my/likes", new ParameterizedTypeReference<>() {});
+        return backendApiClient.get(USER_SERVICE + BASE_URL, new ParameterizedTypeReference<>() {});
     }
 
     /**
      * POST 좋아요 등록
      */
     public Void addLike(Long bookId) {
-        return backendApiClient.postNoBody(USER_SERVICE + "/my/likes/" + bookId, Void.class);
+        return backendApiClient.postNoBody(USER_SERVICE + BASE_URL + "/" + bookId, Void.class);
     }
 
     /**
      * DELETE 좋아요 삭제
      */
     public Void deleteLike(Long bookId) {
-        return backendApiClient.delete(USER_SERVICE + "/my/likes/" + bookId, Void.class);
+        return backendApiClient.delete(USER_SERVICE + BASE_URL + "/" + bookId, Void.class);
     }
-
-
 }

@@ -25,6 +25,7 @@ public class AddressController {
     private final AddressApiClient addressApiClient;
     private final UserApiClient userApiClient;
 
+    // todo : jusoPopup(), jusoCallback() 여기에 있어도 되나? /mypage/.. 로 시작하는데?? 주문에서도 쓰지않나??
     // 도로명 찾기 팝업창
     @GetMapping("/jusoPopup")
     public String jusoPopup() {
@@ -34,7 +35,6 @@ public class AddressController {
     @PostMapping("/jusoCallback")
     public String jusoCallback(@RequestParam Map<String, String> addressData, Model model) {
         model.addAttribute("jusoData", addressData);
-
         return "mypage/address/jusoCallback";
     }
 
@@ -54,58 +54,51 @@ public class AddressController {
         return "mypage/address/addressList";
     }
 
-
-    // 기본 주소 등록
+    /**
+     * 기본 주소 등록
+     */
     @PutMapping("/default/{addressId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void defaultAddress(@PathVariable Long addressId) {
-
-        log.info("{}", addressId);
-        String result = addressApiClient.updateDefaultAddress(addressId);
-        log.info("Default address result: {}", result);
+        addressApiClient.updateDefaultAddress(addressId);
     }
 
-
-
-    // 주소등록
+    /**
+     * 주소등록
+     */
     @PostMapping
     public String addAddress(CreateAddressRequest createAddressRequest) {
-        String result = addressApiClient.addAddress(createAddressRequest);
-        log.info("Register address result: {}", result);
+        addressApiClient.addAddress(createAddressRequest);
         return "redirect:/mypage/address";
     }
 
-
-    // 주소수정 form
+    /**
+     * 주소수정 form
+     */
     @GetMapping("/{addressId}/edit")
     public String getAddressForm(@PathVariable Long addressId, Model model) {
-
-
         AddressResponse addressResponse = addressApiClient.getAddress(addressId);
         model.addAttribute("address", addressResponse);
-
         return "mypage/address/addressUpdate";
     }
 
-    // 주소수정
+    /**
+     * 주소수정
+     */
     @PutMapping("/{addressId}")
     public String updateAddress(@PathVariable Long addressId,
-                                AddressRequest addressRequest,
-                                Model model) {
-        AddressResponse addressResponse = addressApiClient.updateAddress(addressId, addressRequest);
-//        model.addAttribute("address", addressResponse); 필요없음.
+                                AddressRequest addressRequest) {
+        addressApiClient.updateAddress(addressId, addressRequest);
         return "redirect:/mypage/address";
     }
 
-    // 주소 삭제
+    /**
+     * 주소 삭제
+     */
     @DeleteMapping("/{addressId}")
     public String deleteAddress(@PathVariable Long addressId) {
         addressApiClient.deleteAddress(addressId);
-//        log.info("Delete address result: {}", result);
         return "redirect:/mypage/address";
     }
-
-
-
 
 }

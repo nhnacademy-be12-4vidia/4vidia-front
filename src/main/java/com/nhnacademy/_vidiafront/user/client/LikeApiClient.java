@@ -26,14 +26,21 @@ public class LikeApiClient {
     /**
      * POST 좋아요 등록
      */
-    public Void addLike(Long bookId) {
-        return backendApiClient.postNoBody(USER_SERVICE + BASE_URL + "/" + bookId, Void.class);
+    public void addLike(Long bookId) {
+        backendApiClient.postNoBody(USER_SERVICE + BASE_URL + "/" + bookId, Void.class);
     }
 
     /**
      * DELETE 좋아요 삭제
      */
-    public Void deleteLike(Long bookId) {
-        return backendApiClient.delete(USER_SERVICE + BASE_URL + "/" + bookId, Void.class);
+    public void deleteLike(Long bookId) {
+        backendApiClient.delete(USER_SERVICE + BASE_URL + "/" + bookId, Void.class);
+    }
+
+    /**
+     * DELETE 좋아요 전체 삭제
+     */
+    public void deleteAllLikes() {
+        backendApiClient.delete(USER_SERVICE + BASE_URL, Void.class);
     }
 }

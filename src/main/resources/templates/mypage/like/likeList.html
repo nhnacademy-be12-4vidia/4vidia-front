@@ -32,8 +32,18 @@
 
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="h4 text-gray-800">좋아요 리스트</h1>
-                <span th:if="${not #lists.isEmpty(likes)}"
-                      class="text-gray-500" th:text="${#lists.size(likes)} + '개 상품'"></span>
+
+                <div th:if="${not #lists.isEmpty(likes)}" class="d-flex align-items-center gap-3">
+                    <span class="text-gray-500" th:text="${#lists.size(likes)} + '개 상품'"></span>
+
+                    <form th:action="@{/mypage/like/all}" method="post" id="deleteAllLikesForm">
+                        <input type="hidden" name="_method" value="delete">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary"
+                                onclick="return confirm('좋아요 목록의 모든 상품을 삭제하시겠습니까?');">
+                            <i class="fas fa-trash-alt"></i> 전체 삭제
+                        </button>
+                    </form>
+                </div>
             </div>
 
             <div th:if="${#lists.isEmpty(likes)}" class="text-center py-5">
@@ -114,18 +124,18 @@
 
                                         <div th:if="${item.stockStatus() == 'IN_STOCK' or item.stockStatus() == 'PRE_ORDER'}" class="w-100 d-flex gap-2">
 
-                                            <form th:action="@{/cart/add}" method="post" class="flex-fill">
+                                            <form th:action="@{/cart/add}" method="post" class="flex-grow-1 w-50">
                                                 <input type="hidden" name="bookId" th:value="${item.bookId()}">
-                                                <button class="btn btn-primary btn-block"
+                                                <button class="btn btn-primary btn-block w-100"
                                                         th:onclick="|addToCartAndConfirmMove('${item.bookId()}', '1'); return false;|">
                                                     <i class="fas fa-shopping-cart mr-1"></i> 장바구니 담기
                                                 </button>
                                             </form>
 
-                                            <form th:action="@{/orders}" method="post">
+                                            <form th:action="@{/orders}" method="post" class="flex-grow-1 w-50">
                                                 <input type="hidden" name="bookId" th:value="${item.bookId()}">
                                                 <input type="hidden" name="quantity" value=1>
-                                                <button type="submit" class="btn btn-secondary">
+                                                <button type="submit" class="btn btn-secondary w-100">
                                                     바로 구매
                                                 </button>
                                             </form>

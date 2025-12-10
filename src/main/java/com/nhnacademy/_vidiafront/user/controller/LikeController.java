@@ -35,6 +35,15 @@ public class LikeController {
         return "redirect:/mypage/like";
     }
 
+    /**
+     * 좋아요 전체 삭제
+     */
+    @DeleteMapping("/all")
+    public String deleteAllLikes() {
+        likeApiClient.deleteAllLikes();
+        return "redirect:/mypage/like";
+    }
+
 
 
     // todo : 도서 하트버튼 맵핑주소 변경해야함

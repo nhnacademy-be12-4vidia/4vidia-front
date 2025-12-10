@@ -82,19 +82,19 @@
                             <div class="form-group row">
                                 <label for="ordererName" class="col-sm-3 col-form-label">이름</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="ordererName" name="ordererName" th:value="${ordererName}" placeholder="이름">
+                                    <input type="text" class="form-control" id="ordererName" name="ordererName" th:value="${ordererName}" placeholder="이름" required>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="ordererEmail" class="col-sm-3 col-form-label">이메일</label>
                                 <div class="col-sm-9">
-                                    <input type="email" class="form-control" id="ordererEmail" name="ordererEmail" th:value="${ordererEmail}" placeholder="user@example.com">
+                                    <input type="email" class="form-control" id="ordererEmail" name="ordererEmail" th:value="${ordererEmail}" placeholder="user@example.com" required>
                                 </div>
                             </div>
                             <div class="form-group row mb-0">
                                 <label for="ordererPhone" class="col-sm-3 col-form-label">휴대폰</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="ordererPhone" name="ordererPhone" th:value="${ordererPhone}" placeholder="01000000000">
+                                    <input type="text" class="form-control" id="ordererPhone" name="ordererPhone" th:value="${ordererPhone}" placeholder="01012345678" required>
                                 </div>
                             </div>
                         </div>
@@ -149,13 +149,13 @@
                             <div class="form-group row">
                                 <label for="shipName" class="col-sm-3 col-form-label">받는 분</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="shipName" name="recipientName" placeholder="이름">
+                                    <input type="text" class="form-control" id="shipName" name="recipientName" placeholder="이름" required>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="shipPhone" class="col-sm-3 col-form-label">휴대폰</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="shipPhone" name="recipientPhone" placeholder="01000000000">
+                                    <input type="text" class="form-control" id="shipPhone" name="recipientPhone" placeholder="010012345678" required>
                                 </div>
                             </div>
 
@@ -381,12 +381,13 @@
                                     <div class="d-flex justify-content-between">
                                         <span class="font-weight-bold text-dark" th:text="${coupon.policyName}">쿠폰명</span>
                                         <span class="text-primary font-weight-bold"
-                                              th:text="|-₩${#numbers.formatInteger(coupon.discountPrice, 0, 'COMMA')}|">
-                                        -₩5,000
-                                    </span>
+                                              th:text="|-₩${#numbers.formatInteger(coupon.discountPrice, 0, 'COMMA')}|">-₩5,000
+                                        </span>
                                     </div>
                                     <small class="text-muted">
                                         <span th:if="${coupon.discountType == 'RATE'}" th:text="|${coupon.discountValue}% 할인|">10% 할인</span>
+                                        <span th:if="${coupon.discountType == 'RATE' and coupon.maxDiscountAmount > 0}"
+                                              th:text="| (최대 ₩${#numbers.formatInteger(coupon.maxDiscountAmount, 0, 'COMMA')} 할인)|"> (최대 ₩10,000 할인)</span>
                                         <span th:if="${coupon.discountType == 'PRICE'}" th:text="|${#numbers.formatInteger(coupon.discountValue, 0, 'COMMA')}원 할인|">1000원 할인</span>
                                         | 유효기간: <span th:text="${#temporals.format(coupon.expireAt, 'yyyy-MM-dd')}">2025-12-31</span> 까지
                                     </small>
@@ -394,16 +395,12 @@
                             </div>
                         </div>
                     </div>
-
                     <hr>
-
                     <h6 class="font-weight-bold text-gray-500">사용 불가 쿠폰</h6>
-
                     <div class="list-group list-group-flush">
                         <div th:if="${#lists.isEmpty(impossibleCoupons)}" class="text-center py-3 text-xs text-gray-400">
                             내역이 없습니다.
                         </div>
-
                         <div class="list-group-item" th:each="coupon : ${impossibleCoupons}">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" disabled>

@@ -56,6 +56,11 @@
             padding-top: 1rem;
             margin-top: 1.5rem;
         }
+        /* Chrome/Safari/Edge → number input 스피너 항상 보이도록 */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            opacity: 1 !important;
+        }
     </style>
 </head>
 
@@ -91,6 +96,12 @@
                             전체 선택
                         </label>
                     </div>
+                    <!-- 오른쪽: 장바구니 비우기 버튼 -->
+                    <form th:action="@{/cart/clear}" method="post" class="m-0">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                            장바구니 비우기
+                        </button>
+                    </form>
                 </div>
 
                 <div th:each="item : ${cart.items}" class="mb-3">
@@ -167,12 +178,6 @@
                                         </div>
 
                                         <div class="d-flex">
-                                            <button type="button"
-                                                    class="btn btn-outline-primary btn-sm mr-2"
-                                                    onclick="this.closest('.col-md-5').querySelector('form').submit();">
-                                                변경
-                                            </button>
-
                                             <form th:action="@{'/cart/items/' + ${item.book.id}}"
                                                   method="post"
                                                   class="m-0">

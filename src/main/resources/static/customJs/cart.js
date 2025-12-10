@@ -1,3 +1,4 @@
+
 // /static/js/cart.js
 document.addEventListener("DOMContentLoaded", function () {
     const selectAll = document.getElementById("selectAll");
@@ -96,21 +97,59 @@ document.addEventListener("DOMContentLoaded", function () {
             recalcSelectedTotal();
         });
     }
-
-    // ✅ 수량 변경 시: 라인 금액 + 총합 실시간 업데이트
+    // ✅ 수량 변경 시: 라인 금액 + 총합 실시간 업데이트 + 백엔드로 PUT 요청
     rows.forEach(row => {
         const qtyInput = row.querySelector(".cart-qty-input");
-        if (!qtyInput) return;
+        const checkbox = row.querySelector(".cart-item-checkbox");
+        if (!qtyInput || !checkbox) return;
 
-        function onQtyChange() {
+        const bookId = checkbox.value;  // 체크박스 value = bookId
+
+        function onQtyChangeOnlyView() {
+            // 최소 1 이상 유지
+            if (!qtyInput.value || parseInt(qtyInput.value, 10) < 1) {
+                qtyInput.value = 1;
+            }
             updateRowLineTotalDisplay(row);
             recalcSelectedTotal();
         }
 
-        qtyInput.addEventListener("input", onQtyChange);
-        qtyInput.addEventListener("change", onQtyChange);
+        // 타이핑 중 → 금액만 실시간 반영
+        qtyInput.addEventListener("input", onQtyChangeOnlyView);
+
+        // 입력 확정(change) → 화면 반영 + 백엔드에 PUT 요청
+        qtyInput.addEventListener("change", function () {
+            onQtyChangeOnlyView();
+
+            const quantity = parseInt(qtyInput.value, 10);
+
+            // 👉 여기 URL은 실제 백엔드(cart-service) 주소에 맞게 수정!
+            // 예시들:
+            //   "/api/carts/items/" + bookId
+            //   "/cart-service/items/" + bookId
+            // 너네 게이트웨이/라우팅 구조에 맞게만 맞춰줘~
+            fetch(`/cart/items/${bookId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                    // JWT + 게이트웨이에서 X-User-Id/X-Guest-Id 셋팅해주면
+                    // 여기서 굳이 넣어줄 필요 없음
+                },
+                body: JSON.stringify({
+                    quantity: quantity   // UpdateCartItemRequest 의 필드명에 맞춰서!
+                })
+            }).then(res => {
+                if (!res.ok) {
+                    console.error("수량 변경 실패", res.status);
+                    // 필요하면 alert("수량 변경에 실패했습니다."); 같은 처리
+                }
+            }).catch(err => {
+                console.error("수량 변경 중 에러", err);
+            });
+        });
     });
 });
+
 
 function submitOrder() {
     const checked = document.querySelectorAll('.cart-item-checkbox:checked');

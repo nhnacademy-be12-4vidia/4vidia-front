@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/admin-layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>배송 상세</title>
+    <link th:href="@{/css/sb-admin-2.min.css}" rel="stylesheet">
+    <style>
+        .info-label { color:#6c757d; font-size:0.85rem; }
+        .info-value { font-weight:600; }
+        .badge-status { border-radius:999px; padding:4px 10px; font-size:0.85rem; }
+    </style>
+</head>
+<body>
+<div layout:fragment="pageContent">
+
+    <div class="d-flex justify-content-between mb-3">
+        <h1 class="h3 text-gray-800 mb-0">배송 상세</h1>
+        <a th:href="@{/admin/delivery(deliveryStatus=${deliveryStatus}, page=${page})}" class="btn btn-outline-secondary btn-sm">← 목록으로</a>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="info-label">주문번호</div>
+                    <div class="info-value" th:text="${order.orderId}">1</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="info-label">수취인</div>
+                    <div class="info-value" th:text="${order.recipientName}">홍길동</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="info-label">전화</div>
+                    <div class="info-value" th:text="${order.recipientPhone}">010-0000-0000</div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="info-label">주소</div>
+                    <div class="info-value" th:text="${order.addressRoadname + ' ' + order.addressDetail}">서울...</div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="info-label">결제금액</div>
+                    <div class="info-value" th:text="${order.payPrice}">10000</div>
+                </div>
+
+<!--                <div class="col-md-3">-->
+<!--                    <div class="info-label">주문일</div>-->
+<!--                    <div class="info-value" th:text="${#dates.format(order.createdAt, 'yyyy-MM-dd HH:mm')}">2025-01-01</div>-->
+<!--                </div>-->
+
+<!--                <div class="col-md-3">-->
+<!--                    <div class="info-label">배송 예정일</div>-->
+<!--                    <div class="info-value" th:text="${order.deliveryDate}">2025-01-03</div>-->
+<!--                </div>-->
+
+                <div class="col-md-3">
+                    <div class="info-label">상태</div>
+                    <div class="info-value">
+                        <span class="badge-status"
+                              th:text="${order.deliveryStatus}"
+                              th:classappend="
+                                ${order.deliveryStatus} == 'WAITING' ? ' bg-secondary text-white' :
+                                (${order.deliveryStatus} == 'SHIPPING' ? ' bg-primary text-white' : ' bg-success text-white')
+                              ">
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 상태 변경 버튼 (폼 POST로 보냄) -->
+    <div class="d-flex justify-content-end mb-5">
+        <form th:action="@{/admin/delivery/{id}/start(id=${order.orderId})}" method="post" th:if="${order.deliveryStatus == 'WAITING'}" style="display:inline-block;">
+            <button type="submit" class="btn btn-success me-2" onclick="return confirm('배송 시작 처리하시겠습니까?');">배송 시작</button>
+        </form>
+
+        <form th:action="@{/admin/delivery/{id}/complete(id=${order.orderId})}" method="post" th:if="${order.deliveryStatus == 'SHIPPING'}" style="display:inline-block;">
+            <button type="submit" class="btn btn-primary me-2" onclick="return confirm('배송 완료 처리하시겠습니까?');">배송완료 처리</button>
+        </form>
+
+        <a th:href="@{/admin/delivery(deliveryStatus=${order.deliveryStatus}, page=${page})}" class="btn btn-secondary">목록</a>
+    </div>
+
+</div>
+</body>
+</html>

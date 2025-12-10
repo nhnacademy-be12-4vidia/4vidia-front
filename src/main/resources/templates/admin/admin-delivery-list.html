@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/admin-layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>배송 관리</title>
+    <link th:href="@{/css/sb-admin-2.min.css}" rel="stylesheet">
+
+    <style>
+        .table thead th { background-color: #f8f9fc !important; font-weight: 600; }
+        .table td { vertical-align: middle; padding: 10px; }
+        .badge-status { border-radius: 999px; padding: 4px 10px; font-size: 0.8rem; }
+    </style>
+
+</head>
+<body>
+<div layout:fragment="pageContent">
+
+    <h1 class="h3 mb-3 text-gray-800">배송 관리</h1>
+
+    <!-- 탭 & 간단 필터 -->
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${currentDelivery == 'WAITING'} ? ' active'"
+                       th:href="@{/admin/delivery(deliveryStatus='WAITING', page=${page.number}, size=${page.size})}">배송준비</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${currentDelivery == 'SHIPPING'} ? ' active'"
+                       th:href="@{/admin/delivery(deliveryStatus='SHIPPING', page=${page.number}, size=${page.size})}">배송중</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${currentDelivery == 'DELIVERED'} ? ' active'"
+                       th:href="@{/admin/delivery(deliveryStatus='DELIVERED', page=${page.number}, size=${page.size})}">배송완료</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${currentDelivery == 'CANCELED'} ? ' active'"
+                       th:href="@{/admin/delivery(deliveryStatus='CANCELED', page=${page.number}, size=${page.size})}">주문취소</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 페이지 크기 -->
+        <div class="col-md-4 text-end">
+            <form th:action="@{/admin/delivery}" method="get" class="d-inline-flex">
+                <input type="hidden" name="deliveryStatus" th:value="${currentDelivery}"/>
+                <select name="size" class="form-select form-select-sm me-2" style="width:100px;">
+                    <option th:selected="${page.size()==10}" value="10">10</option>
+                    <option th:selected="${page.size()==20}" value="20">20</option>
+                    <option th:selected="${page.size()==50}" value="50">50</option>
+                </select>
+                <button class="btn btn-sm btn-outline-primary">적용</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 총 건수 -->
+    <div class="mb-2 small text-muted">
+        총 <strong th:text="${page.totalElements}">0</strong> 건
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead>
+                <tr class="text-center">
+                    <th style="width:120px">주문ID</th>
+                    <th style="width:160px">수취인</th>
+                    <th>주소</th>
+                    <th style="width:120px">결제금액</th>
+                    <th style="width:140px">주문일</th>
+                    <th style="width:110px">상태</th>
+                    <th style="width:100px">관리</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:if="${#lists.isEmpty(page.content)}">
+                    <td colspan="7" class="text-center py-4 text-muted">조회된 주문이 없습니다.</td>
+                </tr>
+
+                <tr th:each="o : ${page.content}" class="text-center align-middle">
+                    <td th:text="${o.orderId}">1</td>
+                    <td th:text="${o.recipientName}">홍길동</td>
+                    <td th:text="${o.addressRoadname + ' ' + o.addressDetail}">주소</td>
+                    <td th:text="${o.payPrice}">10,000</td>
+<!--                    <td th:text="${#dates.format(o.createdAt, 'yyyy-MM-dd HH:mm')}">2025-01-01</td>-->
+
+                    <td>
+                        <span class="badge-status"
+                              th:text="${o.deliveryStatus}"
+                              th:classappend="
+                                ${o.deliveryStatus} == 'WAITING' ? ' bg-secondary text-white' :
+                                (${o.deliveryStatus} == 'SHIPPING' ? ' bg-primary text-white' : ' bg-success text-white')
+                              ">
+                        </span>
+                    </td>
+
+                    <td>
+                        <a th:href="@{/admin/delivery/{orderId}(orderId=${o.orderId})}"
+                           class="btn btn-outline-secondary btn-sm">상세</a>
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <nav class="mt-3">
+        <ul class="pagination pagination-sm justify-content-center">
+            <li class="page-item" th:classappend="${page.first} ? ' disabled'">
+                <a class="page-link" th:href="@{/admin/delivery(deliveryStatus=${currentDelivery}, page=${page.number - 1}, size=${page.size})}">‹</a>
+            </li>
+
+            <li class="page-item" th:each="p : ${#numbers.sequence(0, page.totalPages - 1)}"
+                th:classappend="${p == page.number} ? ' active'">
+                <a class="page-link"
+                   th:text="${p + 1}"
+                   th:href="@{/admin/delivery(deliveryStatus=${currentDelivery}, page=${p}, size=${page.size})}"></a>
+            </li>
+
+            <li class="page-item" th:classappend="${page.last} ? ' disabled'">
+                <a class="page-link" th:href="@{/admin/delivery(deliveryStatus=${currentDelivery}, page=${page.number + 1}, size=${page.size})}">›</a>
+            </li>
+        </ul>
+    </nav>
+
+</div>
+</body>
+</html>

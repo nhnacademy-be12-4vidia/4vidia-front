@@ -11,6 +11,12 @@
         .table thead th { background-color: #f8f9fc !important; font-weight: 600; }
         .table td { vertical-align: middle; padding: 10px; }
         .badge-status { border-radius: 999px; padding: 4px 10px; font-size: 0.8rem; }
+        .badge-status.waiting   { background: #6c757d; color: white; }
+        .badge-status.shipping  { background: #0d6efd; color: white; }
+        .badge-status.delivered { background: #198754; color: white; }
+        .badge-status.canceled { background: #dc3545; color: white; }
+
+
     </style>
 
 </head>
@@ -67,10 +73,9 @@
                 <thead>
                 <tr class="text-center">
                     <th style="width:120px">주문ID</th>
-                    <th style="width:160px">수취인</th>
+                    <th style="width:200px"> 회원 아이디</th>
+                    <th style="width:150px">수취인</th>
                     <th>주소</th>
-                    <th style="width:120px">결제금액</th>
-                    <th style="width:140px">주문일</th>
                     <th style="width:110px">상태</th>
                     <th style="width:100px">관리</th>
                 </tr>
@@ -83,18 +88,13 @@
 
                 <tr th:each="o : ${page.content}" class="text-center align-middle">
                     <td th:text="${o.orderId}">1</td>
+                    <td th:text="${o.email}">회원 아이디</td>
                     <td th:text="${o.recipientName}">홍길동</td>
                     <td th:text="${o.addressRoadname + ' ' + o.addressDetail}">주소</td>
-                    <td th:text="${o.payPrice}">10,000</td>
-<!--                    <td th:text="${#dates.format(o.createdAt, 'yyyy-MM-dd HH:mm')}">2025-01-01</td>-->
-
                     <td>
-                        <span class="badge-status"
-                              th:text="${o.deliveryStatus}"
-                              th:classappend="
-                                ${o.deliveryStatus} == 'WAITING' ? ' bg-secondary text-white' :
-                                (${o.deliveryStatus} == 'SHIPPING' ? ' bg-primary text-white' : ' bg-success text-white')
-                              ">
+                       <span class="badge-status"
+                             th:text="${o.deliveryStatus.name()}"
+                             th:classappend="${o.deliveryStatus.name().toLowerCase()}">
                         </span>
                     </td>
 
@@ -113,7 +113,10 @@
     <nav class="mt-3">
         <ul class="pagination pagination-sm justify-content-center">
             <li class="page-item" th:classappend="${page.first} ? ' disabled'">
-                <a class="page-link" th:href="@{/admin/delivery(deliveryStatus=${currentDelivery}, page=${page.number - 1}, size=${page.size})}">‹</a>
+                <a class="page-link"
+                   th:href="@{/admin/delivery(deliveryStatus=${currentDelivery}, page=${page.number - 1}, size=${page.size})}">
+                    <
+                </a>
             </li>
 
             <li class="page-item" th:each="p : ${#numbers.sequence(0, page.totalPages - 1)}"
@@ -124,7 +127,9 @@
             </li>
 
             <li class="page-item" th:classappend="${page.last} ? ' disabled'">
-                <a class="page-link" th:href="@{/admin/delivery(deliveryStatus=${currentDelivery}, page=${page.number + 1}, size=${page.size})}">›</a>
+                <a class="page-link" th:href="@{/admin/delivery(deliveryStatus=${currentDelivery}, page=${page.number + 1}, size=${page.size})}">
+                    >
+                </a>
             </li>
         </ul>
     </nav>

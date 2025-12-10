@@ -22,7 +22,7 @@ public class AdminDeliveryController {
      */
     @GetMapping
     public String deliveryList(
-            @RequestParam(required = false) String deliveryStatus,
+            @RequestParam(required = false, defaultValue = "WAITING") String deliveryStatus,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size,
             Model model
@@ -42,11 +42,16 @@ public class AdminDeliveryController {
     @GetMapping("/{orderId}")
     public String detail(
             @PathVariable Long orderId,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false) String status,
             Model model
     ) {
         DeliveryResponse order = deliveryApiClient.getOrder(orderId);
 
         model.addAttribute("order", order);
+        model.addAttribute("page", page);
+        model.addAttribute("currentDelivery", status);
+
         return "admin/admin-delivery-detail";
     }
 

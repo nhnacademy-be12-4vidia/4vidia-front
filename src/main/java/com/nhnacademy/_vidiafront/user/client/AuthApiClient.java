@@ -5,14 +5,12 @@ import com.nhnacademy._vidiafront.user.dto.auth.request.FindIdRequest;
 import com.nhnacademy._vidiafront.user.dto.auth.request.FindPasswordRequest;
 import com.nhnacademy._vidiafront.user.dto.auth.request.LoginRequest;
 import com.nhnacademy._vidiafront.user.dto.auth.response.TokenResponse;
+import com.nhnacademy._vidiafront.user.dto.user.request.UpdateLastLoginRequest;
 import com.nhnacademy._vidiafront.user.dto.user.request.UserSignupRequest;
-import com.nhnacademy._vidiafront.user.dto.user.response.UserInfoResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClient;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -22,61 +20,57 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthApiClient {
     private final BackendApiClient backendApiClient;
-
     private static final String USER_SERVICE = "/api/v1/user-service";
+    private static final String BASE_URL = "/auth";
+
     private static final String AUTH = "/api/v1/auth";
 
     /**
-     * POST 회원가입
-     *
+     * 회원가입
      */
     public Long signup(UserSignupRequest userSignupRequest) {
-        return backendApiClient.post(USER_SERVICE + "/auth/signup", userSignupRequest, Long.class);
+        return backendApiClient.post(USER_SERVICE + BASE_URL + "/signup", userSignupRequest, Long.class);
     }
 
     /**
      * 회원 아이디(email) 찾기
      */
     public String findUserId(FindIdRequest findIdRequest) {
-        return backendApiClient.post(USER_SERVICE + "/auth/find-id", findIdRequest, String.class);
+        return backendApiClient.post(USER_SERVICE + BASE_URL + "/find-id", findIdRequest, String.class);
     }
 
     /**
-     * 회원 비밀번호 찾기
+     * 회원 비밀번호 새로 발급
+     * 기존 "/auth/find-password"
+     * 기존 findUserPassword(...)
      */
-    public String findUserPassword(FindPasswordRequest findPasswordRequest) {
-        return backendApiClient.post(USER_SERVICE + "/auth/find-password", findPasswordRequest, String.class);
+    public void issueNewPassword(FindPasswordRequest findPasswordRequest) {
+        backendApiClient.post(USER_SERVICE + BASE_URL + "/reset-password", findPasswordRequest, Void.class);
     }
-
-    /**
-     * post 로 로그인
-     */
-    public TokenResponse login(LoginRequest loginRequest) {
-        return backendApiClient.post(AUTH + "/auth/login", loginRequest, TokenResponse.class);
-    }
-
-
 
     /**
      * 이메일 중복여부
+     * 기존 "/auth/check-email?email=" + URLEncoder.encode(email, StandardCharsets.UTF_8)
      */
     public String existsByEmail(String email) {
-        return backendApiClient.get(USER_SERVICE + "/auth/check-email?email=" + URLEncoder.encode(email, StandardCharsets.UTF_8), String.class);
+        String encodedEmail = URLEncoder.encode(email, StandardCharsets.UTF_8);
+        return backendApiClient.get(USER_SERVICE + BASE_URL + "/emails/exists?email=" + encodedEmail, String.class);
     }
 
     /**
      * 로그인 후 -> 휴먼 여부 확인
+     * 기존 "/auth/check-dormant?email=" + email
      */
     public Boolean isDormant(String email) {
-        return backendApiClient.get(USER_SERVICE + "/auth/check-dormant?email=" + email, Boolean.class);
+        return backendApiClient.get(USER_SERVICE + BASE_URL + "/dormant?email=" + email, Boolean.class);
     }
 
     /**
-     *  휴면 인증코드 전송
+     * 휴면 인증코드 전송
      */
-    public Void sendDormantCode(String email, String webhookUrl) {
-        return backendApiClient.post(
-                USER_SERVICE + "/auth/dormant/send-code",
+    public void sendDormantCode(String email, String webhookUrl) {
+        backendApiClient.post(
+                USER_SERVICE + BASE_URL + "/dormant/send-code",
                 java.util.Map.of("email", email, "webhookUrl", webhookUrl),
                 Void.class
         );
@@ -85,9 +79,9 @@ public class AuthApiClient {
     /**
      * 휴면 인증코드 검증
      */
-    public Void verifyDormantCode(String email, String code) {
-        return backendApiClient.post(
-                USER_SERVICE + "/auth/dormant/verify",
+    public void verifyDormantCode(String email, String code) {
+        backendApiClient.post(
+                USER_SERVICE + BASE_URL + "/dormant/verify",
                 java.util.Map.of("email", email, "code", code),
                 Void.class
         );
@@ -96,12 +90,45 @@ public class AuthApiClient {
     /**
      * 메일로 휴면 인증코드 전송
      */
-    public Void sendDormantCodeByEmail(String email, String contactEmail) {
-        return backendApiClient.post(
-                USER_SERVICE + "/auth/dormant/send-code/email",
+    public void sendDormantCodeByEmail(String email, String contactEmail) {
+        backendApiClient.post(
+                USER_SERVICE + BASE_URL + "/dormant/send-code/email",
                 Map.of("email", email, "contactEmail", contactEmail),
                 Void.class
         );
     }
 
+    /**
+     * 마지막로그인시간 업데이트하기
+     * 기존 "/auth/update-time"
+     */
+    public void updateLastLoginAt(String email) {
+        UpdateLastLoginRequest updateLastLoginRequest = new UpdateLastLoginRequest(email);
+        backendApiClient.put(USER_SERVICE + BASE_URL + "/last-login", updateLastLoginRequest, Void.class);
+    }
+
+
+    // todo : /api/v1/auth/auth /login or /logout 인데 맞아요?? auth 두 번???
+    /**
+     * 로그인
+     */
+    public TokenResponse login(LoginRequest loginRequest) {
+        return backendApiClient.post(AUTH + "/auth/login", loginRequest, TokenResponse.class);
+    }
+
+    /**
+     * 로그아웃
+     */
+    public String logout() {
+        return backendApiClient.postNoBody(AUTH + "/auth/logout", String.class);
+    }
+
+    public void deleteCookie(String name, HttpServletResponse response) {
+        Cookie cookie = new Cookie(name, null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false); // HTTPS 환경이면 true
+        cookie.setPath("/");
+        cookie.setMaxAge(0); // 즉시 만료
+        response.addCookie(cookie);
+    }
 }

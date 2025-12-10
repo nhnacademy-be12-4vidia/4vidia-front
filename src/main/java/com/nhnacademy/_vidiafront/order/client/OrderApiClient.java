@@ -36,11 +36,11 @@ public class OrderApiClient {
     }
 
     //주문내역 미리보기
-    public List<OrderPreviewResponse> getOrderPreview() {
+    public List<OrderPreviewResponse> getOrderPreview() { // 기존 "/my/orders"
         ParameterizedTypeReference<List<OrderPreviewResponse>> typeReference =
                 new ParameterizedTypeReference<List<OrderPreviewResponse>>() {};
 
-        List<OrderPreviewResponse> orderPreviewResponses = backendApiClient.get(ORDER_SERVICE + "/my/orders", typeReference);
+        List<OrderPreviewResponse> orderPreviewResponses = backendApiClient.get(ORDER_SERVICE + "/users/me/orders", typeReference);
         return orderPreviewResponses;
     }
 

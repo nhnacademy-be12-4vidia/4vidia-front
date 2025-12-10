@@ -8,12 +8,14 @@ import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.global.dto.PageResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class BookApiClient {
 
     private final BackendApiClient backendApiClient;
@@ -26,31 +28,38 @@ public class BookApiClient {
 
     public PageResponse<BookListResponse> searchBooks(BookSearchRequest request, int page, int size) {
 
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder
-            .fromPath(BOOK_SERVICE + "/books/search")
-            .queryParam("keyword", request.keyword())
-            .queryParam("page", page)
-            .queryParam("size", size);
+        StringBuilder urlBuilder = new StringBuilder();
+        urlBuilder.append(BOOK_SERVICE).append("/books/search");
+
+        urlBuilder.append("?keyword=");
+        if (request.keyword() != null) {
+            urlBuilder.append(request.keyword());
+        }
+
+        urlBuilder.append("&page=").append(page);
+        urlBuilder.append("&size=").append(size);
 
         if (request.sort() != null) {
-            uriBuilder.queryParam("sort", request.sort());
+            urlBuilder.append("&sort=").append(request.sort());
         }
         if (request.categoryId() != null) {
-            uriBuilder.queryParam("categoryId", request.categoryId());
+            urlBuilder.append("&categoryId=").append(request.categoryId());
         }
         if (request.minPrice() != null) {
-            uriBuilder.queryParam("minPrice", request.minPrice());
+            urlBuilder.append("&minPrice=").append(request.minPrice());
         }
         if (request.maxPrice() != null) {
-            uriBuilder.queryParam("maxPrice", request.maxPrice());
+            urlBuilder.append("&maxPrice=").append(request.maxPrice());
         }
         if (Boolean.TRUE.equals(request.useSemantic())) {
-            uriBuilder.queryParam("useSemantic", true);
+            urlBuilder.append("&useSemantic=true");
         }
 
-        String url = uriBuilder.toUriString();
+        String url = urlBuilder.toString();
 
-        return backendApiClient.get(url, new ParameterizedTypeReference<PageResponse<BookListResponse>>() {}
+        return backendApiClient.get(
+            url,
+            new ParameterizedTypeReference<PageResponse<BookListResponse>>() {}
         );
     }
 

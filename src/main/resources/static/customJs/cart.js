@@ -148,6 +148,44 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     });
+    // --- 🛒 선택한 아이템 삭제 로직 시작 ---
+
+    const clearCartForm = document.getElementById('clearCartForm'); // HTML에서 이 ID를 부여했다고 가정
+    const selectedItemsContainer = document.getElementById('selectedItemsContainer'); // HTML에서 이 ID를 부여했다고 가정
+
+    if (clearCartForm && selectedItemsContainer) {
+        clearCartForm.addEventListener('submit', function(event) {
+            // 폼 제출 기본 동작 방지
+            event.preventDefault();
+
+            // 1. 선택된 체크박스 모두 수집
+            const checkedItems = document.querySelectorAll('.cart-item-checkbox:checked');
+
+            if (checkedItems.length === 0) {
+                alert("삭제할 아이템을 하나 이상 선택해주세요.");
+                return; // 선택된 아이템이 없으면 제출 중단
+            }
+
+            // 2. 이전에 추가된 숨겨진 필드가 있다면 모두 제거 (재실행 방지)
+            selectedItemsContainer.innerHTML = '';
+
+            // 3. 체크된 아이템의 ID를 숨겨진 input 필드에 추가
+            //    이 필드들은 백엔드의 List<Long> itemIds에 매핑됩니다.
+            checkedItems.forEach(checkbox => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'itemIds';
+                input.value = checkbox.value; // bookId
+                selectedItemsContainer.appendChild(input);
+            });
+
+            // 4. 경고창 띄우고 확인 시 Form 제출
+            if (confirm(`선택한 도서 ${checkedItems.length}개를 장바구니에서 삭제하시겠습니까?`)) {
+                // 숨겨진 필드가 모두 추가되었으므로 폼 제출
+                clearCartForm.submit();
+            }
+        });
+    }
 });
 
 

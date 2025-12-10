@@ -51,6 +51,8 @@ public class OrderController {
         model.addAttribute("ordererPhone", response.phone());
         model.addAttribute("addressList", response.addressResponses());
         model.addAttribute("points", response.point());
+        Boolean isGuest = response.name().isBlank();
+        model.addAttribute("isGuest", isGuest);
 
         model.addAttribute("orderName", response.orderName());
         model.addAttribute("cartItems", response.bookItems());

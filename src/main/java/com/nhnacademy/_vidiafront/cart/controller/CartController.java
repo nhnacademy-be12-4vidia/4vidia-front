@@ -1,6 +1,7 @@
 package com.nhnacademy._vidiafront.cart.controller;
 
 import com.nhnacademy._vidiafront.cart.client.CartApiClient;
+import com.nhnacademy._vidiafront.cart.dto.request.AddCartItemRequest;
 import com.nhnacademy._vidiafront.cart.dto.request.CartUpdateBookRequest;
 import com.nhnacademy._vidiafront.cart.dto.response.CartResponse;
 import com.nhnacademy._vidiafront.cart.dto.response.GuestCartStatusResponse;
@@ -80,5 +81,18 @@ public class CartController {
     @ResponseBody
     public void clearGuestCart(){
         cartApiClient.deleteGuestCart();
+    }
+
+
+    @PostMapping("/add")
+    @ResponseBody
+    public ResponseEntity<String> addCartItem(@RequestParam("bookId") Long bookId,
+                              @RequestParam(value = "quantity", defaultValue = "1") Integer quantity) {
+
+        AddCartItemRequest cartItemAddRequest = new AddCartItemRequest(bookId, quantity);
+
+        cartApiClient.addItem(cartItemAddRequest);
+
+        return ResponseEntity.ok("ok");
     }
 }

@@ -1,8 +1,5 @@
 package com.nhnacademy._vidiafront.admin.dto.request;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-
 public record AdminUserSearchRequest(
         String keyword,
         String status,

@@ -91,19 +91,17 @@
                                     <input type="email" class="form-control" id="ordererEmail" name="ordererEmail" th:value="${ordererEmail}" placeholder="user@example.com" required>
                                 </div>
                             </div>
-                            <div class="form-group row mb-0">
+                            <div class="form-group row">
                                 <label for="ordererPhone" class="col-sm-3 col-form-label">휴대폰</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="ordererPhone" name="ordererPhone" th:value="${ordererPhone}" placeholder="01012345678" required>
+                                    <input type="text" class="form-control" id="ordererPhone" name="ordererPhone" th:value="${ordererPhone}" placeholder="010-1234-5678" required>
                                 </div>
                             </div>
-
                             <div class="form-group row mb-0" th:if="${isGuest}">
                                 <label for="orderPassword" class="col-sm-3 col-form-label">주문비밀번호</label>
                                 <div class="col-sm-9">
-                                    <input type="password" class="form-control" id="orderPassword" name="orderPassword"
-                                           placeholder="비밀번호" required>
-                                    <small class="form-text text-muted">비회원 주문 조회 시 필요합니다.</small>
+                                    <input type="password" class="form-control" id="orderPassword" name="orderPassword" placeholder="비밀번호" required>
+                                    <small class="form-text text-muted">비회원 주문 조회 시 필요합니다.(4~30자)</small>
                                 </div>
                             </div>
                         </div>
@@ -164,7 +162,7 @@
                             <div class="form-group row">
                                 <label for="shipPhone" class="col-sm-3 col-form-label">휴대폰</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="shipPhone" name="recipientPhone" placeholder="010012345678" required>
+                                    <input type="text" class="form-control" id="shipPhone" name="recipientPhone" placeholder="010-1234-5678" required>
                                 </div>
                             </div>
 
@@ -565,6 +563,42 @@
         }
 
         document.addEventListener("DOMContentLoaded", function() {
+            const ordererPhoneInput = document.getElementById('ordererPhone');
+            const shipPhoneInput = document.getElementById('shipPhone');
+
+            ordererPhoneInput.addEventListener('input', function(event) {
+                let value = event.target.value.replace(/[^0-9]/g, '');
+
+                if (value.length > 3 && value.length <= 7) {
+                    value = value.substring(0, 3) + '-' + value.substring(3);
+                } else if (value.length > 7) {
+                    value = value.substring(0, 3) + '-' + value.substring(3, 7) + '-' + value.substring(7, 11);
+                }
+
+                event.target.value = value;
+            });
+
+            ordererPhoneInput.closest('form').addEventListener('submit', function() {
+                ordererPhoneInput.value = ordererPhoneInput.value.replace(/-/g, '');
+            });
+
+            shipPhoneInput.addEventListener('input', function(event) {
+                let value = event.target.value.replace(/[^0-9]/g, '');
+
+                if (value.length > 3 && value.length <= 7) {
+                    value = value.substring(0, 3) + '-' + value.substring(3);
+                } else if (value.length > 7) {
+                    value = value.substring(0, 3) + '-' + value.substring(3, 7) + '-' + value.substring(7, 11);
+                }
+
+                event.target.value = value;
+            });
+
+            shipPhoneInput.closest('form').addEventListener('submit', function() {
+                shipPhoneInput.value = shipPhoneInput.value.replace(/-/g, '');
+            });
+
+
 
             // 포장 옵션 변경 시 최종 금액 업데이트
             const packagingSelects = document.querySelectorAll('.packaging-select');

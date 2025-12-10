@@ -72,7 +72,7 @@ public class AuthApiClient {
     }
 
     /**
-     * 휴면 인증코드 전송
+     *  휴면 인증코드 전송
      */
     public Void sendDormantCode(String email, String webhookUrl) {
         return backendApiClient.post(

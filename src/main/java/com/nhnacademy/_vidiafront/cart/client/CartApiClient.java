@@ -7,6 +7,9 @@ import com.nhnacademy._vidiafront.cart.dto.response.GuestCartStatusResponse;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -29,17 +32,24 @@ public class CartApiClient {
     }
 
     /**
-     * 장바구니 도서 삭제
+     * 장바구니 도서 단권 삭제
      */
     public void deleteItem(Long bookId){
         backendApiClient.delete(CART_SERVICE + "/cart/items/" + bookId, Void.class);
     }
 
     /**
-     * 장바구니 비우기
+     * 장바구니 도서 삭제
      */
-    public void clearCart(){
-        backendApiClient.delete(CART_SERVICE + "/cart/items", Void.class);
+    public void deleteItems(List<Long> bookIds){
+        var builder = UriComponentsBuilder
+                .fromUriString(CART_SERVICE + "/cart/items");
+
+        bookIds.forEach(id -> builder.queryParam("itemIds", id.toString()));
+
+        String url = builder.build().toUriString();
+
+        backendApiClient.delete(url, Void.class);
     }
 
     /**

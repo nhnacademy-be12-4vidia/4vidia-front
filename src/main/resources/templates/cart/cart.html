@@ -66,7 +66,6 @@
 
 <body>
 <div layout:fragment="content">
-
     <div class="container-fluid">
 
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -74,7 +73,6 @@
         </div>
 
         <div class="row">
-
             <div th:if="${cart == null or #lists.isEmpty(cart.items)}"
                  class="col-12 d-flex justify-content-center mt-5">
                 <div class="text-center cart-empty-box">
@@ -96,11 +94,15 @@
                             전체 선택
                         </label>
                     </div>
-                    <!-- 오른쪽: 장바구니 비우기 버튼 -->
-                    <form th:action="@{/cart/clear}" method="post" class="m-0">
+                    <form id="clearCartForm" th:action="@{/cart/items}" method="post" class="m-0">
                         <button type="submit" class="btn btn-outline-danger btn-sm">
-                            장바구니 비우기
+                            선택한 아이템 삭제
                         </button>
+
+                        <input type="hidden" name="_method" value="delete">
+
+                        <div id="selectedItemsContainer">
+                        </div>
                     </form>
                 </div>
 
@@ -190,13 +192,10 @@
 
                                     </div>
                                 </div>
-
                             </div>
-
                         </div>
                     </div>
                 </div>
-
                 <div class="cart-bottom-summary d-flex justify-content-between align-items-center">
                     <div class="text-gray-700">
                         선택한 상품 금액
@@ -214,21 +213,15 @@
                         </button>
                     </div>
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
     <div th:replace="~{cart/cart-guest-merge :: mergeModal}"></div>
-
     <script th:inline="javascript">
         const LOGGED_IN = /*[[${loggedIn}]]*/ false;
     </script>
     <script th:src="@{/customJs/cart.js}"></script>
     <script th:src="@{/customJs/cart-guest-merge.js}"></script>
-
 </div>
 </body>
 </html>

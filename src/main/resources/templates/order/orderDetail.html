@@ -4,6 +4,29 @@
       layout:decorate="~{layout.html}">
 <head>
     <title>주문 상세 내역</title>
+    <script>
+        function cancelOrder(orderId) {
+            if (!confirm("정말 주문을 취소하시겠습니까?")) {
+                return;
+            }
+
+            fetch("/orders/cancel", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: "orderId=" + orderId
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("주문이 취소되었습니다.");
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(() => alert("서버 오류가 발생했습니다."));
+        }
+    </script>
 </head>
 <body>
 <div layout:fragment="content">
@@ -26,9 +49,17 @@
                         <h6 class="m-0 font-weight-bold text-primary">
                             주문 번호: <span th:text="${order.orderId}">1001</span>
                         </h6>
-                        <span class="badge badge-primary px-3 py-2"
-                              style="font-size: 0.9rem;"
-                              th:text="${order.deliveryStatus}">배송 준비중</span>
+                        <div class="d-flex align-items-center">
+                            <span class="badge badge-primary px-3 py-2 mr-2"
+                                  style="font-size: 0.9rem;"
+                                  th:text="${order.deliveryStatus}">배송 준비중</span>
+                            <!-- 배송 준비중일때 -> 주문 취소 가능 -->
+                            <button class="btn btn-danger btn-sm"
+                                    th:if="${order.deliveryStatus.name() == 'WAITING'}"
+                                    th:onclick="|cancelOrder(${order.orderId})|">
+                                주문 취소
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="mb-3 text-xs text-gray-600 font-weight-bold">

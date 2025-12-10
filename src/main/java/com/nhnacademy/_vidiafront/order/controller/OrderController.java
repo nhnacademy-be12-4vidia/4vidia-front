@@ -5,6 +5,7 @@ import com.nhnacademy._vidiafront.order.client.PaymentApiClient;
 import com.nhnacademy._vidiafront.order.dto.order.request.OrderCheckoutRequest;
 import com.nhnacademy._vidiafront.order.dto.order.request.OrderCreateRequest;
 import com.nhnacademy._vidiafront.order.dto.order.request.OrderPageRequest;
+import com.nhnacademy._vidiafront.order.dto.order.request.OrderTrackingRequest;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderCheckoutResponse;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderCreateResponse;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderResponse;
@@ -12,15 +13,20 @@ import com.nhnacademy._vidiafront.order.dto.payment.requset.PaymentConfirmReques
 import com.nhnacademy._vidiafront.order.dto.payment.response.PaymentResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @Controller
 @RequestMapping("/orders")
 @RequiredArgsConstructor
@@ -39,7 +45,7 @@ public class OrderController {
         List<OrderCheckoutRequest> orderCheckoutRequests;
 
         if (orderPageRequest.orderCheckoutRequests() != null) {
-            orderCheckoutRequests =  orderPageRequest.orderCheckoutRequests();
+            orderCheckoutRequests = orderPageRequest.orderCheckoutRequests();
         } else {
             orderCheckoutRequests = List.of(OrderCheckoutRequest.from(orderPageRequest.bookId(), orderPageRequest.quantity()));
         }
@@ -51,7 +57,7 @@ public class OrderController {
         model.addAttribute("ordererPhone", response.phone());
         model.addAttribute("addressList", response.addressResponses());
         model.addAttribute("points", response.point());
-        Boolean isGuest = response.name().isBlank();
+        Boolean isGuest = response.name() == null || response.name().isBlank();
         model.addAttribute("isGuest", isGuest);
 
         model.addAttribute("orderName", response.orderName());
@@ -108,6 +114,21 @@ public class OrderController {
         return "order/orderDetail";
     }
 
+    @PostMapping("/guest")
+    public String showGuestDetail(OrderTrackingRequest orderTrackingRequest,
+                                  Model model,
+                                  RedirectAttributes redirectAttributes) {
+        OrderResponse guestOrder = orderApiClient.getGuestOrder(orderTrackingRequest);
+
+        if (guestOrder == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "입력하신 정보와 일치하는 주문을 찾을 수 없습니다. 정보를 다시 확인해 주세요.");
+            return "redirect:/auth/login";
+        }
+
+        model.addAttribute("order", guestOrder);
+        return "order/orderDetail";
+    }
+
     @GetMapping("/{id}/success")
     public String handlePaymentSuccess(@RequestParam String paymentKey,
                                        @RequestParam String orderId,
@@ -141,6 +162,25 @@ public class OrderController {
     }
 
 
+    /**
+     * 주문 취소 버튼(마이페이지)
+     * */
+    @PostMapping("/cancel")
+    @ResponseBody
+    public Map<String, Object> cancelItem(@RequestParam(value = "orderId") Long orderId) {
+        Map<String, Object> response = new HashMap<>();
 
+        try {
+            orderApiClient.cancelOrder(orderId);
 
+            response.put("success", true);
+            response.put("message", "주문 취소 성공");
+        } catch (Exception e) {
+            log.error("Failed to cancel order {}: {}", orderId, e.getMessage());
+            response.put("success", false);
+            response.put("message", "주문 취소 처리 중 오류 발생: " + e.getMessage());
+        }
+
+        return response;
+    }
 }

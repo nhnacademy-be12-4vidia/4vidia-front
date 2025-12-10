@@ -9,7 +9,7 @@ import java.util.List;
 
 public record OrderResponse(
         long orderId,
-        long userId,
+        Long userId,
         String recipientName,
         String addressRoadname,
         String addressDetail,

@@ -51,9 +51,7 @@ public class OrderListController {
         return "mypage/order/orderList";
     }
 
-    /**
-     * 주문 목록을 가져와 날짜 기준 최신순 정렬
-     */
+    // 주문 목록을 가져와 날짜 기준 최신순 정렬
     private List<OrderPreviewResponse> getSortedOrderList() {
         try {
             List<OrderPreviewResponse> orders = orderApiClient.getOrderPreview();
@@ -72,9 +70,7 @@ public class OrderListController {
         }
     }
 
-    /**
-     * 상태 카운트 계산 + 반드시 기본값 세팅
-     */
+    // 상태 카운트 계산 + 반드시 기본값 세팅
     private Map<String, Long> calculateStatusCounts(List<OrderPreviewResponse> orders) {
 
         // 실제 주문 상태 카운트
@@ -95,9 +91,7 @@ public class OrderListController {
         return counts;
     }
 
-    /**
-     * 선택된 상태에 따라 필터링
-     */
+    // 선택된 상태에 따라 필터링
     private List<OrderPreviewResponse> filterOrdersByStatus(List<OrderPreviewResponse> allOrders, String status) {
 
         if ("ALL".equalsIgnoreCase(status)) {
@@ -118,9 +112,7 @@ public class OrderListController {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * UI용 한글 상태명
-     */
+    // UI용 한글 상태명
     private Map<String, String> getStatusKoreanNameMap() {
         return Map.of(
                 "WAITING", "배송 준비중",
@@ -130,7 +122,9 @@ public class OrderListController {
         );
     }
 
-
+    /**
+     * 구매 확정버튼(마이페이지)
+     * */
     @PostMapping("/confirm-item")
     @ResponseBody
     public Map<String, Object> confirmItem(@RequestParam(value = "orderItemId") Long orderItemId) {

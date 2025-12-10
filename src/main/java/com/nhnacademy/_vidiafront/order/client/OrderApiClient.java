@@ -4,6 +4,7 @@ import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.order.dto.order.request.OrderCheckoutListRequest;
 import com.nhnacademy._vidiafront.order.dto.order.request.OrderCheckoutRequest;
 import com.nhnacademy._vidiafront.order.dto.order.request.OrderCreateRequest;
+import com.nhnacademy._vidiafront.order.dto.order.request.OrderTrackingRequest;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderCheckoutResponse;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderCreateResponse;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderPreviewResponse;
@@ -45,5 +46,13 @@ public class OrderApiClient {
 
     public OrderCreateResponse saveOrder(OrderCreateRequest orderCreateRequest) {
         return backendApiClient.post(ORDER_SERVICE + "/orders/create", orderCreateRequest, OrderCreateResponse.class);
+    }
+
+    public void cancelOrder(long orderId) {
+        backendApiClient.putNoBody(ORDER_SERVICE + "/orders/" + orderId + "/cancel", Void.class);
+    }
+
+    public OrderResponse getGuestOrder(OrderTrackingRequest orderTrackingRequest) {
+        return backendApiClient.post(ORDER_SERVICE + "/orders/guest", orderTrackingRequest, OrderResponse.class);
     }
 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="utf-8">
@@ -24,6 +24,39 @@
         .login-links a:hover {
             text-decoration: underline;
         }
+        /* 추가된 스타일 */
+        .order-guest .h6 {
+            font-weight: bold;
+            color: #5a5c69;
+            margin-bottom: 1rem;
+            display: flex; /* 아이콘 배치를 위해 flex 사용 */
+            justify-content: center;
+            align-items: center;
+        }
+        .form-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+            color: #6e707e;
+        }
+        /* 클릭 가능한 제목 스타일 */
+        .guest-order-toggle {
+            cursor: pointer;
+            user-select: none; /* 텍스트 선택 방지 */
+            transition: color 0.2s;
+        }
+        .guest-order-toggle:hover {
+            color: #4e73df !important; /* 호버 시 색상 변경 */
+        }
+        .guest-order-toggle .fas {
+            margin-left: 0.5rem;
+            font-size: 0.9em;
+            transition: transform 0.3s;
+        }
+        /* 폼이 열렸을 때 아이콘 회전 */
+        .guest-order-toggle.opened .fas {
+            transform: rotate(180deg);
+        }
     </style>
 </head>
 
@@ -44,7 +77,10 @@
                                     <h1 class="h4 text-gray-900 mb-4">Welcome Back!</h1>
                                 </div>
                                 <form class="user" action="/auth/login" method="post">
-                                    <p th:text="${errorMessage}">요청을 처리하는 중 문제가 발생했습니다.</p>
+                                    <p th:if="${param.error != null and param.error != 'dormant'}"
+                                       class="text-danger text-center">
+                                        이메일 또는 비밀번호가 올바르지 않습니다.
+                                    </p>
 
                                     <div class="form-group">
                                         <input type="email" name="email" class="form-control form-control-user"
@@ -65,7 +101,6 @@
                                     <button type="submit" class="btn btn-primary btn-user btn-block">
                                         로그인
                                     </button>
-                                    <hr>
 
                                     <a href="/" class="btn btn-secondary btn-user btn-block">
                                         메인 페이지로 돌아가기
@@ -75,6 +110,44 @@
                                 <div th:if="${param.error == 'dormant'}" class="alert alert-warning">
                                     휴면 계정입니다. 인증 후 이용해주세요.
                                 </div>
+
+
+                                <hr class="my-4">
+                                <div class="text-center order-guest">
+                                    <h6 class="h6 text-gray-900 mb-4 guest-order-toggle">
+                                        비회원 주문 조회
+                                        <i class="fas fa-chevron-down"></i>
+                                    </h6>
+                                </div>
+
+                                <div id="guestOrderFormWrapper"
+                                     th:style="${errorMessage} ? 'display: block;' : 'display: none;'">
+
+                                    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+                                        <span th:text="${errorMessage}"></span>
+                                    </div>
+
+                                    <form class="order-guest" action="/orders/guest" method="post">
+                                        <div class="form-group">
+                                            <label for="orderId">주문 번호</label>
+                                            <input type="text" name="orderId" class="form-control form-control-user"
+                                                   id="orderId" placeholder="주문 번호를 입력하세요."
+                                                   required
+                                                   maxlength="30">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="guestOrderPassword">비밀번호 (주문 시 설정한)</label>
+                                            <input type="password" name="orderPassword" class="form-control form-control-user"
+                                                   id="guestOrderPassword" placeholder="비밀번호를 입력하세요.">
+                                        </div>
+
+                                        <button type="submit" class="btn btn-info btn-user btn-block mt-3">
+                                            비회원 주문 조회
+                                        </button>
+                                    </form>
+                                </div>
+
 
 
                                 <div class="text-center mt-4 login-links">
@@ -94,9 +167,39 @@
 
 </div>
 
+<script src="/vendor/jquery/jquery.min.js"></script>
+<script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
+<script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
 
+<script src="/js/sb-admin-2.min.js"></script>
 
+<script>
+    $(document).ready(function() {
+        const $wrapper = $('#guestOrderFormWrapper');
+        const $toggleElement = $('.guest-order-toggle');
+
+        // 1. 초기 로딩 시, 오류 메시지가 있어서 폼이 열려 있다면 아이콘 상태를 'opened'로 설정
+        if ($wrapper.is(':visible')) {
+            $toggleElement.addClass('opened');
+        }
+
+        // 2. 비회원 주문 조회 제목 클릭 이벤트
+        $toggleElement.on('click', function() {
+            const isVisible = $wrapper.is(':visible');
+
+            // 폼을 슬라이드 효과로 토글 (열거나 닫기)
+            $wrapper.slideToggle(400, function() {
+                // 토글 완료 후, 보이는 상태에 따라 클래스 변경
+                if (!isVisible) { // 닫혀 있다가 열린 경우
+                    $toggleElement.addClass('opened');
+                } else { // 열려 있다가 닫힌 경우
+                    $toggleElement.removeClass('opened');
+                }
+            });
+        });
+    });
+</script>
 
 </body>
 

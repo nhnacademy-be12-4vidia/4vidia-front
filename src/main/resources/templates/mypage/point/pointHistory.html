@@ -58,7 +58,7 @@
             <div class="d-flex gap-3 flex-wrap">
                 <div class="benefit-card flex-fill text-center">
                     <div class="fw-bold">🛒 구매 적립</div>
-                    <div class="small text-muted mt-1">도서 구매금액의 2% 적립</div>
+                    <div class="small text-muted mt-1">도서 구매금액의 최대 5% 적립</div>
                 </div>
 
                 <div class="benefit-card flex-fill text-center">
@@ -75,8 +75,28 @@
 
         <!-- 포인트 내역 리스트 -->
         <div class="mt-5">
-            <h5 class="fw-bold mb-3">포인트 내역</h5>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">포인트 내역</h5>
 
+                <!-- 카테고리 필터 -->
+                <div class="btn-group btn-group-sm" role="group" aria-label="포인트 필터">
+                    <a class="btn"
+                       th:classappend="${category == null} or ${category} == 'ALL' ? ' btn-primary' : ' btn-outline-primary'"
+                       th:href="@{/mypage/point(category='ALL')}">
+                        전체
+                    </a>
+                    <a class="btn"
+                       th:classappend="${category == 'EARN'} ? ' btn-primary' : ' btn-outline-primary'"
+                       th:href="@{/mypage/point(category='EARN')}">
+                        적립
+                    </a>
+                    <a class="btn"
+                       th:classappend="${category} == 'USE' ? 'btn-primary' : 'btn-outline-primary'"
+                       th:href="@{/mypage/point(category='USE')}">
+                        사용
+                    </a>
+                </div>
+            </div>
             <div th:if="${historyPage == null or historyPage.content.isEmpty()}" class="text-center text-muted py-5">
                 포인트 내역이 없습니다.
             </div>

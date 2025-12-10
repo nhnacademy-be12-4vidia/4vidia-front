@@ -41,9 +41,9 @@ public class PointApiClient {
     /**
      * 포인트 내역 조회
      */
-    public PointHistoryPageResponse getHistoryPage(int page, int limit) {
+    public PointHistoryPageResponse getHistoryPage(String category,int page, int limit) {
         return backendApiClient.get(
-                USER_SERVICE+"/my/points/history?page="+page+"&size="+limit,
+                USER_SERVICE + "/my/points/history?category=" + category + "&page=" + page + "&size=" + limit,
                 PointHistoryPageResponse.class
         );
     }

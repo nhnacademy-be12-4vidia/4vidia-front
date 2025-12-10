@@ -18,6 +18,7 @@ public class PointController {
 
     @GetMapping
     public String pointPage(HttpSession session,
+                            @RequestParam(defaultValue = "ALL") String category,
                             @RequestParam(defaultValue = "0") int page,
                             Model model) {
         Long userId = (Long) session.getAttribute("userId");
@@ -25,7 +26,11 @@ public class PointController {
         // TODO user.point 가져오기
         model.addAttribute("remain", pointApiClient.getPointTotal().totalPrice());
         model.addAttribute("expireSoon", pointApiClient.getExpireSoon(7));
-        model.addAttribute("historyPage", pointApiClient.getHistoryPage(page, 10)); // 추가
+
+
+        model.addAttribute("historyPage", pointApiClient.getHistoryPage(category,page, 10)); // 추가
+
+        model.addAttribute("category", category);
         model.addAttribute("userId", userId);
 
         return "mypage/point/pointHistory";

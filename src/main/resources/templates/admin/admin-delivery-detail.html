@@ -6,83 +6,172 @@
     <meta charset="UTF-8">
     <title>배송 상세</title>
     <link th:href="@{/css/sb-admin-2.min.css}" rel="stylesheet">
+
     <style>
-        .info-label { color:#6c757d; font-size:0.85rem; }
-        .info-value { font-weight:600; }
-        .badge-status { border-radius:999px; padding:4px 10px; font-size:0.85rem; }
+        .badge-status {
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 0.85rem;
+        }
     </style>
 </head>
+
 <body>
 <div layout:fragment="pageContent">
 
     <div class="d-flex justify-content-between mb-3">
-        <h1 class="h3 text-gray-800 mb-0">배송 상세</h1>
-        <a th:href="@{/admin/delivery(deliveryStatus=${deliveryStatus}, page=${page})}" class="btn btn-outline-secondary btn-sm">← 목록으로</a>
+        <h1 class="h3 text-gray-800 mb-0">주문 상세내역</h1>
+        <a th:href="@{/admin/delivery(deliveryStatus=${order.deliveryStatus}, page=${page})}"
+           class="btn btn-outline-secondary btn-sm">← 목록으로</a>
     </div>
 
-    <div class="card shadow-sm mb-3">
+    <div class="card shadow-sm mb-4">
         <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <div class="info-label">주문번호</div>
-                    <div class="info-value" th:text="${order.orderId}">1</div>
-                </div>
-                <div class="col-md-4">
-                    <div class="info-label">수취인</div>
-                    <div class="info-value" th:text="${order.recipientName}">홍길동</div>
-                </div>
-                <div class="col-md-4">
-                    <div class="info-label">전화</div>
-                    <div class="info-value" th:text="${order.recipientPhone}">010-0000-0000</div>
-                </div>
 
-                <div class="col-md-12">
-                    <div class="info-label">주소</div>
-                    <div class="info-value" th:text="${order.addressRoadname + ' ' + order.addressDetail}">서울...</div>
-                </div>
+            <table class="table table-bordered mb-4">
+                <tbody>
+                <tr>
+                    <th class="bg-light" style="width: 200px;">주문번호</th>
+                    <td th:text="${order.orderId}"></td>
+                </tr>
 
-                <div class="col-md-3">
-                    <div class="info-label">결제금액</div>
-                    <div class="info-value" th:text="${order.payPrice}">10000</div>
-                </div>
+                <tr>
+                    <th class="bg-light" style="width: 200px;">이메일</th>
+                    <td th:text="${order.email}"></td>
+                </tr>
 
-<!--                <div class="col-md-3">-->
-<!--                    <div class="info-label">주문일</div>-->
-<!--                    <div class="info-value" th:text="${#dates.format(order.createdAt, 'yyyy-MM-dd HH:mm')}">2025-01-01</div>-->
-<!--                </div>-->
+                <tr>
+                    <th class="bg-light">수취인</th>
+                    <td th:text="${order.recipientName}"></td>
+                </tr>
 
-<!--                <div class="col-md-3">-->
-<!--                    <div class="info-label">배송 예정일</div>-->
-<!--                    <div class="info-value" th:text="${order.deliveryDate}">2025-01-03</div>-->
-<!--                </div>-->
+                <tr>
+                    <th class="bg-light">주소</th>
+                    <td th:text="${order.addressRoadname + ' ' + order.addressDetail}"></td>
+                </tr>
 
-                <div class="col-md-3">
-                    <div class="info-label">상태</div>
-                    <div class="info-value">
+                <tr>
+                    <th class="bg-light">전화번호</th>
+                    <td th:text="${order.recipientPhone}"></td>
+                </tr>
+
+                <tr>
+                    <th class="bg-light">배송 상태</th>
+                    <td>
                         <span class="badge-status"
                               th:text="${order.deliveryStatus}"
                               th:classappend="
-                                ${order.deliveryStatus} == 'WAITING' ? ' bg-secondary text-white' :
-                                (${order.deliveryStatus} == 'SHIPPING' ? ' bg-primary text-white' : ' bg-success text-white')
+                                ${order.deliveryStatus} == 'WAITING'   ? ' bg-secondary text-white' :
+                                (${order.deliveryStatus} == 'SHIPPING' ? ' bg-primary text-white' :
+                                (${order.deliveryStatus} == 'DELIVERED' ? ' bg-success text-white' :
+                                ' bg-danger text-white'))
                               ">
                         </span>
-                    </div>
-                </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="bg-light">배송 요청사항</th>
+                    <td th:text="${order.deliveryRequest}"></td>
+                </tr>
+
+                <tr>
+                    <th class="bg-light">주문일</th>
+                    <td th:text="${#temporals.format(order.createAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                </tr>
+
+                <tr>
+                    <th class="bg-light">배송 시작일</th>
+                    <td th:text="${order.deliveryDate}"></td>
+                </tr>
+
+                <tr>
+                    <th class="bg-light">배송 완료일</th>
+                    <td th:text="${order.actualDeliveryDate}"></td>
+                </tr>
+
+                <tr>
+                    <th class="bg-light">쿠폰 할인금액</th>
+                    <td th:text="${order.couponDiscount}"></td>
+                </tr>
+
+                <tr>
+                    <th class="bg-light">포인트 사용액</th>
+                    <td th:text="${order.pointUsed}"></td>
+                </tr>
+
+                <tr>
+                    <th class="bg-light">결제금액</th>
+                    <td th:text="${#numbers.formatInteger(order.payPrice, 0, 'COMMA')} + ' 원'"></td>
+                </tr>
+
+                <tr>
+                    <th class="bg-light">주문 아이템</th>
+                    <td>
+                        <div class="card-body">
+                            <div th:each="item : ${order.orderItems}" class="row mb-4 border-bottom pb-4 align-items-center">
+                                <div class="col-md-2 text-center">
+                                    <img th:if="${item.bookImageUrl != null}"
+                                         th:src="${item.bookImageUrl}"
+                                         class="img-fluid rounded border"
+                                         alt="Book Cover" style="max-height: 100px;">
+                                    <div th:unless="${item.bookImageUrl != null}" class="bg-light rounded p-3">
+                                        <i class="fas fa-book fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-7">
+                                    <h5 class="font-weight-bold text-dark mb-1">
+                                        <a href="#" th:text="${item.bookTitle}" class="text-dark text-decoration-none">책 제목</a>
+                                    </h5>
+                                    <p class="text-sm text-gray-600 mb-2">
+                                        <span th:text="${item.bookAuthor}">저자명</span>
+                                    </p>
+
+                                    <div class="d-flex align-items-center mb-2">
+                                    <span class="font-weight-bold mr-2"
+                                          th:text="|${#numbers.formatInteger(item.salePrice, 0, 'COMMA')}|">₩35,000</span>
+                                        <span class="text-xs text-gray-600" th:text="|x ${item.quantity}권|">x 1권</span>
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+
+            <!-- 상태 변경 버튼 -->
+            <div class="d-flex justify-content-end">
+
+                <!-- 배송 시작 -->
+                <form th:action="@{/admin/delivery/{id}/start(id=${order.orderId})}"
+                      method="post" th:if="${order.deliveryStatus.name == 'WAITING'}"
+                      style="display:inline-block;">
+                    <input type="hidden" name="page" th:value="${page}">
+                    <input type="hidden" name="currentDelivery" th:value="${currentDelivery}">
+                    <button type="submit" class="btn btn-success me-2"
+                            onclick="return confirm('배송 시작 처리하시겠습니까?');">
+                        배송 시작
+                    </button>
+                </form>
+
+                <!-- 배송 완료 -->
+                <form th:action="@{/admin/delivery/{id}/complete(id=${order.orderId})}"
+                      method="post" th:if="${order.deliveryStatus.name == 'SHIPPING'}"
+                      style="display:inline-block;">
+                    <input type="hidden" name="page" th:value="${page}">
+                    <input type="hidden" name="currentDelivery" th:value="${currentDelivery}">
+                    <button type="submit" class="btn btn-primary me-2"
+                            onclick="return confirm('배송 완료 처리하시겠습니까?');">
+                        배송완료 처리
+                    </button>
+                </form>
+
             </div>
+
         </div>
-    </div>
-
-    <!-- 상태 변경 버튼 (폼 POST로 보냄) -->
-    <div class="d-flex justify-content-end mb-5">
-        <form th:action="@{/admin/delivery/{id}/start(id=${order.orderId})}" method="post" th:if="${order.deliveryStatus == 'WAITING'}" style="display:inline-block;">
-            <button type="submit" class="btn btn-success me-2" onclick="return confirm('배송 시작 처리하시겠습니까?');">배송 시작</button>
-        </form>
-
-        <form th:action="@{/admin/delivery/{id}/complete(id=${order.orderId})}" method="post" th:if="${order.deliveryStatus == 'SHIPPING'}" style="display:inline-block;">
-            <button type="submit" class="btn btn-primary me-2" onclick="return confirm('배송 완료 처리하시겠습니까?');">배송완료 처리</button>
-        </form>
-
-        <a th:href="@{/admin/delivery(deliveryStatus=${order.deliveryStatus}, page=${page})}" class="btn btn-secondary">목록</a>
     </div>
 
 </div>

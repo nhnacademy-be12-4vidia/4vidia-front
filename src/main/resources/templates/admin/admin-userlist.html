@@ -182,7 +182,7 @@
             <li class="page-item" th:classappend="${page.first()} ? ' disabled'">
                 <a class="page-link"
                    th:href="@{/admin/users(page=${page.number() - 1}, size=${page.size()}, keyword=${keyword}, status=${status})}">
-                    ‹
+                    <
                 </a>
             </li>
 
@@ -200,7 +200,7 @@
             <li class="page-item" th:classappend="${page.last()} ? ' disabled'">
                 <a class="page-link"
                    th:href="@{/admin/users(page=${page.number() + 1}, size=${page.size()}, keyword=${keyword}, status=${status})}">
-                    ›
+                    >
                 </a>
             </li>
 

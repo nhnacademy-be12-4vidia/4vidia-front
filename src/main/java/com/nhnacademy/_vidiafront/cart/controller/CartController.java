@@ -5,6 +5,7 @@ import com.nhnacademy._vidiafront.cart.dto.request.CartUpdateBookRequest;
 import com.nhnacademy._vidiafront.cart.dto.response.CartResponse;
 import com.nhnacademy._vidiafront.cart.dto.response.GuestCartStatusResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -30,14 +31,20 @@ public class CartController {
         return "cart/cart";
     }
 
-    // 수량 변경
+    /**
+     * 장바구니 수량 변경 - 프론트용 AJAX 엔드포인트
+     */
     @PutMapping("/items/{bookId}")
-    public String updateQuantity(@PathVariable Long bookId,
-                                 CartUpdateBookRequest cartUpdateBookRequest
+    @ResponseBody
+    public ResponseEntity<Void> updateCartItem(
+            @PathVariable Long bookId,
+            @RequestBody CartUpdateBookRequest request
     ) {
-        cartApiClient.updateItem(bookId, cartUpdateBookRequest);
-        return "redirect:/cart";
+        // 여기서 Feign 클라이언트로 "진짜 백엔드(cart-service)" 호출
+        cartApiClient.updateItem(bookId, request);
+        return ResponseEntity.ok().build();
     }
+
 
     // 도서 삭제
     @DeleteMapping("/items/{bookId}")

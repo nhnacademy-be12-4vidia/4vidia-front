@@ -14,4 +14,8 @@ public class OrderItemApiClient {
     public void confirmOrderItem(long orderItemId) {
         backendApiClient.post(ORDER_SERVICE + "/orders/confirm-item", orderItemId, Void.class);
     }
+
+    public void confirmOrder(long orderId) {
+        backendApiClient.put(ORDER_SERVICE + "/orders/confirm-order", orderId, Void.class);
+    }
 }

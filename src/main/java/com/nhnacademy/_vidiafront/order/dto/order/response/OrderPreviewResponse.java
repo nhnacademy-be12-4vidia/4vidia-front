@@ -25,18 +25,19 @@ public record OrderPreviewResponse(
             Boolean isReviewed
     ) { }
 
-
-    // 모든 주문아이템 상태가 UNCONFIRMED이면 true
+    // UNCONFIRMED 상태의 항목이 하나라도 있으면 true (전체 구매 확정 버튼 표시 조건)
     public boolean hasUnconfirmedItems() {
         if (orderItems == null) return false;
         return orderItems.stream()
-                .anyMatch(item -> item.confirmStatus() == null || item.confirmStatus() == ConfirmStatus.UNCONFIRMED);
+                .anyMatch(item -> item.confirmStatus() == ConfirmStatus.UNCONFIRMED);
     }
 
-    public boolean hasUnreturnedItems() {
-        if (orderItems == null) return false;
-        // 반품 신청 가능한 항목 (확정되지 않았거나, 반품 완료 상태가 아닌 항목)
-        return orderItems.stream()
-                .anyMatch(item -> item.confirmStatus() != ConfirmStatus.REFUNDED);
-    }
+    // 반품 신청 가능한 항목 (REFUNDED 또는 REFUND_REQUEST 상태가 아닌 항목)이 하나라도 있으면 true
+//    public boolean hasUnreturnedItems() {
+//        if (orderItems == null) return false;
+//        // 반품 완료 (REFUNDED) 또는 반품 요청 중 (REFUND_REQUEST) 상태가 아닌 항목이 하나라도 있으면 반품 신청 가능
+//        return orderItems.stream()
+//                .anyMatch(item -> item.confirmStatus() != ConfirmStatus.REFUNDED
+//                        && item.confirmStatus() != ConfirmStatus.REFUND_REQUEST);
+//    }
 }

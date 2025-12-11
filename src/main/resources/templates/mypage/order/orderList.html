@@ -203,34 +203,6 @@
                             console.error(`AJAX Error for order ${orderId}: `, status, error);
                         }
                     });
-
-                    /*
-                    // 이전 개별 순차 처리 로직 (주석 처리)
-                    let successCount = 0;
-                    let failureCount = 0;
-
-                    // 개별 항목에 대해 순차적으로 확정 API 호출
-                    for (const item of itemsToConfirm) {
-                        try {
-                            const isSuccess = await confirmSingleItem(item.orderItemId, item.bookId);
-                            if (isSuccess) {
-                                successCount++;
-                            } else {
-                                failureCount++;
-                            }
-                        } catch (error) {
-                            failureCount++;
-                        }
-                    }
-
-                    if (successCount > 0) {
-                        alert(`구매가 확정되었습니다. (${successCount}개 성공, ${failureCount}개 실패)`);
-                        // 성공적으로 처리 후, 전체 구매 확정 버튼을 제거합니다.
-                        $this.closest('.order-actions').find('.btn-confirm-all-purchase').parent().remove();
-                    } else {
-                        alert('구매 확정에 실패했습니다. 자세한 내용은 콘솔을 확인해주세요.');
-                    }
-                    */
                 }
             });
 
@@ -314,23 +286,20 @@
                         <div class="tab-item-label">배송완료</div>
                     </a>
 
-                    <a th:href="@{/mypage/order(status='CANCELED_ONLY')}"
-                       th:classappend="${currentStatus == 'CANCELED_ONLY' ? 'active' : ''}"
+                    <a th:href="@{/mypage/order(status='CANCELED')}" th:classappend="${currentStatus == 'CANCELED' ? 'active' : ''}"
                        class="order-status-tab d-flex flex-column align-items-center justify-content-center">
                         <div class="tab-item-count"
-                             th:text="${statusCounts['CANCELED_ONLY'] != null ? statusCounts['CANCELED_ONLY'] : 0}">0
+                             th:text="${statusCounts['CANCELED'] != null ? statusCounts['CANCELED'] : 0}">0
                         </div>
                         <div class="tab-item-label">취소</div>
                     </a>
 
-                    <a th:href="@{/mypage/order(status='EXCHANGE_RETURN')}"
-                       th:classappend="${currentStatus == 'EXCHANGE_RETURN' ? 'active' : ''}"
+                    <a th:href="@{/mypage/order(status='REFUND_REQUEST')}" th:classappend="${currentStatus == 'REFUND_REQUEST' ? 'active' : ''}"
                        class="order-status-tab d-flex flex-column align-items-center justify-content-center">
                         <div class="tab-item-count"
-                             th:text="${statusCounts['EXCHANGE_RETURN'] != null ? statusCounts['EXCHANGE_RETURN'] : 0}">
-                            0
+                             th:text="${statusCounts['REFUND_REQUEST'] != null ? statusCounts['REFUND_REQUEST'] : 0}"> 0
                         </div>
-                        <div class="tab-item-label">교환/반품 요청</div> </a>
+                        <div class="tab-item-label" th:text="${statusNameMap.get('REFUND_REQUEST')}">반품 요청</div> </a>
 
                 </div>
             </div>
@@ -428,13 +397,6 @@
 
                                 <div class="status-info-wrapper d-flex align-items-center justify-content-center"
                                      style="flex-shrink: 0; width: 100%; height: 38px;"
-                                     th:if="${book.confirmStatus() != null and book.confirmStatus().name() == 'EXCHANGE_REQUEST'}">
-                                    <span class="text-info small font-weight-bold"
-                                          style="width: 100%; text-align: center;">교환 요청 중</span>
-                                </div>
-
-                                <div class="status-info-wrapper d-flex align-items-center justify-content-center"
-                                     style="flex-shrink: 0; width: 100%; height: 38px;"
                                      th:if="${book.confirmStatus() != null and book.confirmStatus().name() == 'REFUNDED'}">
                                     <span class="text-danger small font-weight-bold"
                                           style="width: 100%; text-align: center;">반품 완료</span>
@@ -456,7 +418,7 @@
                             주문 취소
                         </a>
 
-                        <a th:if="${order.deliveryStatus().name() == 'DELIVERED' and order.hasUnreturnedItems()}"
+                        <a th:if="${order.deliveryStatus().name() == 'DELIVERED' and order.hasUnconfirmedItems()}"
                            th:href="@{/orders/{orderId}/refund(orderId=${order.orderId()})}"
                            class="btn btn-outline-secondary btn-return-request" style="flex: 1;">
                             반품 신청

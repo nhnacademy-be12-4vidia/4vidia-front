@@ -11,7 +11,11 @@ public record BookListResponse(
         List<String> authorNames,
         String publisherName,
         String imageUrl,
-        boolean liked
+        boolean liked,
+        Integer rank,
+        Double relevanceScore,
+        boolean recommended,
+        String llmSummary
 ) {
 
 }

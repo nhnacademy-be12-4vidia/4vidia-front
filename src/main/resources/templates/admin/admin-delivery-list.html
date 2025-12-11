@@ -46,6 +46,17 @@
                        th:href="@{/admin/delivery(deliveryStatus='CANCELED', page=${page.number}, size=${page.size})}">주문취소</a>
                 </li>
             </ul>
+            <!-- 🔍 검색 폼 -->
+            <form th:action="@{/admin/delivery}" method="get" class="d-inline-flex mt-2">
+                <input type="hidden" name="deliveryStatus" th:value="${currentDelivery}"/>
+                <input type="text"
+                       name="keyword"
+                       class="form-control form-control-sm me-2"
+                       style="width: 260px;"
+                       placeholder="주문ID / 회원ID 검색"
+                       th:value="${keyword}">
+                <button class="btn btn-sm btn-primary">검색</button>
+            </form>
         </div>
 
         <!-- 페이지 크기 -->
@@ -114,7 +125,7 @@
         <ul class="pagination pagination-sm justify-content-center">
             <li class="page-item" th:classappend="${page.first} ? ' disabled'">
                 <a class="page-link"
-                   th:href="@{/admin/delivery(deliveryStatus=${currentDelivery}, page=${page.number - 1}, size=${page.size})}">
+                   th:href="@{/admin/delivery(deliveryStatus=${currentDelivery}, keyword=${keyword},page=${page.number - 1}, size=${page.size})}">
                     <
                 </a>
             </li>
@@ -123,11 +134,11 @@
                 th:classappend="${p == page.number} ? ' active'">
                 <a class="page-link"
                    th:text="${p + 1}"
-                   th:href="@{/admin/delivery(deliveryStatus=${currentDelivery}, page=${p}, size=${page.size})}"></a>
+                   th:href="@{/admin/delivery(deliveryStatus=${currentDelivery},keyword=${keyword}, page=${p}, size=${page.size})}"></a>
             </li>
 
             <li class="page-item" th:classappend="${page.last} ? ' disabled'">
-                <a class="page-link" th:href="@{/admin/delivery(deliveryStatus=${currentDelivery}, page=${page.number + 1}, size=${page.size})}">
+                <a class="page-link" th:href="@{/admin/delivery(deliveryStatus=${currentDelivery},keyword=${keyword}, page=${page.number + 1}, size=${page.size})}">
                     >
                 </a>
             </li>

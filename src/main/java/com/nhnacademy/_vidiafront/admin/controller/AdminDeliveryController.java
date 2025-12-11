@@ -23,15 +23,17 @@ public class AdminDeliveryController {
     @GetMapping
     public String deliveryList(
             @RequestParam(required = false, defaultValue = "WAITING") String deliveryStatus,
+            @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size,
             Model model
     ) {
-        AdminDeliverySearchRequest request = new AdminDeliverySearchRequest(deliveryStatus, page, size);
+        AdminDeliverySearchRequest request = new AdminDeliverySearchRequest(keyword,deliveryStatus, page, size);
         AdminDeliveryPageResponse pageResponse = deliveryApiClient.getOrderPage(request);
 
         model.addAttribute("page", pageResponse);
         model.addAttribute("currentDelivery", deliveryStatus);
+        model.addAttribute("keyword", keyword);
 
         return "admin/admin-delivery-list";
     }

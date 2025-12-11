@@ -30,6 +30,12 @@ public class AdminDeliveryApiClient {
             builder.queryParam("deliveryStatus", deliveryStatus);
         }
 
+
+        String keyword = request.keywordOrNull();
+        if (keyword != null) {
+            builder.queryParam("keyword", keyword);
+        }
+
         String url = builder.toUriString();
         return backendApiClient.get(url, new ParameterizedTypeReference<>(){});
     }

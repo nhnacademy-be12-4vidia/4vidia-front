@@ -2,6 +2,7 @@ package com.nhnacademy._vidiafront.book.client;
 
 import com.nhnacademy._vidiafront.book.dto.books.request.BookBestRequest;
 import com.nhnacademy._vidiafront.book.dto.books.request.BookSearchRequest;
+import com.nhnacademy._vidiafront.book.dto.books.response.AiBookSearchResponse;
 import com.nhnacademy._vidiafront.book.dto.books.response.BookDetailWithReviewResponse;
 import com.nhnacademy._vidiafront.book.dto.books.response.BookListResponse;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
@@ -60,6 +61,43 @@ public class BookApiClient {
         return backendApiClient.get(
             url,
             new ParameterizedTypeReference<PageResponse<BookListResponse>>() {}
+        );
+    }
+
+    public AiBookSearchResponse searchBooksWithLlm(BookSearchRequest request, int page, int size) {
+
+        StringBuilder urlBuilder = new StringBuilder();
+        urlBuilder.append(BOOK_SERVICE).append("/books/search/ai");
+
+        urlBuilder.append("?keyword=");
+        if (request.keyword() != null) {
+            urlBuilder.append(request.keyword());
+        }
+
+        urlBuilder.append("&page=").append(page);
+        urlBuilder.append("&size=").append(size);
+
+        if (request.sort() != null) {
+            urlBuilder.append("&sort=").append(request.sort());
+        }
+        if (request.categoryId() != null) {
+            urlBuilder.append("&categoryId=").append(request.categoryId());
+        }
+        if (request.minPrice() != null) {
+            urlBuilder.append("&minPrice=").append(request.minPrice());
+        }
+        if (request.maxPrice() != null) {
+            urlBuilder.append("&maxPrice=").append(request.maxPrice());
+        }
+        if (Boolean.TRUE.equals(request.useSemantic())) {
+            urlBuilder.append("&useSemantic=true");
+        }
+
+        String url = urlBuilder.toString();
+
+        return backendApiClient.get(
+            url,
+            AiBookSearchResponse.class
         );
     }
 

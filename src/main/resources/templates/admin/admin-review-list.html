@@ -200,12 +200,14 @@
                             더보기
                         </button>
                         <!-- 리뷰 이미지 썸네일 -->
-                        <div class="review-image-list" th:if="${r.hasPhoto}">
-                            <img th:each="imgUrl, iter : ${r.imageUrls}"
-                                 th:if="${iter.index < 3}"
-                                 th:src="${imgUrl}"
+                        <div class="mt-2"
+                             th:if="${r.imageUrls != null and !#lists.isEmpty(r.imageUrls)}">
+
+                            <img th:each="imgUrl : ${r.imageUrls}"
+                                 th:src="@{/proxy(url=${imgUrl})}"
                                  alt="리뷰 이미지"
-                                 class="review-thumb">
+                                 class="img-thumbnail me-2 mb-2"
+                                 style="width: 80px; height: 80px; object-fit: cover;">
                         </div>
 
                     </td>

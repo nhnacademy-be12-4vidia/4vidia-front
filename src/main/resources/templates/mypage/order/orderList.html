@@ -336,7 +336,7 @@
                         </a>
 
                         <a th:if="${order.deliveryStatus().name() == 'DELIVERED'}"
-                           th:href="@{/orders/{orderId}/return(orderId=${order.orderId()})}"
+                           th:href="@{/orders/{orderId}/refund(orderId=${order.orderId()})}"
                            class="btn btn-outline-secondary flex-grow-1 btn-return-request" style="flex: 1;">
                             반품 신청
                         </a>

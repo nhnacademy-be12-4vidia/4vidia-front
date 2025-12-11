@@ -118,8 +118,7 @@ public class AuthController {
      */
     @PostMapping("/signup")
     public String signup(UserSignupRequest userSignupRequest) {
-        Long userId = authApiClient.signup(userSignupRequest);
-        pointApiClient.rewardByPolicy(new PointPolicyRewardRequest(userId, 1L));
+        authApiClient.signup(userSignupRequest);
         return "redirect:/auth/login";
     }
 

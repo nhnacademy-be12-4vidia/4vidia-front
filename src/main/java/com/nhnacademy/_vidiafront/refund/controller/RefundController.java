@@ -28,7 +28,6 @@ public class RefundController {
     @PostMapping("/refunds")
     public String refundRegister(RefundRequest refundRequest){
         refundApiClient.refundRegister(refundRequest);
-//        return "redirect:/mypage/order?status=EXCHANGE_RETURN"; 어디로 가야하죠
-        return "/mypage/order/orderList";
+        return "redirect:/mypage/order?status=DELIVERED";
     }
 }

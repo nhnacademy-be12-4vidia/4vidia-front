@@ -2,7 +2,7 @@
 <html lang="ko"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{admin-layout}">
+      layout:decorate="~{admin/admin-layout}">
 <head>
     <meta charset="utf-8">
     <title>관리자 - 반품 관리</title>
@@ -23,17 +23,45 @@
     </div>
 
     <!-- 탭: 신청 / 승인 / 거절 -->
-    <div class="mb-3">
-        <div class="btn-group" role="group" aria-label="Return status tabs">
-            <a th:href="@{/admin/returns(status='REQUEST')}"
-               th:classappend="${status == 'REQUEST'} ? ' btn btn-primary' : ' btn btn-outline-primary'"
-               class="btn">신청</a>
-            <a th:href="@{/admin/returns(status='APPROVED')}"
-               th:classappend="${status == 'APPROVED'} ? ' btn btn-primary' : ' btn btn-outline-primary'"
-               class="btn">승인</a>
-            <a th:href="@{/admin/returns(status='REJECTED')}"
-               th:classappend="${status == 'REJECTED'} ? ' btn btn-primary' : ' btn btn-outline-primary'"
-               class="btn">거절</a>
+    <div class="btn-group" role="group">
+        <a th:href="@{/admin/refunds(refundStatus='PROCESS')}"
+           th:classappend="${status == 'PROCESS'} ? ' btn btn-primary' : ' btn btn-outline-primary'"
+           class="btn">신청</a>
+
+        <a th:href="@{/admin/refunds(refundStatus='ACCEPT')}"
+           th:classappend="${status == 'ACCEPT'} ? ' btn btn-primary' : ' btn btn-outline-primary'"
+           class="btn">승인</a>
+
+        <a th:href="@{/admin/refunds(refundStatus='REJECT')}"
+           th:classappend="${status == 'REJECT'} ? ' btn btn-primary' : ' btn btn-outline-primary'"
+           class="btn">거절</a>
+    </div>
+
+
+    <!-- 검색 폼 (status 유지) -->
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <form th:action="@{/admin/refunds}" method="get" class="d-inline-flex mt-2">
+                <input type="hidden" name="refundStatus" th:value="${status}"/>
+                <input type="text" name="keyword" class="form-control form-control-sm me-2"
+                       style="width: 260px;" placeholder="주문ID / 회원이메일 검색" th:value="${keyword}">
+                <button class="btn btn-sm btn-primary">검색</button>
+            </form>
+
+        </div>
+
+        <!-- 페이지 크기 선택 -->
+        <div class="col-md-4 text-end">
+            <form th:action="@{/admin/refunds}" method="get" class="d-inline-flex">
+                <input type="hidden" name="status" th:value="${status}"/>
+                <input type="hidden" name="keyword" th:value="${keyword}"/>
+                <select name="size" class="form-select form-select-sm me-2" style="width:100px;">
+                    <option th:selected="${refundsPage.size()==10}" value="10">10</option>
+                    <option th:selected="${refundsPage.size()==20}" value="20">20</option>
+                    <option th:selected="${refundsPage.size()==50}" value="50">50</option>
+                </select>
+                <button class="btn btn-sm btn-outline-primary">적용</button>
+            </form>
         </div>
     </div>
 
@@ -44,72 +72,69 @@
                 <table class="table table-hover">
                     <thead class="thead-light">
                     <tr>
-                        <th style="width: 80px;">#</th>
-                        <th>주문번호 / 주문자</th>
-                        <th>선택 항목</th>
-                        <th>사유</th>
+                        <th>반품번호</th>
+                        <th>주문번호</th>
+                        <th>회원이메일 / 회원이름</th>
                         <th>신청일</th>
                         <th>상태</th>
                         <th style="width: 160px;">동작</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="r,iterStat : ${returnsPage.content}" th:data-id="${r.returnId}">
-                        <td th:text="${iterStat.index + 1 + (returnsPage.number * returnsPage.size)}">1</td>
+                    <tr th:if="${#lists.isEmpty(refundsPage.content)}">
+                        <td colspan="6" class="text-center py-4 text-muted">조회된 반품이 없습니다.</td>
+                    </tr>
+
+                    <tr th:each="r,iterStat : ${refundsPage.content}" th:data-id="${r.refundId}">
+                        <td th:text="${r.refundId}">1</td>
+                        <td th:text="${r.orderId}">ORD-1</td>
 
                         <td>
-                            <div><strong th:text="${r.orderId}">ORD-1</strong></div>
-                            <div class="text-muted small" th:text="${r.requesterEmail}">user@example.com</div>
+                            <strong class="text-muted small" th:text="${r.email}">user@example.com</strong>
+                            <div class="text-muted small" th:text="${r.name}">회원이름</div>
                         </td>
+                        <td th:text="${#temporals.format(r.createdAt, 'yyyy-MM-dd HH:mm')}">2025-01-01</td>
 
                         <td>
-                            <div th:if="${#lists.isEmpty(r.items)}">전체반품</div>
-                            <ul class="mb-0" th:if="${!#lists.isEmpty(r.items)}">
-                                <li th:each="it : ${r.items}" th:text="${it.title + ' (수량:' + it.quantity + ')'}">책</li>
-                            </ul>
-                        </td>
-
-                        <td th:text="${#strings.abbreviate(r.reason, 0, 40)}">반품 사유</td>
-
-                        <td th:text="${#dates.format(r.requestedAt, 'yyyy-MM-dd HH:mm')}">2025-01-01</td>
-
-                        <td>
-                            <span th:text="${r.status}" th:classappend="' status-badge status-' + r.status"></span>
+                            <span th:text="${r.refundStatus}" th:classappend="' status-badge status-' + r.refundStatus"></span>
                         </td>
 
                         <td>
                             <!-- 상세보기: 모달로 표시 (fragment 호출하지 않고 JS로 fetch) -->
                             <button type="button" class="btn btn-sm btn-outline-primary btn-view-detail"
-                                    th:attr="data-return-id=${r.returnId}">
+                                    th:attr="data-refund-id=${r.refundId}">
                                 상세보기
                             </button>
-
-                            <!-- 빠른 승인/거절 -->
-                            <button type="button" class="btn btn-sm btn-success btn-approve"
-                                    th:if="${r.status == 'REQUEST'}"
-                                    th:attr="data-return-id=${r.returnId}">승인</button>
-
-                            <button type="button" class="btn btn-sm btn-danger btn-reject"
-                                    th:if="${r.status == 'REQUEST'}"
-                                    th:attr="data-return-id=${r.returnId}">거절</button>
                         </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
 
-            <!-- 페이징 (간단) -->
-            <nav th:if="${returnsPage.totalPages > 1}">
-                <ul class="pagination">
-                    <li class="page-item" th:classappend="${returnsPage.first} ? ' disabled'">
-                        <a class="page-link" th:href="@{/admin/returns(status=${status}, page=${returnsPage.number - 1})}">‹</a>
+            <!-- 새 페이지네이션 스타일 -->
+            <nav th:if="${refundsPage.totalPages > 1}" class="mt-3">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item" th:classappend="${refundsPage.page == 0} ? ' disabled'">
+                        <a class="page-link"
+                           th:href="@{/admin/refunds(refundStatus=${status}, keyword=${keyword}, page=${refundsPage.page - 1}, size=${refundsPage.size})}">
+                            이전
+                        </a>
                     </li>
-                    <li class="page-item" th:each="p : ${#numbers.sequence(0, ${returnsPage.totalPages} -1)}"
-                        th:classappend="${p == returnsPage.number} ? ' active'">
-                        <a class="page-link" th:href="@{/admin/returns(status=${status}, page=${p})}" th:text="${p + 1}">1</a>
+
+                    <li class="page-item"
+                        th:each="i : ${#numbers.sequence(0, refundsPage.totalPages - 1)}"
+                        th:classappend="${i == refundsPage.page} ? ' active'">
+                        <a class="page-link"
+                           th:text="${i + 1}"
+                           th:href="@{/admin/refunds(refundStatus=${status}, keyword=${keyword}, page=${i}, size=${refundsPage.size})}">
+                        </a>
                     </li>
-                    <li class="page-item" th:classappend="${returnsPage.last} ? ' disabled'">
-                        <a class="page-link" th:href="@{/admin/returns(status=${status}, page=${returnsPage.number + 1})}">›</a>
+
+                    <li class="page-item" th:classappend="${refundsPage.size + 1 >= refundsPage.totalPages} ? ' disabled'">
+                        <a class="page-link"
+                           th:href="@{/admin/refunds(refundStatus=${status}, keyword=${keyword}, page=${refundsPage.size + 1}, size=${refundsPage.size})}">
+                            다음
+                        </a>
                     </li>
                 </ul>
             </nav>
@@ -118,10 +143,9 @@
     </div>
 
     <!-- 모달 프래그먼트 포함 -->
-    <div th:replace="~{admin-refund-detail:: returnDetailModal}"></div>
+    <div th:replace="~{admin/admin-refund-detail::returnDetailModal}"></div>
 
 </div>
 
-<script th:src="@{/customJs/admin-refund.js}"></script>
 </body>
 </html>

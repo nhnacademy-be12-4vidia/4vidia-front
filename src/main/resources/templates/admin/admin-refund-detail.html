@@ -1,36 +1,24 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <body>
-<div th:fragment="returnDetailModal">
-    <div class="modal" id="returnDetailModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">반품 상세</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="modalCloseBtn"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="modalContent">
-                        <div class="mb-2"><strong>반품 ID:</strong> <span id="m-returnId"></span></div>
-                        <div class="mb-2"><strong>주문번호:</strong> <span id="m-orderId"></span></div>
-                        <div class="mb-2"><strong>요청자:</strong> <span id="m-requesterEmail"></span></div>
-                        <div class="mb-2"><strong>선택 항목:</strong>
-                            <ul id="m-itemsList" class="mb-2"></ul>
-                        </div>
-                        <div class="mb-2"><strong>사유:</strong> <div id="m-reason" class="border rounded p-2 bg-light"></div></div>
-                        <div class="mb-2"><strong>반품 타입:</strong> <span id="m-returnType"></span></div>
-                        <div class="mb-2"><strong>요청일:</strong> <span id="m-requestedAt"></span></div>
+    <div th:fragment="returnDetailModal">
+        <div class="modal fade" id="refundDetailModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">반품 상세</h5>
                     </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-success" id="modalApproveBtn">반품 승인</button>
-                    <button type="button" class="btn btn-danger" id="modalRejectBtn">반품 거절</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                    <div class="modal-body">
+                        <div id="refund-detail-body">로딩중...</div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="modal-accept-btn" type="button" class="btn btn-success d-none">승인</button>
+                        <button id="modal-reject-btn" type="button" class="btn btn-danger d-none">거절</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 </body>
 </html>

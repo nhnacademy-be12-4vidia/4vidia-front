@@ -1,12 +1,12 @@
 package com.nhnacademy._vidiafront.admin.client;
 
 import com.nhnacademy._vidiafront.admin.dto.request.AdminReviewSearchRequest;
-import com.nhnacademy._vidiafront.admin.dto.response.AdminReviewPageResponse;
+import com.nhnacademy._vidiafront.admin.dto.response.AdminReviewResponse;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
+import com.nhnacademy._vidiafront.global.dto.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 @RequiredArgsConstructor
@@ -20,7 +20,7 @@ public class AdminReviewApiClient {
      * 관리자 리뷰 목록 조회 (검색 + 페이징)
      */
 
-    public AdminReviewPageResponse getReviewPage(AdminReviewSearchRequest cond) {
+    public PageResponse<AdminReviewResponse> getReviewPage(AdminReviewSearchRequest cond) {
 
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append(REVIEW_SERVICE).append("/admin/reviews");
@@ -36,12 +36,11 @@ public class AdminReviewApiClient {
         if(cond.ratingOrNull() != null){
             urlBuilder.append("&rating=").append(cond.ratingOrNull());
         }
-
         String url = urlBuilder.toString();
 
         return backendApiClient.get(
                 url,
-                new ParameterizedTypeReference<AdminReviewPageResponse>() {}
+                new ParameterizedTypeReference<>() {}
         );
 
 

@@ -3,8 +3,8 @@ package com.nhnacademy._vidiafront.admin.controller;
 
 import com.nhnacademy._vidiafront.admin.client.AdminUserApiClient;
 import com.nhnacademy._vidiafront.admin.dto.request.AdminUserSearchRequest;
-import com.nhnacademy._vidiafront.admin.dto.response.AdminUserPageResponse;
 import com.nhnacademy._vidiafront.admin.dto.response.AdminUserResponse;
+import com.nhnacademy._vidiafront.global.dto.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,7 +28,7 @@ public class AdminUserController {
             Model model
     ){
         AdminUserSearchRequest cond = new AdminUserSearchRequest(keyword, status, page, size);
-        AdminUserPageResponse pageResponse = adminUserClient.getUserPage(cond);
+        PageResponse<AdminUserResponse> pageResponse = adminUserClient.getUserPage(cond);
 
         model.addAttribute("users", pageResponse.content());
         model.addAttribute("page", pageResponse);

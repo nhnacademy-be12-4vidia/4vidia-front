@@ -15,15 +15,11 @@
             gap: .5rem;
             align-items: center;
         }
-        .order-meta small { color: #6c757d; }
-        .muted-small { font-size: .85rem; color: #6c757d; }
-        /* 체크박스 영역 스타일 조금 정리 */
         .item-check-wrap { display:flex; align-items:center; gap: .75rem; }
         .item-check-wrap .book-title { font-weight:600; color:#333; }
         .item-check-wrap .book-qty { color:#6c757d; font-size:.9rem; }
-        @media (max-width: 576px) {
-            .item-check-wrap { gap: .5rem; }
-        }
+        @media (max-width: 576px) { .item-check-wrap { gap: .5rem; } }
+        .d-none { display: none !important; }
     </style>
 </head>
 <body>
@@ -39,55 +35,52 @@
             <div class="card shadow-sm">
                 <div class="card-body">
                     <form id="returnForm" th:action="@{/refunds}" method="post" novalidate>
-                        <!-- 주문 아이디 숨김 -->
                         <input type="hidden" name="orderId" th:value="${order.orderId}"/>
 
-                        <!-- 2) 반품 사유 -->
+                        <!-- reason 섹션 (항상 보이도록 변경) -->
                         <div class="form-section">
                             <label for="reason" class="form-label fw-bold">반품 사유</label>
                             <textarea id="reason" name="reason" class="form-control" rows="5"
-                                      placeholder="반품 사유를 구체적으로 작성해 주세요 (예: 책 겉면 파손, 내용 누락 등)" required></textarea>
-                            <div class="form-text text-muted">최소한의 설명을 남겨 주세요. (관리자 처리에 도움이 됩니다)</div>
+                                      placeholder="반품 사유를 작성해 주세요 (선택사항)"></textarea>
+                            <div class="form-text text-muted">파손/불량일 경우 상세히 적어주시면 처리에 도움이 됩니다.</div>
                         </div>
 
-                        <!-- 3) 반품 상태 -->
                         <div class="form-section">
                             <label class="form-label fw-bold d-block">반품 유형</label>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="returnType" id="typeSimple" value="SIMPLE" checked>
+                                <input class="form-check-input" type="radio" name="damaged" id="typeSimple" value="false" checked>
                                 <label class="form-check-label" for="typeSimple">단순 변심</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="returnType" id="typeDamaged" value="DAMAGED">
+                                <input class="form-check-input" type="radio" name="damaged" id="typeDamaged" value="true">
                                 <label class="form-check-label" for="typeDamaged">파손/불량</label>
                             </div>
                             <div class="form-text text-muted mt-1">파손으로 선택 시 관리자가 추가 확인을 요청할 수 있습니다.</div>
                         </div>
 
-                        <!-- 제출 버튼 -->
                         <div class="d-flex justify-content-end mt-3">
-                            <a th:href="@{/mypage/order}" class="btn btn-outline-secondary me-2">취소</a>
+                            <a th:href="@{/mypage/order}" class="btn btn-outline-secondary mr-2">취소</a>
                             <button type="submit" class="btn btn-primary">반품 신청하기</button>
                         </div>
-
                     </form>
                 </div>
             </div>
         </div>
 
-        <!-- 오른쪽: 주문 요약 + 체크박스 (선택 소스) -->
+        <!-- 오른쪽: 주문 항목 체크박스 -->
         <div class="col-12 col-lg-4">
             <div class="card order-summary shadow-sm">
                 <div class="card-body">
                     <h6 class="mb-2">주문 항목</h6>
                     <ul class="list-group mb-3">
-                        <!-- 각 항목 옆에 체크박스 노출 -->
                         <li class="list-group-item" th:each="it : ${order.orderItems}">
                             <div class="item-check-wrap">
                                 <input type="checkbox"
                                        class="form-check-input item-checkbox"
-                                       th:id="${'item-' + it.bookId}"
-                                       th:value="${it.bookId}">
+                                       name="orderItemIds"
+                                       form="returnForm"
+                                th:id="${'item-' + it.orderItemId}"
+                                th:value="${it.orderItemId}">
                                 <div>
                                     <div class="book-title" th:text="${it.bookTitle}">책 제목</div>
                                     <div class="book-qty" th:text="'수량: ' + ${it.quantity}">수량: 1</div>
@@ -107,50 +100,33 @@
     </div>
 </div>
 
-<!-- 스크립트: 오른쪽 체크박스 선택은 UI에 표시하지 않음. 제출 시 itemsIds 생성 및 유효성 검사만 수행 -->
+<!-- 간단한 검증 스크립트: 최소 하나 선택했는지 확인 -->
 <script th:inline="javascript">
     (function(){
-        document.addEventListener('DOMContentLoaded', function () {
+        function initReturnForm() {
             const form = document.getElementById('returnForm');
+            if (!form) return;
 
-            function getItemCheckboxes() {
-                return Array.from(document.querySelectorAll('input.item-checkbox'));
-            }
+            form.addEventListener('submit', function(e) {
+                // 체크된 항목 수집 (체크박스에 name="orderItemIds"가 있으므로 hidden 생성 불필요)
+                const selected = Array.from(document.querySelectorAll('input.item-checkbox'))
+                    .filter(cb => cb.checked)
+                    .map(cb => cb.value);
 
-            // form submit: itemsIds hidden 생성 + validation
-            if (form) {
-                form.addEventListener('submit', function (e) {
-                    // 제거: 기존 hidden itemsIds
-                    Array.from(form.querySelectorAll('input[name="itemsIds"]')).forEach(i => i.remove());
+                if (selected.length === 0) {
+                    e.preventDefault();
+                    alert('반품할 항목을 하나 이상 선택해 주세요.');
+                    return;
+                }
 
-                    const selected = getItemCheckboxes().filter(b => b.checked).map(b => b.value);
+            });
+        }
 
-                    if (selected.length === 0) {
-                        e.preventDefault();
-                        alert('반품할 항목을 하나 이상 선택해 주세요.');
-                        return;
-                    }
-
-                    const reason = document.getElementById('reason')?.value?.trim();
-                    if (!reason) {
-                        e.preventDefault();
-                        alert('반품 사유를 작성해 주세요.');
-                        return;
-                    }
-
-                    // hidden inputs 생성 (itemsIds)
-                    selected.forEach(val => {
-                        const input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = 'itemsIds'; // 서버에서 List<Long> itemsIds로 받는 경우 OK
-                        input.value = val;
-                        form.appendChild(input);
-                    });
-
-                    // 폼 제출 계속
-                });
-            }
-        });
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initReturnForm);
+        } else {
+            initReturnForm();
+        }
     })();
 </script>
 </body>

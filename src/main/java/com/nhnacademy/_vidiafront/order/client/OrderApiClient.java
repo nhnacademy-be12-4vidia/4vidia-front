@@ -9,11 +9,9 @@ import com.nhnacademy._vidiafront.order.dto.order.response.OrderCheckoutResponse
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderCreateResponse;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderPreviewResponse;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderResponse;
-import com.nhnacademy._vidiafront.order.dto.refund.RefundResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
 
 import java.util.List;
 
@@ -55,12 +53,5 @@ public class OrderApiClient {
 
     public OrderResponse getGuestOrder(OrderTrackingRequest orderTrackingRequest) {
         return backendApiClient.post(ORDER_SERVICE + "/orders/guest", orderTrackingRequest, OrderResponse.class);
-    }
-
-    /**
-     * 반품
-     */
-    public RefundResponse getRefundList(long orderId){
-        return backendApiClient.get(ORDER_SERVICE + "/orders/" + orderId + "/refunds" , RefundResponse.class);
     }
 }

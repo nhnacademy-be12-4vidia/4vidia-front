@@ -1,4 +1,4 @@
-package com.nhnacademy._vidiafront.order.dto.refund;
+package com.nhnacademy._vidiafront.refund.dto.response;
 
 public record OrderItemResponse(
         Long orderItemId,

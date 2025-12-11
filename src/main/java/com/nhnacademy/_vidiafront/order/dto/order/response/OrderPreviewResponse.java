@@ -24,4 +24,19 @@ public record OrderPreviewResponse(
             ConfirmStatus confirmStatus,
             Boolean isReviewed
     ) { }
+
+
+    // 모든 주문아이템 상태가 UNCONFIRMED이면 true
+    public boolean hasUnconfirmedItems() {
+        if (orderItems == null) return false;
+        return orderItems.stream()
+                .anyMatch(item -> item.confirmStatus() == null || item.confirmStatus() == ConfirmStatus.UNCONFIRMED);
+    }
+
+    public boolean hasUnreturnedItems() {
+        if (orderItems == null) return false;
+        // 반품 신청 가능한 항목 (확정되지 않았거나, 반품 완료 상태가 아닌 항목)
+        return orderItems.stream()
+                .anyMatch(item -> item.confirmStatus() != ConfirmStatus.REFUNDED);
+    }
 }

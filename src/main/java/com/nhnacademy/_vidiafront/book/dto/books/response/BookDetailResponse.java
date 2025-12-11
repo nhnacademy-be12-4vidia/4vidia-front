@@ -27,7 +27,10 @@ public record BookDetailResponse(
     List<AuthorInfo> authors,
     Integer volumeNumber,
     List<String> imageUrls,
-    List<String> tags
+    List<String> tags,
+
+    Long reviewCount,
+    Double avgRating
 ) {
 
     public record PublisherInfo(

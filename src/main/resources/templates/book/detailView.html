@@ -192,6 +192,22 @@
               </span>
                         </div>
 
+                        <div class="mb-2">
+                            <span th:if="${book.reviewCount == null or book.reviewCount == 0}">
+                                아직 작성된 리뷰가 없습니다.
+                            </span>
+                            <span th:if="${book.reviewCount != null and book.reviewCount > 0}">
+                                평점
+                                <strong th:text="${#numbers.formatDecimal(book.avgRating, 1, 1)}">0.0</strong>
+                                / 5
+                                <span class="text-muted small">
+                                    (
+                                    <span th:text="${book.reviewCount}">0</span>
+                                    건)
+                                </span>
+                            </span>
+                        </div>
+
                         <div class="mb-3">
               <span class="badge bg-light text-dark border"
                     th:text="${book.packagingAvailable ? '선물 포장 가능' : '포장 불가 또는 정보 없음'}">

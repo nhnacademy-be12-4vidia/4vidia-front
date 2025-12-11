@@ -162,9 +162,12 @@
 
                     <!-- 도서 정보 -->
                     <td>
-                        <div class="fw-semibold text-primary" th:text="${r.bookTitle}">
-                            도서 제목
-                        </div>
+                        <a th:href="@{/books/{bookId}(bookId=${r.bookId})}"
+                           class="text-decoration-none">
+                            <div class="fw-semibold text-primary" th:text="${r.bookTitle}">
+                                도서 제목
+                            </div>
+                        </a>
                         <div class="small text-muted" th:text="'ID: ' + ${r.bookId}">
                             ID: 0
                         </div>

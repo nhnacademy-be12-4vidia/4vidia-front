@@ -2,9 +2,9 @@ package com.nhnacademy._vidiafront.admin.client;
 
 import com.nhnacademy._vidiafront.admin.dto.request.AdminUserSearchRequest;
 import com.nhnacademy._vidiafront.admin.dto.request.UpdateUserStatusRequest;
-import com.nhnacademy._vidiafront.admin.dto.response.AdminUserPageResponse;
 import com.nhnacademy._vidiafront.admin.dto.response.AdminUserResponse;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
+import com.nhnacademy._vidiafront.global.dto.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
@@ -20,7 +20,7 @@ public class AdminUserApiClient {
     /**
      * 관리자 회원 목록 조회 ( 검색 + 페이징 )
      */
-    public AdminUserPageResponse getUserPage(AdminUserSearchRequest cond){
+    public PageResponse<AdminUserResponse> getUserPage(AdminUserSearchRequest cond){
         var builder = UriComponentsBuilder
                 .fromPath(USER_SERVICE + "/admin/users")
                 .queryParam("page", cond.pageOrDefault())

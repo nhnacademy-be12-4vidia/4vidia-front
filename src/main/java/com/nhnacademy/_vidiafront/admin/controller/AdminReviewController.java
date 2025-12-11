@@ -1,7 +1,8 @@
 package com.nhnacademy._vidiafront.admin.controller;
 import com.nhnacademy._vidiafront.admin.client.AdminReviewApiClient;
 import com.nhnacademy._vidiafront.admin.dto.request.AdminReviewSearchRequest;
-import com.nhnacademy._vidiafront.admin.dto.response.AdminReviewPageResponse;
+import com.nhnacademy._vidiafront.admin.dto.response.AdminReviewResponse;
+import com.nhnacademy._vidiafront.global.dto.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,7 +28,7 @@ public class AdminReviewController {
             Model model
     ) {
         AdminReviewSearchRequest cond = new AdminReviewSearchRequest(keyword, rating, page, size);
-        AdminReviewPageResponse pageResponse = adminReviewApiClient.getReviewPage(cond);
+        PageResponse<AdminReviewResponse> pageResponse = adminReviewApiClient.getReviewPage(cond);
 
         model.addAttribute("page", pageResponse);
         model.addAttribute("keyword", keyword);

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin-layout}">
+<head>
+    <meta charset="utf-8">
+    <title>관리자 - 반품 관리</title>
+    <link th:href="@{/css/sb-admin-2.min.css}" rel="stylesheet">
+    <style>
+        .tab-btn { cursor: pointer; }
+        .status-badge { border-radius: 999px; padding: 4px 10px; font-size:0.85rem; }
+        .status-REQUEST { background:#f0ad4e; color:white; } /* 신청 */
+        .status-APPROVED { background:#198754; color:white; } /* 승인 */
+        .status-REJECTED { background:#dc3545; color:white; } /* 거절 */
+    </style>
+</head>
+<body>
+<div layout:fragment="pageContent" class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-gray-800 mb-0">반품 관리</h1>
+    </div>
+
+    <!-- 탭: 신청 / 승인 / 거절 -->
+    <div class="mb-3">
+        <div class="btn-group" role="group" aria-label="Return status tabs">
+            <a th:href="@{/admin/returns(status='REQUEST')}"
+               th:classappend="${status == 'REQUEST'} ? ' btn btn-primary' : ' btn btn-outline-primary'"
+               class="btn">신청</a>
+            <a th:href="@{/admin/returns(status='APPROVED')}"
+               th:classappend="${status == 'APPROVED'} ? ' btn btn-primary' : ' btn btn-outline-primary'"
+               class="btn">승인</a>
+            <a th:href="@{/admin/returns(status='REJECTED')}"
+               th:classappend="${status == 'REJECTED'} ? ' btn btn-primary' : ' btn btn-outline-primary'"
+               class="btn">거절</a>
+        </div>
+    </div>
+
+    <!-- 리스트 -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="thead-light">
+                    <tr>
+                        <th style="width: 80px;">#</th>
+                        <th>주문번호 / 주문자</th>
+                        <th>선택 항목</th>
+                        <th>사유</th>
+                        <th>신청일</th>
+                        <th>상태</th>
+                        <th style="width: 160px;">동작</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="r,iterStat : ${returnsPage.content}" th:data-id="${r.returnId}">
+                        <td th:text="${iterStat.index + 1 + (returnsPage.number * returnsPage.size)}">1</td>
+
+                        <td>
+                            <div><strong th:text="${r.orderId}">ORD-1</strong></div>
+                            <div class="text-muted small" th:text="${r.requesterEmail}">user@example.com</div>
+                        </td>
+
+                        <td>
+                            <div th:if="${#lists.isEmpty(r.items)}">전체반품</div>
+                            <ul class="mb-0" th:if="${!#lists.isEmpty(r.items)}">
+                                <li th:each="it : ${r.items}" th:text="${it.title + ' (수량:' + it.quantity + ')'}">책</li>
+                            </ul>
+                        </td>
+
+                        <td th:text="${#strings.abbreviate(r.reason, 0, 40)}">반품 사유</td>
+
+                        <td th:text="${#dates.format(r.requestedAt, 'yyyy-MM-dd HH:mm')}">2025-01-01</td>
+
+                        <td>
+                            <span th:text="${r.status}" th:classappend="' status-badge status-' + r.status"></span>
+                        </td>
+
+                        <td>
+                            <!-- 상세보기: 모달로 표시 (fragment 호출하지 않고 JS로 fetch) -->
+                            <button type="button" class="btn btn-sm btn-outline-primary btn-view-detail"
+                                    th:attr="data-return-id=${r.returnId}">
+                                상세보기
+                            </button>
+
+                            <!-- 빠른 승인/거절 -->
+                            <button type="button" class="btn btn-sm btn-success btn-approve"
+                                    th:if="${r.status == 'REQUEST'}"
+                                    th:attr="data-return-id=${r.returnId}">승인</button>
+
+                            <button type="button" class="btn btn-sm btn-danger btn-reject"
+                                    th:if="${r.status == 'REQUEST'}"
+                                    th:attr="data-return-id=${r.returnId}">거절</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 페이징 (간단) -->
+            <nav th:if="${returnsPage.totalPages > 1}">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${returnsPage.first} ? ' disabled'">
+                        <a class="page-link" th:href="@{/admin/returns(status=${status}, page=${returnsPage.number - 1})}">‹</a>
+                    </li>
+                    <li class="page-item" th:each="p : ${#numbers.sequence(0, ${returnsPage.totalPages} -1)}"
+                        th:classappend="${p == returnsPage.number} ? ' active'">
+                        <a class="page-link" th:href="@{/admin/returns(status=${status}, page=${p})}" th:text="${p + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${returnsPage.last} ? ' disabled'">
+                        <a class="page-link" th:href="@{/admin/returns(status=${status}, page=${returnsPage.number + 1})}">›</a>
+                    </li>
+                </ul>
+            </nav>
+
+        </div>
+    </div>
+
+    <!-- 모달 프래그먼트 포함 -->
+    <div th:replace="~{admin-refund-detail:: returnDetailModal}"></div>
+
+</div>
+
+<script th:src="@{/customJs/admin-refund.js}"></script>
+</body>
+</html>

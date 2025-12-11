@@ -11,6 +11,7 @@ import com.nhnacademy._vidiafront.order.dto.order.response.OrderCreateResponse;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderResponse;
 import com.nhnacademy._vidiafront.order.dto.payment.requset.PaymentConfirmRequest;
 import com.nhnacademy._vidiafront.order.dto.payment.response.PaymentResponse;
+import com.nhnacademy._vidiafront.order.dto.refund.RefundResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -182,5 +183,16 @@ public class OrderController {
         }
 
         return response;
+    }
+
+    /**
+     * 반품 신청 페이지 열기
+     */
+    @GetMapping("/{orderId}/refund")
+    public String showRefundForm(@PathVariable Long orderId,
+                                 Model model){
+        RefundResponse refundResponse = orderApiClient.getRefundList(orderId);
+        model.addAttribute("order", refundResponse);
+        return "mypage/order/refundPage";
     }
 }

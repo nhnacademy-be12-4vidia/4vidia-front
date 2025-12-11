@@ -20,21 +20,39 @@
             padding: 1rem 0.5rem;
             border-bottom: 3px solid transparent;
             cursor: pointer;
-            transition: border-color 0.2s, color 0.2s;
+            transition: border-color 0.2s, color 0.2s, background-color 0.2s;
             color: #6c757d; /* 기본 텍스트 색상 */
             text-decoration: none;
             flex-grow: 1;
         }
 
+        /* [⭐ 수정된 스타일] 호버 시 배경색은 유지하되, 전체주문내역 탭이 덮어쓸 수 있도록 합니다. */
         .order-status-tab:hover {
             background-color: #f8f9fa;
+        }
+
+        /* [⭐ 추가된 스타일] 전체 주문내역 탭의 기본 배경색 (연한 회색) */
+        .order-status-tab.all-default-bg {
+            background-color: #f5f5f5; /* 연한 회색 */
+        }
+
+        /* 전체 주문내역 탭의 호버 효과 재정의 */
+        .order-status-tab.all-default-bg:hover {
+            background-color: #eee; /* 호버 시 약간 더 진한 회색 */
         }
 
         .order-status-tab.active {
             border-bottom-color: #5b5b9e;
             font-weight: bold;
             color: #5b5b9e !important;
+            /* Active 시 일반 배경색이 있다면 여기서 재정의되거나 아래 .all-active에서 덮어쓰입니다. */
         }
+
+        /* Active 시 전체 주문 내역 탭 배경 유지 (Active 시 다른 색으로 바뀌는 것을 방지) */
+        .order-status-tab.all-default-bg.active {
+            background-color: #f5f5f5; /* Active 상태에서도 회색 배경 유지 */
+        }
+
 
         .tab-item-count {
             font-size: 1.5rem;
@@ -51,6 +69,18 @@
         .order-actions .btn {
             /* flex: 1; 이 설정되어 있어 조건에 따라 렌더링된 버튼들이 균등하게 너비를 나눕니다. */
             flex: 1;
+        }
+
+        /* 주문 아이템 그림자 스타일 */
+        .order-item-row {
+            padding: 0.5rem; /* 아이템 주변 여백 */
+            border-radius: 0.25rem;
+            transition: box-shadow 0.3s ease;
+            box-shadow: 1px 1px 3px 0px rgba(0, 0, 0, 0.05);
+        }
+
+        .order-item-row:hover {
+            box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.1);
         }
     </style>
 
@@ -248,13 +278,13 @@
     <div class="container">
 
         <h1 class="h3 mb-4 text-gray-800 text-center">주문/배송 목록</h1>
+
         <div class="fixed-content-area mb-4">
             <div class="border-bottom border-top border-gray-300 bg-white">
                 <div class="d-flex text-center small text-nowrap" style="overflow-x: auto;">
                     <a th:href="@{/mypage/order}"
                        th:classappend="${currentStatus == 'ALL' ? 'active' : ''}"
-                       class="order-status-tab d-flex flex-column align-items-center justify-content-center"
-                       style="position: relative;">
+                       class="order-status-tab d-flex flex-column align-items-center justify-content-center all-default-bg" style="position: relative;">
                         <div class="tab-item-count" th:text="${totalOrders}">0</div>
                         <div class="tab-item-label">전체주문내역</div>
                     </a>
@@ -293,13 +323,6 @@
                         </div>
                         <div class="tab-item-label">취소</div>
                     </a>
-
-                    <a th:href="@{/mypage/order(status='REFUND_REQUEST')}" th:classappend="${currentStatus == 'REFUND_REQUEST' ? 'active' : ''}"
-                       class="order-status-tab d-flex flex-column align-items-center justify-content-center">
-                        <div class="tab-item-count"
-                             th:text="${statusCounts['REFUND_REQUEST'] != null ? statusCounts['REFUND_REQUEST'] : 0}"> 0
-                        </div>
-                        <div class="tab-item-label" th:text="${statusNameMap.get('REFUND_REQUEST')}">반품 요청</div> </a>
 
                 </div>
             </div>
@@ -361,47 +384,69 @@
                                     </a>
                                     <p class="text-gray-500 small mb-2" th:text="${book.bookAuthor()}"></p>
                                 </div>
+
                                 <div class="d-flex align-items-center justify-content-between pr-1">
                                     <span class="text-gray-600 small" th:text="'수량: ' + ${book.quantity()}"></span>
-                                    <span class="text-gray-900 font-weight-bold"
-                                          th:text="${#numbers.formatDecimal(book.salePrice(), 0, 'COMMA', 0, 'POINT') + '원'}"></span>
                                 </div>
                             </div>
 
                             <div th:if="${order.deliveryStatus().name() == 'DELIVERED'}"
-                                 class="d-flex align-items-center gap-2 item-actions-wrapper"
-                                 style="flex-shrink: 0; width: 100px;"
-                                 th:id="'item-actions-' + ${book.orderItemId()}">
+                                 class="d-flex flex-column justify-content-end gap-2 item-actions-wrapper"
+                                 style="flex-shrink: 0; width: 120px;"  th:id="'item-actions-' + ${book.orderItemId()}">
 
-                                <div class="review-wrapper d-flex align-items-center" style="flex-shrink: 0;"
-                                     th:if="${book.confirmStatus() != null and book.confirmStatus().name() == 'CONFIRMED' and (book.isReviewed() == null or book.isReviewed() == false)}">
-                                    <a th:href="@{/books/{bookId}/reviews(bookId=${book.bookId()}, orderItemId=${book.orderItemId()})}"
-                                       class="btn btn-primary text-white"
-                                       style="width: 100%; height: 38px; background-color: #5b5b9e; border-color: #5b5b9e;">
-                                        리뷰 작성
-                                    </a>
+                                <div class="d-flex align-items-center" style="flex-shrink: 0; height: 38px;">
+                                    <div class="review-wrapper d-flex align-items-center" style="flex-shrink: 0; width: 100%;"
+                                         th:if="${book.confirmStatus() != null and book.confirmStatus().name() == 'CONFIRMED' and (book.isReviewed() == null or book.isReviewed() == false)}">
+                                        <a th:href="@{/books/{bookId}/reviews(bookId=${book.bookId()}, orderItemId=${book.orderItemId()})}"
+                                           class="btn btn-primary text-white"
+                                           style="width: 100%; height: 38px; background-color: #5b5b9e; border-color: #5b5b9e;">
+                                            리뷰 작성
+                                        </a>
+                                    </div>
+
+                                    <div class="status-info-wrapper d-flex align-items-center justify-content-center"
+                                         style="flex-shrink: 0; width: 100%; height: 38px;"
+                                         th:if="${book.confirmStatus() != null and book.confirmStatus().name() == 'CONFIRMED' and (book.isReviewed() != null and book.isReviewed() == true)}">
+                                        <span class="small font-weight-bold" style="text-align: center; color: #5b5b9e;">리뷰 작성 완료</span>
+                                    </div>
+
+                                    <div class="status-info-wrapper d-flex align-items-center justify-content-center"
+                                         style="flex-shrink: 0; width: 100%; height: 38px;"
+                                         th:if="${book.confirmStatus() != null and book.confirmStatus().name() == 'REFUND_REQUEST'}">
+                                        <span class="text-warning small font-weight-bold"
+                                              style="width: 100%; text-align: center;">반품 요청 중</span>
+                                    </div>
+
+                                    <div class="status-info-wrapper d-flex align-items-center justify-content-center"
+                                         style="flex-shrink: 0; width: 100%; height: 38px;"
+                                         th:if="${book.confirmStatus() != null and book.confirmStatus().name() == 'REFUNDED'}">
+                                        <span class="text-danger small font-weight-bold"
+                                              style="width: 100%; text-align: center;">반품 완료</span>
+                                    </div>
+
+                                    <div class="confirm-wrapper" style="width: 100%;">
+                                    </div>
                                 </div>
 
-                                <div class="status-info-wrapper d-flex align-items-center justify-content-center"
-                                     style="flex-shrink: 0; width: 100%; height: 38px;"
-                                     th:if="${book.confirmStatus() != null and book.confirmStatus().name() == 'CONFIRMED' and (book.isReviewed() != null and book.isReviewed() == true)}">
-                                    <span class="small font-weight-bold" style="text-align: center; color: #5b5b9e;">리뷰 작성 완료</span>
-                                </div>
-
-                                <div class="status-info-wrapper d-flex align-items-center justify-content-center"
-                                     style="flex-shrink: 0; width: 100%; height: 38px;"
-                                     th:if="${book.confirmStatus() != null and book.confirmStatus().name() == 'REFUND_REQUEST'}">
-                                    <span class="text-warning small font-weight-bold"
-                                          style="width: 100%; text-align: center;">반품 요청 중</span>
-                                </div>
-
-                                <div class="status-info-wrapper d-flex align-items-center justify-content-center"
-                                     style="flex-shrink: 0; width: 100%; height: 38px;"
-                                     th:if="${book.confirmStatus() != null and book.confirmStatus().name() == 'REFUNDED'}">
-                                    <span class="text-danger small font-weight-bold"
-                                          style="width: 100%; text-align: center;">반품 완료</span>
+                                <div class="d-flex flex-column align-items-end" style="flex-shrink: 0; height: 38px; justify-content: center;">
+                                    <span class="text-gray-900 font-weight-bold" style="font-size: 1rem; line-height: 1;"
+                                          th:text="${#numbers.formatDecimal(book.salePrice(), 0, 'COMMA', 0, 'POINT') + '원'}"></span>
                                 </div>
                             </div>
+
+                            <div th:unless="${order.deliveryStatus().name() == 'DELIVERED'}"
+                                 class="d-flex flex-column justify-content-end align-items-end price-placeholder"
+                                 style="flex-shrink: 0; width: 120px; height: 112px;">
+
+                                <div style="flex-shrink: 0; height: 38px;">
+                                </div>
+
+                                <div class="d-flex flex-column align-items-end" style="flex-shrink: 0; height: 38px; justify-content: center; margin-top: 2px;">
+                                    <span class="text-gray-900 font-weight-bold" style="font-size: 1rem; line-height: 1;"
+                                          th:text="${#numbers.formatDecimal(book.salePrice(), 0, 'COMMA', 0, 'POINT') + '원'}"></span>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 

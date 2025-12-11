@@ -35,26 +35,46 @@
         <div class="sidebar-heading">Interface</div>
 
         <li class="nav-item" th:classappend="${currentUri.startsWith('/mypage') ? 'active' : ''}">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo">
-                <i class="fas fa-fw fa-cog"></i>
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse1">
+                <i class="fas fa-fw fa-user-cog"></i>
                 <span>마이페이지</span>
             </a>
-            <div id="collapseTwo" class="collapse" th:classappend="${currentUri.startsWith('/mypage') ? 'show' : ''}">
+            <div id="collapse1" class="collapse" th:classappend="${currentUri.startsWith('/mypage') ? 'show' : ''}">
                 <div class="bg-white py-2 collapse-inner rounded">
-                    <a class="collapse-item" th:href="@{/mypage/profile}" th:classappend="${currentUri == '/mypage/profile' ? 'active' : ''}">회원정보</a>
-                    <a class="collapse-item" th:href="@{/mypage/address}" th:classappend="${currentUri == '/mypage/address' ? 'active' : ''}">회원주소 관리</a>
-                    <a class="collapse-item" th:href="@{/mypage/order}" th:classappend="${currentUri == '/mypage/order' ? 'active' : ''}">주문/배송 관리</a>
-                    <a class="collapse-item" th:href="@{/mypage/point}" th:classappend="${currentUri == '/mypage/point' ? 'active' : ''}">포인트 내역</a>
-                    <a class="collapse-item" th:href="@{/mypage/like}" th:classappend="${currentUri == '/mypage/like' ? 'active' : ''}">좋아요 리스트</a>
-                    <a class="collapse-item" th:href="@{/mypage/deactivate}" th:classappend="${currentUri == '/mypage/deactivate' ? 'active' : ''}">회원 탈퇴</a>
+                    <a class="collapse-item" th:href="@{/mypage/profile}" th:classappend="${currentUri == '/mypage/profile' ? 'active' : ''}">
+                        <i class="fas fa-id-card fa-fw mr-1"></i>
+                        회원정보
+                    </a>
+                    <a class="collapse-item" th:href="@{/mypage/address}" th:classappend="${currentUri == '/mypage/address' ? 'active' : ''}">
+                        <i class="fas fa-map-marker-alt fa-fw mr-1"></i>
+                        회원주소 관리
+                    </a>
+                    <a class="collapse-item" th:href="@{/mypage/order}" th:classappend="${currentUri == '/mypage/order' ? 'active' : ''}">
+                        <i class="fas fa-box-open fa-fw mr-1"></i>
+                        주문/배송 관리
+                    </a>
+                    <a class="collapse-item" th:href="@{/mypage/point}" th:classappend="${currentUri == '/mypage/point' ? 'active' : ''}">
+                        <i class="fas fa-coins fa-fw mr-1"></i>
+                        포인트 내역
+                    </a>
+                    <a class="collapse-item" th:href="@{/mypage/like}" th:classappend="${currentUri == '/mypage/like' ? 'active' : ''}">
+                        <i class="fas fa-heart fa-fw mr-1"></i>
+                        좋아요 리스트
+                    </a>
+                    <a class="collapse-item" th:href="@{/mypage/deactivate}" th:classappend="${currentUri == '/mypage/deactivate' ? 'active' : ''}">
+                        <i class="fas fa-user-times fa-fw mr-1"></i>
+                        회원 탈퇴
+                    </a>
                 </div>
             </div>
         </li>
 
+        <hr class="sidebar-divider d-none d-md-block">
+
         <li class="nav-item">
-            <a class="nav-link" href="bootstrap/charts.html">
-                <i class="fas fa-fw fa-chart-area"></i>
-                <span>Charts</span>
+            <a class="nav-link" href="/admin">
+                <i class="fas fa-fw fa-cog"></i>
+                <span>관리자 페이지</span>
             </a>
         </li>
 

@@ -7,91 +7,230 @@
 <head>
     <meta charset="UTF-8">
     <title>4VIDIA - 도서 검색 결과</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <style>
+        /* ------------------------------------------------ */
+        /* 공통 레이아웃 정리 */
+        /* ------------------------------------------------ */
+
+        .row {
+            display: flex;
+            flex-wrap: wrap !important;
+            justify-content: center;
+        }
+
+        /* ------------------------------------------------ */
+        /* 카드 Wrapper */
+        /* ------------------------------------------------ */
+        .book-card-wrapper {
+            flex-shrink: 0;
+            width: 250px;
+            padding: 0 0.75rem;
+            margin-bottom: 2.5rem;
+        }
+
+        /* ------------------------------------------------ */
+        /* 카드 디자인 */
+        /* ------------------------------------------------ */
         .book-card {
             border: none;
-            border-radius: 0.35rem;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-            transition: transform 0.2s, box-shadow 0.2s;
+            border-radius: 0.5rem;
+            width: 100%;
             height: 100%;
+            overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 0.25rem 1.25rem rgba(0,0,0,0.12);
+            transition: all 0.25s ease;
         }
 
         .book-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.25);
+            transform: translateY(-6px);
+            box-shadow: 0 0.75rem 2rem rgba(0,0,0,0.18);
         }
 
+        /* 이미지 hover 확대 */
         .card-img-wrapper {
             position: relative;
             overflow: hidden;
         }
 
         .card-img-wrapper img {
-            border-top-left-radius: 0.35rem;
-            border-top-right-radius: 0.35rem;
+            width: 100%;
             height: 300px;
             object-fit: cover;
-            transition: transform 0.3s ease;
-            width: 100%;
+            transition: transform 0.35s ease;
         }
 
         .book-card:hover .card-img-wrapper img {
-            transform: scale(1.05);
+            transform: scale(1.07);
         }
 
+        /* ------------------------------------------------ */
+        /* 좋아요 버튼 */
+        /* ------------------------------------------------ */
         .btn-heart {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            background: white;
+            top: 12px;
+            right: 12px;
+            z-index: 5;
+            width: 38px;
+            height: 38px;
             border: none;
             border-radius: 50%;
-            width: 35px;
-            height: 35px;
+            background: rgba(255,255,255,0.9);
             display: flex;
-            align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            z-index: 1;
+            align-items: center;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.18);
+            transition: background 0.15s, transform 0.2s;
         }
 
         .btn-heart:hover {
-            background-color: #ffe5e5;
+            background: #ffe5e5;
+            transform: scale(1.08);
         }
 
         .btn-heart i {
-            color: #666;
+            font-size: 1.1rem;
+            color: #777;
         }
 
         .btn-heart i.fas {
             color: #e74a3b;
         }
 
-        .price-current {
-            color: #4e73df;
-            font-weight: 700;
-            font-size: 1.05rem;
-        }
-
-        /* 할인이 적용된 정가 (취소선) */
-        .price-original-discounted {
-            text-decoration: line-through;
-            color: #858796;
-            font-size: 0.9rem;
-        }
-
-        /* 할인이 없는 정가 (취소선 없음) */
-        .price-original {
-            color: #666; /* 기본 정가 색상 */
-            font-size: 0.9rem;
+        /* ------------------------------------------------ */
+        /* 텍스트 영역 */
+        /* ------------------------------------------------ */
+        .card-body {
+            padding: 1rem;
         }
 
         .category-badge {
             color: #4e73df;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             font-weight: 600;
         }
+
+        .card-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+
+        /* 평점 */
+        .rating {
+            color: #f6c23e;
+            font-size: 0.9rem;
+        }
+
+        /* 가격 */
+        /* 할인이 없는 경우의 정가 스타일 (취소선 없음) */
+        .price-original-no-discount {
+            color: initial;
+            font-size: 1.15rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        /* 할인이 있는 경우의 정가 스타일 (취소선 있음) */
+        .price-original {
+            text-decoration: line-through;
+            color: #858796;
+            font-size: 0.9rem;
+            margin-right: 0.5rem;
+        }
+
+        .price-current {
+            color: #4e73df;
+            font-weight: 700;
+            font-size: 1.15rem;
+        }
+
+        /* ------------------------------------------------ */
+        /* 버튼 스타일 */
+        /* ------------------------------------------------ */
+        .book-card .card-body form {
+            margin-bottom: 0.6rem;
+        }
+
+        .book-card .card-body form:last-child {
+            margin-bottom: 0;
+        }
+
+        .btn-block {
+            width: 100%;
+            padding: 0.55rem 0;
+            font-weight: 600;
+            border-radius: 0.35rem;
+        }
+
+        .btn-primary {
+            background: #4e73df;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: #365acb;
+        }
+
+        .btn-secondary {
+            background: #858796;
+            border: none;
+        }
+
+        .btn-secondary:hover {
+            background: #6c6f7a;
+        }
+
+        /* ------------------------------------------------ */
+        /* 카테고리 Pill */
+        /* ------------------------------------------------ */
+        .category-pill {
+            padding: 0.5rem 1.3rem;
+            border-radius: 30px;
+            border: 1px solid #d8dce6;
+            background: white;
+            color: #61636b;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-right: 0.4rem;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+            transition: all 0.2s ease;
+        }
+
+        .category-pill:hover {
+            background: #4e73df;
+            border-color: #4e73df;
+            color: white;
+        }
+
+        .category-pill.active {
+            background: #4e73df;
+            color: white;
+        }
+
+        /* ------------------------------------------------ */
+        /* 반응형 디자인 */
+        /* ------------------------------------------------ */
+        @media (max-width: 992px) {
+            .book-card-wrapper {
+                width: 45%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .book-card-wrapper {
+                width: 90%;
+            }
+            .card-img-wrapper img {
+                height: 260px;
+            }
+        }
+
     </style>
     <script th:src="@{/customJs/askMoveCart.js}"></script>
     <script th:src="@{/customJs/like.js}"></script>
@@ -138,10 +277,9 @@
         </div>
 
         <div class="row" th:if="${!#lists.isEmpty(books)}">
-            <div class="col-xl-3 col-lg-4 col-md-6 mb-4"
+            <div class="book-card-wrapper"
                  th:each="book : ${books}">
                 <div class="card book-card">
-
                     <div class="card-img-wrapper">
                         <button type="button"
                                 class="btn-heart"
@@ -172,11 +310,23 @@
                         </p>
 
                         <div class="mb-3">
-                            <span th:class="${book.priceStandard() > book.priceSales()} ? 'price-original-discounted' : 'price-original'"
+                            <span th:if="${book.priceStandard() > book.priceSales()}"
+                                  class="price-current"
+                                  th:text="${#numbers.formatDecimal(book.priceSales(), 0, 'COMMA', 0, 'POINT') + '원'}">현재가격</span>
+
+                            <span th:if="${book.priceStandard() > book.priceSales()}"
+                                  class="price-original"
                                   th:text="${#numbers.formatDecimal(book.priceStandard(), 0, 'COMMA', 0, 'POINT') + '원'}">정가</span>
 
-                            <span class="price-current ml-2"
-                                  th:text="${#numbers.formatDecimal(book.priceSales(), 0, 'COMMA', 0, 'POINT') + '원'}">현재가격</span>
+                            <span th:if="${book.priceStandard() <= book.priceSales()}"
+                                  class="price-original-no-discount"
+                                  th:text="${#numbers.formatDecimal(book.priceStandard(), 0, 'COMMA', 0, 'POINT') + '원'}">정가</span>
+
+                            <span class="badge bg-danger">
+                                <span th:with="discountRate=${(book.priceStandard() - book.priceSales()) * 100 / book.priceStandard()}"
+                                      th:text="${#numbers.formatDecimal(discountRate, 0, 'COMMA', 0, 'POINT')} + '%'">
+                                </span>
+                            </span>
                         </div>
 
                         <form th:action="@{/cart/add}" method="post" class="mt-auto">
@@ -184,6 +334,14 @@
                             <button class="btn btn-primary btn-block"
                                     th:onclick="|addToCartAndConfirmMove('${book.id}', '1'); return false;|">
                                 <i class="fas fa-shopping-cart mr-1"></i> 장바구니 담기
+                            </button>
+                        </form>
+
+                        <form th:action="@{/orders}" method="post">
+                            <input type="hidden" name="bookId" th:value="${book.id()}">
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="btn btn-secondary btn-block">
+                                바로 구매
                             </button>
                         </form>
                     </div>

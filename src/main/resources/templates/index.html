@@ -66,31 +66,6 @@
         }
 
         /* ------------------------------------------------ */
-        /* 뱃지(NEW, BEST) */
-        /* ------------------------------------------------ */
-        .badge-new,
-        .badge-best {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            z-index: 5;
-            padding: 5px 10px;
-            border-radius: 0.35rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .badge-new {
-            background-color: #1cc88a;
-            color: white;
-        }
-
-        .badge-best {
-            background-color: #e74a3b;
-            color: white;
-        }
-
-        /* ------------------------------------------------ */
         /* 좋아요 버튼 */
         /* ------------------------------------------------ */
         .btn-heart {
@@ -335,6 +310,12 @@
                             <span th:if="${book.priceStandard() <= book.priceSales()}"
                                   class="price-original-no-discount"
                                   th:text="${#numbers.formatDecimal(book.priceStandard(), 0, 'COMMA', 0, 'POINT') + '원'}">정가</span>
+
+                            <span class="badge bg-danger">
+                                <span th:with="discountRate=${(book.priceStandard() - book.priceSales()) * 100 / book.priceStandard()}"
+                                      th:text="${#numbers.formatDecimal(discountRate, 0, 'COMMA', 0, 'POINT')} + '%'">
+                                </span>
+                            </span>
                         </div>
 
                         <form th:action="@{/cart/add}" method="post" class="mt-auto">

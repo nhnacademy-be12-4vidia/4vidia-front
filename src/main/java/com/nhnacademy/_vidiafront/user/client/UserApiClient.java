@@ -56,5 +56,9 @@ public class UserApiClient {
         return backendApiClient.put(USER_SERVICE + BASE_URL + "/delete", deleteUserRequest, Void.class);
     }
 
+    public String getUserRole() {
+        return backendApiClient.get(USER_SERVICE + BASE_URL + "/role", String.class);
+    }
+
     // 기존 마지막로그인시간 업데이트 auth api client로 이동시킴
 }

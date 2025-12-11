@@ -21,23 +21,30 @@ public class AdminReviewApiClient {
      */
 
     public AdminReviewPageResponse getReviewPage(AdminReviewSearchRequest cond) {
-        var builder = UriComponentsBuilder
-                .fromPath(REVIEW_SERVICE+"/admin/reviews")
-                .queryParam("page",cond.pageOrDefault())
-                .queryParam("size",cond.sizeOrDefault());
 
-        String keyword = cond.keywordOrNull();
-        if(keyword != null) {
-            builder.queryParam("keyword",keyword);
-        }
-        Integer rating = cond.ratingOrNull();
-        if (rating != null) {
-            builder.queryParam("rating", rating);
+        StringBuilder urlBuilder = new StringBuilder();
+        urlBuilder.append(REVIEW_SERVICE).append("/admin/reviews");
+
+        urlBuilder.append("?keyword=");
+        if (cond.keyword() != null) {
+            urlBuilder.append(cond.keyword());
         }
 
-        String url = builder.toUriString();
+        urlBuilder.append("&page=").append(cond.pageOrDefault());
+        urlBuilder.append("&size=").append(cond.sizeOrDefault());
 
-        return backendApiClient.get(url,new ParameterizedTypeReference<>(){});
+        if(cond.ratingOrNull() != null){
+            urlBuilder.append("&rating=").append(cond.ratingOrNull());
+        }
+
+        String url = urlBuilder.toString();
+
+        return backendApiClient.get(
+                url,
+                new ParameterizedTypeReference<AdminReviewPageResponse>() {}
+        );
+
+
     }
 
 

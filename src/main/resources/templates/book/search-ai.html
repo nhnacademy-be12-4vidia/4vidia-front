@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+
+<head>
+  <meta charset="UTF-8">
+  <title>4VIDIA - AI 도서 검색 결과</title>
+
+  <style>
+    .ai-info-card {
+      border-left: .25rem solid #4e73df;
+    }
+
+    .ai-book-card {
+      border: none;
+      border-radius: 0.35rem;
+      box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-bottom: 1.5rem;
+    }
+
+    .ai-book-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.25);
+    }
+
+    .ai-book-thumb {
+      width: 120px;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 0.25rem;
+      box-shadow: 0 0.15rem 0.5rem rgba(58, 59, 69, 0.3);
+    }
+
+    .ai-recommend-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #f6c23e;
+    }
+
+    .ai-rank-badge {
+      font-size: 0.8rem;
+      font-weight: 700;
+      background-color: #f6c23e;
+      color: #1f2d3d;
+      border-radius: 999px;
+      padding: 0.15rem .55rem;
+      margin-left: .5rem;
+    }
+
+    .ai-price-current {
+      color: #4e73df;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .ai-price-original {
+      font-size: 0.85rem;
+      color: #858796;
+      text-decoration: line-through;
+      margin-left: .35rem;
+    }
+
+    .ai-meta-label {
+      font-size: 0.8rem;
+      color: #858796;
+      width: 55px;
+    }
+
+    .ai-meta-row {
+      display: flex;
+      font-size: 0.9rem;
+    }
+
+    .ai-like-btn {
+      border: none;
+      background: transparent;
+      padding: 0;
+    }
+
+    .ai-like-btn i.fas {
+      color: #e74a3b;
+    }
+
+    .ai-like-btn i.far {
+      color: #d1d3e2;
+    }
+
+    .ai-relevance-bar {
+      height: 6px;
+    }
+
+    .ai-llm-box {
+      background-color: #fffdf5;
+      border-radius: 0.35rem;
+      border: 1px solid #ffeeba;
+      padding: 0.75rem 0.9rem;
+      font-size: 0.9rem;
+    }
+
+    .ai-llm-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #f6c23e;
+    }
+  </style>
+
+  <script th:src="@{/customJs/askMoveCart.js}"></script>
+  <script th:src="@{/customJs/like.js}"></script>
+</head>
+
+<body>
+<div layout:fragment="content">
+  <div class="container-fluid">
+
+    <!-- 상단 타이틀 -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+      <div>
+        <h1 class="h4 mb-1 text-gray-800">AI 도서 검색 결과</h1>
+        <p class="mb-0 text-gray-600">
+                    <span th:if="${keyword != null}"
+                          th:text="'검색어: ' + ${keyword}">검색어: 스프링</span>
+          <span th:if="${totalElements != null}"
+                th:text="' · 총 ' + ${totalElements} + '건 중 상위 추천 도서입니다.'">
+                        · 총 0건 중 상위 추천 도서입니다.
+                    </span>
+          <span class="badge bg-primary ms-2">AI 검색 사용</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- 검색 과정 안내 박스 (스크린샷 상단 설명 카드) -->
+    <div class="card mb-4 ai-info-card">
+      <div class="card-body">
+        <h6 class="font-weight-bold text-primary mb-2">도서 검색은 다음 단계를 통해 처리됩니다.</h6>
+        <ol class="mb-0 small text-gray-700" style="padding-left: 1.1rem;">
+          <li>의미 기반 변환 (Embedding): 사용자의 질의를 임베딩 벡터로 변환합니다.</li>
+          <li>유사도 검색 (Vector Search): Elasticsearch에서 의미적으로 유사한 도서를 조회합니다.</li>
+          <li>결과 재정렬 (Reranking): 재순위화 모델이 검색 결과를 관련도 순으로 다시 정렬합니다.</li>
+          <li>AI 추천 (Gemini-Enrichment): 상위 도서 목록을 Gemini에 전달하여 추천 이유를 생성합니다.</li>
+          <li>결과 표시: 아래 카드에서 최종 추천 도서와 추천 이유를 확인하실 수 있습니다.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- 검색 결과 없음 -->
+    <div class="row" th:if="${#lists.isEmpty(books)}">
+      <div class="col-12">
+        <div class="alert alert-light border">
+          <p class="mb-1">추천할 도서를 찾지 못했습니다.</p>
+          <p class="mb-0 text-muted small">
+            검색어를 조금 더 일반적으로 바꾸거나, 다른 키워드를 시도해 보세요.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI 추천 도서 리스트 -->
+    <div th:if="${!#lists.isEmpty(books)}">
+
+      <div class="card ai-book-card"
+           th:each="book : ${books}">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <div>
+                        <span class="ai-recommend-label">
+                            <i class="fas fa-star text-warning mr-1"></i>추천 도서
+                        </span>
+            <span class="ai-rank-badge"
+                  th:if="${book.rank != null}"
+                  th:text="'#' + ${book.rank}">#1</span>
+          </div>
+
+          <div class="d-flex align-items-center"
+               th:if="${book.relevanceScore != null}">
+            <span class="small text-muted mr-2">관련도</span>
+            <div class="progress ai-relevance-bar" style="width: 120px;">
+              <div class="progress-bar bg-warning"
+                   role="progressbar"
+                   th:style="|width:${book.relevanceScore * 100}%|"
+                   th:aria-valuenow="${book.relevanceScore * 100}"
+                   aria-valuemin="0"
+                   aria-valuemax="100"></div>
+            </div>
+            <span class="small font-weight-bold ml-2"
+                  th:text="${#numbers.formatDecimal(book.relevanceScore * 100, 0, 'COMMA', 0, 'POINT')} + '%'">
+    90%
+  </span>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="row">
+
+            <!-- 표지 이미지 -->
+            <div class="col-md-2 d-flex justify-content-center align-items-center mb-3 mb-md-0">
+              <a th:href="@{/books/{bookId}(bookId=${book.id})}">
+                <img class="ai-book-thumb"
+                     th:src="${book.imageUrl != null ? book.imageUrl : '/img/default-book-cover.png'}"
+                     th:alt="${book.title}">
+              </a>
+            </div>
+
+            <!-- 가운데: 기본 도서 정보 -->
+            <div class="col-md-7 mb-3 mb-md-0">
+              <div class="d-flex align-items-start mb-1">
+                <a th:href="@{/books/{bookId}(bookId=${book.id})}"
+                   style="text-decoration: none; color: inherit;">
+                  <h5 class="mb-0" th:text="${book.title}">도서 제목</h5>
+                </a>
+
+                <!-- 좋아요 버튼 -->
+                <button type="button"
+                        class="ai-like-btn ml-2"
+                        th:attr="data-book-id=${book.id}"
+                        onclick="toggleLike(event, this)">
+                  <i class="fa-heart"
+                     th:classappend="${book.liked} ? ' fas' : ' far'"></i>
+                </button>
+              </div>
+
+              <div class="text-muted small mb-1">
+                                <span th:text="${#lists.isEmpty(book.authorNames) ? '저자 정보 없음' : #strings.listJoin(book.authorNames, ', ')}">
+                                    저자
+                                </span>
+              </div>
+
+              <div class="ai-meta-row mb-1">
+                <div class="ai-meta-label">출판사</div>
+                <div th:text="${book.publisherName}">출판사명</div>
+              </div>
+
+              <div class="ai-meta-row mb-1" th:if="${book.isbn != null}">
+                <div class="ai-meta-label">ISBN</div>
+                <div th:text="${book.isbn}">9780000000000</div>
+              </div>
+
+              <!-- LLM 추천 이유 -->
+              <div class="ai-llm-box mt-2"
+                   th:if="${book.llmSummary != null}">
+                <div class="ai-llm-title mb-1">
+                  <i class="fas fa-lightbulb mr-1"></i>추천 이유
+                </div>
+                <div th:text="${book.llmSummary}">
+                  스프링 5를 다뤄본 입문자에게 적합한 기본서입니다...
+                </div>
+              </div>
+            </div>
+
+            <!-- 오른쪽: 가격 / 장바구니 -->
+            <div class="col-md-3 d-flex flex-column justify-content-between">
+              <div class="text-right mb-3">
+                <div class="ai-price-current"
+                     th:text="${book.priceSales != null ? #numbers.formatInteger(book.priceSales, 0, 'COMMA') + '원' : '가격 정보 없음'}">
+                  26,500원
+                </div>
+                <div th:if="${book.priceStandard != null}"
+                     class="ai-price-original"
+                     th:text="${#numbers.formatInteger(book.priceStandard, 0, 'COMMA') + '원'}">
+                  30,000원
+                </div>
+              </div>
+
+              <form th:action="@{/cart/add}" method="post" class="mt-auto text-right">
+                <input type="hidden" name="bookId" th:value="${book.id}">
+                <input type="hidden" name="quantity" value="1">
+                <button class="btn btn-sm btn-primary"
+                        th:onclick="|addToCartAndConfirmMove('${book.id}', '1'); return false;|">
+                  <i class="fas fa-shopping-cart mr-1"></i> 장바구니 담기
+                </button>
+              </form>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

@@ -44,9 +44,9 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           ADMIN_ID: ${{ secrets.ADMIN_ID }}
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-          REDIS_PASSWORD: ${{REDIS_PASSWORD}}
-          JWT_SECRET: ${{JWT_SECRET}}
-          TOSS_CLIENT_KEY: ${{TOSS_CLIENT_KEY}}
+          REDIS_PASSWORD: ${{secrets.REDIS_PASSWORD}}
+          JWT_SECRET: ${{secrets.JWT_SECRET}}
+          TOSS_CLIENT_KEY: ${{secrets.TOSS_CLIENT_KEY}}
         with:
           host: s2.java21.net
           username: be12-team4

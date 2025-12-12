@@ -29,34 +29,7 @@ public class BookApiClient {
 
     public PageResponse<BookListResponse> searchBooks(BookSearchRequest request, int page, int size) {
 
-        StringBuilder urlBuilder = new StringBuilder();
-        urlBuilder.append(BOOK_SERVICE).append("/books/search");
-
-        urlBuilder.append("?keyword=");
-        if (request.keyword() != null) {
-            urlBuilder.append(request.keyword());
-        }
-
-        urlBuilder.append("&page=").append(page);
-        urlBuilder.append("&size=").append(size);
-
-        if (request.sort() != null) {
-            urlBuilder.append("&sort=").append(request.sort());
-        }
-        if (request.categoryId() != null) {
-            urlBuilder.append("&categoryId=").append(request.categoryId());
-        }
-        if (request.minPrice() != null) {
-            urlBuilder.append("&minPrice=").append(request.minPrice());
-        }
-        if (request.maxPrice() != null) {
-            urlBuilder.append("&maxPrice=").append(request.maxPrice());
-        }
-        if (Boolean.TRUE.equals(request.useSemantic())) {
-            urlBuilder.append("&useSemantic=true");
-        }
-
-        String url = urlBuilder.toString();
+        String url = buildSearchUrl(BOOK_SERVICE + "/books/search", request, page, size);
 
         return backendApiClient.get(
             url,
@@ -66,34 +39,7 @@ public class BookApiClient {
 
     public AiBookSearchResponse searchBooksWithLlm(BookSearchRequest request, int page, int size) {
 
-        StringBuilder urlBuilder = new StringBuilder();
-        urlBuilder.append(BOOK_SERVICE).append("/books/search/ai");
-
-        urlBuilder.append("?keyword=");
-        if (request.keyword() != null) {
-            urlBuilder.append(request.keyword());
-        }
-
-        urlBuilder.append("&page=").append(page);
-        urlBuilder.append("&size=").append(size);
-
-        if (request.sort() != null) {
-            urlBuilder.append("&sort=").append(request.sort());
-        }
-        if (request.categoryId() != null) {
-            urlBuilder.append("&categoryId=").append(request.categoryId());
-        }
-        if (request.minPrice() != null) {
-            urlBuilder.append("&minPrice=").append(request.minPrice());
-        }
-        if (request.maxPrice() != null) {
-            urlBuilder.append("&maxPrice=").append(request.maxPrice());
-        }
-        if (Boolean.TRUE.equals(request.useSemantic())) {
-            urlBuilder.append("&useSemantic=true");
-        }
-
-        String url = urlBuilder.toString();
+        String url = buildSearchUrl(BOOK_SERVICE + "/books/search/ai", request, page, size);
 
         return backendApiClient.get(
             url,
@@ -117,5 +63,31 @@ public class BookApiClient {
         String uri = uriBuilder.toUriString();
 
         return backendApiClient.get(uri, new ParameterizedTypeReference<List<BookListResponse>>() {});
+    }
+
+    private String buildSearchUrl(String basePath, BookSearchRequest request, int page, int size) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromPath(basePath)
+                .queryParam("keyword", request.keyword() == null ? "" : request.keyword())
+                .queryParam("page", page)
+                .queryParam("size", size);
+
+
+        if (request.sort() != null) {
+            builder.queryParam("sort", request.sort());
+        }
+        if (request.categoryId() != null) {
+            builder.queryParam("categoryId", request.categoryId());
+        }
+        if (request.minPrice() != null) {
+            builder.queryParam("minPrice", request.minPrice());
+        }
+        if (request.maxPrice() != null) {
+            builder.queryParam("maxPrice", request.maxPrice());
+        }
+        if (Boolean.TRUE.equals(request.useSemantic())) {
+            builder.queryParam("useSemantic", true);
+        }
+
+        return builder.toUriString();
     }
 }

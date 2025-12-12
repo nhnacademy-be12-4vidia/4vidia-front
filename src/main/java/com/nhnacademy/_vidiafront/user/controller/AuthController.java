@@ -19,6 +19,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
@@ -296,6 +297,14 @@ public class AuthController {
             return "redirect:/auth/dormant-auth/email";
         }
     }
+
+    @ExceptionHandler(HttpClientErrorException.Conflict.class)
+    public String handleDELETED(HttpClientErrorException.Conflict ex, Model model) {
+        model.addAttribute("loginError",  "탈퇴한 회원입니다.");
+        return "auth/loginForm";
+    }
+
+    
 
 
 }

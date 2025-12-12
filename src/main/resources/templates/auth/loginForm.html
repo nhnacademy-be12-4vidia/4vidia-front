@@ -77,6 +77,10 @@
                                     <h1 class="h4 text-gray-900 mb-4">Welcome Back!</h1>
                                 </div>
                                 <form class="user" action="/auth/login" method="post">
+
+                                    <div th:if="${loginError}" class="alert alert-danger text-center">
+                                        <span th:text="${loginError}"></span>
+                                    </div>
                                     <p th:if="${param.error != null and param.error != 'dormant'}"
                                        class="text-danger text-center">
                                         이메일 또는 비밀번호가 올바르지 않습니다.

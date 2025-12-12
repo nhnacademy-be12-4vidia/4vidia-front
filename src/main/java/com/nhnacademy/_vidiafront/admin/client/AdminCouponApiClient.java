@@ -28,26 +28,11 @@ public class AdminCouponApiClient {
         );
     }
 
-    public List<CouponPolicyResponse> getPolicyList() {
-        return backendApiClient.get(
-                COUPON_SERVICE + "/policies/all",
-                new ParameterizedTypeReference<>() {}
-        );
-    }
-
     // 활성/비활성 toggle
     public void toggleActivation(Long policyId) {
         backendApiClient.patchNoBody(
                 COUPON_SERVICE + "/policies/" + policyId + "/toggle",
                 Void.class
-        );
-    }
-
-    // 정책 단건 조회
-    public CouponPolicyResponse getPolicy(Long policyId) {
-        return backendApiClient.get(
-                COUPON_SERVICE + "/policies/" + policyId,
-                CouponPolicyResponse.class
         );
     }
 

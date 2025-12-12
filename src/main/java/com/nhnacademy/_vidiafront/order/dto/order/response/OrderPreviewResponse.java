@@ -32,12 +32,10 @@ public record OrderPreviewResponse(
                 .anyMatch(item -> item.confirmStatus() == ConfirmStatus.UNCONFIRMED);
     }
 
-    // 반품 신청 가능한 항목 (REFUNDED 또는 REFUND_REQUEST 상태가 아닌 항목)이 하나라도 있으면 true
-//    public boolean hasUnreturnedItems() {
-//        if (orderItems == null) return false;
-//        // 반품 완료 (REFUNDED) 또는 반품 요청 중 (REFUND_REQUEST) 상태가 아닌 항목이 하나라도 있으면 반품 신청 가능
-//        return orderItems.stream()
-//                .anyMatch(item -> item.confirmStatus() != ConfirmStatus.REFUNDED
-//                        && item.confirmStatus() != ConfirmStatus.REFUND_REQUEST);
-//    }
+    // REFUND_REQUEST 상태의 항목 (REFUND_REQUEST 상태가 아닌 항목)이 하나라도 있으면 true
+    public boolean hasRefundedRequestItems() {
+        if (orderItems == null) return false;
+        return orderItems.stream()
+                .anyMatch(item -> item.confirmStatus() == ConfirmStatus.REFUND_REQUEST);
+    }
 }

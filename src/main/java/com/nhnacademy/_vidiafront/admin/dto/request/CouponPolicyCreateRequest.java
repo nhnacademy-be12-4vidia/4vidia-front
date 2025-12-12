@@ -1,5 +1,6 @@
 package com.nhnacademy._vidiafront.admin.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 
 @Builder

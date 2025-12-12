@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/admin-layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>쿠폰 정책 수정</title>
+</head>
+
+<body>
+<div layout:fragment="pageContent">
+
+    <h1 class="h3 mb-4 text-gray-800">쿠폰 정책 수정</h1>
+
+    <form th:action="@{|/admin/coupons/policies/${policy.policyId}/edit|}" method="post">
+
+        <!-- 정책 이름 -->
+        <div class="mb-3">
+            <label class="form-label">정책 이름</label>
+            <input class="form-control"
+                   name="policyName"
+                   th:value="${policy.policyName}"
+                   required>
+        </div>
+
+        <!-- 할인 방식 -->
+        <div class="mb-3">
+            <label class="form-label">할인 방식</label>
+            <select class="form-control"
+                    name="discountType"
+                    id="discountType">
+                <option value="PRICE"
+                        th:selected="${policy.discountType == 'PRICE'}">
+                    PRICE (정액)
+                </option>
+                <option value="RATE"
+                        th:selected="${policy.discountType == 'RATE'}">
+                    RATE (정률)
+                </option>
+            </select>
+        </div>
+
+        <!-- 할인 대상 (수정 불가) -->
+        <div class="mb-3">
+            <label class="form-label">할인 대상 (수정 불가)</label>
+            <input class="form-control"
+                   th:value="${policy.discountTargetType}"
+                   readonly>
+        </div>
+
+        <!-- CATEGORY / BOOK -->
+        <div class="mb-3" th:if="${policy.discountTargetType == 'CATEGORY'}">
+            <label class="form-label">카테고리 KDC</label>
+            <input class="form-control"
+                   th:value="${policy.categoryKdcId}"
+                   readonly>
+        </div>
+
+        <div class="mb-3" th:if="${policy.discountTargetType == 'BOOK'}">
+            <label class="form-label">도서 ID</label>
+            <input class="form-control"
+                   th:value="${policy.bookId}"
+                   readonly>
+        </div>
+
+        <!-- 할인 값 -->
+        <div class="mb-3">
+            <label class="form-label">할인 값</label>
+            <input class="form-control"
+                   id="discountValue"
+                   name="discountValue"
+                   th:value="${policy.discountValue}"
+                   required>
+            <small id="discountHelp" class="form-text text-muted"></small>
+            <small id="discountValueError" class="text-danger d-none"></small>
+        </div>
+
+        <!-- 최소 주문 금액 -->
+        <div class="mb-3">
+            <label class="form-label">최소 주문 금액</label>
+            <input class="form-control"
+                   name="minOrderAmount"
+                   th:value="${policy.minOrderAmount}">
+        </div>
+
+        <!-- 최대 할인 금액 -->
+        <div class="mb-3">
+            <label class="form-label">최대 할인 금액</label>
+            <input class="form-control"
+                   id="maxDiscountAmount"
+                   name="maxDiscountAmount"
+                   th:value="${policy.maxDiscountAmount}">
+            <small id="maxDiscountError" class="text-danger d-none"></small>
+        </div>
+
+        <button class="btn btn-primary" id="submitBtn">수정하기</button>
+        <a href="/admin/coupons/policies" class="btn btn-secondary">취소</a>
+
+    </form>
+
+</div>
+
+<!-- ========================= -->
+<!-- JS: 실시간 검증 + 버튼 락 -->
+<!-- ========================= -->
+<script>
+    const discountTypeSelect = document.getElementById("discountType");
+    const discountValueInput = document.getElementById("discountValue");
+    const maxDiscountInput = document.getElementById("maxDiscountAmount");
+    const submitBtn = document.getElementById("submitBtn");
+
+    const discountHelp = document.getElementById("discountHelp");
+    const discountValueError = document.getElementById("discountValueError");
+    const maxDiscountError = document.getElementById("maxDiscountError");
+
+    function showError(el, msg) {
+        el.innerText = msg;
+        el.classList.remove("d-none");
+    }
+
+    function hideError(el) {
+        el.innerText = "";
+        el.classList.add("d-none");
+    }
+
+    function validateForm() {
+        const type = discountTypeSelect.value;
+        const discountValue = Number(discountValueInput.value);
+        const maxDiscount = Number(maxDiscountInput.value);
+
+        let valid = true;
+
+        hideError(discountValueError);
+        hideError(maxDiscountError);
+
+        if (type === "PRICE") {
+            discountHelp.innerText = "정액 할인 (금액 단위)";
+            maxDiscountInput.disabled = true;
+            maxDiscountInput.value = 0;
+
+            if (!discountValue || discountValue <= 0) {
+                showError(discountValueError, "할인 금액은 0보다 커야 합니다.");
+                valid = false;
+            }
+        }
+
+        if (type === "RATE") {
+            discountHelp.innerText = "정률 할인 (1 ~ 100%)";
+            maxDiscountInput.disabled = false;
+
+            if (!discountValue || discountValue < 1 || discountValue > 100) {
+                showError(discountValueError, "1~100 사이로 입력해주세요.");
+                valid = false;
+            }
+
+            if (!maxDiscount || maxDiscount <= 0) {
+                showError(maxDiscountError, "RATE 할인일 때는 최대 할인 금액이 필수입니다.");
+                valid = false;
+            }
+        }
+
+        submitBtn.disabled = !valid;
+    }
+
+    discountTypeSelect.addEventListener("change", validateForm);
+    discountValueInput.addEventListener("input", validateForm);
+    maxDiscountInput.addEventListener("input", validateForm);
+
+    // 최초 로드 시 검증
+    validateForm();
+</script>
+
+</body>
+</html>

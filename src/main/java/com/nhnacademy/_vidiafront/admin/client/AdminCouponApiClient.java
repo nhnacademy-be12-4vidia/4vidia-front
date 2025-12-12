@@ -1,12 +1,14 @@
 package com.nhnacademy._vidiafront.admin.client;
 
 import com.nhnacademy._vidiafront.admin.dto.request.CouponPolicyCreateRequest;
-import com.nhnacademy._vidiafront.admin.dto.request.CouponPolicyUpdateRequest;
 import com.nhnacademy._vidiafront.admin.dto.response.CouponPolicyResponse;
+import com.nhnacademy._vidiafront.coupon.dto.CouponPolicyDto;
+import com.nhnacademy._vidiafront.coupon.dto.PageDto;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 
@@ -49,13 +51,34 @@ public class AdminCouponApiClient {
         );
     }
 
-    // 정책 수정
-    public void updatePolicy(Long policyId, CouponPolicyUpdateRequest request) {
-        backendApiClient.put(
-                COUPON_SERVICE + "/policies/" + policyId,
-                request,
-                Void.class
+    // 쿠폰 정책 검색 + 페이징
+    public PageDto<CouponPolicyDto> searchPolicies(
+            String keyword,
+            String status,
+            String targetType,
+            int page,
+            int size
+    ) {
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder
+                .fromPath(COUPON_SERVICE + "/policies/search")
+                .queryParam("page", page)
+                .queryParam("size", size);
+
+        if (keyword != null && !keyword.isBlank()) {
+            uriBuilder.queryParam("keyword", keyword);
+        }
+        if (status != null && !"ALL".equals(status)) {
+            uriBuilder.queryParam("status", status);
+        }
+        if (targetType != null && !"ALL".equals(targetType)) {
+            uriBuilder.queryParam("targetType", targetType);
+        }
+
+        return backendApiClient.get(
+                uriBuilder.build().toUriString(),
+                new ParameterizedTypeReference<PageDto<CouponPolicyDto>>() {}
         );
     }
+
 
 }

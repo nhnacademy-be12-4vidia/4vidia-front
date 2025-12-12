@@ -7,6 +7,7 @@ import com.nhnacademy._vidiafront.global.dto.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 @RequiredArgsConstructor
@@ -22,27 +23,23 @@ public class AdminReviewApiClient {
 
     public PageResponse<AdminReviewResponse> getReviewPage(AdminReviewSearchRequest cond) {
 
-        StringBuilder urlBuilder = new StringBuilder();
-        urlBuilder.append(REVIEW_SERVICE).append("/admin/reviews");
+        var builder = UriComponentsBuilder
+                .fromPath(REVIEW_SERVICE+"/admin/reviews")
+                .queryParam("page",cond.pageOrDefault())
+                .queryParam("size",cond.sizeOrDefault());
 
-        urlBuilder.append("?keyword=");
-        if (cond.keyword() != null) {
-            urlBuilder.append(cond.keyword());
+        String keyword = cond.keywordOrNull();
+        if(keyword != null){
+            builder.queryParam("keyword",keyword);
         }
 
-        urlBuilder.append("&page=").append(cond.pageOrDefault());
-        urlBuilder.append("&size=").append(cond.sizeOrDefault());
-
-        if(cond.ratingOrNull() != null){
-            urlBuilder.append("&rating=").append(cond.ratingOrNull());
+        Integer rating = cond.ratingOrNull();
+        if(rating != null){
+            builder.queryParam("rating",rating);
         }
-        String url = urlBuilder.toString();
 
-        return backendApiClient.get(
-                url,
-                new ParameterizedTypeReference<>() {}
-        );
-
+        String url =  builder.toUriString();
+        return backendApiClient.get(url, new ParameterizedTypeReference<>(){});
 
     }
 

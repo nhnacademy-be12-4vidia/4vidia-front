@@ -7,6 +7,8 @@ import com.nhnacademy._vidiafront.global.dto.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 @RequiredArgsConstructor
@@ -18,22 +20,20 @@ public class AdminRefundApiClient {
      * 관리자 반품 목록 조회 (페이징 + 상태)
      */
     public PageResponse<AdminRefundListResponse> getRefundList(String refundStatus, String keyword, int page, int size){
-        StringBuilder urlBuilder = new StringBuilder();
-        urlBuilder.append(ORDER_SERVICE).append("/admin/refunds");
+        var builder = UriComponentsBuilder
+                .fromPath(ORDER_SERVICE+".admin/refunds")
+                .queryParam("page",page)
+                .queryParam("size",size);
 
-        urlBuilder.append("?keyword=");
-        if(keyword != null){
-            urlBuilder.append(keyword);
+        if (keyword != null){
+            builder.queryParam("keyword",keyword);
+        }
+        if(refundStatus != null){
+            builder.queryParam("refundStatus",refundStatus);
         }
 
-        urlBuilder.append("&page=").append(page);
-        urlBuilder.append("&size=").append(size);
+        String url = builder.toUriString();
 
-        if(refundStatus!=null){
-            urlBuilder.append("&refundStatus=").append(refundStatus);
-        }
-
-        String url = urlBuilder.toString();
         return backendApiClient.get(url, new ParameterizedTypeReference<PageResponse<AdminRefundListResponse>>() {
         });
 

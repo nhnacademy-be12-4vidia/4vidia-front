@@ -37,7 +37,6 @@ public class AdminUserApiClient {
         }
 
         String url = builder.toUriString();
-
         return backendApiClient.get(url, new ParameterizedTypeReference<>(){});
     }
 

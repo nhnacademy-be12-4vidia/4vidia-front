@@ -2,116 +2,186 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{admin/admin-layout}">
+
 <head>
     <meta charset="UTF-8">
     <title>배송 관리</title>
     <link th:href="@{/css/sb-admin-2.min.css}" rel="stylesheet">
 
     <style>
-        .table thead th { background-color: #f8f9fc !important; font-weight: 600; }
-        .table td { vertical-align: middle; padding: 10px; }
-        .badge-status { border-radius: 999px; padding: 4px 10px; font-size: 0.8rem; }
-        .badge-status.waiting   { background: #6c757d; color: white; }
-        .badge-status.shipping  { background: #0d6efd; color: white; }
-        .badge-status.delivered { background: #198754; color: white; }
-        .badge-status.canceled { background: #dc3545; color: white; }
+        /* 테이블 더 깔끔하게 (회원관리 톤과 통일) */
+        .table thead th {
+            background-color: #f8f9fc !important;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-bottom: 2px solid #e3e6f0;
+        }
+        .table td {
+            vertical-align: middle;
+            padding: 12px 10px;
+            font-size: 0.9rem;
+        }
+        .table-hover tbody tr {
+            border-bottom: 1px solid #e9ecef;
+        }
 
+        /* 검색/필터 박스 카드 스타일 */
+        .form-box {
+            background: #fdfdfd;
+            border: 1px solid #e8e8e8;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
 
+        /* 상태 배지 */
+        .badge-status {
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            display: inline-block;
+        }
+        .badge-status.waiting   { background: #6c757d; color: #fff; }
+        .badge-status.shipping  { background: #0d6efd; color: #fff; }
+        .badge-status.delivered { background: #198754; color: #fff; }
+        .badge-status.canceled  { background: #dc3545; color: #fff; }
+
+        /* 탭 간격 살짝 */
+        .nav-tabs .nav-link { font-size: 0.9rem; }
     </style>
-
 </head>
+
 <body>
 <div layout:fragment="pageContent">
 
+    <!-- 페이지 제목 -->
     <h1 class="h3 mb-3 text-gray-800">배송 관리</h1>
 
-    <!-- 탭 & 간단 필터 -->
-    <div class="row mb-3">
-        <div class="col-md-8">
-            <ul class="nav nav-tabs">
-                <li class="nav-item">
-                    <a class="nav-link" th:classappend="${currentDelivery == 'WAITING'} ? ' active'"
-                       th:href="@{/admin/delivery(deliveryStatus='WAITING', page=${page.number}, size=${page.size})}">배송준비</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:classappend="${currentDelivery == 'SHIPPING'} ? ' active'"
-                       th:href="@{/admin/delivery(deliveryStatus='SHIPPING', page=${page.number}, size=${page.size})}">배송중</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:classappend="${currentDelivery == 'DELIVERED'} ? ' active'"
-                       th:href="@{/admin/delivery(deliveryStatus='DELIVERED', page=${page.number}, size=${page.size})}">배송완료</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:classappend="${currentDelivery == 'CANCELED'} ? ' active'"
-                       th:href="@{/admin/delivery(deliveryStatus='CANCELED', page=${page.number}, size=${page.size})}">주문취소</a>
-                </li>
-            </ul>
-            <!-- 🔍 검색 폼 -->
-            <form th:action="@{/admin/delivery}" method="get" class="d-inline-flex mt-2">
-                <input type="hidden" name="deliveryStatus" th:value="${currentDelivery}"/>
-                <input type="text"
-                       name="keyword"
-                       class="form-control form-control-sm me-2"
-                       style="width: 260px;"
-                       placeholder="주문ID / 회원ID 검색"
-                       th:value="${keyword}">
-                <button class="btn btn-sm btn-primary">검색</button>
-            </form>
-        </div>
+    <!-- 탭 영역(유지) -->
+    <ul class="nav nav-tabs mb-2">
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${currentDelivery == 'WAITING'} ? ' active'"
+               th:href="@{/admin/delivery(deliveryStatus='WAITING', page=0, size=${page.size}, keyword=${keyword})}">
+                배송준비
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${currentDelivery == 'SHIPPING'} ? ' active'"
+               th:href="@{/admin/delivery(deliveryStatus='SHIPPING', page=0, size=${page.size}, keyword=${keyword})}">
+                배송중
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${currentDelivery == 'DELIVERED'} ? ' active'"
+               th:href="@{/admin/delivery(deliveryStatus='DELIVERED', page=0, size=${page.size}, keyword=${keyword})}">
+                배송완료
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${currentDelivery == 'CANCELED'} ? ' active'"
+               th:href="@{/admin/delivery(deliveryStatus='CANCELED', page=0, size=${page.size}, keyword=${keyword})}">
+                주문취소
+            </a>
+        </li>
+    </ul>
 
-        <!-- 페이지 크기 -->
-        <div class="col-md-4 text-end">
-            <form th:action="@{/admin/delivery}" method="get" class="d-inline-flex">
-                <input type="hidden" name="deliveryStatus" th:value="${currentDelivery}"/>
-                <select name="size" class="form-select form-select-sm me-2" style="width:100px;">
-                    <option th:selected="${page.size()==10}" value="10">10</option>
-                    <option th:selected="${page.size()==20}" value="20">20</option>
-                    <option th:selected="${page.size()==50}" value="50">50</option>
-                </select>
-                <button class="btn btn-sm btn-outline-primary">적용</button>
+    <!-- 검색 / 필터 영역 (회원관리 스타일로 통일) -->
+    <div class="card shadow-sm mb-3">
+        <div class="card-body form-box">
+
+            <form method="get" th:action="@{/admin/delivery}">
+                <div class="row g-3 align-items-end">
+
+                    <!-- 상태(탭을 쓰더라도, 값 유지용 hidden) -->
+                    <input type="hidden" name="deliveryStatus" th:value="${currentDelivery}"/>
+
+                    <!-- 키워드 -->
+                    <div class="col-md-5">
+                        <label class="form-label mb-1">검색어</label>
+                        <input type="text"
+                               name="keyword"
+                               class="form-control form-control-sm"
+                               placeholder="주문ID / 회원ID 검색"
+                               th:value="${keyword}">
+                    </div>
+
+                    <!-- 페이지 크기 -->
+                    <div class="col-md-2">
+                        <label class="form-label mb-1">페이지 당</label>
+                        <select name="size" class="form-select form-select-sm">
+                            <option value="10" th:selected="${page.size == 10}">10</option>
+                            <option value="20" th:selected="${page.size == 20}">20</option>
+                            <option value="50" th:selected="${page.size == 50}">50</option>
+                        </select>
+                    </div>
+
+                    <!-- 버튼 -->
+                    <div class="col-md-5 text-end">
+                        <input type="hidden" name="page" value="0"/>
+                        <button class="btn btn-primary btn-sm" type="submit" style="margin-top: 22px;">
+                            검색
+                        </button>
+                    </div>
+
+                </div>
             </form>
+
         </div>
     </div>
 
     <!-- 총 건수 -->
-    <div class="mb-2 small text-muted">
-        총 <strong th:text="${page.totalElements}">0</strong> 건
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="small text-muted">
+            총 <strong th:text="${page.totalElements}">0</strong> 건
+        </div>
     </div>
+    <!-- ✅ 테이블+페이지네이션을 아래로 밀기 위한 wrapper 시작 -->
+    <div class="d-flex flex-column gap-3" style="min-height: calc(100vh - 360px);">
 
+    <!-- 배송 목록 테이블 -->
     <div class="card shadow-sm">
         <div class="card-body p-0">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover align-middle mb-0">
                 <thead>
                 <tr class="text-center">
                     <th style="width:120px">주문ID</th>
-                    <th style="width:200px"> 회원 아이디</th>
-                    <th style="width:150px">수취인</th>
+                    <th style="width:220px">회원 아이디</th>
+                    <th style="width:140px">수취인</th>
                     <th>주소</th>
                     <th style="width:110px">상태</th>
-                    <th style="width:100px">관리</th>
+                    <th style="width:110px">관리</th>
                 </tr>
                 </thead>
 
                 <tbody>
+                <!-- 데이터 없음 -->
                 <tr th:if="${#lists.isEmpty(page.content)}">
-                    <td colspan="7" class="text-center py-4 text-muted">조회된 주문이 없습니다.</td>
+                    <td colspan="6" class="text-center py-4 text-muted">
+                        조회된 주문이 없습니다.
+                    </td>
                 </tr>
 
+                <!-- 데이터 -->
                 <tr th:each="o : ${page.content}" class="text-center align-middle">
                     <td th:text="${o.orderId}">1</td>
                     <td th:text="${o.email}">회원 아이디</td>
                     <td th:text="${o.recipientName}">홍길동</td>
-                    <td th:text="${o.addressRoadname + ' ' + o.addressDetail}">주소</td>
+                    <td class="text-start" th:text="${o.addressRoadname + ' ' + o.addressDetail}">주소</td>
                     <td>
-                       <span class="badge-status"
-                             th:text="${o.deliveryStatus.name()}"
-                             th:classappend="${o.deliveryStatus.name().toLowerCase()}">
+                        <span class="badge-status"
+                              th:text="${o.deliveryStatus.name()}"
+                              th:classappend="${o.deliveryStatus.name().toLowerCase()}">
                         </span>
                     </td>
-
                     <td>
-                        <a th:href="@{/admin/delivery/{orderId}(orderId=${o.orderId})}"
-                           class="btn btn-outline-secondary btn-sm">상세</a>
+                        <a th:href="@{/admin/delivery/{orderId}(orderId=${o.orderId},
+                                  page=${page.number},
+                                  size=${page.size},
+                                  keyword=${keyword},
+                                  deliveryStatus=${currentDelivery})}"
+                           class="btn btn-outline-secondary btn-sm">
+                            상세
+                        </a>
                     </td>
                 </tr>
 
@@ -120,30 +190,94 @@
         </div>
     </div>
 
-    <!-- Pagination -->
-    <nav class="mt-3">
-        <ul class="pagination pagination-sm justify-content-center">
-            <li class="page-item" th:classappend="${page.first} ? ' disabled'">
+    <!-- Pagination (회원관리와 같은 block 페이징) -->
+    <nav class="mt-auto" th:if="${page.totalPages > 1}">
+        <ul class="pagination pagination-sm justify-content-center"
+            th:with="
+            currentPage=${page.number},
+            totalPages=${page.totalPages},
+            blockSize=${5},
+            currentBlock=${currentPage / blockSize},
+            startPage=${currentBlock * blockSize},
+            endPage=${(startPage + blockSize - 1) < (totalPages - 1) ? (startPage + blockSize - 1) : (totalPages - 1)}
+        ">
+
+            <!-- 이전 -->
+            <li class="page-item" th:classappend="${currentPage == 0} ? ' disabled'">
                 <a class="page-link"
-                   th:href="@{/admin/delivery(deliveryStatus=${currentDelivery}, keyword=${keyword},page=${page.number - 1}, size=${page.size})}">
-                    <
+                   th:href="@{/admin/delivery(
+                        deliveryStatus=${currentDelivery},
+                        keyword=${keyword},
+                        page=${currentPage - 1},
+                        size=${page.size}
+                   )}">
+                    &lt;
                 </a>
             </li>
 
-            <li class="page-item" th:each="p : ${#numbers.sequence(0, page.totalPages - 1)}"
-                th:classappend="${p == page.number} ? ' active'">
+            <!-- 1 ... -->
+            <li class="page-item" th:if="${startPage > 0}">
+                <a class="page-link"
+                   th:href="@{/admin/delivery(
+                        deliveryStatus=${currentDelivery},
+                        keyword=${keyword},
+                        page=${0},
+                        size=${page.size}
+                   )}">
+                    1
+                </a>
+            </li>
+            <li class="page-item disabled" th:if="${startPage > 1}">
+                <span class="page-link">…</span>
+            </li>
+
+            <!-- block pages -->
+            <li class="page-item"
+                th:each="p : ${#numbers.sequence(startPage, endPage)}"
+                th:classappend="${p == currentPage} ? ' active'">
                 <a class="page-link"
                    th:text="${p + 1}"
-                   th:href="@{/admin/delivery(deliveryStatus=${currentDelivery},keyword=${keyword}, page=${p}, size=${page.size})}"></a>
-            </li>
-
-            <li class="page-item" th:classappend="${page.last} ? ' disabled'">
-                <a class="page-link" th:href="@{/admin/delivery(deliveryStatus=${currentDelivery},keyword=${keyword}, page=${page.number + 1}, size=${page.size})}">
-                    >
+                   th:href="@{/admin/delivery(
+                        deliveryStatus=${currentDelivery},
+                        keyword=${keyword},
+                        page=${p},
+                        size=${page.size}
+                   )}">
                 </a>
             </li>
+
+            <!-- ... last -->
+            <li class="page-item disabled" th:if="${endPage < totalPages - 2}">
+                <span class="page-link">…</span>
+            </li>
+            <li class="page-item" th:if="${endPage < totalPages - 1}">
+                <a class="page-link"
+                   th:text="${totalPages}"
+                   th:href="@{/admin/delivery(
+                        deliveryStatus=${currentDelivery},
+                        keyword=${keyword},
+                        page=${totalPages - 1},
+                        size=${page.size}
+                   )}">
+                </a>
+            </li>
+
+            <!-- 다음 -->
+            <li class="page-item" th:classappend="${page.last} ? ' disabled'">
+                <a class="page-link"
+                   th:href="@{/admin/delivery(
+                        deliveryStatus=${currentDelivery},
+                        keyword=${keyword},
+                        page=${currentPage + 1},
+                        size=${page.size}
+                   )}">
+                    &gt;
+                </a>
+            </li>
+
         </ul>
     </nav>
+        </div>
 
 </div>
 </body>

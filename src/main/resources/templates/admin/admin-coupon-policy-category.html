@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/admin-layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>카테고리 쿠폰 생성</title>
+
+    <link th:href="@{/css/sb-admin-2.min.css}" rel="stylesheet">
+
+    <style>
+        .hidden { display: none !important; }
+        .category-list-box {
+            max-height: 260px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div layout:fragment="pageContent">
+
+    <h1 class="h3 mb-4">카테고리 쿠폰 정책 생성</h1>
+
+    <form th:action="@{/admin/coupons/policies/category}" method="post" class="row g-3">
+
+        <div class="col-md-6">
+            <label>정책명</label>
+            <input type="text" class="form-control" name="policyName" required>
+        </div>
+
+        <div class="col-md-3">
+            <label>정책 타입</label>
+            <select class="form-select" name="policyType">
+                <option value="WELCOME">WELCOME</option>
+                <option value="BIRTHDAY">BIRTHDAY</option>
+                <option value="EVENT">EVENT</option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label>할인 타입</label>
+            <select name="discountType" class="form-select">
+                <option value="PRICE">PRICE</option>
+                <option value="RATE">RATE</option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label>할인값</label>
+            <input type="number" name="discountValue" class="form-control" required>
+        </div>
+
+        <div class="col-md-3">
+            <label>한정 수량</label>
+            <input type="number" name="limitedQuantity" class="form-control" required>
+        </div>
+
+        <div class="col-12">
+            <label>대상 선택</label>
+            <select id="targetType" name="discountTargetType" class="form-select">
+                <option value="ALL">전체 적용</option>
+                <option value="CATEGORY">카테고리 선택</option>
+            </select>
+        </div>
+
+        <div id="categoryBox" class="hidden col-12">
+            <label>카테고리 선택</label>
+            <div class="category-list-box">
+                <div th:each="c : ${categories}">
+                    <label>
+                        <input type="radio" name="categoryKdcId" th:value="${c.kdcCode}">
+                        <span th:text="${c.categoryName}"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <label>유효기간 타입</label>
+            <select id="validityType" name="validityType" class="form-select">
+                <option value="RELATIVE">RELATIVE</option>
+                <option value="ABSOLUTE">ABSOLUTE</option>
+            </select>
+        </div>
+
+        <div id="relativeBox" class="col-md-3">
+            <label>유효기간(일)</label>
+            <input type="number" name="validDays" class="form-control">
+        </div>
+
+        <div id="absoluteStart" class="col-md-3 hidden">
+            <label>시작일</label>
+            <input type="date" name="startDate" class="form-control">
+        </div>
+
+        <div id="absoluteEnd" class="col-md-3 hidden">
+            <label>종료일</label>
+            <input type="date" name="endDate" class="form-control">
+        </div>
+
+        <div class="col-12 text-end mt-3">
+            <button class="btn btn-primary">정책 생성</button>
+        </div>
+    </form>
+
+</div>
+
+<script>
+    const targetType = document.getElementById("targetType");
+    const categoryBox = document.getElementById("categoryBox");
+
+    targetType.addEventListener("change", () => {
+        categoryBox.classList.toggle("hidden", targetType.value !== "CATEGORY");
+    });
+
+    const vType = document.getElementById("validityType");
+    const rel = document.getElementById("relativeBox");
+    const a1 = document.getElementById("absoluteStart");
+    const a2 = document.getElementById("absoluteEnd");
+
+    vType.addEventListener("change", () => {
+        const isRel = vType.value === "RELATIVE";
+        rel.classList.toggle("hidden", !isRel);
+        a1.classList.toggle("hidden", isRel);
+        a2.classList.toggle("hidden", isRel);
+    });
+</script>
+
+</body>
+</html>

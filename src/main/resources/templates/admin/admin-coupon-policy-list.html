@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/admin-layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>쿠폰 정책 목록</title>
+
+    <style>
+        .policy-card {
+            padding: 18px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            background: #ffffff;
+        }
+
+        .policy-active { background: #e9fbe9; border-color: #4caf50; }
+        .policy-inactive { background: #fdeaea; border-color: #e53935; }
+
+        .policy-actions {
+            margin-top: 14px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .policy-actions form {
+            display: inline-block;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+<div layout:fragment="pageContent">
+
+    <div class="d-flex justify-content-between mb-4">
+        <h1 class="h3 text-gray-800">쿠폰 정책 목록</h1>
+
+        <div>
+            <a href="/admin/coupons/policies/category" class="btn btn-primary">
+                카테고리/전체 정책 생성
+            </a>
+            <a href="/admin/coupons/policies/book" class="btn btn-success">
+                도서 정책 생성
+            </a>
+        </div>
+    </div>
+
+    <!-- 정책 리스트 -->
+    <div th:each="p : ${policies}"
+         th:class="'policy-card ' + (${p.isActivation} ? 'policy-active' : 'policy-inactive')">
+
+        <h5 th:text="${p.policyName}" class="fw-bold mb-2"></h5>
+
+        <div class="text-muted small mb-1">
+            <span th:text="'정책 타입: ' + ${p.policyType}"></span> |
+            <span th:text="'할인 종류: ' + ${p.discountType}"></span> |
+            <span th:text="'대상: ' + ${p.discountTargetType}"></span>
+        </div>
+
+        <div class="fw-semibold mt-1">
+            <span th:if="${p.discountType == 'PRICE'}"
+                  th:text="'할인 금액: ' + ${p.discountValue} + '원'"></span>
+
+            <span th:if="${p.discountType == 'RATE'}"
+                  th:text="'할인율: ' + ${p.discountValue} + '% (최대 ' + ${p.maxDiscountAmount} + '원)'"></span>
+        </div>
+
+        <div class="small mt-1">
+            <span th:if="${p.validityType == 'RELATIVE'}"
+                  th:text="'유효기간: 발급 후 ' + ${p.validDays} + '일'"></span>
+
+            <span th:if="${p.validityType == 'ABSOLUTE'}"
+                  th:text="'기간: ' + ${p.startDate} + ' ~ ' + ${p.endDate}"></span>
+        </div>
+
+        <div class="small mt-1" th:if="${p.discountTargetType == 'CATEGORY'}">
+            카테고리 KDC: <b th:text="${p.categoryKdcId}"></b>
+        </div>
+
+        <div class="small mt-1" th:if="${p.discountTargetType == 'BOOK'}">
+            도서 ID: <b th:text="${p.bookId}"></b>
+        </div>
+
+        <!-- 버튼 영역 -->
+        <div class="policy-actions">
+
+            <!-- 수정 -->
+            <a th:href="@{'/admin/coupons/policies/' + ${p.policyId} + '/edit'}"
+               class="btn btn-warning btn-sm">
+                ✏ 수정
+            </a>
+
+            <!-- 활성/비활성 토글 -->
+            <form th:action="@{'/admin/coupons/policies/' + ${p.policyId} + '/toggle'}"
+                  method="post">
+                <input type="hidden" name="_method" value="patch"/>
+                <button type="submit"
+                        class="btn btn-sm"
+                        th:classappend="${p.isActivation} ? 'btn-danger' : 'btn-success'"
+                        th:text="${p.isActivation} ? '비활성화' : '활성화'">
+                </button>
+            </form>
+
+        </div>
+
+    </div>
+
+    <div th:if="${#lists.isEmpty(policies)}" class="text-center text-muted py-5">
+        정책이 없습니다. 우측 상단에서 생성하세요.
+    </div>
+
+</div>
+
+</body>
+</html>

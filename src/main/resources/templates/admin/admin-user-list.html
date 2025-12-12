@@ -7,6 +7,7 @@
     <meta charset="UTF-8">
     <title>회원 관리</title>
     <link th:href="@{/css/sb-admin-2.min.css}" rel="stylesheet">
+
     <style>
         /* 테이블 더 깔끔하게 */
         .table thead th {
@@ -38,6 +39,20 @@
             padding: 4px 10px;
             font-size: 0.75rem;
         }
+
+        /* 반응형 관련: 긴 텍스트 줄임 */
+        td.ellipsis {
+            max-width: 160px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 모바일에서 버튼 풀폭 처리(선택사항) */
+        @media (max-width: 575.98px) {
+            .mobile-full-btn { width: 100%; }
+            .table thead th, .table td { font-size: 0.85rem; padding: 8px 6px; }
+        }
     </style>
 </head>
 
@@ -50,12 +65,11 @@
     <!-- 검색 / 필터 영역 -->
     <div class="card shadow-sm mb-3">
         <div class="card-body form-box">
-
             <form method="get" th:action="@{/admin/users}">
                 <div class="row g-3 align-items-end">
 
                     <!-- 키워드 -->
-                    <div class="col-md-4">
+                    <div class="col-12 col-md-4">
                         <label class="form-label mb-1">검색어</label>
                         <input type="text"
                                name="keyword"
@@ -65,7 +79,7 @@
                     </div>
 
                     <!-- 상태 -->
-                    <div class="col-md-3">
+                    <div class="col-6 col-md-3">
                         <label class="form-label mb-1">회원 상태</label>
                         <select name="status" class="form-select form-select-sm">
                             <option value="" th:selected="${status == null}">전체 상태</option>
@@ -76,9 +90,9 @@
                     </div>
 
                     <!-- 페이지 크기 -->
-                    <div class="col-md-2">
+                    <div class="col-6 col-md-2">
                         <label class="form-label mb-1">페이지 당</label>
-                        <select name="size" class="form-select form-select-sm">
+                        <select name="size" class="form-select form-select-sm w-auto">
                             <option value="10" th:selected="${page.size() == 10}">10</option>
                             <option value="20" th:selected="${page.size() == 20}">20</option>
                             <option value="50" th:selected="${page.size() == 50}">50</option>
@@ -86,15 +100,14 @@
                     </div>
 
                     <!-- 버튼 -->
-                    <div class="col-md-3 text-end">
-                        <button class="btn btn-primary btn-sm" type="submit" style="margin-top: 22px;">
+                    <div class="col-12 col-md-3 text-md-end">
+                        <button class="btn btn-primary btn-sm mobile-full-btn" type="submit" style="margin-top: 0.25rem;">
                             검색
                         </button>
                     </div>
 
                 </div>
             </form>
-
         </div>
     </div>
 
@@ -108,71 +121,74 @@
     <!-- 회원 목록 테이블 -->
     <div class="card shadow-sm">
         <div class="card-body p-0">
-            <table class="table table-hover align-middle mb-0">
-                <thead>
-                <tr class="text-center">
-                    <th style="width: 160px;">아이디</th>
-                    <th style="width: 120px;">이름</th>
-                    <th style="width: 130px;">전화번호</th>
-                    <th style="width: 210px;">이메일</th>
-                    <th style="width: 120px;">생년월일</th>
-                    <th style="width: 90px;">포인트</th>
-                    <th style="width: 90px;">등급</th>
-                    <th style="width: 100px;">상태</th>
-                    <th style="width: 160px;">가입일</th>
-                    <th style="width: 160px;">마지막 로그인</th>
-                    <th style="width: 90px;">관리</th>
-                </tr>
-                </thead>
+            <!-- table-responsive 추가 -->
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                    <tr class="text-center">
+                        <th class="text-start">아이디</th>
+                        <th>이름</th>
+                        <th>전화번호</th>
+                        <th class="text-start">이메일</th>
+                        <th>생년월일</th>
+                        <th>포인트</th>
+                        <th>등급</th>
+                        <th>상태</th>
+                        <th>가입일</th>
+                        <th>마지막 로그인</th>
+                        <th>관리</th>
+                    </tr>
+                    </thead>
 
-                <tbody>
-                <!-- 데이터 없음 -->
-                <tr th:if="${#lists.isEmpty(users)}">
-                    <td colspan="11" class="text-center py-4 text-muted">
-                        조회된 회원이 없습니다.
-                    </td>
-                </tr>
+                    <tbody>
+                    <!-- 데이터 없음 -->
+                    <tr th:if="${#lists.isEmpty(users)}">
+                        <td colspan="11" class="text-center py-4 text-muted">
+                            조회된 회원이 없습니다.
+                        </td>
+                    </tr>
 
-                <!-- 회원 행 -->
-                <tr th:each="user : ${users}" class="text-center">
+                    <!-- 회원 행 -->
+                    <tr th:each="user : ${users}" class="text-center">
 
-                    <td th:text="${user.email()}"></td>
-                    <td th:text="${user.name()}"></td>
-                    <td th:text="${user.phone()}"></td>
-                    <td th:text="${user.email()}"></td>
-                    <td th:text="${user.birthDate()}"></td>
-                    <td th:text="${user.point()}"></td>
-                    <td th:text="${user.gradeName() != null ? user.gradeName() : '-'}">BASIC</td>
+                        <td class="text-start ellipsis" th:text="${user.email()}"></td>
+                        <td th:text="${user.name()}"></td>
+                        <td th:text="${user.phone()}"></td>
+                        <td class="text-start ellipsis" th:text="${user.email()}"></td>
+                        <td th:text="${user.birthDate()}"></td>
+                        <td th:text="${user.point()}"></td>
+                        <td th:text="${user.gradeName() != null ? user.gradeName() : '-'}">BASIC</td>
 
-                    <td>
-                        <span class="badge-status"
-                              th:text="${user.status()}"
-                              th:classappend="${
-                                   user.status() == 'ACTIVE' ? ' bg-primary text-white' :
-                                   (user.status() == 'DORMANT' ? ' bg-warning text-dark' : ' bg-danger text-white')
-                              }">
-                        </span>
-                    </td>
+                        <td>
+                            <span class="badge-status"
+                                  th:text="${user.status()}"
+                                  th:classappend="${
+                                       user.status() == 'ACTIVE' ? ' bg-primary text-white' :
+                                       (user.status() == 'DORMANT' ? ' bg-warning text-dark' : ' bg-danger text-white')
+                                  }">
+                            </span>
+                        </td>
 
-                    <td th:text="${user.joinedAt()}">2025-01-01T12:00:00</td>
-                    <td th:text="${user.lastLoginAt()}">2025-01-02T08:00:00</td>
+                        <td th:text="${user.joinedAt()}">2025-01-01T12:00:00</td>
+                        <td th:text="${user.lastLoginAt()}">2025-01-02T08:00:00</td>
 
-                    <td>
-                        <a th:href="@{/admin/users/{id}(
-                                   id=${user.userId()},
-                                   page=${page.page()},
-                                   size=${page.size()},
-                                   keyword=${keyword},
-                                   status=${status})}"
-                           class="btn btn-outline-secondary btn-sm">
-                            상세
-                        </a>
-                    </td>
+                        <td>
+                            <a th:href="@{/admin/users/{id}(
+                                       id=${user.userId()},
+                                       page=${page.page()},
+                                       size=${page.size()},
+                                       keyword=${keyword},
+                                       status=${status})}"
+                               class="btn btn-outline-secondary btn-sm">
+                                상세
+                            </a>
+                        </td>
 
-                </tr>
+                    </tr>
 
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div> <!-- /.table-responsive -->
         </div>
     </div>
 
@@ -187,82 +203,46 @@
             startPage=${currentBlock * blockSize},
             endPage=${(startPage + blockSize - 1) < (totalPages - 1) ? (startPage + blockSize - 1) : (totalPages - 1)}
         ">
-
-            <!-- 이전 버튼 -->
-            <li class="page-item"
-                th:classappend="${currentPage == 0} ? ' disabled'">
+            <!-- (기존 페이징 로직 유지) -->
+            <li class="page-item" th:classappend="${currentPage == 0} ? ' disabled'">
                 <a class="page-link"
                    th:href="@{/admin/users(
                             page=${currentPage - 1},
                             size=${page.size()},
                             keyword=${keyword},
                             status=${status}
-                        )}">
-                    &lt;
-                </a>
+                        )}">&lt;</a>
             </li>
 
-            <!-- 맨 처음 페이지 + ... -->
             <li class="page-item" th:if="${startPage > 0}">
                 <a class="page-link"
-                   th:href="@{/admin/users(
-                            page=${0},
-                            size=${page.size()},
-                            keyword=${keyword},
-                            status=${status}
-                        )}">
-                    1
-                </a>
+                   th:href="@{/admin/users(page=${0}, size=${page.size()}, keyword=${keyword}, status=${status})}">1</a>
             </li>
             <li class="page-item disabled" th:if="${startPage > 1}">
                 <span class="page-link">…</span>
             </li>
 
-            <!-- 현재 블럭 페이지들 -->
             <li class="page-item"
                 th:each="p : ${#numbers.sequence(startPage, endPage)}"
                 th:classappend="${p == currentPage} ? ' active'">
                 <a class="page-link"
                    th:text="${p + 1}"
-                   th:href="@{/admin/users(
-                            page=${p},
-                            size=${page.size()},
-                            keyword=${keyword},
-                            status=${status}
-                        )}">
-                </a>
+                   th:href="@{/admin/users(page=${p}, size=${page.size()}, keyword=${keyword}, status=${status})}"></a>
             </li>
 
-            <!-- ... + 마지막 페이지 -->
             <li class="page-item disabled" th:if="${endPage < totalPages - 2}">
                 <span class="page-link">…</span>
             </li>
             <li class="page-item" th:if="${endPage < totalPages - 1}">
                 <a class="page-link"
                    th:text="${totalPages}"
-                   th:href="@{/admin/users(
-                            page=${totalPages - 1},
-                            size=${page.size()},
-                            keyword=${keyword},
-                            status=${status}
-                        )}">
-                </a>
+                   th:href="@{/admin/users(page=${totalPages - 1}, size=${page.size()}, keyword=${keyword}, status=${status})}"></a>
             </li>
 
-            <!-- 다음 버튼 -->
-            <li class="page-item"
-                th:classappend="${page.last()} ? ' disabled'">
+            <li class="page-item" th:classappend="${page.last()} ? ' disabled'">
                 <a class="page-link"
-                   th:href="@{/admin/users(
-                            page=${currentPage + 1},
-                            size=${page.size()},
-                            keyword=${keyword},
-                            status=${status}
-                        )}">
-                    &gt;
-                </a>
+                   th:href="@{/admin/users(page=${currentPage + 1}, size=${page.size()}, keyword=${keyword}, status=${status})}">&gt;</a>
             </li>
-
         </ul>
     </nav>
 

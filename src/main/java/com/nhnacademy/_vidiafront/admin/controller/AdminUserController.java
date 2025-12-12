@@ -37,7 +37,7 @@ public class AdminUserController {
         model.addAttribute("keyword", keyword);
         model.addAttribute("status", status);
 
-        return "admin/admin-userlist";
+        return "admin/admin-user-list";
     }
 
     /**

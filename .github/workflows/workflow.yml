@@ -44,6 +44,9 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           ADMIN_ID: ${{ secrets.ADMIN_ID }}
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          REDIS_PASSWORD: ${{REDIS_PASSWORD}}
+          JWT_SECRET: ${{JWT_SECRET}}
+          TOSS_CLIENT_KEY: ${{TOSS_CLIENT_KEY}}
         with:
           host: s2.java21.net
           username: be12-team4
@@ -58,3 +61,8 @@ jobs:
             echo "Starting 4vidia-front-1"
             docker compose pull 4vidia-front-1
             docker compose up -d 4vidia-front-1
+            
+            
+            echo "Starting 4vidia-front-2"
+            docker compose pull 4vidia-front-2
+            docker compose up -d 4vidia-front-2

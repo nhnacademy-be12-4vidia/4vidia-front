@@ -1,21 +1,22 @@
 spring:
   application:
     name: 4vidia-front
-  data:
-    redis:
-      host: s4.java21.net
-      port: 6379
-      password: "*N2vya7H@muDTwdNMR!"
-      database: 386
-      timeout: 5000ms
-  jwt:
-    secret: "qwertyujhgfdsazxcvbnjhgfdsqwertyuhgfdsazxcvb"
-
 
   mvc:
     hiddenmethod:
       filter:
         enabled: true
+
+  data:
+    redis:
+      host: s4.java21.net
+      port: 6379
+      password: ${REDIS_PASSWORD}
+      database: 386
+      timeout: 5000ms
+
+  jwt:
+    secret: ${JWT_SECRET}
 
 eureka:
   client:
@@ -26,5 +27,4 @@ server:
   port: 8080
 
 toss:
-  clientKey: test_ck_d46qopOB896MwPXRBMod3ZmM75y0
-
+  clientKey: ${TOSS_CLIENT_KEY}

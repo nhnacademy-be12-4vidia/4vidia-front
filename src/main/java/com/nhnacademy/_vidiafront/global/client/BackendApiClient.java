@@ -17,6 +17,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.IOException;
+import java.net.URI;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +37,7 @@ public class BackendApiClient {
 
         try {
             return restClient.get()
-                    .uri(uri)
+                    .uri(URI.create(uri))
                     .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
                     .header("X-Guest-Id", guestId != null ? guestId : "")
                     .cookies(cookies -> {
@@ -78,7 +79,7 @@ public class BackendApiClient {
 
         try {
             return restClient.get()
-                    .uri(uri)
+                    .uri(URI.create(uri))
                     .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
                     .header("X-Guest-Id", guestId != null ? guestId : "")
                     .cookies(cookies -> {
@@ -94,7 +95,7 @@ public class BackendApiClient {
             if (isReissue) {
                 request.getSession(true).setAttribute("accessToken", tokenResponse.accessToken());
                 return restClient.get()
-                        .uri(uri)
+                        .uri(URI.create(uri))
                         .header("Authorization", "Bearer " + tokenResponse.accessToken())
                         .header("X-Guest-Id", guestId != null ? guestId : "")
                         .cookies(cookies -> {
@@ -122,7 +123,7 @@ public class BackendApiClient {
 
         try {
             return restClient.post()
-                    .uri(uri)
+                    .uri(URI.create(uri))
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
                     .header("X-Guest-Id", guestId != null ? guestId : "")
@@ -139,7 +140,7 @@ public class BackendApiClient {
             if (isReissue) {
                 request.getSession(true).setAttribute("accessToken", tokenResponse.accessToken());
                 return restClient.post()
-                        .uri(uri)
+                        .uri(URI.create(uri))
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenResponse.accessToken())
                         .header("X-Guest-Id", guestId != null ? guestId : "")
@@ -170,7 +171,7 @@ public class BackendApiClient {
 
         try {
             return restClient.post()
-                .uri(uri)
+                .uri(URI.create(uri))
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
                 .header("X-Guest-Id", guestId != null ? guestId : "")
@@ -184,7 +185,7 @@ public class BackendApiClient {
             if (isReissue) {
                 request.getSession(true).setAttribute("accessToken", tokenResponse.accessToken());
                 return restClient.post()
-                    .uri(uri)
+                    .uri(URI.create(uri))
                     .contentType(MediaType.MULTIPART_FORM_DATA)
                     .header("Authorization", "Bearer " + tokenResponse.accessToken())
                     .header("X-Guest-Id", guestId != null ? guestId : "")
@@ -211,7 +212,7 @@ public class BackendApiClient {
 
         try {
             return restClient.post()
-                    .uri(uri)
+                    .uri(URI.create(uri))
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
                     .header("X-Guest-Id", guestId != null ? guestId : "")
@@ -227,7 +228,7 @@ public class BackendApiClient {
             if (isReissue) {
                 request.getSession(true).setAttribute("accessToken", tokenResponse.accessToken());
                 return restClient.post()
-                        .uri(uri)
+                        .uri(URI.create(uri))
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenResponse.accessToken())
                         .header("X-Guest-Id", guestId != null ? guestId : "")
@@ -257,7 +258,7 @@ public class BackendApiClient {
 
         try {
             return restClient.put()
-                    .uri(uri)
+                    .uri(URI.create(uri))
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
                     .header("X-Guest-Id", guestId != null ? guestId : "")
@@ -274,7 +275,7 @@ public class BackendApiClient {
             if (isReissue) {
                 request.getSession(true).setAttribute("accessToken", tokenResponse.accessToken());
                 return restClient.put()
-                        .uri(uri)
+                        .uri(URI.create(uri))
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenResponse.accessToken())
                         .header("X-Guest-Id", guestId != null ? guestId : "")
@@ -303,7 +304,7 @@ public class BackendApiClient {
 
         try {
             return restClient.put()
-                    .uri(uri)
+                    .uri(URI.create(uri))
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
                     .header("X-Guest-Id", guestId != null ? guestId : "")
@@ -319,7 +320,7 @@ public class BackendApiClient {
             if (isReissue) {
                 request.getSession(true).setAttribute("accessToken", tokenResponse.accessToken());
                 return restClient.put()
-                        .uri(uri)
+                        .uri(URI.create(uri))
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenResponse.accessToken())
                         .header("X-Guest-Id", guestId != null ? guestId : "")
@@ -349,7 +350,7 @@ public class BackendApiClient {
 
         try {
             return restClient.delete()
-                    .uri(uri)
+                    .uri(URI.create(uri))
                     .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
                     .header("X-Guest-Id", guestId != null ? guestId : "")
                     .cookies(cookies -> {
@@ -364,7 +365,7 @@ public class BackendApiClient {
             if (isReissue) {
                 request.getSession(true).setAttribute("accessToken", tokenResponse.accessToken());
                 return restClient.delete()
-                        .uri(uri)
+                        .uri(URI.create(uri))
                         .header("Authorization", "Bearer " + tokenResponse.accessToken())
                         .header("X-Guest-Id", guestId != null ? guestId : "")
                         .cookies(cookies -> {

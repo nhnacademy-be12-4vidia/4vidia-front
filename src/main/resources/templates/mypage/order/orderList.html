@@ -363,18 +363,23 @@
                         </span>
                     </div>
 
+
+
+
+                    <!-- 각 주문 정보 -->
                     <div class="space-y-4">
                         <div th:each="book, bookStat : ${order.orderItems()}"
                              class="d-flex gap-4 mb-3 order-item-row"
                              th:data-order-item-id="${book.orderItemId()}"
                              th:data-book-id="${book.bookId()}"
                              th:data-confirm-status="${book.confirmStatus() != null ? book.confirmStatus().name() : 'UNKNOWN'}">
+
+                            <!-- 도서 정보 : 이미지,제목,저자,수량 -->
                             <a th:href="@{/books/{bookId}(bookId=${book.bookId()})}"
                                style="text-decoration: none; flex-shrink: 0;">
                                 <img th:src="${book.bookImageUrl()}" th:alt="${book.bookTitle()}"
                                      class="rounded shadow-sm" style="width: 80px; height: 112px; object-fit: cover;">
                             </a>
-
                             <div class="flex-grow-1 p-1 d-flex flex-column justify-content-between">
                                 <div>
                                     <a th:href="@{/books/{bookId}(bookId=${book.bookId()})}"
@@ -384,17 +389,27 @@
                                     </a>
                                     <p class="text-gray-500 small mb-2" th:text="${book.bookAuthor()}"></p>
                                 </div>
-
                                 <div class="d-flex align-items-center justify-content-between pr-1">
                                     <span class="text-gray-600 small" th:text="'수량: ' + ${book.quantity()}"></span>
                                 </div>
                             </div>
 
+
+                            <!-- 배송 완료 시에만 보여줌 : 상태메세지&리뷰버튼 -->
                             <div th:if="${order.deliveryStatus().name() == 'DELIVERED'}"
                                  class="d-flex flex-column justify-content-end gap-2 item-actions-wrapper"
                                  style="flex-shrink: 0; width: 120px;"  th:id="'item-actions-' + ${book.orderItemId()}">
 
                                 <div class="d-flex align-items-center" style="flex-shrink: 0; height: 38px;">
+
+                                    <!-- 기본상태 : 메시지 없음 -->
+                                    <div class="status-info-wrapper d-flex align-items-center justify-content-center"
+                                         style="flex-shrink: 0; width: 100%; height: 38px;"
+                                         th:if="${book.confirmStatus() != null and book.confirmStatus().name() == 'UNCONFIRMED'}">
+                                        <span class="small font-weight-bold" style="text-align: center; color: #5b5b9e;"></span>
+                                    </div>
+
+                                    <!-- 구매확정 눌렀고, 리뷰작성한게 없음 : 리뷰작성 버튼 -->
                                     <div class="review-wrapper d-flex align-items-center" style="flex-shrink: 0; width: 100%;"
                                          th:if="${book.confirmStatus() != null and book.confirmStatus().name() == 'CONFIRMED' and (book.isReviewed() == null or book.isReviewed() == false)}">
                                         <a th:href="@{/books/{bookId}/reviews(bookId=${book.bookId()}, orderItemId=${book.orderItemId()})}"
@@ -403,59 +418,60 @@
                                             리뷰 작성
                                         </a>
                                     </div>
-
+                                    <!-- 구매확정 눌렀고, 리뷰작성 했음 : 리뷰 작성 완료 -->
                                     <div class="status-info-wrapper d-flex align-items-center justify-content-center"
                                          style="flex-shrink: 0; width: 100%; height: 38px;"
                                          th:if="${book.confirmStatus() != null and book.confirmStatus().name() == 'CONFIRMED' and (book.isReviewed() != null and book.isReviewed() == true)}">
                                         <span class="small font-weight-bold" style="text-align: center; color: #5b5b9e;">리뷰 작성 완료</span>
                                     </div>
 
+                                    <!-- (파손/불량) 반품 신청 했을때 : 반품 요청 중 -> 거절 되면 UNCONFIRMED로 바뀜 -->
                                     <div class="status-info-wrapper d-flex align-items-center justify-content-center"
                                          style="flex-shrink: 0; width: 100%; height: 38px;"
                                          th:if="${book.confirmStatus() != null and book.confirmStatus().name() == 'REFUND_REQUEST'}">
                                         <span class="text-warning small font-weight-bold"
                                               style="width: 100%; text-align: center;">반품 요청 중</span>
                                     </div>
-
+                                    <!-- (단순 변심) 반품 신청 했을 때 : 반품 완료 -->
                                     <div class="status-info-wrapper d-flex align-items-center justify-content-center"
                                          style="flex-shrink: 0; width: 100%; height: 38px;"
                                          th:if="${book.confirmStatus() != null and book.confirmStatus().name() == 'REFUNDED'}">
                                         <span class="text-danger small font-weight-bold"
                                               style="width: 100%; text-align: center;">반품 완료</span>
                                     </div>
-
                                     <div class="confirm-wrapper" style="width: 100%;">
                                     </div>
                                 </div>
 
+                                <!-- 각 도서의 가격 : 배송완료시에 보여줌  -->
                                 <div class="d-flex flex-column align-items-end" style="flex-shrink: 0; height: 38px; justify-content: center;">
                                     <span class="text-gray-900 font-weight-bold" style="font-size: 1rem; line-height: 1;"
                                           th:text="${#numbers.formatDecimal(book.salePrice(), 0, 'COMMA', 0, 'POINT') + '원'}"></span>
                                 </div>
                             </div>
 
+                            <!-- 각 도서의 가격 : 배송완료를 제외한 나머지 상태에서 보여줌 -->
                             <div th:unless="${order.deliveryStatus().name() == 'DELIVERED'}"
                                  class="d-flex flex-column justify-content-end align-items-end price-placeholder"
                                  style="flex-shrink: 0; width: 120px; height: 112px;">
-
-                                <div style="flex-shrink: 0; height: 38px;">
-                                </div>
-
+                                <div style="flex-shrink: 0; height: 38px;"></div>
                                 <div class="d-flex flex-column align-items-end" style="flex-shrink: 0; height: 38px; justify-content: center; margin-top: 2px;">
                                     <span class="text-gray-900 font-weight-bold" style="font-size: 1rem; line-height: 1;"
                                           th:text="${#numbers.formatDecimal(book.salePrice(), 0, 'COMMA', 0, 'POINT') + '원'}"></span>
                                 </div>
                             </div>
-
                         </div>
                     </div>
 
+                    <!-- 각 주문에 하단에 보여줄 버튼들 -->
                     <div class="mt-4 pt-3 border-top border-gray-200 d-flex gap-2 order-actions">
+                        <!-- 주문 상세 보기 버튼 : 배송상태 상관없이 전부 띄움 -->
                         <a th:href="@{/orders/{orderId}(orderId=${order.orderId()})}"
                            class="btn btn-light text-gray-700 shadow-sm" style="flex: 1;">
                             주문 상세 보기
                         </a>
 
+                        <!-- 주문취소 버튼 : 배송준비중일때만 주문 취소 가능 (=아직 배송 출발 안했을 때) -->
                         <a th:if="${order.deliveryStatus().name() == 'WAITING'}"
                            href="#"
                            th:data-order-id="${order.orderId()}"
@@ -463,13 +479,14 @@
                             주문 취소
                         </a>
 
+                        <!-- 반품신청 버튼 : 배송완료일때만 반품 신청 가능, (단, 하나라도 unconfirmed 상태가 있을 때만 보임) -->
                         <a th:if="${order.deliveryStatus().name() == 'DELIVERED' and order.hasUnconfirmedItems()}"
                            th:href="@{/orders/{orderId}/refund(orderId=${order.orderId()})}"
                            class="btn btn-outline-secondary btn-return-request" style="flex: 1;">
                             반품 신청
                         </a>
-
-                        <div th:if="${order.deliveryStatus().name() == 'DELIVERED' and order.hasUnconfirmedItems()}"
+                        <!-- 전체구매확정 버튼 : 배송완료일때만 전체 구매확정 가능 (단, 하나라도 unconfirmed 상태가 있을 때만 보임 + 반품 요청 중이 하나라도 있으면 보이면 안됨) -->
+                        <div th:if="${(order.deliveryStatus().name() == 'DELIVERED' and order.hasUnconfirmedItems() and not order.hasRefundedRequestItems())}"
                              class="d-flex align-items-center" style="flex-shrink: 0; flex: 1;">
                             <a href="#"
                                th:data-order-id="${order.orderId()}"

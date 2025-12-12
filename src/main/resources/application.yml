@@ -16,7 +16,7 @@ spring:
       timeout: 5000ms
 
   jwt:
-    secret: "qwertyujhgfdsazxcvbnjhgfdsqwertyuhgfdsazxcvb" #${JWT_SECRET}
+    secret: ${JWT_SECRET}
 
 eureka:
   client:

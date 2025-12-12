@@ -21,7 +21,7 @@ public class AdminRefundApiClient {
      */
     public PageResponse<AdminRefundListResponse> getRefundList(String refundStatus, String keyword, int page, int size){
         var builder = UriComponentsBuilder
-                .fromPath(ORDER_SERVICE+".admin/refunds")
+                .fromPath(ORDER_SERVICE+"/admin/refunds")
                 .queryParam("page",page)
                 .queryParam("size",size);
 

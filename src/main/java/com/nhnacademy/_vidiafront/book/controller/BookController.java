@@ -7,6 +7,8 @@ import com.nhnacademy._vidiafront.book.dto.books.response.BookDetailWithReviewRe
 import com.nhnacademy._vidiafront.book.dto.books.response.BookListResponse;
 import com.nhnacademy._vidiafront.global.dto.PageResponse;
 import java.util.List;
+
+import groovy.util.logging.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,9 +18,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+@lombok.extern.slf4j.Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/books")
+@Slf4j
 public class BookController {
 
     private final BookApiClient bookApiClient;

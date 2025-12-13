@@ -131,4 +131,12 @@ public class AuthApiClient {
         cookie.setMaxAge(0); // 즉시 만료
         response.addCookie(cookie);
     }
+
+    public void paycoLogin() {
+
+    }
+
+    public void testLogin() {
+        backendApiClient.get(AUTH + "/auth/test", Void.class);
+    }
 }

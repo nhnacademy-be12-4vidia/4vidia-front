@@ -28,3 +28,7 @@ server:
 
 toss:
   clientKey: ${TOSS_CLIENT_KEY}
+
+auth:
+  payco:
+    login-url: https://4vidia/auth/test

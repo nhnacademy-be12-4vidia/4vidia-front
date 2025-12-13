@@ -107,9 +107,9 @@
                                             </span>
 
                                             <span class="badge bg-danger"
-                                                  th:text="${book.priceStandard() == 0 ? '' :
+                                                  th:text="${item.priceStandard() == 0 ? '' :
                                                   #numbers.formatDecimal(
-                                                    (book.priceStandard() - book.priceSales()) * 100 / book.priceStandard(),
+                                                    (item.priceStandard() - item.priceSales()) * 100 / item.priceStandard(),
                                                     0, 'COMMA', 0, 'POINT'
                                                   ) + '%'}">
                                             </span>

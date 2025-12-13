@@ -21,10 +21,16 @@ public class OrderApiClient {
     private static final String ORDER_SERVICE = "/api/v1/order-service";
     private final BackendApiClient backendApiClient;
 
-    //주문아이템 정보 넘기고 주문 화면에 필요한 정보 가져오기
-    public OrderCheckoutResponse getOrderCheckout(List<OrderCheckoutRequest> orderCheckoutRequests) {
+    //주문아이템 정보 넘기기
+    public String saveTempOrderCheckout(List<OrderCheckoutRequest> orderCheckoutRequests) {
         OrderCheckoutListRequest orderCheckoutListRequest = new OrderCheckoutListRequest(orderCheckoutRequests);
-        OrderCheckoutResponse orderCheckoutResponse = backendApiClient.post(ORDER_SERVICE + "/orders", orderCheckoutListRequest, OrderCheckoutResponse.class);
+        String orderKey = backendApiClient.post(ORDER_SERVICE + "/orders/checkout-temp", orderCheckoutListRequest, String.class);
+        return orderKey;
+    }
+
+    //주문 화면에 필요한 정보 가져오기
+    public OrderCheckoutResponse getOrderCheckout(String orderKey) {
+        OrderCheckoutResponse orderCheckoutResponse = backendApiClient.get(ORDER_SERVICE + "/orders?key=" + orderKey, OrderCheckoutResponse.class);
         return orderCheckoutResponse;
     }
 
@@ -44,7 +50,7 @@ public class OrderApiClient {
     }
 
     public OrderCreateResponse saveOrder(OrderCreateRequest orderCreateRequest) {
-        return backendApiClient.post(ORDER_SERVICE + "/orders/create", orderCreateRequest, OrderCreateResponse.class);
+        return backendApiClient.post(ORDER_SERVICE + "/orders", orderCreateRequest, OrderCreateResponse.class);
     }
 
     public void cancelOrder(long orderId) {

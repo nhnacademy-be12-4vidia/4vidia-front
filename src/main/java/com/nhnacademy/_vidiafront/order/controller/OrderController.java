@@ -38,10 +38,8 @@ public class OrderController {
     @Value("${toss.clientKey}")
     private String TOSS_CLIENT_KEY;
 
-    @PostMapping
-    public String showOrderPage(@ModelAttribute OrderPageRequest orderPageRequest,
-                                Model model) {
-
+    @PostMapping("/checkout-temp")
+    public String checkoutTemp(@ModelAttribute OrderPageRequest orderPageRequest) {
         List<OrderCheckoutRequest> orderCheckoutRequests;
 
         if (orderPageRequest.orderCheckoutRequests() != null) {
@@ -50,7 +48,17 @@ public class OrderController {
             orderCheckoutRequests = List.of(OrderCheckoutRequest.from(orderPageRequest.bookId(), orderPageRequest.quantity()));
         }
 
-        OrderCheckoutResponse response = orderApiClient.getOrderCheckout(orderCheckoutRequests);
+        String orderKey = orderApiClient.saveTempOrderCheckout(orderCheckoutRequests);
+
+        return "redirect:/orders?key=" + orderKey;
+    }
+
+    @GetMapping
+    public String showOrderPage(@RequestParam String key,
+                                Model model) {
+
+
+        OrderCheckoutResponse response = orderApiClient.getOrderCheckout(key);
 
         model.addAttribute("ordererName", response.name());
         model.addAttribute("ordererEmail", response.email());
@@ -72,9 +80,9 @@ public class OrderController {
         return "order/order";
     }
 
-    @PostMapping("/create") // 주문 저장
+    @PostMapping // 주문 저장 - 주문과정 1번
     public ResponseEntity<OrderCreateResponse> createOrder(@RequestBody OrderCreateRequest orderCreateRequest) {
-        OrderCreateResponse orderId = orderApiClient.saveOrder(orderCreateRequest); //주문과정 1번
+        OrderCreateResponse orderId = orderApiClient.saveOrder(orderCreateRequest);
 
         return ResponseEntity.ok(orderId);
     }
@@ -163,11 +171,11 @@ public class OrderController {
 
 
     /**
-     * 주문 취소 버튼(마이페이지)
+     * 배송 전 주문 취소 버튼(마이페이지)
      * */
-    @PostMapping("/cancel")
+    @PutMapping("/{orderId}/cancel")
     @ResponseBody
-    public Map<String, Object> cancelItem(@RequestParam(value = "orderId") Long orderId) {
+    public Map<String, Object> cancelItem(@PathVariable Long orderId) {
         Map<String, Object> response = new HashMap<>();
 
         try {

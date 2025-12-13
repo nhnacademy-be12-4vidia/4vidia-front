@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>반품 조회</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        .fixed-content-area {
+            width: 650px;
+            margin: 0 auto;
+        }
+
+        /* 탭 스타일 */
+        .status-tab {
+            text-align: center;
+            padding: 1rem 0.5rem;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #6c757d;
+            text-decoration: none;
+            flex-grow: 1;
+        }
+
+        .status-tab:hover { background-color: #f8f9fa; }
+        .status-tab.all-default-bg { background-color: #f5f5f5; }
+        .status-tab.all-default-bg:hover { background-color: #eee; }
+
+        .status-tab.active {
+            border-bottom-color: #5b5b9e;
+            font-weight: bold;
+            color: #5b5b9e !important;
+        }
+
+        .status-tab.all-default-bg.active { background-color: #f5f5f5; }
+
+        .tab-count {
+            font-size: 1.5rem;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        .tab-label {
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        /* 기간 필터 버튼 */
+        .period-btn {
+            font-size: 0.85rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 50px;
+            border: 1px solid #dee2e6;
+            background-color: white;
+            color: #495057;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .period-btn:hover { background-color: #f1f3f5; }
+        .period-btn.active {
+            background-color: #5b5b9e;
+            color: white;
+            border-color: #5b5b9e;
+        }
+
+        /* 리스트 아이템 카드 */
+        .return-item-card {
+            transition: box-shadow 0.3s ease;
+        }
+        .return-item-card:hover { box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; }
+
+        /* 상세 정보 박스 */
+        .detail-box {
+            background-color: #f8f9fa;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        .detail-row:last-child { margin-bottom: 0; }
+    </style>
+
+    <script th:src="@{/customJs/askMoveCart.js}"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        // 반품 취소 요청 로직
+        function cancelReturnRequest(returnId, title) {
+            if (confirm(`"${title}"의 반품 신청을 취소하시겠습니까?`)) {
+                // TODO: 실제 AJAX 요청 코드 추가 필요
+                alert('반품 신청이 취소되었습니다.');
+                window.location.reload();
+            }
+        }
+
+        // 상세보기 토글 로직 (jQuery slideToggle 사용)
+        $(document).ready(function() {
+            $('.detail-toggle-btn').on('click', function() {
+                const $btn = $(this);
+                const targetId = $btn.data('target');
+                const $detailBox = $('#' + targetId);
+                const $icon = $btn.find('i');
+
+                // 부드럽게 열고 닫기
+                $detailBox.slideToggle(300, function() {
+                    // 애니메이션 완료 후 실행할 로직이 있다면 여기에 작성
+                });
+
+                // 버튼 텍스트 및 아이콘 즉시 변경
+                // 박스가 현재 닫혀있다면(곧 열릴 것임) -> 접기로 변경
+                // 박스가 현재 열려있다면(곧 닫힐 것임) -> 상세보기로 변경
+                // slideToggle은 애니메이션 시작 시점에 상태를 바꾸므로,
+                // 현재 아이콘 클래스를 기준으로 판단하는 것이 정확합니다.
+
+                if ($icon.hasClass('fa-chevron-down')) {
+                    // 열리는 상황
+                    $btn.html('상세보기 <i class="fas fa-chevron-up ml-1"></i>');
+                } else {
+                    // 닫히는 상황
+                    $btn.html('상세보기 <i class="fas fa-chevron-down ml-1"></i>');
+                }
+            });
+        });
+        /*]]>*/
+    </script>
+</head>
+
+<body>
+<div layout:fragment="content">
+    <div class="container">
+
+        <h1 class="h3 mb-4 text-gray-800 text-center">반품 조회</h1>
+
+        <div class="fixed-content-area mb-4">
+            <div class="border-bottom border-top border-gray-300 bg-white">
+                <div class="d-flex text-center small text-nowrap" style="overflow-x: auto;">
+                    <a th:href="@{/mypage/refund-history(status='ALL', period=${currentPeriod})}"
+                       th:classappend="${currentStatus == 'ALL' ? 'active' : ''}"
+                       class="status-tab d-flex flex-column align-items-center justify-content-center all-default-bg">
+                        <div class="tab-count" th:text="${totalReturns}">0</div>
+                        <div class="tab-label">전체</div>
+                    </a>
+
+                    <a th:href="@{/mypage/refund-history(status='REQUESTED', period=${currentPeriod})}"
+                       th:classappend="${currentStatus == 'REQUESTED' ? 'active' : ''}"
+                       class="status-tab d-flex flex-column align-items-center justify-content-center">
+                        <div class="tab-count"
+                             th:text="${statusCounts['REQUESTED'] != null ? statusCounts['REQUESTED'] : 0}">0
+                        </div>
+                        <div class="tab-label text-warning">반품신청</div>
+                    </a>
+
+                    <a th:href="@{/mypage/refund-history(status='COMPLETED', period=${currentPeriod})}"
+                       th:classappend="${currentStatus == 'COMPLETED' ? 'active' : ''}"
+                       class="status-tab d-flex flex-column align-items-center justify-content-center">
+                        <div class="tab-count"
+                             th:text="${statusCounts['COMPLETED'] != null ? statusCounts['COMPLETED'] : 0}">0
+                        </div>
+                        <div class="tab-label text-success">반품완료</div>
+                    </a>
+
+                    <a th:href="@{/mypage/refund-history(status='REJECTED', period=${currentPeriod})}"
+                       th:classappend="${currentStatus == 'REJECTED' ? 'active' : ''}"
+                       class="status-tab d-flex flex-column align-items-center justify-content-center">
+                        <div class="tab-count"
+                             th:text="${statusCounts['REJECTED'] != null ? statusCounts['REJECTED'] : 0}">0
+                        </div>
+                        <div class="tab-label text-danger">반품거부</div>
+                    </a>
+                </div>
+            </div>
+
+<!--            <div class="bg-white p-3 border-bottom border-gray-200 d-flex gap-2 justify-content-center">-->
+<!--                <a th:href="@{/mypage/refund-history(status=${currentStatus}, period='1month')}"-->
+<!--                   th:classappend="${currentPeriod == '1month' ? 'active' : ''}"-->
+<!--                   class="period-btn">1개월</a>-->
+<!--                <a th:href="@{/mypage/refund-history(status=${currentStatus}, period='3months')}"-->
+<!--                   th:classappend="${currentPeriod == '3months' ? 'active' : ''}"-->
+<!--                   class="period-btn">3개월</a>-->
+<!--                <a th:href="@{/mypage/refund-history(status=${currentStatus}, period='6months')}"-->
+<!--                   th:classappend="${currentPeriod == '6months' ? 'active' : ''}"-->
+<!--                   class="period-btn">6개월</a>-->
+<!--                <a th:href="@{/mypage/refund-history(status=${currentStatus}, period='1year')}"-->
+<!--                   th:classappend="${currentPeriod == '1year' ? 'active' : ''}"-->
+<!--                   class="period-btn">1년</a>-->
+<!--            </div>-->
+
+            <div class="fixed-content-area py-3">
+
+                <div th:if="${#lists.isEmpty(returnList)}" class="text-center py-5 border rounded-lg bg-light shadow-sm">
+                    <i class="fas fa-box-open fa-2x text-secondary mb-3"></i>
+                    <p class="text-gray-600 font-weight-bold mb-0">해당 기간의 반품 내역이 없습니다.</p>
+                </div>
+
+                <div th:each="item : ${returnList}" class="bg-white rounded-lg shadow-sm p-4 mb-4 border border-gray-200 return-item-card">
+
+                    <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom border-gray-200 bg-light mx-n4 mt-n4 px-4 pt-3">
+                        <div>
+                            <div class="d-flex align-items-center gap-3 mb-1">
+                                <span class="text-gray-900 font-weight-bold"
+                                      th:text="${#temporals.format(item.returnDate(), 'yyyy.MM.dd')} + ' 반품신청'"></span>
+                                <span class="text-gray-400">|</span>
+                                <span class="text-gray-700 small">반품번호: <strong th:text="${item.id()}"></strong></span>
+                            </div>
+                            <div class="small text-muted">
+                                주문번호: <span th:text="${item.orderId()}"></span> (<span th:text="${#temporals.format(item.orderDate(), 'yyyy.MM.dd')}"></span>)
+                            </div>
+                        </div>
+
+                        <span th:with="status=${item.returnStatus().name()}"
+                              th:classappend="${status == 'REQUESTED' ? 'text-warning bg-warning-light border-warning' :
+                                              (status == 'COMPLETED' ? 'text-success bg-success-light border-success' :
+                                              (status == 'REJECTED' ? 'text-danger bg-danger-light border-danger' : 'text-secondary'))}"
+                              class="px-3 py-1 rounded-pill small font-weight-bold d-inline-flex align-items-center border"
+                              style="background-opacity: 0.1;">
+                            <i th:classappend="${status == 'REQUESTED' ? 'fa-clock' :
+                                               (status == 'COMPLETED' ? 'fa-check-circle' :
+                                               (status == 'REJECTED' ? 'fa-times-circle' : 'fa-box'))}"
+                               class="fas fa-sm mr-2"></i>
+                            <span th:text="${statusMap.get(status)}">배송 상태</span>
+                        </span>
+                    </div>
+
+                    <div class="d-flex gap-4 mb-3">
+                        <a href="#" style="text-decoration: none; flex-shrink: 0;">
+                            <img th:src="${item.imageUrl()}" th:alt="${item.title()}"
+                                 class="rounded shadow-sm" style="width: 80px; height: 112px; object-fit: cover; background: #eee;">
+                        </a>
+
+                        <div class="flex-grow-1 p-1 d-flex flex-column justify-content-between">
+                            <div>
+                                <h4 class="text-gray-900 mb-1" th:text="${item.title()}"
+                                    style="font-size: 1rem; font-weight: 600;">도서 제목</h4>
+                                <p class="text-gray-500 small mb-2" th:text="${item.author()}">저자</p>
+                            </div>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="badge bg-light text-dark border fw-normal" th:text="${item.returnType()}">환불</span>
+                                <span class="badge bg-light text-dark border fw-normal" th:text="${item.returnReason()}">단순변심</span>
+                                <span class="small text-muted align-self-center ml-2" th:text="'수량: ' + ${item.quantity()} + '개'"></span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-column align-items-end justify-content-center" style="flex-shrink: 0; min-width: 80px;">
+                            <span class="text-gray-900 font-weight-bold" style="font-size: 1rem;"
+                                  th:text="${#numbers.formatDecimal(item.price(), 0, 'COMMA', 0, 'POINT') + '원'}"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-3 pt-3 border-top">
+<!--                        <button th:if="${item.returnStatus().name() == 'REQUESTED'}"-->
+<!--                                th:onclick="cancelReturnRequest([[${item.id()}]], [[${item.title()}]])"-->
+<!--                                class="btn btn-outline-danger btn-sm" style="width: 100px;">-->
+<!--                            반품취소(할래말래)-->
+<!--                        </button>-->
+
+                        <button th:if="${item.returnStatus().name() == 'COMPLETED' or item.returnStatus().name() == 'REJECTED'}"
+                                th:onclick="|addToCartAndConfirmMove(${item.bookId()}, 1)|"
+                                class="btn btn-outline-dark btn-sm" style="width: 100px;">
+                            <i class="fas fa-cart-plus mr-1"></i> 재구매
+                        </button>
+
+<!--                        <a href="#" class="btn btn-outline-secondary btn-sm" style="width: 100px;">문의하기(할래말래)</a>-->
+
+                        <button class="btn btn-link btn-sm text-decoration-none detail-toggle-btn"
+                                type="button"
+                                th:data-target="'detail-' + ${item.id()}">
+                            상세보기 <i class="fas fa-chevron-down ml-1"></i>
+                        </button>
+                    </div>
+
+                    <div class="mt-3" th:id="'detail-' + ${item.id()}" style="display: none;">
+                        <div class="detail-box">
+                            <h6 class="font-weight-bold text-gray-800 mb-3 border-bottom pb-2">상세 정보</h6>
+
+                            <div class="detail-row">
+                                <span class="text-muted">반품 사유</span>
+                                <span class="text-dark" th:text="${item.returnReason()}"></span>
+                            </div>
+                            <div class="detail-row" th:if="${item.trackingNumber() != null}">
+                                <span class="text-muted">회수 운송장</span>
+                                <span class="text-primary font-weight-bold" th:text="${item.trackingNumber()}"></span>
+                            </div>
+
+                            <div th:if="${item.returnType() == '환불' and item.returnStatus().name() != 'REJECTED'}" class="mt-3 pt-2 border-top border-white">
+                                <div class="detail-row">
+                                    <span class="text-muted">상품 금액</span>
+                                    <span th:text="${#numbers.formatDecimal(item.price() * item.quantity(), 0, 'COMMA', 0, 'POINT') + '원'}"></span>
+                                </div>
+                                <div class="detail-row text-danger" th:if="${item.returnFee() > 0}">
+                                    <span>반품 배송비 (차감)</span>
+                                    <span th:text="'-' + ${#numbers.formatDecimal(item.returnFee(), 0, 'COMMA', 0, 'POINT') + '원'}"></span>
+                                </div>
+                                <div class="detail-row mt-2 font-weight-bold">
+                                    <span class="text-dark">환불 예정 금액</span>
+                                    <span class="text-primary" style="font-size: 1.1rem;"
+                                          th:text="${#numbers.formatDecimal(item.refundAmount(), 0, 'COMMA', 0, 'POINT') + '원'}"></span>
+                                </div>
+                                <div class="mt-2 p-2 bg-white rounded border border-light small text-muted" th:if="${item.refundAccount() != null}">
+                                    <i class="fas fa-university mr-1"></i> 환불계좌: <span th:text="${item.refundAccount()}"></span>
+                                </div>
+                            </div>
+
+                            <div th:if="${item.returnStatus().name() == 'REJECTED'}" class="mt-3 p-3 bg-danger-light border border-danger-subtle rounded text-danger">
+                                <div class="d-flex gap-2">
+                                    <i class="fas fa-exclamation-circle mt-1"></i>
+                                    <div>
+                                        <div class="font-weight-bold mb-1">반품 거부 사유</div>
+                                        <div th:text="${item.rejectReason()}">기간 경과</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div th:if="${item.returnStatus().name() == 'COMPLETED'}" class="mt-3 p-2 text-center text-success bg-success-light rounded">
+                                <i class="fas fa-check-circle mr-1"></i> 반품 처리가 완료되었습니다. (환불은 영업일 기준 3-5일 소요)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="fixed-content-area py-3">
+                    <div class="bg-white rounded p-4 border border-gray-200">
+                        <h6 class="font-weight-bold mb-3 text-gray-800"><i class="fas fa-info-circle mr-1 text-secondary"></i> 반품 안내</h6>
+                        <ul class="small text-muted pl-3 mb-0" style="line-height: 1.8;">
+                            <li>반품 신청 후 영업일 기준 2-3일 내 상품 회수가 진행됩니다.</li>
+                            <li>반품 상품은 회수 후 검수가 진행되며, 검수 완료 후 환불됩니다.</li>
+                            <li>단순 변심의 경우 왕복 배송비가 차감되어 환불될 수 있습니다.</li>
+                            <li>상품 불량/오배송의 경우 배송비는 판매자가 부담합니다.</li>
+                            <li>반품 관련 문의는 고객센터(1588-0000)로 연락주세요.</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

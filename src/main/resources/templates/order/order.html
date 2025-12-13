@@ -759,7 +759,7 @@
                 orderData.orderItems = orderItems;
                 orderData.coupons = selectedCoupons;
 
-                fetch("/orders/create", {
+                fetch("/orders", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

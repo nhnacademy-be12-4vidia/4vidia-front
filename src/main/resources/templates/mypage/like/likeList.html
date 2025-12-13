@@ -106,10 +106,12 @@
                                                   th:text="${#numbers.formatInteger(item.priceStandard(), 1, 'COMMA')} + '원'">
                                             </span>
 
-                                            <span class="badge bg-danger">
-                                                <span th:with="discountRate=${(item.priceStandard() - item.priceSales()) * 100 / item.priceStandard()}"
-                                                      th:text="${#numbers.formatDecimal(discountRate, 0, 'COMMA', 0, 'POINT')} + '%'">
-                                                </span>
+                                            <span class="badge bg-danger"
+                                                  th:text="${book.priceStandard() == 0 ? '' :
+                                                  #numbers.formatDecimal(
+                                                    (book.priceStandard() - book.priceSales()) * 100 / book.priceStandard(),
+                                                    0, 'COMMA', 0, 'POINT'
+                                                  ) + '%'}">
                                             </span>
                                         </div>
 

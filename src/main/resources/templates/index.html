@@ -311,10 +311,12 @@
                                   class="price-original-no-discount"
                                   th:text="${#numbers.formatDecimal(book.priceStandard(), 0, 'COMMA', 0, 'POINT') + '원'}">정가</span>
 
-                            <span class="badge bg-danger">
-                                <span th:with="discountRate=${(book.priceStandard() - book.priceSales()) * 100 / book.priceStandard()}"
-                                      th:text="${#numbers.formatDecimal(discountRate, 0, 'COMMA', 0, 'POINT')} + '%'">
-                                </span>
+                            <span class="badge bg-danger"
+                                  th:text="${book.priceStandard() == 0 ? '' :
+                                  #numbers.formatDecimal(
+                                    (book.priceStandard() - book.priceSales()) * 100 / book.priceStandard(),
+                                    0, 'COMMA', 0, 'POINT'
+                                  ) + '%'}">
                             </span>
                         </div>
 

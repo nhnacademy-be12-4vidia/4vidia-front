@@ -15,11 +15,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
@@ -30,13 +30,16 @@ public class AuthController {
     private final AuthApiClient authApiClient;
     private final PointApiClient pointApiClient;
     private final CartApiClient cartApiClient;
+    @Value("${auth.payco.login-url}")
+    private String paycoLoginUrl;
 
     /**
      * 로그인 폼
      *
      */
     @GetMapping("/login")
-    public String loginForm() {
+    public String loginForm(Model model) {
+        model.addAttribute("paycoLoginUrl", paycoLoginUrl);
         return "auth/loginForm";
     }
 
@@ -297,14 +300,6 @@ public class AuthController {
             return "redirect:/auth/dormant-auth/email";
         }
     }
-
-    @ExceptionHandler(HttpClientErrorException.Conflict.class)
-    public String handleDELETED(HttpClientErrorException.Conflict ex, Model model) {
-        model.addAttribute("loginError",  "탈퇴한 회원입니다.");
-        return "auth/loginForm";
-    }
-
-    
 
 
 }

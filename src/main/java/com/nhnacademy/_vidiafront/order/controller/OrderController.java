@@ -33,15 +33,10 @@ import java.util.UUID;
 public class OrderController {
 
     private final OrderApiClient orderApiClient;
-    private final PaymentApiClient paymentApiClient;
 
-    @Value("${toss.clientKey}")
-    private String TOSS_CLIENT_KEY;
-
-    @PostMapping
-    public String showOrderPage(@ModelAttribute OrderPageRequest orderPageRequest,
-                                Model model) {
-
+    // 바로구매, 장바구니에서 선택된 도서 임시 저장 후 결제 전 주문 확인 페이지로
+    @PostMapping("/checkout-temp")
+    public String checkoutTemp(@ModelAttribute OrderPageRequest orderPageRequest) {
         List<OrderCheckoutRequest> orderCheckoutRequests;
 
         if (orderPageRequest.orderCheckoutRequests() != null) {
@@ -50,7 +45,17 @@ public class OrderController {
             orderCheckoutRequests = List.of(OrderCheckoutRequest.from(orderPageRequest.bookId(), orderPageRequest.quantity()));
         }
 
-        OrderCheckoutResponse response = orderApiClient.getOrderCheckout(orderCheckoutRequests);
+        String orderKey = orderApiClient.saveTempOrderCheckout(orderCheckoutRequests);
+
+        return "redirect:/orders?key=" + orderKey;
+    }
+
+    // 결제 전 주문 화면에서 보여줄 정보(도서, 포장지, 유저 - 배송지, 쿠폰, 포인트)
+    @GetMapping
+    public String showOrderPage(@RequestParam String key,
+                                Model model) {
+
+        OrderCheckoutResponse response = orderApiClient.getOrderCheckout(key);
 
         model.addAttribute("ordererName", response.name());
         model.addAttribute("ordererEmail", response.email());
@@ -72,36 +77,12 @@ public class OrderController {
         return "order/order";
     }
 
-    @PostMapping("/create") // 주문 저장
+    // 주문 저장 (주문과정 1번)
+    @PostMapping
     public ResponseEntity<OrderCreateResponse> createOrder(@RequestBody OrderCreateRequest orderCreateRequest) {
-        OrderCreateResponse orderId = orderApiClient.saveOrder(orderCreateRequest); //주문과정 1번
+        OrderCreateResponse orderId = orderApiClient.saveOrder(orderCreateRequest);
 
         return ResponseEntity.ok(orderId);
-    }
-
-    @GetMapping("/toss-prepare") //tossPayment 결제 준비
-    public String prepareTossPage(@RequestParam long orderId,
-                                  @RequestParam String orderName,
-                                  @RequestParam String paymentMethod,
-                                  @RequestParam int payPrice,
-                                  Model model) {
-
-        String sendOrderId = "ORD-" + UUID.randomUUID(); //주문과정 2번
-
-        model.addAttribute("tossClientKey", TOSS_CLIENT_KEY);
-        model.addAttribute("orderId", orderId);
-        model.addAttribute("orderName", orderName);
-        model.addAttribute("customerEmail", "");
-        model.addAttribute("customerName", "홍길동");
-        model.addAttribute("payPrice", payPrice);
-        model.addAttribute("paymentMethod", paymentMethod);
-        model.addAttribute("sendOrderId", sendOrderId);
-
-        //자동결제 안쓰면 랜덤값도 가능
-        String customerKey = UUID.randomUUID().toString();
-        model.addAttribute("customerKey", customerKey);
-
-        return "order/toss-js";
     }
 
     @GetMapping("/{orderId}")
@@ -129,45 +110,13 @@ public class OrderController {
         return "order/orderDetail";
     }
 
-    @GetMapping("/{id}/success")
-    public String handlePaymentSuccess(@RequestParam String paymentKey,
-                                       @RequestParam String orderId,
-                                       @RequestParam int amount,
-                                       @PathVariable long id) {
-
-        PaymentConfirmRequest confirmRequest = new PaymentConfirmRequest(paymentKey, orderId, amount); //주문과정 3번
-
-        paymentApiClient.confirmPayment(confirmRequest, id);
-
-        return "redirect:/orders/success/" + id;
-    }
-
-    @GetMapping("/success/{orderId}")
-    public String successOrder(@PathVariable long orderId,
-                               Model model) {
-        PaymentResponse paymentResponse = paymentApiClient.getPayment(orderId); //주문과정 6번
-        model.addAttribute("payment", paymentResponse);
-
-        return "order/orderSuccess";
-    }
-
-
-    @GetMapping("/fail")
-    public String failPayment(HttpServletRequest request, Model model) {
-
-        model.addAttribute("code", request.getParameter("code"));
-        model.addAttribute("message", request.getParameter("message"));
-
-        return "order/orderFail";
-    }
-
 
     /**
-     * 주문 취소 버튼(마이페이지)
+     * 배송 전 주문 취소 버튼(마이페이지)
      * */
-    @PostMapping("/cancel")
+    @PutMapping("/{orderId}/cancel")
     @ResponseBody
-    public Map<String, Object> cancelItem(@RequestParam(value = "orderId") Long orderId) {
+    public Map<String, Object> cancelOrder(@PathVariable Long orderId) {
         Map<String, Object> response = new HashMap<>();
 
         try {

@@ -226,7 +226,7 @@
                             </form>
 
 
-                            <form th:action="@{/orders}" method="post" class="d-inline-block">
+                            <form th:action="@{/orders/checkout-temp}" method="post" class="d-inline-block">
                                 <input type="hidden" name="bookId" th:value="${book.id()}">
                                 <input type="hidden" name="quantity" value=1>
                                 <button type="submit" class="btn btn-success">

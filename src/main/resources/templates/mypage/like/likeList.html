@@ -134,7 +134,7 @@
                                                 </button>
                                             </form>
 
-                                            <form th:action="@{/orders}" method="post" class="flex-grow-1 w-50">
+                                            <form th:action="@{/orders/checkout-temp}" method="post" class="flex-grow-1 w-50">
                                                 <input type="hidden" name="bookId" th:value="${item.bookId()}">
                                                 <input type="hidden" name="quantity" value=1>
                                                 <button type="submit" class="btn btn-secondary w-100">

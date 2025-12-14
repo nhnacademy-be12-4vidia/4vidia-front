@@ -3,6 +3,7 @@
 <head>
     <title>토스 결제 요청</title>
     <script src="https://js.tosspayments.com/v2/standard"></script>
+    <meta charset="UTF-8">
 </head>
 <body>
 
@@ -13,7 +14,6 @@
 
 <script th:inline="javascript">
     // Controller에서 전달받은 정보
-    // (Controller는 orderId를 이용해 DB에서 주문 정보를 조회하여 아래 값들을 View로 전달해야 합니다.)
     const clientKey = /*[[${tossClientKey}]]*/ 'test_client_key'; // **서버에서 전달받은 토스 클라이언트 키**
     const orderId = /*[[${orderId}]]*/ 1;      // **기본 orderId (성공시 사용)**
     const sendOrderId = /*[[${sendOrderId}]]*/ '1234567890';               // **서버에서 생성된 주문 ID**
@@ -22,20 +22,14 @@
     const orderName = /*[[${orderName}]]*/ "책 1권 이상 등";
     const customerEmail = /*[[${customerEmail}]]*/ "";
     const customerName = /*[[${customerName}]]*/ "";
-
-
-    // TODO: 사용자 ID 또는 비회원 UUID를 사용해 실제 customerKey를 생성/조회해야 합니다.
-    // 여기서는 임시 함수를 사용합니다.
     const customerKey =  /*[[${customerKey}]]*/ "wowString";
 
     // 토스페이먼츠 객체 생성
     const tossPayments = TossPayments(clientKey);
     const payment = tossPayments.payment({ customerKey });
 
-    // 성공/실패 URL (Controller 매핑 필요)
-    // orderId를 파라미터로 넘겨 결제 승인 API 호출 시 사용합니다.
-    const successUrl = window.location.origin + "/orders/" + orderId + "/success";
-    const failUrl = window.location.origin + "/orders/fail";
+    const successUrl = window.location.origin + "/payments/success?id=" + orderId;
+    const failUrl = window.location.origin + "/payments/fail";
 
     /**
      * 토스페이먼츠 결제를 요청합니다.
@@ -92,11 +86,6 @@
             console.error("결제 요청 실패:", error);
             alert("결제 요청 중 오류가 발생했습니다.");
         }
-    }
-
-    // 임시 customerKey 생성 함수
-    function generateRandomString() {
-        return window.btoa(Math.random()).slice(0, 20);
     }
 
     // 페이지 로드 시 바로 결제 요청 시작

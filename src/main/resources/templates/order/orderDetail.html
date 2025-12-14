@@ -3,6 +3,7 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout.html}">
 <head>
+    <meta charset="UTF-8">
     <title>주문 상세 내역</title>
     <script>
         function cancelOrder(orderId) {
@@ -10,10 +11,9 @@
                 return;
             }
 
-            fetch("/orders/cancel", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: "orderId=" + orderId
+            fetch("/orders/" + orderId + "/cancel", {
+                method: "PUT",
+                // headers: { "Content-Type": "application/x-www-form-urlencoded" }
             })
                 .then(res => res.json())
                 .then(data => {

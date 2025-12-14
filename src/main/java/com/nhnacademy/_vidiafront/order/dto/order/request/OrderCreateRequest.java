@@ -25,7 +25,7 @@ public record OrderCreateRequest(
         int payPrice, //도서가격 + 배송비 + 포장비 - 할인/포인트
 
         List<ItemRequestDto> orderItems,
-        List<Long> coupons
+        Long coupons
 ) {
     public record ItemRequestDto(
             long bookId,

@@ -90,7 +90,6 @@
         // 전체 구매 확정용 URL (OrderListController에서 confirmAllItems를 처리한다고 가정)
         const confirmAllUrlBase = /*[[@{/mypage/order/confirm-items}]]*/ '/mypage/order/confirm-items';
         const reviewUrlBase = /*[[@{/books}]]*/ '/books';
-        const cancelUrlBase = /*[[@{/orders/cancel}]]*/ '/orders/cancel';
 
         /**
          * 주문 항목(orderItem) 개별 구매 확정 처리 함수
@@ -247,10 +246,10 @@
                 if (confirm(`주문번호 ${orderId}번 주문을 정말로 취소하시겠습니까?`)) {
 
                     // 주문 상세 페이지의 로직과 동일하게 fetch API 사용
-                    fetch(cancelUrlBase, {
-                        method: "POST", // 주문 취소는 POST가 일반적
-                        headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                        body: "orderId=" + orderId
+                    fetch("/orders/" + orderId + "/cancel", {
+                        method: "PUT", // 주문 취소는 POST가 일반적
+                        // headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                        // body: "orderId=" + orderId
                     })
                         .then(res => res.json())
                         .then(response => {

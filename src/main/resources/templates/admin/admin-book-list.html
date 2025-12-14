@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/admin-layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>도서 관리</title>
+    <link th:href="@{/css/sb-admin-2.min.css}" rel="stylesheet">
+    <style>
+        .table thead th {
+            background-color: #f8f9fc !important;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-bottom: 2px solid #e3e6f0;
+        }
+        .table td {
+            vertical-align: middle;
+            padding: 12px 10px;
+            font-size: 0.9rem;
+        }
+        .table-hover tbody tr {
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .form-box {
+            background: #fdfdfd;
+            border: 1px solid #e8e8e8;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .table-fixed {
+            table-layout: fixed;
+            width: 100%;
+        }
+        .table-fixed th,
+        .table-fixed td {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .book-thumb {
+            width: 50px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #e3e6f0;
+        }
+
+        /* 상세/수정 버튼 스타일 */
+        .btn-edit {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.6rem;
+        }
+    </style>
+</head>
+
+<body>
+<div layout:fragment="pageContent">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 text-gray-800">도서 관리</h1>
+        <a th:href="@{/admin/books/register}" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus"></i> 도서 등록
+        </a>
+    </div>
+
+    <!-- 검색 / 필터 영역 -->
+    <div class="card shadow-sm mb-3">
+        <div class="card-body form-box">
+            <form method="get" th:action="@{/admin/books}">
+                <div class="row g-3 align-items-end">
+
+                    <!-- 도서명 검색 -->
+                    <div class="col-md-4">
+                        <label class="form-label mb-1">도서명</label>
+                        <input type="text"
+                               name="title"
+                               class="form-control form-control-sm"
+                               placeholder="도서명 검색"
+                               th:value="${title}">
+                    </div>
+
+                    <!-- ISBN 검색 -->
+                    <div class="col-md-4">
+                        <label class="form-label mb-1">ISBN</label>
+                        <input type="text"
+                               name="isbn"
+                               class="form-control form-control-sm"
+                               placeholder="ISBN 검색"
+                               th:value="${isbn}">
+                    </div>
+
+                    <!-- 버튼 -->
+                    <div class="col-md-4 text-end">
+                        <input type="hidden" name="page" value="0"/>
+                        <button class="btn btn-primary btn-sm" type="submit" style="margin-top: 22px;">
+                            검색
+                        </button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 총 건수 -->
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="small text-muted">
+            총 <strong th:text="${page.totalElements}">0</strong> 건
+        </div>
+    </div>
+
+    <!-- 도서 목록 테이블 -->
+    <div class="d-flex flex-column gap-3" style="min-height: calc(100vh - 360px);">
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <table class="table table-hover align-middle mb-0 table-fixed">
+                    <thead>
+                    <tr class="text-center">
+                        <th style="width: 5%;">ID</th>
+                        <th style="width: 7%;">이미지</th>
+                        <th style="width: 20%;">도서명</th>
+                        <th style="width: 12%;">ISBN</th>
+                        <th style="width: 10%;">저자</th>
+                        <th style="width: 10%;">출판사</th>
+                        <th style="width: 8%;">출판일</th>
+                        <th style="width: 7%;">정가</th>
+                        <th style="width: 7%;">판매가</th>
+                        <th style="width: 5%;">재고</th>
+                        <th style="width: 5%;">상태</th>
+                        <th style="width: 4%;">관리</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <!-- 데이터 없음 -->
+                    <tr th:if="${#lists.isEmpty(page.content)}">
+                        <td colspan="12" class="text-center py-4 text-muted">
+                            등록된 도서가 없습니다.
+                        </td>
+                    </tr>
+
+                    <!-- 도서 행 -->
+                    <tr th:each="book : ${page.content}" class="align-middle">
+
+                        <!-- ID -->
+                        <td class="text-center" th:text="${book.id}">1</td>
+
+                        <!-- 이미지 -->
+                        <td class="text-center">
+                            <img th:if="${book.imageUrl}" th:src="@{/proxy(url=${book.imageUrl})}"
+                                 alt="도서 이미지" class="book-thumb">
+                            <span th:unless="${book.imageUrl}" class="text-muted small">No Image</span>
+                        </td>
+
+                        <!-- 도서명 -->
+                        <td>
+                            <div class="fw-semibold text-primary" th:text="${book.title}">
+                                도서 제목
+                            </div>
+                        </td>
+
+                        <!-- ISBN -->
+                        <td class="text-center" th:text="${book.isbn}">97911xxxxxxxxx</td>
+
+                        <!-- 저자 -->
+                        <td class="text-center">
+                            <span th:each="author, stat : ${book.authorNames}" th:text="${author}"
+                                  th:with="comma=${stat.last ? '' : ', '}"></span>
+                        </td>
+
+                        <!-- 출판사 -->
+                        <td class="text-center" th:text="${book.publisherName}">출판사명</td>
+
+                        <!-- 출판일 -->
+                        <td class="text-center" th:text="${book.publishedDate}">2025-01-01</td>
+
+                        <!-- 정가 -->
+                        <td class="text-end" th:text="${#numbers.formatInteger(book.priceStandard, 0, 'COMMA')} + '원'">15,000원</td>
+
+                        <!-- 판매가 -->
+                        <td class="text-end" th:text="${#numbers.formatInteger(book.priceSales, 0, 'COMMA')} + '원'">13,500원</td>
+
+                        <!-- 재고 -->
+                        <td class="text-center" th:text="${book.stock}">100</td>
+
+                        <!-- 상태 -->
+                        <td class="text-center" th:text="${book.status}">판매중</td>
+
+                        <!-- 관리(수정) -->
+                        <td class="text-center">
+                            <a th:href="@{/admin/books/edit/{bookId}(bookId=${book.id})}"
+                               class="btn btn-info btn-edit">수정</a>
+                        </td>
+
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <nav class="mt-auto" th:if="${page.totalPages > 1}">
+            <ul class="pagination pagination-sm justify-content-center"
+                th:with="
+            currentPage=${page.page},
+            totalPages=${page.totalPages},
+            blockSize=${5},
+            currentBlock=${currentPage / blockSize},
+            startPage=${currentBlock * blockSize},
+            endPage=${(startPage + blockSize - 1) < (totalPages - 1) ? (startPage + blockSize - 1) : (totalPages - 1)}
+        ">
+
+                <li class="page-item" th:classappend="${currentPage == 0} ? ' disabled'">
+                    <a class="page-link"
+                       th:href="@{/admin/books(
+                        page=${currentPage - 1},
+                        isbn=${isbn},
+                        title=${title}
+                   )}">&lt;</a>
+                </li>
+
+                <li class="page-item" th:if="${startPage > 0}">
+                    <a class="page-link"
+                       th:href="@{/admin/books(
+                        page=${0},
+                        isbn=${isbn},
+                        title=${title}
+                   )}">1</a>
+                </li>
+                <li class="page-item disabled" th:if="${startPage > 1}">
+                    <span class="page-link">…</span>
+                </li>
+
+                <li class="page-item"
+                    th:each="p : ${#numbers.sequence(startPage, endPage)}"
+                    th:classappend="${p == currentPage} ? ' active'">
+                    <a class="page-link"
+                       th:text="${p + 1}"
+                       th:href="@{/admin/books(
+                        page=${p},
+                        isbn=${isbn},
+                        title=${title}
+                   )}"></a>
+                </li>
+
+                <li class="page-item disabled" th:if="${endPage < totalPages - 2}">
+                    <span class="page-link">…</span>
+                </li>
+                <li class="page-item" th:if="${endPage < totalPages - 1}">
+                    <a class="page-link"
+                       th:text="${totalPages}"
+                       th:href="@{/admin/books(
+                        page=${totalPages - 1},
+                        isbn=${isbn},
+                        title=${title}
+                   )}"></a>
+                </li>
+
+                <li class="page-item" th:classappend="${page.last} ? ' disabled'">
+                    <a class="page-link"
+                       th:href="@{/admin/books(
+                        page=${currentPage + 1},
+                        isbn=${isbn},
+                        title=${title}
+                   )}">&gt;</a>
+                </li>
+
+            </ul>
+        </nav>
+    </div>
+</div>
+</body>
+</html>

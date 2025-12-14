@@ -1,6 +1,7 @@
 package com.nhnacademy._vidiafront.user.client;
 
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
+import com.nhnacademy._vidiafront.user.dto.auth.request.CompleteProfileRequest;
 import com.nhnacademy._vidiafront.user.dto.user.request.ChangePasswordRequest;
 import com.nhnacademy._vidiafront.user.dto.user.request.DeleteUserRequest;
 import com.nhnacademy._vidiafront.user.dto.user.request.UpdateUserRequest;
@@ -60,5 +61,13 @@ public class UserApiClient {
         return backendApiClient.get(USER_SERVICE + BASE_URL + "/role", String.class);
     }
 
+    /**
+     * payco 로그인 필수 정보 가입
+     */
+    public void completeProfile(CompleteProfileRequest completeProfileRequest) {
+        backendApiClient.put(USER_SERVICE + BASE_URL + "/complete-profile", completeProfileRequest, Void.class);
+    }
+
     // 기존 마지막로그인시간 업데이트 auth api client로 이동시킴
+
 }

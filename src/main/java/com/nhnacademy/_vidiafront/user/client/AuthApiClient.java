@@ -4,6 +4,7 @@ import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.user.dto.auth.request.FindIdRequest;
 import com.nhnacademy._vidiafront.user.dto.auth.request.FindPasswordRequest;
 import com.nhnacademy._vidiafront.user.dto.auth.request.LoginRequest;
+import com.nhnacademy._vidiafront.user.dto.auth.request.PaycoCodeRequest;
 import com.nhnacademy._vidiafront.user.dto.auth.response.TokenResponse;
 import com.nhnacademy._vidiafront.user.dto.user.request.UpdateLastLoginRequest;
 import com.nhnacademy._vidiafront.user.dto.user.request.UserSignupRequest;
@@ -117,6 +118,13 @@ public class AuthApiClient {
     }
 
     /**
+     * payco Token callback
+     */
+    public TokenResponse paycoCallback(PaycoCodeRequest paycoCodeRequest) {
+        return backendApiClient.post(AUTH + "/login/oauth2/code/payco", paycoCodeRequest, TokenResponse.class);
+    }
+
+    /**
      * 로그아웃
      */
     public String logout() {
@@ -130,13 +138,5 @@ public class AuthApiClient {
         cookie.setPath("/");
         cookie.setMaxAge(0); // 즉시 만료
         response.addCookie(cookie);
-    }
-
-    public void paycoLogin() {
-
-    }
-
-    public void testLogin() {
-        backendApiClient.get(AUTH + "/auth/test", Void.class);
     }
 }

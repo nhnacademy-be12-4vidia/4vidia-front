@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 
+import java.io.IOException;
+
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -74,6 +76,18 @@ public class GlobalExceptionHandler {
         model.addAttribute("errorMessage", message);
 
         // 원하는 에러 페이지로 이동
+        return "error/errorPage";
+    }
+
+    @ExceptionHandler(IOException.class)
+    public String handleRedirectException(IOException e) {
+        if (e.getMessage().contains("Redirecting TEMP user")) {
+            // TEMP 사용자 리다이렉트 관련 예외는 이미 응답이 커밋되었으므로, null을 반환하여 뷰 렌더링을 중단
+            log.debug("Handled TEMP user redirect exception: {}", e.getMessage());
+            return null;
+        }
+        // 그 외 IOException은 기본 에러 페이지로 처리
+        log.error("General IOException occurred: {}", e.getMessage());
         return "error/errorPage";
     }
 }

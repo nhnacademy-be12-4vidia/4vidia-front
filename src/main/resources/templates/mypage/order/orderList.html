@@ -92,35 +92,41 @@
         const reviewUrlBase = /*[[@{/books}]]*/ '/books';
 
         /**
-         * 주문 항목(orderItem) 개별 구매 확정 처리 함수
-         * @param {number} orderItemId - 구매 확정할 주문 항목 ID
-         * @param {number} bookId - 해당 도서 ID (리뷰 작성 링크 생성용)
-         * @returns {Promise<boolean>} - 성공 여부
+         * 구매 확정 함수
+         * @param {number} orderId - 주문 ID
          */
-        function confirmSingleItem(orderItemId, bookId) {
-            return new Promise((resolve, reject) => {
-                const singleConfirmUrl = /*[[@{/mypage/order/confirm-item}]]*/ '/mypage/order/confirm-item';
+        function confirmOrder(orderId) {
+            if (!confirm("구매를 확정하시겠습니까? 구매 확정 후에는 반품/교환이 불가합니다.")) {
+                return;
+            }
 
-                $.ajax({
-                    url: `${singleConfirmUrl}?orderItemId=${orderItemId}`,
-                    type: 'POST',
-                    dataType: 'json',
-                    success: function (response) {
-                        if (response.success) {
-                            // DOM 업데이트 로직을 분리하여 재사용 가능하게 만듭니다.
-                            updateItemActions(orderItemId, bookId, response.isReviewed);
-                            resolve(true);
-                        } else {
-                            console.error(`주문 항목 ${orderItemId} 구매 확정 실패: ` + (response.message || '알 수 없는 오류'));
-                            resolve(false); // 실패해도 다음 항목으로 진행
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.error(`AJAX Error for order item ${orderItemId}: `, status, error);
-                        reject(false); // 치명적인 오류로 간주하고 중단
+            // Thymeleaf URL 표현식
+            const confirmUrl = /*[[@{/mypage/order/confirm-order}]]*/ '/mypage/order/confirm-order';
+            // 주의: 위 URL은 프론트 컨트롤러(Spring MVC) 주소여야 합니다.
+            // 만약 프론트 컨트롤러 없이 바로 게이트웨이/API를 찌른다면 API 주소를 적어야 합니다.
+
+            // 프론트 컨트롤러가 있다면, 그 컨트롤러가 Service의 confirmOrder(orderId)를 호출하도록 연결되어야 합니다.
+            // 여기서는 fetch로 프론트 서버에 요청을 보내는 예시입니다.
+
+            fetch(confirmUrl + "/" + orderId, { // 혹은 body로 보낼 수도 있음, 서버 구현에 따라 다름
+                method: 'PUT', // Controller가 PutMapping이므로 PUT
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+                // backendApiClient.putNoBody를 사용하므로 body는 생략
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert("구매가 확정되었습니다.");
+                        window.location.reload(); // 페이지 새로고침하여 상태 반영
+                    } else {
+                        alert("구매 확정에 실패했습니다.");
                     }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("시스템 오류가 발생했습니다.");
                 });
-            });
         }
 
         /**

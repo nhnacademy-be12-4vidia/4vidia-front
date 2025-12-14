@@ -16,6 +16,6 @@ public class OrderItemApiClient {
     }
 
     public void confirmOrder(long orderId) {
-        backendApiClient.put(ORDER_SERVICE + "/orders/confirm-order", orderId, Void.class);
+        backendApiClient.putNoBody(ORDER_SERVICE + "/orders/" + orderId + "/confirm-order", Void.class);
     }
 }

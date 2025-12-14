@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>추가 정보 입력</title>
+
+    <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="/css/sb-admin-2.min.css" rel="stylesheet">
+
+    <style>
+        .form-group {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            font-weight: 700;
+            font-size: 1rem;
+            width: 120px;
+            margin-right: 20px;
+            line-height: calc(1.5em + .75rem + 2px);
+        }
+
+        .input-wrapper {
+            flex-grow: 1;
+        }
+
+        .email-check-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+
+        .email-feedback {
+            margin-top: 6px;
+            font-size: 0.875em;
+        }
+
+        .btn-primary:disabled {
+            background-color: #8392a5 !important;
+            border-color: #8392a5 !important;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+
+    <script>
+        let emailValid = false;
+
+        function updateButtonState() {
+            const requiredInputs = [
+                document.getElementById("email"),
+                document.getElementById("name"),
+                document.getElementById("phone"),
+                document.getElementById("birthDate")
+            ];
+
+            const allFilled = requiredInputs.every(i => i.value.trim() !== "");
+            document.getElementById("submitBtn").disabled = !(allFilled && emailValid);
+        }
+
+        function resetEmailValidation() {
+            emailValid = false;
+            document.getElementById("emailFeedback").textContent = "";
+            updateButtonState();
+        }
+
+        function checkEmail() {
+            const email = document.getElementById("email").value;
+            const feedback = document.getElementById("emailFeedback");
+
+            if (!email) {
+                feedback.textContent = "이메일을 입력해주세요.";
+                feedback.style.color = "red";
+                return;
+            }
+
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email)) {
+                feedback.textContent = "올바른 이메일 형식이 아닙니다.";
+                feedback.style.color = "red";
+                return;
+            }
+
+            fetch(`/auth/check-email?email=${encodeURIComponent(email)}`, {
+                method: "GET",
+                credentials: "same-origin"
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error();
+                    return res.json();
+                })
+                .then(exists => {
+                    if (exists) {
+                        feedback.textContent = "이미 사용 중인 이메일입니다.";
+                        feedback.style.color = "red";
+                        emailValid = false;
+                    } else {
+                        feedback.textContent = "사용 가능한 이메일입니다!";
+                        feedback.style.color = "green";
+                        emailValid = true;
+                    }
+                    updateButtonState();
+                })
+                .catch(() => {
+                    feedback.textContent = "이메일 확인 중 오류가 발생했습니다.";
+                    feedback.style.color = "red";
+                    emailValid = false;
+                    updateButtonState();
+                });
+        }
+
+        document.addEventListener("DOMContentLoaded", updateButtonState);
+    </script>
+</head>
+
+<body class="bg-gradient-primary">
+<div class="container">
+    <div class="card o-hidden border-0 shadow-lg my-5">
+        <div class="card-body p-5">
+
+            <h4 class="mb-4 text-center">추가 정보 입력</h4>
+
+            <form th:action="@{/complete-profile}" method="post">
+
+                <!-- 이메일 -->
+                <div class="form-group">
+                    <label for="email">이메일</label>
+                    <div class="input-wrapper">
+                        <div class="email-check-wrapper">
+                            <input type="email"
+                                   id="email"
+                                   name="email"
+                                   class="form-control form-control-user"
+                                   placeholder="example@email.com"
+                                   required
+                                   oninput="resetEmailValidation(); updateButtonState()">
+                            <button type="button"
+                                    class="btn btn-secondary"
+                                    onclick="checkEmail()">중복확인</button>
+                        </div>
+                        <small id="emailFeedback" class="email-feedback"></small>
+                    </div>
+                </div>
+
+                <!-- 이름 -->
+                <div class="form-group">
+                    <label for="name">이름</label>
+                    <div class="input-wrapper">
+                        <input type="text"
+                               id="name"
+                               name="name"
+                               class="form-control form-control-user"
+                               required
+                               oninput="updateButtonState()">
+                    </div>
+                </div>
+
+                <!-- 전화번호 -->
+                <div class="form-group">
+                    <label for="phone">전화번호</label>
+                    <div class="input-wrapper">
+                        <input type="tel"
+                               id="phone"
+                               name="phone"
+                               class="form-control form-control-user"
+                               pattern="01[016789][0-9]{7,8}"
+                               title="숫자만 입력해주세요. 예: 01012345678"
+                               required
+                               oninput="updateButtonState()">
+                    </div>
+                </div>
+
+                <!-- 생년월일 -->
+                <div class="form-group">
+                    <label for="birthDate">생년월일</label>
+                    <div class="input-wrapper">
+                        <input type="date"
+                               id="birthDate"
+                               name="birthDate"
+                               class="form-control form-control-user"
+                               th:max="${T(java.time.LocalDate).now()}"
+                               required
+                               oninput="updateButtonState()">
+                    </div>
+                </div>
+
+                <hr>
+
+                <button type="submit"
+                        id="submitBtn"
+                        class="btn btn-primary btn-user btn-block"
+                        disabled>
+                    정보 저장하고 로그아웃하기
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

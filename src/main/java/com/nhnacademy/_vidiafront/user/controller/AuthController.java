@@ -2,11 +2,11 @@ package com.nhnacademy._vidiafront.user.controller;
 
 import com.nhnacademy._vidiafront.cart.client.CartApiClient;
 import com.nhnacademy._vidiafront.point.client.PointApiClient;
-import com.nhnacademy._vidiafront.point.dto.request.PointPolicyRewardRequest;
 import com.nhnacademy._vidiafront.user.client.AuthApiClient;
 import com.nhnacademy._vidiafront.user.dto.auth.request.FindIdRequest;
 import com.nhnacademy._vidiafront.user.dto.auth.request.FindPasswordRequest;
 import com.nhnacademy._vidiafront.user.dto.auth.request.LoginRequest;
+import com.nhnacademy._vidiafront.user.dto.auth.request.PaycoCodeRequest;
 import com.nhnacademy._vidiafront.user.dto.auth.response.TokenResponse;
 import com.nhnacademy._vidiafront.user.dto.user.request.UserSignupRequest;
 import jakarta.servlet.http.Cookie;
@@ -28,83 +28,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthApiClient authApiClient;
-    private final PointApiClient pointApiClient;
-    private final CartApiClient cartApiClient;
-    @Value("${auth.payco.login-url}")
-    private String paycoLoginUrl;
 
-    /**
-     * 로그인 폼
-     *
-     */
-    @GetMapping("/login")
-    public String loginForm(Model model) {
-        model.addAttribute("paycoLoginUrl", paycoLoginUrl);
-        return "auth/loginForm";
-    }
-
-    /**
-     * 로그인
-     */
-    @PostMapping("/login")
-    public String loginForm(LoginRequest loginRequest,
-                            HttpServletRequest request,
-                            HttpServletResponse response) {
-        if (request.getSession(false) != null) {
-            request.getSession(false).invalidate();
-        }
-        authApiClient.deleteCookie("JSESSIONID", response);
-        authApiClient.deleteCookie("refresh", response);
-
-        TokenResponse tokenResponse = authApiClient.login(loginRequest);
-
-        String email = loginRequest.email();
-        // 휴먼이면 -> 휴먼인증으로 이동
-        if (authApiClient.isDormant(email)) {
-            request.setAttribute("email", email);
-            return "auth/dormant-auth";
-        }
-
-        authApiClient.updateLastLoginAt(email);
-
-        String accessToken = tokenResponse.accessToken();
-        String refreshToken = tokenResponse.refreshToken();
-
-
-        HttpSession session = request.getSession(true);
-        session.setAttribute("accessToken", accessToken);
-
-        Cookie refreshCookie = new Cookie("refresh", refreshToken);
-        refreshCookie.setHttpOnly(true);           // 브라우저 JS 접근 불가
-        refreshCookie.setSecure(false);             // HTTPS 환경이면 true
-        refreshCookie.setPath("/");
-        refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
-        response.addCookie(refreshCookie);
-
-        cartApiClient.loginSync();
-
-        return "redirect:/";
-    }
-
-    /**
-     * 로그아웃
-     */
-    @PostMapping("/logout")
-    public String logout(HttpServletRequest request,
-                         HttpServletResponse response) {
-        String userId = authApiClient.logout();
-        log.info("로그아웃 함 -> User id: {}", userId);
-        cartApiClient.logoutSync();
-
-        if (request.getSession(false) != null) {
-            request.getSession(false).invalidate();
-        }
-
-        authApiClient.deleteCookie("JSESSIONID", response);
-        authApiClient.deleteCookie("refresh", response);
-
-        return "redirect:/";
-    }
 
 
     /**
@@ -300,6 +224,4 @@ public class AuthController {
             return "redirect:/auth/dormant-auth/email";
         }
     }
-
-
 }

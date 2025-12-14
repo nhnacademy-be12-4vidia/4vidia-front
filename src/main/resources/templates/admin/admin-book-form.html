@@ -5,7 +5,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>도서 등록</title>
+    <title th:text="${mode == 'create' ? '도서 등록' : '도서 수정'}">도서 등록</title>
     <!-- TOAST UI Editor CSS -->
     <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
     <style>
@@ -23,10 +23,10 @@
 <body>
 <div layout:fragment="pageContent">
     <div class="container-fluid">
-        <h1 class="h3 mb-4 text-gray-800">도서 등록</h1>
+        <h1 class="h3 mb-4 text-gray-800" th:text="${mode == 'create' ? '도서 등록' : '도서 수정'}">도서 등록</h1>
 
-        <!-- ISBN Search Section -->
-        <div class="card shadow mb-4">
+        <!-- ISBN Search Section (Only for Create Mode) -->
+        <div class="card shadow mb-4" th:if="${mode == 'create'}">
             <div class="card-header py-3">
                 <h6 class="m-0 font-weight-bold text-primary">ISBN 검색 (자동 입력)</h6>
             </div>
@@ -43,8 +43,10 @@
             </div>
         </div>
 
-        <!-- Registration Form -->
-        <form id="bookRegisterForm" method="post" action="/admin/books/register">
+        <!-- Registration/Edit Form -->
+        <form id="bookForm" method="post"
+              th:action="${mode == 'create' ? '/admin/books/register' : '/admin/books/update/' + book.id}">
+            
             <div class="row">
                 <!-- Left Column: Image & Status -->
                 <div class="col-lg-4">
@@ -53,9 +55,17 @@
                             <h6 class="m-0 font-weight-bold text-primary">도서 이미지</h6>
                         </div>
                         <div class="card-body text-center">
-                            <img id="imagePreview" src="/img/logo.png" alt="도서 표지 미리보기" class="book-cover-preview mb-3">
-                            <input type="hidden" id="imageUrl" name="imageUrl">
-                            <input type="hidden" id="isbn" name="isbn">
+                            <img id="imagePreview" 
+                                 th:src="${book != null && !#lists.isEmpty(book.imageUrls) ? '/proxy?url=' + book.imageUrls[0] : '/img/logo.png'}" 
+                                 alt="도서 표지 미리보기" class="book-cover-preview mb-3">
+                            <input type="hidden" id="imageUrl" name="imageUrl" 
+                                   th:value="${book != null && !#lists.isEmpty(book.imageUrls) ? book.imageUrls[0] : ''}">
+                            
+                            <!-- ISBN Hidden Field (Populated by Search or Pre-filled) -->
+                            <input type="hidden" id="isbn" name="isbn" th:value="${book?.isbn}">
+                            <div th:if="${mode == 'update'}" class="mt-2 text-muted small">
+                                ISBN: <span th:text="${book?.isbn}"></span> (수정 불가)
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -69,42 +79,50 @@
                         <div class="card-body">
                             <div class="form-group">
                                 <label for="title">도서 제목</label>
-                                <input type="text" class="form-control" id="title" name="title" required>
+                                <input type="text" class="form-control" id="title" name="title" required
+                                       th:value="${book?.title}">
                             </div>
                             <div class="form-group">
                                 <label for="subtitle">부제목</label>
-                                <input type="text" class="form-control" id="subtitle" name="subtitle">
+                                <input type="text" class="form-control" id="subtitle" name="subtitle"
+                                       th:value="${book?.subtitle}">
                             </div>
                             
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="authors">저자</label>
-                                    <input type="text" class="form-control" id="authors" name="authors">
+                                    <input type="text" class="form-control" id="authors" name="authors"
+                                           th:value="${book != null && book.authors != null ? #strings.listJoin(book.authors.![name], ', ') : ''}">
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="publisher">출판사</label>
-                                    <input type="text" class="form-control" id="publisher" name="publisher">
+                                    <input type="text" class="form-control" id="publisher" name="publisher"
+                                           th:value="${book?.publisherInfo?.name}">
                                 </div>
                             </div>
 
                             <div class="form-row">
                                 <div class="form-group col-md-4">
                                     <label for="publishedDate">출간일</label>
-                                    <input type="date" class="form-control" id="publishedDate" name="publishedDate">
+                                    <input type="date" class="form-control" id="publishedDate" name="publishedDate"
+                                           th:value="${book?.publishedDate}">
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label for="language">언어</label>
-                                    <input type="text" class="form-control" id="language" name="language" value="ko">
+                                    <input type="text" class="form-control" id="language" name="language" 
+                                           th:value="${book?.language ?: 'ko'}">
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label for="pageCount">쪽수</label>
-                                    <input type="number" class="form-control" id="pageCount" name="pageCount">
+                                    <input type="number" class="form-control" id="pageCount" name="pageCount"
+                                           th:value="${book?.pageCount}">
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label for="categoryName">카테고리</label>
-                                <input type="text" class="form-control" id="categoryName" name="categoryName">
+                                <input type="text" class="form-control" id="categoryName" name="categoryName"
+                                       th:value="${book?.categoryInfo?.name}">
                             </div>
                         </div>
                     </div>
@@ -120,19 +138,23 @@
                     <div class="form-row">
                         <div class="form-group col-md-4">
                             <label for="priceStandard">정가</label>
-                            <input type="number" class="form-control" id="priceStandard" name="priceStandard">
+                            <input type="number" class="form-control" id="priceStandard" name="priceStandard"
+                                   th:value="${book?.priceStandard}">
                         </div>
                         <div class="form-group col-md-4">
                             <label for="priceSales">판매가</label>
-                            <input type="number" class="form-control" id="priceSales" name="priceSales">
+                            <input type="number" class="form-control" id="priceSales" name="priceSales"
+                                   th:value="${book?.priceSales}">
                         </div>
                         <div class="form-group col-md-4">
                             <label for="stock">재고수량</label>
-                            <input type="number" class="form-control" id="stock" name="stock" value="0">
+                            <input type="number" class="form-control" id="stock" name="stock" 
+                                   th:value="${book?.stock ?: 0}">
                         </div>
                     </div>
                     <div class="form-group form-check">
-                        <input type="checkbox" class="form-check-input" id="packagingAvailable" name="packagingAvailable">
+                        <input type="checkbox" class="form-check-input" id="packagingAvailable" name="packagingAvailable"
+                               th:checked="${book?.packagingAvailable}">
                         <label class="form-check-label" for="packagingAvailable">선물 포장 가능</label>
                     </div>
                 </div>
@@ -155,7 +177,8 @@
                     <h6 class="m-0 font-weight-bold text-primary">목차</h6>
                 </div>
                 <div class="card-body">
-                    <textarea class="form-control" id="bookIndex" name="bookIndex" rows="10"></textarea>
+                    <textarea class="form-control" id="bookIndex" name="bookIndex" rows="10"
+                              th:text="${book?.bookIndex}"></textarea>
                 </div>
             </div>
 
@@ -165,33 +188,41 @@
                     <h6 class="m-0 font-weight-bold text-primary">태그</h6>
                 </div>
                 <div class="card-body">
-                    <input type="text" class="form-control" id="tags" name="tags" placeholder="태그를 쉼표(,)로 구분하여 입력하세요">
+                    <input type="text" class="form-control" id="tags" name="tags" 
+                           placeholder="태그를 쉼표(,)로 구분하여 입력하세요"
+                           th:value="${book != null && book.tags != null ? #strings.listJoin(book.tags, ', ') : ''}">
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-block btn-lg mb-4">도서 등록</button>
+            <button type="submit" class="btn btn-primary btn-block btn-lg mb-4"
+                    th:text="${mode == 'create' ? '도서 등록' : '도서 수정'}">도서 등록</button>
         </form>
     </div>
 
     <!-- TOAST UI Editor JS -->
     <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
     
-    <script>
+    <script th:inline="javascript">
         const Editor = toastui.Editor;
+        const initialContent = [[${book?.description}]] || '';
 
-        // Initialize Editor for Description ONLY
+        // Initialize Editor
         const editor = new Editor({
             el: document.querySelector('#editor'),
             height: '500px',
             initialEditType: 'markdown',
-            previewStyle: 'vertical'
+            previewStyle: 'vertical',
+            initialValue: initialContent
         });
 
         // Form submit handler
-        document.getElementById('bookRegisterForm').addEventListener('submit', function(e) {
+        document.getElementById('bookForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
-            if (confirm('도서를 등록하시겠습니까?')) {
+            const mode = [[${mode}]];
+            const actionText = mode === 'create' ? '등록' : '수정';
+
+            if (confirm(`도서를 ${actionText}하시겠습니까?`)) {
                 // Get Markdown content from the editor
                 const description = editor.getMarkdown();
                 document.getElementById('description').value = description;
@@ -200,23 +231,24 @@
             }
         });
 
-        // ISBN Search Button Handler (Mockup)
-        document.getElementById('btnSearchIsbn').addEventListener('click', function() {
-            const isbnInput = document.getElementById('isbnSearchInput').value;
-            if(!isbnInput) {
-                alert('ISBN을 입력해주세요.');
-                return;
-            }
+        // ISBN Search Button Handler (Only active in Create mode)
+        const btnSearch = document.getElementById('btnSearchIsbn');
+        if (btnSearch) {
+            btnSearch.addEventListener('click', function() {
+                const isbnInput = document.getElementById('isbnSearchInput').value;
+                if(!isbnInput) {
+                    alert('ISBN을 입력해주세요.');
+                    return;
+                }
 
-            // Mockup: Simulate fetching data
-            // In reality, this would be an AJAX call to the backend
-            alert('ISBN 기반 도서 정보 검색 요청: ' + isbnInput + '\n(백엔드 연동 시 자동 입력됨)');
-            
-            // Example of how fields might be filled
-            document.getElementById('isbn').value = isbnInput; // Populate the hidden ISBN field
-            document.getElementById('title').value = "예시 도서 제목";
-            // ... other fields would be populated here
-        });
+                // Mockup: Simulate fetching data
+                alert('ISBN 기반 도서 정보 검색 요청: ' + isbnInput + '\n(백엔드 연동 시 자동 입력됨)');
+                
+                // Example of how fields might be filled
+                document.getElementById('isbn').value = isbnInput;
+                document.getElementById('title').value = "자동 입력된 제목";
+            });
+        }
     </script>
 </div>
 </body>

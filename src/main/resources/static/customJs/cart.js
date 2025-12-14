@@ -1,5 +1,3 @@
-
-// /static/js/cart.js
 document.addEventListener("DOMContentLoaded", function () {
     const selectAll = document.getElementById("selectAll");
     const rows = Array.from(document.querySelectorAll(".cart-item-row"));
@@ -123,17 +121,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const quantity = parseInt(qtyInput.value, 10);
 
-            // 👉 여기 URL은 실제 백엔드(cart-service) 주소에 맞게 수정!
-            // 예시들:
-            //   "/api/carts/items/" + bookId
-            //   "/cart-service/items/" + bookId
-            // 너네 게이트웨이/라우팅 구조에 맞게만 맞춰줘~
             fetch(`/cart/items/${bookId}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json"
-                    // JWT + 게이트웨이에서 X-User-Id/X-Guest-Id 셋팅해주면
-                    // 여기서 굳이 넣어줄 필요 없음
                 },
                 body: JSON.stringify({
                     quantity: quantity   // UpdateCartItemRequest 의 필드명에 맞춰서!

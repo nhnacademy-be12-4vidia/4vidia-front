@@ -3,8 +3,12 @@ package com.nhnacademy._vidiafront.refund.client;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.refund.dto.request.RefundRequest;
 import com.nhnacademy._vidiafront.refund.dto.response.RefundResponse;
+import com.nhnacademy._vidiafront.refund.dto.response.RefundHistoryResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -25,5 +29,23 @@ public class RefundApiClient {
     public void refundRegister(RefundRequest refundRequest){
         backendApiClient.post(ORDER_SERVICE + "/refunds", refundRequest, Void.class);
     }
+
+    /**
+     * 사용자 반품 내역 조회
+     */
+    public List<RefundHistoryResponse> refundHistory(String status) {
+        if (status == null) {
+            return backendApiClient.get(
+                    ORDER_SERVICE + "/users/me/refunds",
+                    new ParameterizedTypeReference<>() {}
+            );
+        }
+
+        return backendApiClient.get(
+                ORDER_SERVICE + "/users/me/refunds?status=" + status,
+                new ParameterizedTypeReference<>() {}
+        );
+    }
+
 
 }

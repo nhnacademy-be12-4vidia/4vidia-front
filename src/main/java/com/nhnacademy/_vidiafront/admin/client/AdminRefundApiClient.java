@@ -39,18 +39,18 @@ public class AdminRefundApiClient {
 
     }
 
-    public RefundDetailResponse getRefundDetail(Long id) {
-        String url = ORDER_SERVICE + "/admin/refunds/" + id;
+    public RefundDetailResponse getRefundDetail(Long refundId) {
+        String url = ORDER_SERVICE + "/admin/refunds/" + refundId;
         return backendApiClient.get(url, new ParameterizedTypeReference<RefundDetailResponse>() {});
     }
 
-    public void acceptRefund(Long id) {
-        String url = ORDER_SERVICE + "/admin/refunds/" + id + "/accept";
+    public void acceptRefund(Long refundId) {
+        String url = ORDER_SERVICE + "/admin/refunds/" + refundId + "/accept";
         backendApiClient.postNoBody(url, Void.class); // body 없으면 null
     }
 
-    public void rejectRefund(Long id) {
-        String url = ORDER_SERVICE + "/admin/refunds/" + id + "/reject";
+    public void rejectRefund(Long refundId) {
+        String url = ORDER_SERVICE + "/admin/refunds/" + refundId + "/reject";
         backendApiClient.postNoBody(url, Void.class);
     }
 

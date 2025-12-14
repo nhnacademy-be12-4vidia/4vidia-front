@@ -111,7 +111,7 @@
                         <div class="card-body">
 
                             <div class="row align-items-center cart-item-row"
-                                 th:attr="data-unit-price=${item.book.priceStandard}">
+                                 th:attr="data-unit-price=${item.book.priceSales}">
 
                                 <div class="col-md-7 d-flex align-items-center cart-left">
 
@@ -145,7 +145,7 @@
                                         </a>
                                         <div class="cart-book-price mb-1">
                                             <span class="text-gray-600">가격&nbsp;</span>
-                                            <span th:text="${#numbers.formatInteger(item.book.priceStandard, 0, 'COMMA')} + '원'">
+                                            <span th:text="${#numbers.formatInteger(item.book.priceSales, 0, 'COMMA')} + '원'">
                                                 10,000원
                                             </span>
                                         </div>
@@ -174,7 +174,7 @@
                                         <div class="text-right mr-4">
                                             <span class="small text-gray-600 d-block">상품 금액</span>
                                             <span class="line-total-text"
-                                                  th:text="${#numbers.formatInteger(item.book.priceStandard * item.quantity, 0, 'COMMA')} + '원'">
+                                                  th:text="${#numbers.formatInteger(item.book.priceSales * item.quantity, 0, 'COMMA')} + '원'">
                                                 0원
                                             </span>
                                         </div>

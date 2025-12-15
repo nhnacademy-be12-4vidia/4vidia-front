@@ -46,18 +46,18 @@ public class AdminRefundController {
     }
 
     // 승인
-    @PostMapping("/{refundId}/accept")
+    @PostMapping("/{id}/accept")
     @ResponseBody
-    public ResponseEntity<Void> acceptRefund(@PathVariable Long refundId) {
-        adminRefundApiClient.acceptRefund(refundId);
+    public ResponseEntity<Void> acceptRefund(@PathVariable Long id) {
+        adminRefundApiClient.acceptRefund(id); // client에 POST 위임
         return ResponseEntity.ok().build();
     }
 
     // 거절
-    @PostMapping("/{refundId}/r`eject")
+    @PostMapping("/{id}/reject")
     @ResponseBody
-    public ResponseEntity<Void> rejectRefund(@PathVariable Long refundId) {
-        adminRefundApiClient.rejectRefund(refundId); // client에 POST 위임
+    public ResponseEntity<Void> rejectRefund(@PathVariable Long id) {
+        adminRefundApiClient.rejectRefund(id); // client에 POST 위임
         return ResponseEntity.ok().build();
     }
 

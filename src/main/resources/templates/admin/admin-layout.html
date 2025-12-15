@@ -16,7 +16,7 @@
     <link rel="manifest" href="/favicon/site.webmanifest" />
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLMDJ8uR2K/88WqK13f16O9Xh/WwE+72t7mH3Y17R/jF6x/J6r04O6f4tT+3Hw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" />
     <link th:href="@{/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css">
     <link th:href="@{/css/sb-admin-2.min.css}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
@@ -150,7 +150,6 @@
                  aria-labelledby="headingBooks" data-bs-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <h6 class="collapse-header">도서 관련 기능:</h6>
-                    <a class="collapse-item" href="/admin/books" th:classappend="${currentUri == '/admin/books'} ? 'active'">도서 목록</a>
                     <a class="collapse-item" href="/admin/books/register" th:classappend="${currentUri == '/admin/books/register'} ? 'active'">도서 등록</a>
                     <a class="collapse-item" href="#">도서 할인 정책</a>
                     <a class="collapse-item" href="/admin/reviews" th:classappend="${currentUri.startsWith('/admin/reviews')} ? 'active'">리뷰 관리</a>

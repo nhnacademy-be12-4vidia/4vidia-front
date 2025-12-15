@@ -6,8 +6,10 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="${mode == 'create' ? '도서 등록' : '도서 수정'}">도서 등록</title>
-    <!-- TOAST UI Editor CSS -->
-    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+    <!-- TOAST UI Editor CSS (Local) -->
+    <link rel="stylesheet" href="/vendor/toastui/css/toastui-editor.min.css" />
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
         .book-cover-preview {
             width: 100%;
@@ -120,9 +122,11 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="categoryName">카테고리</label>
-                                <input type="text" class="form-control" id="categoryName" name="categoryName"
-                                       th:value="${book?.categoryInfo?.name}">
+                                <label for="categoryCode">카테고리</label>
+                                <select class="form-control" id="categoryCode" name="categoryCode">
+                                    <option value="">카테고리를 선택하세요</option>
+                                    <!-- Options will be dynamically loaded by JavaScript -->
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -200,56 +204,188 @@
     </div>
 
     <!-- TOAST UI Editor JS -->
-    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
-    
-    <script th:inline="javascript">
-        const Editor = toastui.Editor;
-        const initialContent = [[${book?.description}]] || '';
+    <!-- Removed from here, moved to pageScript fragment -->
+</div>
 
-        // Initialize Editor
-        const editor = new Editor({
-            el: document.querySelector('#editor'),
-            height: '500px',
-            initialEditType: 'markdown',
-            previewStyle: 'vertical',
-            initialValue: initialContent
+<th:block layout:fragment="pageScript">
+    <script src="/vendor/toastui/js/toastui-editor-all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script th:inline="javascript">
+        // jQuery for Select2
+        $(document).ready(function() {
+            // 1. Select2 초기화
+            $('#categoryCode').select2({
+                width: '100%',
+                placeholder: '카테고리 검색 (코드 또는 이름)',
+                allowClear: true,
+                language: {
+                    noResults: function() {
+                        return "검색 결과가 없습니다.";
+                    }
+                }
+            });
+
+            // 2. 카테고리 데이터 로드 (API 호출)
+            $.ajax({
+                url: '/admin/api/categories', 
+                method: 'GET',
+                success: function(categories) {
+                    // categories: [{code: '810', name: '[810] 문학 > 한국문학'}, ...] 형태 가정
+                    if (categories && categories.length > 0) {
+                        categories.forEach(function(cat) {
+                            var option = new Option(cat.name, cat.code, false, false);
+                            $('#categoryCode').append(option);
+                        });
+                    }
+
+                    // 수정 모드 시 기존 카테고리 선택 (book.categoryInfo.code가 있다고 가정)
+                    /*[# th:if="${book != null && book.categoryInfo != null}"]*/
+                    var initialCategoryCode = /*[[${book.categoryInfo.code}]]*/ null;
+                    if (initialCategoryCode) {
+                        $('#categoryCode').val(initialCategoryCode).trigger('change');
+                    }
+                    /*[/]*/
+                },
+                error: function(xhr, status, error) {
+                    console.error('카테고리 목록 로드 실패:', error);
+                }
+            });
         });
 
-        // Form submit handler
-        document.getElementById('bookForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toast UI Editor 설정
+            const editorEl = document.querySelector('#editor');
+            let editor;
 
-            const mode = [[${mode}]];
-            const actionText = mode === 'create' ? '등록' : '수정';
+            if (editorEl) {
+                const Editor = toastui.Editor;
+                const rawContent = /*[[${book?.description}]]*/ '';
+                const initialContent = rawContent || '';
 
-            if (confirm(`도서를 ${actionText}하시겠습니까?`)) {
-                // Get Markdown content from the editor
-                const description = editor.getMarkdown();
-                document.getElementById('description').value = description;
+                editor = new Editor({
+                    el: editorEl,
+                    height: '500px',
+                    initialEditType: 'markdown',
+                    previewStyle: 'vertical',
+                    initialValue: initialContent,
+                    hooks: {
+                        addImageBlobHook: (blob, callback) => {
+                            const formData = new FormData();
+                            formData.append('image', blob);
 
-                this.submit();
+                            // 이미지 업로드 API 호출
+                            fetch('/admin/api/images/upload', {
+                                method: 'POST',
+                                body: formData
+                            })
+                            .then(response => {
+                                if (!response.ok) throw new Error('Network response was not ok');
+                                return response.json(); // Expected: { url: 'http://...' }
+                            })
+                            .then(data => {
+                                callback(data.url, 'image');
+                            })
+                            .catch(error => {
+                                console.error('Image upload failed:', error);
+                                alert('이미지 업로드에 실패했습니다.');
+                            });
+                        }
+                    }
+                });
+            }
+
+            // 3. ISBN 검색 버튼 핸들러
+            const btnSearch = document.getElementById('btnSearchIsbn');
+            if (btnSearch) {
+                btnSearch.addEventListener('click', function() {
+                    const isbnInput = document.getElementById('isbnSearchInput').value;
+                    if(!isbnInput || isbnInput.length < 10) {
+                        alert('유효한 ISBN을 입력해주세요.');
+                        return;
+                    }
+
+                    // 로딩 표시 (선택사항)
+                    btnSearch.disabled = true;
+                    btnSearch.innerText = '검색 중...';
+
+                    fetch(`/admin/api/books/search?isbn=${isbnInput}`)
+                        .then(response => {
+                            if (!response.ok) throw new Error('도서 정보를 찾을 수 없습니다.');
+                            return response.json();
+                        })
+                        .then(data => {
+                            // 데이터 매핑
+                            document.getElementById('isbn').value = isbnInput; // 검색한 ISBN 사용
+                            document.getElementById('title').value = data.title || '';
+                            document.getElementById('subtitle').value = data.subtitle || '';
+                            
+                            // 작가 포맷팅: 이름 (역할)
+                            if (data.authors && Array.isArray(data.authors)) {
+                                const authorsStr = data.authors.map(a => `${a.name} (${a.role})`).join(', ');
+                                document.getElementById('authors').value = authorsStr;
+                            } else {
+                                document.getElementById('authors').value = '';
+                            }
+
+                            document.getElementById('publisher').value = data.publisher || '';
+                            document.getElementById('publishedDate').value = data.pubDate || '';
+                            document.getElementById('language').value = data.language || 'ko';
+                            document.getElementById('pageCount').value = data.pageCount || 0;
+                            document.getElementById('priceStandard').value = data.priceStandard || 0;
+                            document.getElementById('priceSales').value = data.priceStandard || 0; // 판매가는 정가로 초기화
+                            document.getElementById('stock').value = data.stock || 0;
+                            document.getElementById('bookIndex').value = data.bookIndex || '';
+                            
+                            // 태그
+                            if (data.tags && Array.isArray(data.tags)) {
+                                document.getElementById('tags').value = data.tags.join(', ');
+                            }
+
+                            // 카테고리 (Select2)
+                            if (data.categoryCode) {
+                                $('#categoryCode').val(data.categoryCode).trigger('change');
+                            }
+
+                            // 이미지 미리보기
+                            if (data.coverImageUrl) {
+                                document.getElementById('imagePreview').src = data.coverImageUrl;
+                                document.getElementById('imageUrl').value = data.coverImageUrl;
+                            }
+
+                            // 설명 (Editor)
+                            if (editor && data.description) {
+                                editor.setMarkdown(data.description);
+                            }
+
+                            alert('도서 정보를 성공적으로 불러왔습니다.');
+                        })
+                        .catch(error => {
+                            console.error(error);
+                            alert('도서 검색 실패: ' + error.message);
+                        })
+                        .finally(() => {
+                            btnSearch.disabled = false;
+                            btnSearch.innerText = '검색';
+                        });
+                });
+            }
+
+            // 4. 폼 서브밋 핸들러
+            const form = document.getElementById('bookForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    if (confirm('저장하시겠습니까?')) {
+                        // 에디터 내용 히든 필드에 저장
+                        if (editor) {
+                            document.getElementById('description').value = editor.getMarkdown();
+                        }
+                        this.submit();
+                    }
+                });
             }
         });
-
-        // ISBN Search Button Handler (Only active in Create mode)
-        const btnSearch = document.getElementById('btnSearchIsbn');
-        if (btnSearch) {
-            btnSearch.addEventListener('click', function() {
-                const isbnInput = document.getElementById('isbnSearchInput').value;
-                if(!isbnInput) {
-                    alert('ISBN을 입력해주세요.');
-                    return;
-                }
-
-                // Mockup: Simulate fetching data
-                alert('ISBN 기반 도서 정보 검색 요청: ' + isbnInput + '\n(백엔드 연동 시 자동 입력됨)');
-                
-                // Example of how fields might be filled
-                document.getElementById('isbn').value = isbnInput;
-                document.getElementById('title').value = "자동 입력된 제목";
-            });
-        }
     </script>
-</div>
+</th:block>
 </body>
 </html>

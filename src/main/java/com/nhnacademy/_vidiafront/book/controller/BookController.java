@@ -117,6 +117,7 @@ public class BookController {
         model.addAttribute("book", dto.book());
         model.addAttribute("reviewPage", dto.reviews());
         model.addAttribute("reviews", dto.reviews().content());
+        model.addAttribute("reviewSummary", dto.reviewSummary());
 
         return "book/detailView";
 

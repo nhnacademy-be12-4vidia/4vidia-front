@@ -72,6 +72,42 @@
             font-size: 1rem;
             color: #858796;
         }
+
+        .review-summary-card {
+            border-left: 0.35rem solid #4e73df;
+            background: #f8f9fc;
+            box-shadow: 0 0.15rem 1.0rem 0 rgba(58, 59, 69, 0.12);
+        }
+
+        .review-summary-title {
+            font-weight: 700;
+            color: #2e59d9;
+            margin-bottom: 0.25rem;
+        }
+
+        .review-summary-note {
+            color: #858796;
+            font-size: 0.8rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .review-summary-text {
+            white-space: pre-line;
+            font-size: 0.92rem;
+            color: #343a40;
+            line-height: 1.45;
+        }
+
+        .ai-badge {
+            display: inline-block;
+            padding: 0.2rem 0.45rem;
+            border-radius: 0.35rem;
+            background: rgba(78, 115, 223, 0.12);
+            color: #2e59d9;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-right: 0.4rem;
+        }
     </style>
     <script th:src="@{/customJs/askMoveCart.js}"></script>
 </head>
@@ -299,6 +335,26 @@
 
         <div class="row mt-4">
             <div class="col-lg-8 mb-4">
+                <!-- AI 리뷰 요약 (요약 텍스트가 있을 때만 표시) -->
+                <div class="card review-summary-card mb-3"
+                     th:if="${reviewSummary != null and !#strings.isEmpty(reviewSummary)}">
+                    <div class="card-body">
+                        <div class="review-summary-title">
+                            <span class="ai-badge">AI</span>
+                            리뷰 요약
+                        </div>
+                        <div class="review-summary-note">
+                            아래 내용은 사용자 리뷰를 기반으로 AI가 자동 요약한 결과입니다. 참고용으로만 활용해 주세요.
+                        </div>
+                        <div class="review-summary-text"
+                             th:text="${reviewSummary}">
+                            총평: ...
+                            장점: ...
+                            단점: ...
+                            추천대상: ...
+                        </div>
+                    </div>
+                </div>
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h6 class="m-0 font-weight-bold text-primary">리뷰</h6>

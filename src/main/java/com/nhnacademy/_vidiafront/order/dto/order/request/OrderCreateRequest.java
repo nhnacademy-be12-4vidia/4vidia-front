@@ -1,6 +1,6 @@
 package com.nhnacademy._vidiafront.order.dto.order.request;
 
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.PositiveOrZero;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -10,22 +10,23 @@ public record OrderCreateRequest(
         String addressRoadname,
         String addressDetail,
         String zipCode,
-        @Pattern(regexp = "^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$", message = "유효한 휴대폰 번호 형식(01X-XXXX-XXXX)이 아닙니다.")
         String recipientPhone,
         String deliveryRequest,
-        LocalDate deliveryDate,
         String orderPassword,
+        LocalDate deliveryDate,
 
-        int totalPrice, //도서 가격 합
-        int deliveryCost, //배송비
-        int packagingCost, //포장비
-
+        @PositiveOrZero(message = "도서 가격은 0 이상이어야 합니다.")
+        int totalBookPrice,
+        @PositiveOrZero(message = "포장비는 0 이상이어야 합니다.")
+        int packagingFee,
+        @PositiveOrZero(message = "배송비는 0 이상이어야 합니다.")
+        int deliveryFee,
         int couponDiscount, //쿠폰할인금액
+        @PositiveOrZero(message = "사용 포인트는 0 이상이어야 합니다.")
         int pointUsed,  //포인트사용금액
-        int payPrice, //도서가격 + 배송비 + 포장비 - 할인/포인트
 
         List<ItemRequestDto> orderItems,
-        Long coupons
+        Long couponId
 ) {
     public record ItemRequestDto(
             long bookId,

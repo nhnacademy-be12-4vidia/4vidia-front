@@ -13,5 +13,6 @@ public record CouponPolicyDto(
         Integer validDays,
         LocalDateTime startDate,
         LocalDateTime endDate,
-        Boolean isActivation
+        Boolean isActivation,
+        String issueStatus
 ) {}

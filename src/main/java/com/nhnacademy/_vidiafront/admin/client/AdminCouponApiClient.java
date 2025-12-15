@@ -1,7 +1,6 @@
 package com.nhnacademy._vidiafront.admin.client;
 
 import com.nhnacademy._vidiafront.admin.dto.request.CouponPolicyCreateRequest;
-import com.nhnacademy._vidiafront.admin.dto.response.CouponPolicyResponse;
 import com.nhnacademy._vidiafront.coupon.dto.CouponPolicyDto;
 import com.nhnacademy._vidiafront.coupon.dto.PageDto;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
@@ -9,8 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor

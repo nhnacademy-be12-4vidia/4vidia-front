@@ -68,7 +68,7 @@ public class AdminCouponApiClient {
     // 유저 쿠폰 목록 조회
     public List<MyCouponResponse> getUserCoupons(Long userId) {
         return backendApiClient.get(
-                "/api/v1/coupon/admin/users/" + userId + "/coupons",
+                COUPON_SERVICE+"admin/users/" + userId + "/coupons",
                 new ParameterizedTypeReference<>() {}
         );
     }
@@ -76,7 +76,7 @@ public class AdminCouponApiClient {
     // 유저에게 쿠폰 발급
     public void issueCouponToUser(Long userId, Long policyId) {
         backendApiClient.postNoBody(
-                "/api/v1/coupon/admin/users/" + userId + "/coupons/" + policyId + "/issue",
+                COUPON_SERVICE+"/admin/users/" + userId + "/coupons/" + policyId + "/issue",
                 Void.class
         );
     }

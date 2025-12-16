@@ -27,6 +27,7 @@ public class ProfileController {
         UserProfileResponse user = userApiClient.getUserProfile();
         model.addAttribute("user", user);
         model.addAttribute("request", new UpdateUserRequest(user.name(), user.phone()));
+        model.addAttribute("gradeName", user.gradeName());
         return "mypage/profile/info";
     }
 

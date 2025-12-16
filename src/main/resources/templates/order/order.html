@@ -136,28 +136,6 @@
                                 </label>
                             </div>
 
-                            <script>
-                                const sameAsOrdererCheckbox = document.getElementById('sameAsOrderer');
-                                sameAsOrdererCheckbox.addEventListener('change', function () {
-                                    const ordererName = document.getElementById('ordererName');
-                                    const ordererPhone = document.getElementById('ordererPhone');
-                                    const shipName = document.getElementById('shipName');
-                                    const shipPhone = document.getElementById('shipPhone');
-
-                                    if (this.checked) {
-                                        shipName.value = ordererName.value;
-                                        shipPhone.value = ordererPhone.value;
-                                        shipName.readOnly = true;
-                                        shipPhone.readOnly = true;
-                                    } else {
-                                        shipName.value = '';
-                                        shipPhone.value = '';
-                                        shipName.readOnly = false;
-                                        shipPhone.readOnly = false;
-                                    }
-                                });
-                            </script>
-
                             <hr>
                             <h6 class="font-weight-bold text-gray-700 mb-3">배송지 입력</h6>
                             <div class="form-group row">
@@ -264,6 +242,7 @@
                         </div>
                         <div class="card-body">
                             <input type="hidden" id="serverTotalPrice" name="totalPrice" th:value="${finalAmount}">
+
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-gray-700">총 상품 금액</span>
                                 <span class="font-weight-bold" id="totalPriceDisplay" th:text="|₩${#numbers.formatInteger(finalAmount, 0, 'COMMA')}|">₩0</span>
@@ -511,6 +490,7 @@
             document.getElementById("couponDiscountDisplay").innerText = "-" + fmt(currentCouponDiscount);
             document.getElementById("finalTotalDisplay").innerText = fmt(currentFinalTotal);
 
+            // Hidden Input
             document.getElementById("packagingCostInput").value = totalPackagingCost;
             document.getElementById("deliveryCostInput").value = totalDeliveryCost;
             document.getElementById("discountAmountInput").value = currentCouponDiscount;
@@ -530,7 +510,7 @@
         }
 
         document.addEventListener("DOMContentLoaded", function() {
-
+            // 전화번호 포맷팅 (입력 시 하이픈 추가)
             const sameAsOrdererCheckbox = document.getElementById('sameAsOrderer');
             const ordererNameInput = document.getElementById('ordererName');
             const ordererPhoneInput = document.getElementById('ordererPhone');
@@ -598,12 +578,7 @@
                 sameAsOrdererCheckbox.checked = false;
             }
 
-            ordererPhoneInput.closest('form').addEventListener('submit', function() {
-                ordererPhoneInput.value = ordererPhoneInput.value.replace(/-/g, '');
-                shipPhoneInput.value = shipPhoneInput.value.replace(/-/g, '');
-            });
-
-            // 포장 옵션 변경
+            // 포장 옵션 변경 이벤트
             const packagingSelects = document.querySelectorAll('.packaging-select');
             if (packagingSelects.length > 0) {
                 packagingSelects.forEach(select => {
@@ -613,7 +588,7 @@
                 });
             }
 
-            // 포인트 입력
+            // 포인트 입력 이벤트
             const pointInput = document.getElementById('usePoints');
             if (pointInput) {
                 pointInput.addEventListener('input', function() {
@@ -637,7 +612,7 @@
                 });
             }
 
-            // 배송지 선택
+            // 배송지 모달 선택 이벤트
             document.querySelectorAll('.address-select-item').forEach(item => {
                 item.addEventListener('click', function() {
                     const roadAddress = this.getAttribute('data-roadname');
@@ -651,14 +626,13 @@
 
             updateFinalAmount();
 
-            // 쿠폰 적용 버튼 로직 (라디오 버튼 적용)
+            // 쿠폰 적용 버튼 로직
             const applyCouponBtn = document.getElementById('applyCouponConfirm');
             if (applyCouponBtn) {
                 applyCouponBtn.addEventListener('click', function() {
                     let totalDiscount = 0;
                     let selectedCouponId = null;
 
-                    // 3. querySelectorAll -> querySelector 로 변경 (단일 요소 선택)
                     const checkedRadio = document.querySelector('input[name="selectedCoupon"]:checked');
 
                     if (checkedRadio && checkedRadio.value) {
@@ -667,7 +641,7 @@
                     }
 
                     currentCouponDiscount = totalDiscount;
-                    document.getElementById("usedCouponIds").value = selectedCouponId || "";
+                    document.getElementById("usedCouponIds").value = selectedCouponId || ""; // 값 설정
 
                     const infoDiv = document.getElementById('appliedCouponInfo');
                     if (selectedCouponId !== null) {
@@ -680,7 +654,7 @@
                     }
 
                     updateFinalAmount();
-                    $('#couponModal .btn-secondary').click();
+                    $('#couponModal .btn-secondary').click(); // 모달 닫기
                 });
             }
 
@@ -695,38 +669,45 @@
                     return;
                 }
 
-                const orderData = {};
-                if (isGuestUser) {
-                    orderData.orderPassword = document.getElementById('orderPassword').value;
-                }
+                // 1. OrderCreateRequest DTO에 맞춘 객체 생성
+                const orderData = {
+                    recipientName: document.getElementById('shipName').value,
+                    addressRoadname: document.getElementById('roadAddrPart1').value,
+                    addressDetail: document.getElementById('addrDetail').value,
+                    zipCode: document.getElementById('zipNo').value,
+                    // DTO가 String이지만 하이픈은 보통 제거하고 보내는 것이 좋음
+                    recipientPhone: document.getElementById('shipPhone').value.replace(/-/g, ''),
+                    deliveryRequest: document.getElementById('deliveryRequest').value,
+                    orderPassword: isGuestUser ? document.getElementById('orderPassword').value : null,
+                    deliveryDate: document.getElementById('shipDate').value, // yyyy-MM-dd 형식
 
-                orderData.recipientName = document.getElementById('shipName').value;
-                orderData.addressRoadname = document.getElementById('roadAddrPart1').value;
-                orderData.addressDetail = document.getElementById('addrDetail').value;
-                orderData.zipCode = document.getElementById('zipNo').value;
-                orderData.recipientPhone = document.getElementById('shipPhone').value;
-                orderData.deliveryRequest = document.getElementById('deliveryRequest').value;
-                orderData.deliveryDate = document.getElementById('shipDate').value;
+                    // 금액 필드 매핑 (@PositiveOrZero 고려)
+                    totalBookPrice: parseInt(document.getElementById('serverTotalPrice').value) || 0,
+                    packagingFee: parseInt(document.getElementById('packagingCostInput').value) || 0,
+                    deliveryFee: parseInt(document.getElementById('deliveryCostInput').value) || 0,
+                    couponDiscount: parseInt(document.getElementById('discountAmountInput').value) || 0,
+                    pointUsed: parseInt(document.getElementById('usePoints').value) || 0,
 
-                orderData.totalPrice = parseInt(document.querySelector('input[name="totalPrice"]').value) || 0;
-                orderData.deliveryCost = parseInt(document.getElementById('deliveryCostInput').value) || 0;
-                orderData.packagingCost = parseInt(document.getElementById('packagingCostInput').value) || 0;
-                orderData.couponDiscount = parseInt(document.getElementById('discountAmountInput').value) || 0;
-                orderData.pointUsed = parseInt(document.getElementById('usePoints').value) || 0;
-                orderData.payPrice = parseInt(document.getElementById('finalPaymentAmountInput').value) || 0;
+                    // 쿠폰 ID (단일 Long)
+                    couponId: document.getElementById('usedCouponIds').value ? parseInt(document.getElementById('usedCouponIds').value) : null
+                };
 
+                // 2. ItemRequestDto 리스트 생성
                 const orderItems = [];
                 const itemRows = document.querySelectorAll('.row.mb-4.border-bottom.pb-4.align-items-center');
 
                 itemRows.forEach((itemElement) => {
-                    const bookId = parseInt(itemElement.querySelector('input[name$=".bookId"]').value) || 0;
-                    const quantity = parseInt(itemElement.querySelector('input[name$=".quantity"]').value) || 0;
-                    const salePrice = parseInt(itemElement.querySelector('input[name$=".salePrice"]').value) || 0;
+                    // hidden input 클래스로 값 가져오기
+                    const bookId = parseInt(itemElement.querySelector('.item-book-id').value) || 0;
+                    const quantity = parseInt(itemElement.querySelector('.item-quantity').value) || 0;
+                    const salePrice = parseInt(itemElement.querySelector('.item-sale-price').value) || 0;
 
                     const packagingIds = [];
                     itemElement.querySelectorAll('.packaging-select').forEach(select => {
                         const val = parseInt(select.value);
-                        if (!isNaN(val)) packagingIds.push(val);
+                        if (!isNaN(val) && val !== 0) { // 0(선택안함)은 제외
+                            packagingIds.push(val);
+                        }
                     });
 
                     orderItems.push({
@@ -739,8 +720,8 @@
 
                 orderData.orderItems = orderItems;
 
-                const usedCouponIdVal = document.getElementById('usedCouponIds').value;
-                orderData.usedCouponId = usedCouponIdVal ? parseInt(usedCouponIdVal) : null;
+                // 프론트엔드용 추가 데이터 (결제 페이지 리다이렉트용)
+                const payPrice = parseInt(document.getElementById('finalPaymentAmountInput').value) || 0;
 
                 fetch("/orders", {
                     method: 'POST',
@@ -757,10 +738,12 @@
                     })
                     .then(orderResponse => {
                         console.log("주문 성공:", orderResponse);
+                        // orderResponse가 Long(orderId)일 수도 있고, 객체일 수도 있음. 상황에 맞춰 처리
                         const orderId = orderResponse.orderId || orderResponse;
-                        const payPrice = orderResponse.payPrice || orderData.payPrice;
+
                         const paymentMethod = document.getElementById("paymentMethodInput").value;
-                        window.location.href = `/payments?orderId=${orderId}&orderName=${orderName}&payPrice=${payPrice}&paymentMethod=${paymentMethod}`;
+                        // 결제 페이지로 이동
+                        window.location.href = `/payments?orderId=${orderId}&orderName=${encodeURIComponent(orderName)}&payPrice=${payPrice}&paymentMethod=${paymentMethod}`;
                     })
                     .catch(error => {
                         console.error("오류 발생:", error);

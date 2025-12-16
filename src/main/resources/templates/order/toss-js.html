@@ -27,7 +27,6 @@
     // 토스페이먼츠 객체 생성
     const tossPayments = TossPayments(clientKey);
     const payment = tossPayments.payment({ customerKey });
-
     const successUrl = window.location.origin + "/payments/success?id=" + orderId;
     const failUrl = window.location.origin + "/payments/fail";
 
@@ -117,8 +116,6 @@
                     console.error("Unknown payment method:", paymentMethod);
             }
         } catch (error) {
-            console.error("결제 요청 실패:", error);
-            alert("결제 요청 중 오류가 발생했습니다.");
             // 사용자가 결제창 X 버튼을 눌러 취소했을 때 (에러로 잡힘)
             if (error.code === 'USER_CANCEL') {
                 // 즉시 롤백 호출 (비동기 함수로 직접 호출)
@@ -137,7 +134,6 @@
         }
     }
 
-    // 페이지 로드 시 바로 결제 요청 시작
     document.addEventListener("DOMContentLoaded", function() {
         requestPayment();
     });

@@ -114,6 +114,17 @@
                     <div class="collapse-divider"></div>
                     <h6 class="collapse-header">쿠폰:</h6>
                     <a class="collapse-item" href="/admin/coupons/policies" th:classappend="${currentUri.startsWith('/admin/coupons')} ? 'active'">쿠폰 정책 관리</a>
+                    <a class="collapse-item"
+                       href="/admin/coupons/policies/category"
+                       th:classappend="${currentUri == '/admin/coupons/policies/category'} ? 'active'">
+                        카테고리/전체 정책 생성
+                    </a>
+
+                    <a class="collapse-item"
+                       href="/admin/coupons/policies/book"
+                       th:classappend="${currentUri == '/admin/coupons/policies/book'} ? 'active'">
+                        도서 정책 생성
+                    </a>
                 </div>
             </div>
         </li>

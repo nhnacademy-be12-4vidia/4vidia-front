@@ -83,12 +83,29 @@
                     console.error("Unknown payment method:", paymentMethod);
             }
         } catch (error) {
+<<<<<<< Updated upstream
             console.error("결제 요청 실패:", error);
             alert("결제 요청 중 오류가 발생했습니다.");
+=======
+            // 사용자가 결제창 X 버튼을 눌러 취소했을 때 (에러로 잡힘)
+            if (error.code === 'USER_CANCEL') {
+                // 즉시 롤백 호출 (비동기 함수로 직접 호출)
+                fetch(window.location.origin + "/payments/rollback", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        orderId: orderId
+                    })
+                }).then(() => {
+                    alert("결제가 취소되었습니다.");
+                    window.location.href = failUrl;
+                });
+                isRollbackNeeded = false; // 중복 호출 방지
+            }
+>>>>>>> Stashed changes
         }
     }
 
-    // 페이지 로드 시 바로 결제 요청 시작
     document.addEventListener("DOMContentLoaded", function() {
         requestPayment();
     });

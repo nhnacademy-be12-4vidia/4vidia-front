@@ -49,7 +49,7 @@
                                 <div class="col-md-4 packaging-select-group">
                                     <div th:each="num : ${#numbers.sequence(1, item.quantity)}" class="mb-2">
                                         <label class="text-xs font-weight-bold text-primary mb-1"
-                                               th:text="|🎁 ${num}번째 권 포장|">포장</label>
+                                               th:text="| ${num}번째 권 포장|">포장</label>
 
                                         <select class="form-control form-control-sm packaging-select">
                                             <option th:each="option : ${packagingOptions}"
@@ -82,19 +82,28 @@
                             <div class="form-group row">
                                 <label for="ordererName" class="col-sm-3 col-form-label">이름</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="ordererName" name="ordererName" th:value="${ordererName}" placeholder="이름" required>
+                                    <input type="text" class="form-control" id="ordererName" name="ordererName"
+                                           th:value="${ordererName}"
+                                           th:readonly="${ordererName != null && !ordererName.isEmpty()}"
+                                           placeholder="이름" required>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="ordererEmail" class="col-sm-3 col-form-label">이메일</label>
                                 <div class="col-sm-9">
-                                    <input type="email" class="form-control" id="ordererEmail" name="ordererEmail" th:value="${ordererEmail}" placeholder="user@example.com" required>
+                                    <input type="email" class="form-control" id="ordererEmail" name="ordererEmail"
+                                           th:value="${ordererEmail}"
+                                           th:readonly="${ordererEmail != null && !ordererEmail.isEmpty()}"
+                                           placeholder="user@example.com" required>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="ordererPhone" class="col-sm-3 col-form-label">휴대폰</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="ordererPhone" name="ordererPhone" th:value="${ordererPhone}" placeholder="010-1234-5678" required>
+                                    <input type="text" class="form-control" id="ordererPhone" name="ordererPhone"
+                                           th:value="${ordererPhone}"
+                                           th:readonly="${ordererPhone != null && !ordererPhone.isEmpty()}"
+                                           placeholder="010-1234-5678" required>
                                 </div>
                             </div>
                             <div class="form-group row mb-0" th:if="${isGuest}">
@@ -118,12 +127,16 @@
                         <div class="card-body">
 
                             <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" id="sameAsOrderer">
+                                <input class="form-check-input" type="checkbox" id="sameAsOrderer"
+                                       th:data-default-zip="${defaultAddress != null ? defaultAddress.zipCode() : ''}"
+                                       th:data-default-road="${defaultAddress != null ? defaultAddress.roadAddress() : ''}"
+                                       th:data-default-detail="${defaultAddress != null ? defaultAddress.addressDetail() : ''}">
                                 <label class="form-check-label" for="sameAsOrderer">
-                                    주문자 정보와 동일 (클릭 시 아래 자동 입력)
+                                    주문자 정보와 동일 (기본 배송지 적용)
                                 </label>
                             </div>
 
+<<<<<<< Updated upstream
                             <script>
                                 const sameAsOrdererCheckbox = document.getElementById('sameAsOrderer');
                                 sameAsOrdererCheckbox.addEventListener('change', function () {
@@ -146,6 +159,8 @@
                                 });
                             </script>
 
+=======
+>>>>>>> Stashed changes
                             <hr>
                             <h6 class="font-weight-bold text-gray-700 mb-3">배송지 입력</h6>
                             <div class="form-group row">
@@ -181,6 +196,7 @@
                                     <button type="button" class="btn btn-secondary btn-block" onclick="goPopup()">우편번호 찾기</button>
                                 </div>
                             </div>
+
                             <div class="form-group row mb-0">
                                 <div class="col-sm-9 offset-sm-3">
                                     <input type="text" class="form-control mb-2" id="roadAddrPart1" name="addressRoadname" placeholder="기본 주소" readonly required>
@@ -503,29 +519,100 @@
             document.getElementById("couponDiscountDisplay").innerText = "-" + fmt(currentCouponDiscount);
             document.getElementById("finalTotalDisplay").innerText = fmt(currentFinalTotal);
 
+<<<<<<< Updated upstream
+=======
+            // Hidden Input
+>>>>>>> Stashed changes
             document.getElementById("packagingCostInput").value = totalPackagingCost;
             document.getElementById("deliveryCostInput").value = totalDeliveryCost;
             document.getElementById("discountAmountInput").value = currentCouponDiscount;
             document.getElementById("finalPaymentAmountInput").value = currentFinalTotal;
         }
 
-        document.addEventListener("DOMContentLoaded", function() {
-            // 전화번호 포맷팅 로직들...
-            const ordererPhoneInput = document.getElementById('ordererPhone');
-            const shipPhoneInput = document.getElementById('shipPhone');
+        function formatPhoneNumber(value) {
+            if (!value) return "";
+            value = value.replace(/[^0-9]/g, ''); // 숫자만 남김
 
-            const phoneHandler = function(event) {
-                let value = event.target.value.replace(/[^0-9]/g, '');
-                if (value.length > 3 && value.length <= 7) {
-                    value = value.substring(0, 3) + '-' + value.substring(3);
-                } else if (value.length > 7) {
-                    value = value.substring(0, 3) + '-' + value.substring(3, 7) + '-' + value.substring(7, 11);
-                }
-                event.target.value = value;
+            if (value.length > 3 && value.length <= 7) {
+                return value.substring(0, 3) + '-' + value.substring(3);
+            } else if (value.length > 7) {
+                return value.substring(0, 3) + '-' + value.substring(3, 7) + '-' + value.substring(7, 11);
+            }
+            return value;
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+<<<<<<< Updated upstream
+            // 전화번호 포맷팅 로직들...
+=======
+            // 전화번호 포맷팅 (입력 시 하이픈 추가)
+            const sameAsOrdererCheckbox = document.getElementById('sameAsOrderer');
+            const ordererNameInput = document.getElementById('ordererName');
+>>>>>>> Stashed changes
+            const ordererPhoneInput = document.getElementById('ordererPhone');
+
+            const shipNameInput = document.getElementById('shipName');
+            const shipPhoneInput = document.getElementById('shipPhone');
+            const zipInput = document.getElementById('zipNo');
+            const roadInput = document.getElementById('roadAddrPart1');
+            const detailInput = document.getElementById('addrDetail');
+
+            if (ordererPhoneInput && ordererPhoneInput.value) {
+                ordererPhoneInput.value = formatPhoneNumber(ordererPhoneInput.value);
+            }
+            if (shipPhoneInput && shipPhoneInput.value) {
+                shipPhoneInput.value = formatPhoneNumber(shipPhoneInput.value);
+            }
+
+            const phoneInputHandler = function(event) {
+                event.target.value = formatPhoneNumber(event.target.value);
+                syncHandler();
             };
 
-            ordererPhoneInput.addEventListener('input', phoneHandler);
-            shipPhoneInput.addEventListener('input', phoneHandler);
+            if(ordererPhoneInput) ordererPhoneInput.addEventListener('input', phoneInputHandler);
+            if(shipPhoneInput) shipPhoneInput.addEventListener('input', phoneInputHandler);
+
+            function toggleShipmentInfo(isChecked) {
+                if (isChecked) {
+                    shipNameInput.value = ordererNameInput.value;
+                    shipPhoneInput.value = ordererPhoneInput.value;
+                    shipNameInput.readOnly = true;
+                    shipPhoneInput.readOnly = true;
+                    zipInput.value = sameAsOrdererCheckbox.dataset.defaultZip || '';
+                    roadInput.value = sameAsOrdererCheckbox.dataset.defaultRoad || '';
+                    detailInput.value = sameAsOrdererCheckbox.dataset.defaultDetail || '';
+                } else {
+                    shipNameInput.value = '';
+                    shipPhoneInput.value = '';
+                    shipNameInput.readOnly = false;
+                    shipPhoneInput.readOnly = false;
+                    zipInput.value = '';
+                    roadInput.value = '';
+                    detailInput.value = '';
+                }
+            }
+
+            if(sameAsOrdererCheckbox) {
+                sameAsOrdererCheckbox.addEventListener('change', function () {
+                    toggleShipmentInfo(this.checked);
+                });
+            }
+
+            const syncHandler = function() {
+                if (sameAsOrdererCheckbox && sameAsOrdererCheckbox.checked) {
+                    shipNameInput.value = ordererNameInput.value;
+                    shipPhoneInput.value = ordererPhoneInput.value;
+                }
+            };
+
+            if(ordererNameInput) ordererNameInput.addEventListener('input', syncHandler);
+
+            if(ordererNameInput && ordererNameInput.value && ordererNameInput.value.trim() !== "") {
+                sameAsOrdererCheckbox.checked = true;
+                toggleShipmentInfo(true);
+            } else {
+                sameAsOrdererCheckbox.checked = false;
+            }
 
             ordererPhoneInput.closest('form').addEventListener('submit', function() {
                 ordererPhoneInput.value = ordererPhoneInput.value.replace(/-/g, '');
@@ -696,6 +783,7 @@
                     .catch(error => {
                         console.error("오류 발생:", error);
                         alert("주문 처리 중 오류가 발생했습니다: " + error.message);
+                        // TODO 창 새로 고침 가능?
                     });
             });
         });

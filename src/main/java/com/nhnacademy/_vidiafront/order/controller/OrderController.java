@@ -1,7 +1,8 @@
 package com.nhnacademy._vidiafront.order.controller;
 
+import com.nhnacademy._vidiafront.coupon.client.CouponApiClient;
+import com.nhnacademy._vidiafront.coupon.dto.OrderCouponResponse;
 import com.nhnacademy._vidiafront.order.client.OrderApiClient;
-import com.nhnacademy._vidiafront.order.client.PaymentApiClient;
 import com.nhnacademy._vidiafront.order.dto.order.request.OrderCheckoutRequest;
 import com.nhnacademy._vidiafront.order.dto.order.request.OrderCreateRequest;
 import com.nhnacademy._vidiafront.order.dto.order.request.OrderPageRequest;
@@ -9,12 +10,10 @@ import com.nhnacademy._vidiafront.order.dto.order.request.OrderTrackingRequest;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderCheckoutResponse;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderCreateResponse;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderResponse;
-import com.nhnacademy._vidiafront.order.dto.payment.requset.PaymentConfirmRequest;
-import com.nhnacademy._vidiafront.order.dto.payment.response.PaymentResponse;
-import jakarta.servlet.http.HttpServletRequest;
+import com.nhnacademy._vidiafront.user.client.MyOrderApiClient;
+import com.nhnacademy._vidiafront.user.dto.user.response.OrderUserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,7 +23,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @Slf4j
 @Controller
@@ -33,6 +31,8 @@ import java.util.UUID;
 public class OrderController {
 
     private final OrderApiClient orderApiClient;
+    private final MyOrderApiClient myOrderApiClient;
+    private final CouponApiClient couponApiClient;
 
     // 바로구매, 장바구니에서 선택된 도서 임시 저장 후 결제 전 주문 확인 페이지로
     @PostMapping("/checkout-temp")
@@ -50,29 +50,34 @@ public class OrderController {
         return "redirect:/orders?key=" + orderKey;
     }
 
-    // 결제 전 주문 화면에서 보여줄 정보(도서, 포장지, 유저 - 배송지, 쿠폰, 포인트)
+    // 결제 전 주문 화면에서 보여줄 정보(유저 - 정보, 배송지, 포인트 / 주문 - 도서, 포장지 / 쿠폰 )
     @GetMapping
     public String showOrderPage(@RequestParam String key,
                                 Model model) {
 
-        OrderCheckoutResponse response = orderApiClient.getOrderCheckout(key);
-
-        model.addAttribute("ordererName", response.name());
-        model.addAttribute("ordererEmail", response.email());
-        model.addAttribute("ordererPhone", response.phone());
-        model.addAttribute("addressList", response.addressResponses());
-        model.addAttribute("points", response.point());
-        Boolean isGuest = response.name() == null || response.name().isBlank();
+        OrderUserResponse orderUserResponse = myOrderApiClient.getUserOrderInfo();
+        model.addAttribute("ordererName", orderUserResponse.name());
+        model.addAttribute("ordererEmail", orderUserResponse.email());
+        model.addAttribute("ordererPhone", orderUserResponse.phone());
+        OrderUserResponse.AddressResponse defaultAddress = new OrderUserResponse.AddressResponse(
+                orderUserResponse.addressId(), null, orderUserResponse.roadAddress(), orderUserResponse.zipCode(), orderUserResponse.addressDetail()
+        );
+        model.addAttribute("defaultAddress", defaultAddress);
+        model.addAttribute("addressList", orderUserResponse.addressResponses());
+        model.addAttribute("points", orderUserResponse.point());
+        Boolean isGuest = orderUserResponse.name() == null || orderUserResponse.name().isBlank();
         model.addAttribute("isGuest", isGuest);
 
-        model.addAttribute("orderName", response.orderName());
-        model.addAttribute("cartItems", response.bookItems());
-        model.addAttribute("finalAmount", response.finalAmount()); // (첵 판매가 * 수량)의 합
+        OrderCheckoutResponse orderCheckoutResponse = orderApiClient.getOrderCheckout(key);
+        model.addAttribute("orderName", orderCheckoutResponse.orderName());
+        model.addAttribute("cartItems", orderCheckoutResponse.bookItems());
+        model.addAttribute("finalAmount", orderCheckoutResponse.finalAmount()); // (첵 판매가 * 수량)의 합
+        model.addAttribute("packagingOptions", orderCheckoutResponse.packagingOptions());
+        model.addAttribute("deliveryDates", orderCheckoutResponse.deliveryDateResponses());
 
-        model.addAttribute("possibleCoupons", response.possibleCoupons());
-        model.addAttribute("impossibleCoupons", response.impossibleCoupons());
-        model.addAttribute("packagingOptions", response.packagingOptions());
-        model.addAttribute("deliveryDates", response.deliveryDateResponses());
+        OrderCouponResponse orderCouponResponse = couponApiClient.orderCouponResponse(orderCheckoutResponse.bookItems());
+        model.addAttribute("possibleCoupons", orderCouponResponse.possibleCoupons());
+        model.addAttribute("impossibleCoupons", orderCouponResponse.impossibleCoupons());
 
         return "order/order";
     }

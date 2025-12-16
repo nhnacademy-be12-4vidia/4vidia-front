@@ -16,7 +16,7 @@
         </div>
 
         <div class="row">
-            <form id="orderForm" action="/orders/create" method="POST" class="col-lg-12 row p-0">
+            <form id="orderForm" class="col-lg-12 row p-0">
                 <div class="col-lg-7">
 
                     <div class="card shadow mb-4">
@@ -41,9 +41,9 @@
                                         <span class="text-xs text-gray-600" th:text="|x ${item.quantity()}개|">x 1개</span>
                                     </div>
 
-                                    <input type="hidden" th:name="|orderItems[${stat.index}].bookId|" th:value="${item.bookId()}">
-                                    <input type="hidden" th:name="|orderItems[${stat.index}].salePrice|" th:value="${item.salePrice()}">
-                                    <input type="hidden" th:name="|orderItems[${stat.index}].quantity|" th:value="${item.quantity()}">
+                                    <input type="hidden" class="item-book-id" th:value="${item.bookId()}">
+                                    <input type="hidden" class="item-sale-price" th:value="${item.salePrice()}">
+                                    <input type="hidden" class="item-quantity" th:value="${item.quantity()}">
                                 </div>
 
                                 <div class="col-md-4 packaging-select-group">
@@ -136,7 +136,6 @@
                                 </label>
                             </div>
 
-<<<<<<< Updated upstream
                             <script>
                                 const sameAsOrdererCheckbox = document.getElementById('sameAsOrderer');
                                 sameAsOrdererCheckbox.addEventListener('change', function () {
@@ -159,8 +158,6 @@
                                 });
                             </script>
 
-=======
->>>>>>> Stashed changes
                             <hr>
                             <h6 class="font-weight-bold text-gray-700 mb-3">배송지 입력</h6>
                             <div class="form-group row">
@@ -353,9 +350,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-
                     <h6 class="font-weight-bold text-primary">적용 가능 쿠폰</h6>
-
                     <div class="list-group list-group-flush mb-3">
                         <div class="list-group-item">
                             <div class="form-check">
@@ -476,9 +471,6 @@
             });
         }
 
-        // 2. 단일 쿠폰 선택 로직 변경 (배열 -> 단일변수, 여기서는 ID만 저장)
-        // let selectedCoupons = []; // 사용하지 않음
-
         let initialTotalPrice = 0;
         let totalPackagingCost = 0;
         let totalDeliveryCost = 0;
@@ -519,10 +511,6 @@
             document.getElementById("couponDiscountDisplay").innerText = "-" + fmt(currentCouponDiscount);
             document.getElementById("finalTotalDisplay").innerText = fmt(currentFinalTotal);
 
-<<<<<<< Updated upstream
-=======
-            // Hidden Input
->>>>>>> Stashed changes
             document.getElementById("packagingCostInput").value = totalPackagingCost;
             document.getElementById("deliveryCostInput").value = totalDeliveryCost;
             document.getElementById("discountAmountInput").value = currentCouponDiscount;
@@ -542,13 +530,9 @@
         }
 
         document.addEventListener("DOMContentLoaded", function() {
-<<<<<<< Updated upstream
-            // 전화번호 포맷팅 로직들...
-=======
-            // 전화번호 포맷팅 (입력 시 하이픈 추가)
+
             const sameAsOrdererCheckbox = document.getElementById('sameAsOrderer');
             const ordererNameInput = document.getElementById('ordererName');
->>>>>>> Stashed changes
             const ordererPhoneInput = document.getElementById('ordererPhone');
 
             const shipNameInput = document.getElementById('shipName');
@@ -755,10 +739,8 @@
 
                 orderData.orderItems = orderItems;
 
-                // 4. 쿠폰 단일 ID 전송 로직 적용
                 const usedCouponIdVal = document.getElementById('usedCouponIds').value;
                 orderData.usedCouponId = usedCouponIdVal ? parseInt(usedCouponIdVal) : null;
-                // orderData.coupons = ... (삭제)
 
                 fetch("/orders", {
                     method: 'POST',

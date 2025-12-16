@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 public record CouponPolicyDto(
         Long policyId,
         String policyName,
+        String policyType,
         String discountType,
         Integer discountValue,
         Integer maxDiscountAmount,
@@ -13,5 +14,6 @@ public record CouponPolicyDto(
         Integer validDays,
         LocalDateTime startDate,
         LocalDateTime endDate,
-        Boolean isActivation
+        Boolean isActivation,
+        String issueStatus
 ) {}

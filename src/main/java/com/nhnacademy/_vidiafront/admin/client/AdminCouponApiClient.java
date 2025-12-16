@@ -1,8 +1,8 @@
 package com.nhnacademy._vidiafront.admin.client;
 
 import com.nhnacademy._vidiafront.admin.dto.request.CouponPolicyCreateRequest;
-import com.nhnacademy._vidiafront.admin.dto.response.CouponPolicyResponse;
 import com.nhnacademy._vidiafront.coupon.dto.CouponPolicyDto;
+import com.nhnacademy._vidiafront.coupon.dto.MyCouponResponse;
 import com.nhnacademy._vidiafront.coupon.dto.PageDto;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminCouponApiClient {
 
-    private static final String COUPON_SERVICE = "/api/v1/coupon";
+    private static final String COUPON_SERVICE = "/api/v1/coupon-service";
 
     private final BackendApiClient backendApiClient;
 
@@ -60,10 +60,27 @@ public class AdminCouponApiClient {
         }
 
         return backendApiClient.get(
-                uriBuilder.build().toUriString(),
+                uriBuilder.encode().build().toUriString(),
                 new ParameterizedTypeReference<PageDto<CouponPolicyDto>>() {}
         );
     }
+
+    // 유저 쿠폰 목록 조회
+    public List<MyCouponResponse> getUserCoupons(Long userId) {
+        return backendApiClient.get(
+                COUPON_SERVICE+"/admin/users/" + userId + "/coupons",
+                new ParameterizedTypeReference<>() {}
+        );
+    }
+
+    // 유저에게 쿠폰 발급
+    public void issueCouponToUser(Long userId, Long policyId) {
+        backendApiClient.postNoBody(
+                COUPON_SERVICE+"/admin/users/" + userId + "/coupons/" + policyId + "/issue",
+                Void.class
+        );
+    }
+
 
 
 }

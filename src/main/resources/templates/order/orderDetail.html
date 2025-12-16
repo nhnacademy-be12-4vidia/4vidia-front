@@ -12,8 +12,7 @@
             }
 
             fetch("/orders/" + orderId + "/cancel", {
-                method: "PUT",
-                // headers: { "Content-Type": "application/x-www-form-urlencoded" }
+                method: "PUT"
             })
                 .then(res => res.json())
                 .then(data => {
@@ -53,7 +52,7 @@
                             <span class="badge badge-primary px-3 py-2 mr-2"
                                   style="font-size: 0.9rem;"
                                   th:text="${order.deliveryStatus}">배송 준비중</span>
-                            <!-- 배송 준비중일때 -> 주문 취소 가능 -->
+
                             <button class="btn btn-danger btn-sm"
                                     th:if="${order.deliveryStatus.name() == 'WAITING'}"
                                     th:onclick="|cancelOrder(${order.orderId})|">
@@ -80,7 +79,7 @@
 
                             <div class="col-md-7">
                                 <h5 class="font-weight-bold text-dark mb-1">
-                                    <a href="#" th:text="${item.bookTitle}" class="text-dark text-decoration-none">책 제목</a>
+                                    <span th:text="${item.bookTitle}">책 제목</span>
                                 </h5>
                                 <p class="text-sm text-gray-600 mb-2">
                                     <span th:text="${item.bookAuthor}">저자명</span>
@@ -94,7 +93,6 @@
                             </div>
 
                             <div class="col-md-3 text-right">
-
                                 <div class="mb-2">
                                     <span class="badge badge-light border text-gray-600"
                                           th:text="${item.confirmStatus}">구매확정</span>
@@ -105,12 +103,16 @@
                                       th:text="|₩${#numbers.formatInteger(item.salePrice * item.quantity, 0, 'COMMA')}|">₩35,000
                                 </span>
 
-                                <div th:if="${not #lists.isEmpty(item.packagingResponses)}" class="mt-2">
+                                <div th:if="${not #lists.isEmpty(item.packagingResponses)}" class="mt-2 bg-gray-100 p-2 rounded">
                                     <div th:each="pack : ${item.packagingResponses}"
-                                         class="text-xs text-gray-600">
-                                        <span th:text="${pack.name()}">포장지 이름</span>
-                                        <span class="font-weight-bold text-primary ml-1"
+                                         class="text-xs text-gray-600 d-flex justify-content-between">
+                                        <span th:text="${pack.name}">포장지 이름</span>
+                                        <span class="font-weight-bold text-primary"
                                               th:text="|+${#numbers.formatInteger(pack.price, 0, 'COMMA')}원|">+1,000원</span>
+                                    </div>
+                                    <div class="text-xs text-right border-top mt-1 pt-1 font-weight-bold"
+                                         th:if="${item.totalPackagingPrice > 0}">
+                                        포장비 합계: <span th:text="|₩${#numbers.formatInteger(item.totalPackagingPrice, 0, 'COMMA')}|">1000</span>
                                     </div>
                                 </div>
 
@@ -169,14 +171,19 @@
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-gray-700">총 도서 금액</span>
                                 <span class="font-weight-bold"
-                                      th:text="|₩${#numbers.formatInteger(order.itemsPrice, 0, 'COMMA')}|">₩35,000</span>
+                                      th:text="|₩${#numbers.formatInteger(order.totalBookPrice, 0, 'COMMA')}|">₩35,000</span>
                             </div>
 
-                            <div class="d-flex justify-content-between mb-2"
-                                 th:with="calcDeliveryCost=${order.totalPrice - order.itemsPrice}">
-                                <span class="text-gray-700">배송비 (+포장비)</span>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-gray-700">배송비</span>
                                 <span class="font-weight-bold"
-                                      th:text="|+${#numbers.formatInteger(calcDeliveryCost, 0, 'COMMA')}|">₩3,000</span>
+                                      th:text="|+${#numbers.formatInteger(order.deliveryFee, 0, 'COMMA')}|">₩3,000</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-gray-700">포장비</span>
+                                <span class="font-weight-bold"
+                                      th:text="|+${#numbers.formatInteger(order.packagingFee, 0, 'COMMA')}|">₩1,000</span>
                             </div>
 
                             <hr>
@@ -195,10 +202,11 @@
 
                             <hr>
 
-                            <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="d-flex justify-content-between align-items-center mt-3"
+                                 th:with="finalPayPrice=${order.totalBookPrice + order.deliveryFee + order.packagingFee - order.couponDiscount - order.pointUsed}">
                                 <span class="h5 font-weight-bold text-dark">최종 결제 금액</span>
                                 <span class="h4 font-weight-bold text-primary"
-                                      th:text="|₩${#numbers.formatInteger(order.payPrice, 0, 'COMMA')}|">₩30,000</span>
+                                      th:text="|₩${#numbers.formatInteger(finalPayPrice, 0, 'COMMA')}|">₩30,000</span>
                             </div>
 
                         </div>

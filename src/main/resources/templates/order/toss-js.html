@@ -31,6 +31,38 @@
     const successUrl = window.location.origin + "/payments/success?id=" + orderId;
     const failUrl = window.location.origin + "/payments/fail";
 
+    // 롤백이 필요한지 여부를 판단하는 플래그
+    let isRollbackNeeded = true;
+
+    // 롤백 요청 함수 (Beacon 사용)
+    const handleRollback = () => {
+        if (!isRollbackNeeded) return;
+
+        const rollbackUrl = window.location.origin + "/payments/rollback";
+
+        // 데이터를 JSON 형태로 보낼 경우 Blob 사용
+        const data = new Blob([JSON.stringify({
+            orderId: sendOrderId,
+            message: "User closed window or pressed back button"
+        })], { type: 'application/json' });
+
+        // sendBeacon은 페이지가 닫혀도 비동기로 요청을 보냄 (POST 방식)
+        const result = navigator.sendBeacon(rollbackUrl, data);
+
+        // sendBeacon 실패 시 fetch keepalive 시도 (fallback)
+        if (!result) {
+            fetch(rollbackUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId: sendOrderId }),
+                keepalive: true // 페이지가 닫혀도 연결 유지
+            });
+        }
+    };
+
+    // 브라우저 닫기/뒤로가기/새로고침 감지 이벤트 등록
+    window.addEventListener('pagehide', handleRollback);
+
     /**
      * 토스페이먼츠 결제를 요청합니다.
      */
@@ -41,6 +73,8 @@
         };
 
         try {
+            isRollbackNeeded = false;
+
             switch (paymentMethod) {
                 case "CARD":
                     await payment.requestPayment({
@@ -83,10 +117,8 @@
                     console.error("Unknown payment method:", paymentMethod);
             }
         } catch (error) {
-<<<<<<< Updated upstream
             console.error("결제 요청 실패:", error);
             alert("결제 요청 중 오류가 발생했습니다.");
-=======
             // 사용자가 결제창 X 버튼을 눌러 취소했을 때 (에러로 잡힘)
             if (error.code === 'USER_CANCEL') {
                 // 즉시 롤백 호출 (비동기 함수로 직접 호출)
@@ -102,10 +134,10 @@
                 });
                 isRollbackNeeded = false; // 중복 호출 방지
             }
->>>>>>> Stashed changes
         }
     }
 
+    // 페이지 로드 시 바로 결제 요청 시작
     document.addEventListener("DOMContentLoaded", function() {
         requestPayment();
     });

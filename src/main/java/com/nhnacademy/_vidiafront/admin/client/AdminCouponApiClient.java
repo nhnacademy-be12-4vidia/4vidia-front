@@ -68,7 +68,7 @@ public class AdminCouponApiClient {
     // 유저 쿠폰 목록 조회
     public List<MyCouponResponse> getUserCoupons(Long userId) {
         return backendApiClient.get(
-                COUPON_SERVICE+"admin/users/" + userId + "/coupons",
+                COUPON_SERVICE+"/admin/users/" + userId + "/coupons",
                 new ParameterizedTypeReference<>() {}
         );
     }

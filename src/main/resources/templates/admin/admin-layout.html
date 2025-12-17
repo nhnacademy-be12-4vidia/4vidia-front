@@ -150,7 +150,7 @@
                  aria-labelledby="headingBooks" data-bs-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <h6 class="collapse-header">도서 관련 기능:</h6>
-                    <a class="collapse-item" href="/admin/books/register" th:classappend="${currentUri == '/admin/books/register'} ? 'active'">도서 등록</a>
+                    <a class="collapse-item" href="/admin/books" th:classappend="${currentUri == '/admin/books'} ? 'active'">도서 등록</a>
                     <a class="collapse-item" href="#">도서 할인 정책</a>
                     <a class="collapse-item" href="/admin/reviews" th:classappend="${currentUri.startsWith('/admin/reviews')} ? 'active'">리뷰 관리</a>
                 </div>

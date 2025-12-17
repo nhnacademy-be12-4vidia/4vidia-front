@@ -2,41 +2,60 @@ package com.nhnacademy._vidiafront.admin.controller;
 
 import com.nhnacademy._vidiafront.admin.client.AdminBookApiClient;
 import com.nhnacademy._vidiafront.admin.dto.request.AdminBookCreateRequest;
+import com.nhnacademy._vidiafront.book.client.BookApiClient;
 import com.nhnacademy._vidiafront.book.dto.books.response.BookDetailResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/admin/books")
 public class AdminBookController {
 
-    private final AdminBookApiClient bookApiClient;
+    private final AdminBookApiClient adminBookApiClient;
+    private final BookApiClient bookApiClient;
 
-    @GetMapping("/register")
-    public String registerForm(Model model) {
+    // 도서 생성 폼
+    @GetMapping
+    public String getBookCreateForm(
+            Model model
+    ) {
         model.addAttribute("mode", "create");
-        model.addAttribute("currentUri", "/admin/books/register");
         return "admin/admin-book-form";
     }
 
-    @PostMapping("/register")
-    public String register(@ModelAttribute AdminBookCreateRequest request) {
-        bookApiClient.createBook(request);
+    // 도서 생성 요청
+    @PostMapping
+    public String createBook(
+            AdminBookCreateRequest request
+    ) {
+        adminBookApiClient.createBook(request);
         return "redirect:/admin/books";
     }
 
-    @GetMapping("/edit/{bookId}")
-    public String editForm(@PathVariable("bookId") Long bookId, Model model) {
-
+    // 도서 수정 폼
+    @GetMapping("/{bookId}")
+    public String getBookUpdateForm(
+            @PathVariable Long bookId,
+            Model model
+    ) {
+        BookDetailResponse bookDetails = bookApiClient.bookDetails(bookId).book();
+        model.addAttribute("book", bookDetails);
+        model.addAttribute("mode", "update");
         return "admin/admin-book-form";
     }
 
-    @PostMapping("/update/{bookId}")
-    public String update(@PathVariable("bookId") Long bookId, @ModelAttribute AdminBookCreateRequest request) {
-        bookApiClient.updateBook(bookId, request);
+    // 도서 수정 요청
+    @PutMapping("/{bookId}")
+    public String updateBook(
+            @PathVariable Long bookId,
+            AdminBookCreateRequest request
+    ) {
+        adminBookApiClient.updateBook(bookId, request);
         return "redirect:/admin/books";
     }
 }

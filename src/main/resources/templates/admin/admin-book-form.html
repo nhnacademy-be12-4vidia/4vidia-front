@@ -47,7 +47,10 @@
 
         <!-- Registration/Edit Form -->
         <form id="bookForm" method="post"
-              th:action="${mode == 'create' ? '/admin/books/register' : '/admin/books/update/' + book.id}">
+              th:action="${mode == 'create' ? '/admin/books' : '/admin/books/' + book.id}">
+
+            <!-- For Update: Hidden HttpMethodFilter (_method=put) -->
+            <input type="hidden" name="_method" value="put" th:if="${mode == 'update'}"/>
             
             <div class="row">
                 <!-- Left Column: Image & Status -->
@@ -167,7 +170,7 @@
             <!-- Description (WYSIWYG) -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">도서 설명 (상세)</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">도서 설명</h6>
                 </div>
                 <div class="card-body">
                     <div id="editor"></div>
@@ -227,7 +230,7 @@
 
             // 2. 카테고리 데이터 로드 (API 호출)
             $.ajax({
-                url: '/admin/api/categories', 
+                url: '/categories',
                 method: 'GET',
                 success: function(categories) {
                     // categories: [{code: '810', name: '[810] 문학 > 한국문학'}, ...] 형태 가정
@@ -240,7 +243,7 @@
 
                     // 수정 모드 시 기존 카테고리 선택 (book.categoryInfo.code가 있다고 가정)
                     /*[# th:if="${book != null && book.categoryInfo != null}"]*/
-                    var initialCategoryCode = /*[[${book.categoryInfo.code}]]*/ null;
+                    var initialCategoryCode = /*[[${book.categoryInfo.kdcCode}]]*/ null;
                     if (initialCategoryCode) {
                         $('#categoryCode').val(initialCategoryCode).trigger('change');
                     }

@@ -744,7 +744,17 @@
 
                         const paymentMethod = document.getElementById("paymentMethodInput").value;
                         // 결제 페이지로 이동
-                        window.location.href = `/payments?orderId=${orderId}&orderName=${encodeURIComponent(orderName)}&paymentMethod=${paymentMethod}&ordererName=${ordererNameInput}&ordererEmail=${ordererEmailInput}`;
+                        const params = {
+                            orderId: orderId,
+                            orderName: orderName,
+                            paymentMethod: paymentMethod,
+                            ordererName: document.getElementById('ordererName').value,
+                            ordererEmail: document.getElementById('ordererEmail').value
+                        };
+
+                        const queryString = new URLSearchParams(params).toString();
+
+                        window.location.href = `/payments?${queryString}`;
                     })
                     .catch(error => {
                         console.error("오류 발생:", error);

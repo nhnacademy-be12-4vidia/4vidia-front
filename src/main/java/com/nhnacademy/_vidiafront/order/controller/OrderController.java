@@ -53,38 +53,6 @@ public class OrderController {
         return "redirect:/orders?key=" + orderKey;
     }
 
-    // 결제 전 주문 화면에서 보여줄 정보(유저 - 정보, 배송지, 포인트 / 주문 - 도서, 포장지 / 쿠폰 )
-//    @GetMapping
-//    public String showOrderPage(@RequestParam String key,
-//                                Model model) {
-//
-//        OrderUserResponse orderUserResponse = myOrderApiClient.getUserOrderInfo();
-//        model.addAttribute("ordererName", orderUserResponse.name());
-//        model.addAttribute("ordererEmail", orderUserResponse.email());
-//        model.addAttribute("ordererPhone", orderUserResponse.phone());
-//        OrderUserResponse.AddressResponse defaultAddress = new OrderUserResponse.AddressResponse(
-//                orderUserResponse.addressId(), null, orderUserResponse.roadAddress(), orderUserResponse.zipCode(), orderUserResponse.addressDetail()
-//        );
-//        model.addAttribute("defaultAddress", defaultAddress);
-//        model.addAttribute("addressList", orderUserResponse.addressResponses());
-//        model.addAttribute("points", orderUserResponse.point());
-//        Boolean isGuest = orderUserResponse.name() == null || orderUserResponse.name().isBlank();
-//        model.addAttribute("isGuest", isGuest);
-//
-//        OrderCheckoutResponse orderCheckoutResponse = orderApiClient.getOrderCheckout(key);
-//        model.addAttribute("orderName", orderCheckoutResponse.orderName());
-//        model.addAttribute("cartItems", orderCheckoutResponse.bookItems());
-//        model.addAttribute("finalAmount", orderCheckoutResponse.finalAmount()); // (첵 판매가 * 수량)의 합
-//        model.addAttribute("packagingOptions", orderCheckoutResponse.packagingOptions());
-//        model.addAttribute("deliveryDates", orderCheckoutResponse.deliveryDateResponses());
-//
-//        OrderCouponResponse orderCouponResponse = couponApiClient.orderCouponResponse(orderCheckoutResponse.bookItems());
-//        model.addAttribute("possibleCoupons", orderCouponResponse.possibleCoupons());
-//        model.addAttribute("impossibleCoupons", orderCouponResponse.impossibleCoupons());
-//
-//        return "order/order";
-//    }
-
     @GetMapping
     public String showOrderPage(@RequestParam String key,
                                 Model model) {
@@ -114,7 +82,7 @@ public class OrderController {
             model.addAttribute("defaultAddress", defaultAddress);
             model.addAttribute("addressList", orderUserResponse.addressResponses());
             model.addAttribute("points", orderUserResponse.point());
-            model.addAttribute("isGuest", false);
+            model.addAttribute("isGuest", !loginStatus.isLoggedIn());
 
             OrderCouponResponse orderCouponResponse = couponApiClient.orderCouponResponse(orderCheckoutResponse.bookItems());
             model.addAttribute("possibleCoupons", orderCouponResponse.possibleCoupons());

@@ -5,6 +5,7 @@ import com.nhnacademy._vidiafront.book.dto.books.request.BookSearchRequest;
 import com.nhnacademy._vidiafront.book.dto.books.response.AiBookSearchResponse;
 import com.nhnacademy._vidiafront.book.dto.books.response.BookDetailWithReviewResponse;
 import com.nhnacademy._vidiafront.book.dto.books.response.BookListResponse;
+import com.nhnacademy._vidiafront.book.dto.books.response.SearchBooksResponse;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.global.dto.PageResponse;
 import java.util.List;
@@ -27,13 +28,13 @@ public class BookApiClient {
      * 도서 검색
      */
 
-    public PageResponse<BookListResponse> searchBooks(BookSearchRequest request, int page, int size) {
+    public SearchBooksResponse searchBooks(BookSearchRequest request, int page, int size) {
 
         String url = buildSearchUrl(BOOK_SERVICE + "/books/search", request, page, size);
 
         return backendApiClient.get(
             url,
-            new ParameterizedTypeReference<PageResponse<BookListResponse>>() {}
+            SearchBooksResponse.class
         );
     }
 

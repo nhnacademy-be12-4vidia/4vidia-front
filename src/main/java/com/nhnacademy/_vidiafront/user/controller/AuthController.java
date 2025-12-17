@@ -70,6 +70,9 @@ public class AuthController {
             return "redirect:/auth/find-id";
         }
 
+        rttr.addFlashAttribute("name",findIdRequest.name());
+        rttr.addFlashAttribute("birthday", findIdRequest.birthday());
+        rttr.addFlashAttribute("phone",findIdRequest.phone());
         try {
             String email = authApiClient.findUserId(findIdRequest);
             rttr.addFlashAttribute("foundEmail", email);  // 성공 메시지
@@ -94,6 +97,11 @@ public class AuthController {
     @PostMapping("/find-password")
     public String findPassword(FindPasswordRequest findPasswordRequest,
                                RedirectAttributes rttr) {
+
+        rttr.addFlashAttribute("email",findPasswordRequest.email());
+        rttr.addFlashAttribute("name",findPasswordRequest.name());
+        rttr.addFlashAttribute("phone",findPasswordRequest.phone());
+
         try {
             authApiClient.issueNewPassword(findPasswordRequest);
             rttr.addFlashAttribute("success", "입력한 이메일로 임시 비밀번호가 발송되었습니다.");

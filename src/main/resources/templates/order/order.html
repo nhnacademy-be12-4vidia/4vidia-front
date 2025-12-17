@@ -513,6 +513,7 @@
             // 전화번호 포맷팅 (입력 시 하이픈 추가)
             const sameAsOrdererCheckbox = document.getElementById('sameAsOrderer');
             const ordererNameInput = document.getElementById('ordererName');
+            const ordererEmailInput = document.getElementById('ordererEmail');
             const ordererPhoneInput = document.getElementById('ordererPhone');
 
             const shipNameInput = document.getElementById('shipName');
@@ -743,7 +744,7 @@
 
                         const paymentMethod = document.getElementById("paymentMethodInput").value;
                         // 결제 페이지로 이동
-                        window.location.href = `/payments?orderId=${orderId}&orderName=${encodeURIComponent(orderName)}&payPrice=${payPrice}&paymentMethod=${paymentMethod}`;
+                        window.location.href = `/payments?orderId=${orderId}&orderName=${encodeURIComponent(orderName)}&paymentMethod=${paymentMethod}&ordererName=${ordererNameInput}&ordererEmail=${ordererEmailInput}`;
                     })
                     .catch(error => {
                         console.error("오류 발생:", error);

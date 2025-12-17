@@ -1,6 +1,5 @@
 package com.nhnacademy._vidiafront.global.controller;
 
-import com.nhnacademy._vidiafront.global.auth.LoginStatus;
 import com.nhnacademy._vidiafront.global.exception.ApiRequestException;
 import com.nhnacademy._vidiafront.global.filter.JwtUtil;
 import com.nhnacademy._vidiafront.user.client.UserApiClient;
@@ -24,7 +23,6 @@ import java.io.IOException;
 @ControllerAdvice
 public class GlobalControllerAdvice {
     private final UserApiClient userApiClient;
-    private final LoginStatus loginStatus;
     private static final String COMPLETE_PROFILE_PATH = "/complete-profile";
     private final JwtUtil jwtUtil;
 
@@ -49,7 +47,7 @@ public class GlobalControllerAdvice {
         HttpSession session = request.getSession(false);
         String accessToken = session != null ? (String) session.getAttribute("accessToken") : null;
 
-        String refreshToken = loginStatus.getRefreshToken();
+        String refreshToken = getRefreshToken(request);
 
         boolean isLoggedIn = false;
 
@@ -71,6 +69,16 @@ public class GlobalControllerAdvice {
         } else {
             model.addAttribute("userName", "비회원");
         }
+    }
+
+    private String getRefreshToken(HttpServletRequest request) {
+        if (request.getCookies() == null) return null;
+        for (Cookie cookie : request.getCookies()) {
+            if ("refresh".equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
     }
 
 

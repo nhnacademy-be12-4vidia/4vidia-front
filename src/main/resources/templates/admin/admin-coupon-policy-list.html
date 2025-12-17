@@ -7,175 +7,319 @@
 <head>
     <meta charset="UTF-8">
     <title>쿠폰 정책 관리</title>
+
+    <style>
+        .panel-title {
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .mini-table td, .mini-table th {
+            padding: 8px;
+            font-size: 0.9rem;
+        }
+        .sticky-panel {
+            position: sticky;
+            top: 16px;
+        }
+        .truncate {
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: inline-block;
+            vertical-align: bottom;
+        }
+    </style>
 </head>
 
 <body>
 <div layout:fragment="pageContent">
 
-    <!-- ====== 헤더 ====== -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="mb-3">
         <h1 class="h3 text-gray-800">쿠폰 정책 관리</h1>
-        <div>
-            <a href="/admin/coupons/policies/category" class="btn btn-primary btn-sm">+ 카테고리/전체 정책 생성</a>
-            <a href="/admin/coupons/policies/book" class="btn btn-success btn-sm">+ 도서 정책 생성</a>
-        </div>
     </div>
 
-    <!-- ====== 검색 폼 ====== -->
-    <form method="get" th:action="@{/admin/coupons/policies}" class="card card-body mb-3">
-        <div class="row g-2 align-items-end">
+    <!-- =========================
+         상단 : 유저 조회 / 보유현황
+    ========================== -->
+    <div class="row mb-3">
 
-            <div class="col-md-3">
-                <label class="form-label">정책명</label>
-                <input type="text" name="keyword" class="form-control"
-                       th:value="${keyword}">
-            </div>
+        <!-- ① 유저 조회 / 쿠폰 발급 -->
+        <div class="col-lg-6">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="panel-title">유저 조회 / 쿠폰 발급</div>
 
-            <div class="col-md-2">
-                <label class="form-label">상태</label>
-                <select name="status" class="form-select">
-                    <option value="ALL" th:selected="${status == 'ALL'}">전체</option>
-                    <option value="ACTIVE" th:selected="${status == 'ACTIVE'}">활성</option>
-                    <option value="INACTIVE" th:selected="${status == 'INACTIVE'}">비활성</option>
-                </select>
-            </div>
+                    <form method="get" th:action="@{/admin/coupons/policies}">
+                        <label class="form-label">유저 ID</label>
+                        <input type="number"
+                               name="userId"
+                               class="form-control mb-2"
+                               th:value="${userId}"
+                               required>
 
-            <div class="col-md-2">
-                <label class="form-label">대상</label>
-                <select name="targetType" class="form-select">
-                    <option value="ALL" th:selected="${targetType == 'ALL'}">전체</option>
-                    <option value="CATEGORY" th:selected="${targetType == 'CATEGORY'}">카테고리</option>
-                    <option value="BOOK" th:selected="${targetType == 'BOOK'}">도서</option>
-                </select>
-            </div>
+                        <input type="hidden" name="keyword" th:value="${keyword}">
+                        <input type="hidden" name="status" th:value="${status}">
+                        <input type="hidden" name="targetType" th:value="${targetType}">
+                        <input type="hidden" name="page" value="0">
+                        <input type="hidden" name="size" th:value="${size}">
 
-            <div class="col-md-2">
-                <label class="form-label">페이지 크기</label>
-                <select name="size" class="form-select">
-                    <option value="10" th:selected="${size == 10}">10</option>
-                    <option value="20" th:selected="${size == 20}">20</option>
-                    <option value="50" th:selected="${size == 50}">50</option>
-                </select>
-            </div>
-
-            <input type="hidden" name="page" value="0"/>
-
-            <div class="col-md-3">
-                <button class="btn btn-dark w-100">검색</button>
-            </div>
-        </div>
-    </form>
-
-    <!-- ====== 테이블 ====== -->
-    <div class="table-responsive">
-        <table class="table table-bordered table-hover align-middle text-center">
-            <thead class="table-light">
-            <tr>
-                <th>ID</th>
-                <th>정책명</th>
-                <th>할인</th>
-                <th>대상</th>
-                <th>유효기간</th>
-                <th>발급현황</th>
-                <th>상태</th>
-                <th>관리</th>
-            </tr>
-            </thead>
-
-            <tbody>
-            <tr th:each="p : ${policies}">
-                <td th:text="${p.policyId}"></td>
-
-                <td class="fw-semibold" th:text="${p.policyName}"></td>
-
-                <td>
-                    <span th:if="${p.discountType == 'PRICE'}"
-                          th:text="${p.discountValue} + '원'"></span>
-                    <span th:if="${p.discountType == 'RATE'}"
-                          th:text="${p.discountValue} + '% (최대 ' + ${p.maxDiscountAmount} + '원)'"></span>
-                </td>
-
-                <td th:text="${p.discountTargetType}"></td>
-
-                <td>
-                    <span th:if="${p.validityType == 'RELATIVE'}"
-                          th:text="'발급 후 ' + ${p.validDays} + '일'"></span>
-
-                    <span th:if="${p.validityType == 'ABSOLUTE'}"
-                          th:text="${#temporals.format(p.startDate, 'yyyy-MM-dd HH:mm')}
-                                   + ' ~ ' +
-                                   ${#temporals.format(p.endDate, 'yyyy-MM-dd HH:mm')}"></span>
-                </td>
-
-                <td th:text="${p.issueStatus}"></td>
-
-                <td>
-                    <span class="badge"
-                          th:classappend="${p.isActivation} ? 'bg-primary' : 'bg-secondary'"
-                          th:text="${p.isActivation} ? 'ACTIVE' : 'INACTIVE'"></span>
-                </td>
-
-                <td>
-                    <form th:action="@{'/admin/coupons/policies/' + ${p.policyId} + '/toggle'}"
-                          method="post">
-                        <input type="hidden" name="_method" value="patch"/>
-                        <button type="submit"
-                                class="btn btn-sm"
-                                th:classappend="${p.isActivation} ? 'btn-danger' : 'btn-success'"
-                                th:text="${p.isActivation} ? '비활성화' : '활성화'">
+                        <button class="btn btn-primary w-100 mb-3">
+                            유저 쿠폰 조회
                         </button>
                     </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+
+                    <!-- ✅ issueForm id 추가 -->
+                    <form method="post"
+                          th:action="@{/admin/coupons/policies/issue}"
+                          id="issueForm">
+
+                        <input type="hidden" name="userId" th:value="${userId}">
+                        <input type="hidden" name="keyword" th:value="${keyword}">
+                        <input type="hidden" name="status" th:value="${status}">
+                        <input type="hidden" name="targetType" th:value="${targetType}">
+                        <input type="hidden" name="page" th:value="${page.number}">
+                        <input type="hidden" name="size" th:value="${size}">
+
+                        <label class="form-label">정책 ID</label>
+                        <input type="number"
+                               name="policyId"
+                               class="form-control mb-2"
+                               required>
+
+                        <button type="submit"
+                                class="btn btn-outline-primary w-100"
+                                id="issueBtn"
+                                th:disabled="${userId == null}">
+                            쿠폰 발급
+                        </button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ② 유저 쿠폰 보유 현황 -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="panel-title">유저 쿠폰 보유 현황</div>
+
+                    <div th:if="${userId == null}" class="text-muted">
+                        유저 ID를 먼저 조회하세요.
+                    </div>
+
+                    <div th:if="${userId != null}">
+                        <table class="table table-bordered mini-table align-middle text-center"
+                               th:if="${userCoupons != null}">
+                            <thead class="table-light">
+                            <tr>
+                                <th>쿠폰ID</th>
+                                <th>정책명</th>
+                                <th>상태</th>
+                                <th>만료일</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="c : ${userCoupons}">
+                                <td th:text="${c.couponId}"></td>
+                                <td th:text="${c.policyName}"></td>
+                                <td>
+                                    <span class="badge"
+                                          th:classappend="${c.status == 'UNUSED'} ? 'bg-success' :
+                                               (${c.status == 'USED'} ? 'bg-secondary' : 'bg-danger')"
+                                          th:text="${c.status}">
+                                    </span>
+                                </td>
+                                <td th:text="${#temporals.format(c.expireAt,'yyyy-MM-dd')}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <!-- ====== 페이징 ====== -->
-    <nav th:if="${page.totalPages > 1}">
-        <ul class="pagination justify-content-center">
+    <!-- =========================
+         정책 리스트
+    ========================== -->
+    <div class="row">
+        <div class="col-lg-12">
 
-            <li class="page-item" th:classappend="${page.first} ? 'disabled'">
-                <a class="page-link"
-                   th:href="@{/admin/coupons/policies(
-                        page=${page.number - 1},
-                        size=${size},
-                        keyword=${keyword},
-                        status=${status},
-                        targetType=${targetType})}">
-                    이전
-                </a>
-            </li>
+            <!-- 검색 -->
+            <form method="get" th:action="@{/admin/coupons/policies}"
+                  class="card card-body mb-3">
+                <div class="row g-2 align-items-end">
 
-            <li class="page-item"
-                th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
-                th:classappend="${i == page.number} ? 'active'">
-                <a class="page-link"
-                   th:text="${i + 1}"
-                   th:href="@{/admin/coupons/policies(
-                        page=${i},
-                        size=${size},
-                        keyword=${keyword},
-                        status=${status},
-                        targetType=${targetType})}">
-                </a>
-            </li>
+                    <div class="col-md-3">
+                        <label class="form-label">정책명</label>
+                        <input type="text" name="keyword"
+                               class="form-control"
+                               th:value="${keyword}">
+                    </div>
 
-            <li class="page-item" th:classappend="${page.last} ? 'disabled'">
-                <a class="page-link"
-                   th:href="@{/admin/coupons/policies(
-                        page=${page.number + 1},
-                        size=${size},
-                        keyword=${keyword},
-                        status=${status},
-                        targetType=${targetType})}">
-                    다음
-                </a>
-            </li>
+                    <div class="col-md-2">
+                        <label class="form-label">상태</label>
+                        <select name="status" class="form-select">
+                            <option value="ALL" th:selected="${status == 'ALL'}">전체</option>
+                            <option value="ACTIVE" th:selected="${status == 'ACTIVE'}">활성</option>
+                            <option value="INACTIVE" th:selected="${status == 'INACTIVE'}">비활성</option>
+                        </select>
+                    </div>
 
-        </ul>
-    </nav>
+                    <div class="col-md-2">
+                        <label class="form-label">대상</label>
+                        <select name="targetType" class="form-select">
+                            <option value="ALL" th:selected="${targetType == 'ALL'}">전체</option>
+                            <option value="CATEGORY" th:selected="${targetType == 'CATEGORY'}">카테고리</option>
+                            <option value="BOOK" th:selected="${targetType == 'BOOK'}">도서</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label">페이지 크기</label>
+                        <select name="size" class="form-select">
+                            <option value="10" th:selected="${size == 10}">10</option>
+                            <option value="20" th:selected="${size == 20}">20</option>
+                            <option value="50" th:selected="${size == 50}">50</option>
+                        </select>
+                    </div>
+
+                    <input type="hidden" name="page" value="0">
+                    <input type="hidden" name="userId" th:value="${userId}">
+
+                    <div class="col-md-3">
+                        <button class="btn btn-dark w-100">검색</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- 정책 리스트 -->
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle text-center">
+                    <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>정책명</th>
+                        <th>정책대상</th> <!-- ✅ 추가 -->
+                        <th>할인</th>
+                        <th>대상</th>
+                        <th>유효기간</th>
+                        <th>발급현황</th>
+                        <th>상태</th>
+                        <th>관리</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="p : ${policies}"
+                        th:attr="data-policy-id=${p.policyId}, data-policy-type=${p.policyType}">
+                        <td th:text="${p.policyId}"></td>
+                        <td th:text="${p.policyName}"></td>
+
+                        <!-- ✅ 정책대상 출력 -->
+                        <td>
+                            <span class="badge bg-info"
+                                  th:text="${p.policyType}">
+                            </span>
+                        </td>
+
+                        <td>
+                            <span th:if="${p.discountType == 'PRICE'}"
+                                  th:text="${p.discountValue} + '원'"></span>
+                            <span th:if="${p.discountType == 'RATE'}"
+                                  th:text="${p.discountValue} + '% (최대 ' + ${p.maxDiscountAmount} + '원)'"></span>
+                        </td>
+                        <td th:text="${p.discountTargetType}"></td>
+                        <td>
+                            <span th:if="${p.validityType == 'RELATIVE'}"
+                                  th:text="'발급 후 ' + ${p.validDays} + '일'"></span>
+                            <span th:if="${p.validityType == 'ABSOLUTE'}"
+                                  th:text="${#temporals.format(p.startDate,'yyyy-MM-dd')}
+                                       + ' ~ ' +
+                                       ${#temporals.format(p.endDate,'yyyy-MM-dd')}"></span>
+                        </td>
+                        <td th:text="${p.issueStatus}"></td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${p.isActivation} ? 'bg-primary' : 'bg-secondary'"
+                                  th:text="${p.isActivation} ? 'ACTIVE' : 'INACTIVE'"></span>
+                        </td>
+                        <td>
+                            <form th:action="@{'/admin/coupons/policies/' + ${p.policyId} + '/toggle'}"
+                                  method="post">
+                                <input type="hidden" name="_method" value="patch">
+                                <input type="hidden" name="userId" th:value="${userId}">
+                                <input type="hidden" name="keyword" th:value="${keyword}">
+                                <input type="hidden" name="status" th:value="${status}">
+                                <input type="hidden" name="targetType" th:value="${targetType}">
+                                <input type="hidden" name="page" th:value="${page.number}">
+                                <input type="hidden" name="size" th:value="${size}">
+                                <button type="submit"
+                                        class="btn btn-sm"
+                                        th:classappend="${p.isActivation} ? 'btn-danger' : 'btn-success'"
+                                        th:text="${p.isActivation} ? '비활성화' : '활성화'">
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
 
 </div>
+
+<!-- =========================
+     JS : WELCOME / BIRTHDAY 차단
+========================== -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const issueForm = document.getElementById("issueForm");
+        const issueBtn = document.getElementById("issueBtn");
+
+        if (!issueForm || !issueBtn) return;
+
+        issueBtn.addEventListener("click", function () {
+
+            const policyIdInput = issueForm.querySelector("input[name='policyId']");
+            if (!policyIdInput || !policyIdInput.value) {
+                alert("정책 ID를 입력하세요.");
+                return;
+            }
+
+            const policyId = policyIdInput.value;
+
+            const policyRow = document.querySelector(
+                `tr[data-policy-id='${policyId}']`
+            );
+
+            if (!policyRow) {
+                alert("존재하지 않는 정책입니다.");
+                return;
+            }
+
+            const policyType = policyRow.dataset.policyType;
+
+            // 🚫 WELCOME / BIRTHDAY 차단
+            if (policyType === "WELCOME" || policyType === "BIRTHDAY") {
+                alert("웰컴/생일 쿠폰은 선착순 쿠폰이 아니어서 발급할 수 없습니다.");
+                return; // ❌ submit 안 함
+            }
+
+            // ✅ 여기까지 왔으면 통과 → 서버로 보냄
+            issueForm.submit();
+        });
+
+    });
+</script>
+
+
+
 </body>
 </html>

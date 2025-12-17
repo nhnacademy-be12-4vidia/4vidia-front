@@ -560,13 +560,14 @@
                     <li><a href="#_회원user_관리">2.1. <code>회원(User) 관리</code></a>
                         <ul class="sectlevel3">
                             <li><a href="#_회원_조회_by_email">2.1.1. 회원 조회 by email</a></li>
-                            <li><a href="#_회원_이름_조회">2.1.2. 회원 이름 조회</a></li>
-                            <li><a href="#_회원_프로필_조회">2.1.3. 회원 프로필 조회</a></li>
-                            <li><a href="#_회원_프로필_수정">2.1.4. 회원 프로필 수정</a></li>
-                            <li><a href="#_회원_비밀번호_수정">2.1.5. 회원 비밀번호 수정</a></li>
-                            <li><a href="#_회원_탈퇴">2.1.6. 회원 탈퇴</a></li>
-                            <li><a href="#_회원_권한_조회">2.1.7. 회원 권한 조회</a></li>
-                            <li><a href="#_회원_payco_로그인_후_필수_정보_수정">2.1.8. 회원 payco 로그인 후 필수 정보 수정</a></li>
+                            <li><a href="#_회원_조회_by_id">2.1.2. 회원 조회 by id</a></li>
+                            <li><a href="#_회원_이름_조회">2.1.3. 회원 이름 조회</a></li>
+                            <li><a href="#_회원_프로필_조회">2.1.4. 회원 프로필 조회</a></li>
+                            <li><a href="#_회원_프로필_수정">2.1.5. 회원 프로필 수정</a></li>
+                            <li><a href="#_회원_비밀번호_수정">2.1.6. 회원 비밀번호 수정</a></li>
+                            <li><a href="#_회원_탈퇴">2.1.7. 회원 탈퇴</a></li>
+                            <li><a href="#_회원_권한_조회">2.1.8. 회원 권한 조회</a></li>
+                            <li><a href="#_회원_payco_로그인_후_필수_정보_수정">2.1.9. 회원 payco 로그인 후 필수 정보 수정</a></li>
                         </ul>
                     </li>
                     <li><a href="#_등급grade_관리">2.2. <code>등급(Grade) 관리</code></a>
@@ -582,9 +583,8 @@
                             <li><a href="#_회원_주소_등록">2.3.3. 회원 주소 등록</a></li>
                             <li><a href="#_회원_주소_수정">2.3.4. 회원 주소 수정</a></li>
                             <li><a href="#_회원_주소_삭제">2.3.5. 회원 주소 삭제</a></li>
-                            <li><a href="#_회원_권한_조회_2">2.3.6. 회원 권한 조회</a></li>
-                            <li><a href="#_회원_기본_주소_조회">2.3.7. 회원 기본 주소 조회</a></li>
-                            <li><a href="#_회원_기본_주소_변경">2.3.8. 회원 기본 주소 변경</a></li>
+                            <li><a href="#_회원_기본_주소_조회">2.3.6. 회원 기본 주소 조회</a></li>
+                            <li><a href="#_회원_기본_주소_변경">2.3.7. 회원 기본 주소 변경</a></li>
                         </ul>
                     </li>
                     <li><a href="#_좋아요like_관리">2.4. <code>좋아요(Like) 관리</code></a>
@@ -598,6 +598,7 @@
                     <li><a href="#_내_주문my_order_관리">2.5. <code>내 주문(My Order) 관리</code></a>
                         <ul class="sectlevel3">
                             <li><a href="#_회원_내_주문_리스트_조회">2.5.1. 회원 내 주문 리스트 조회</a></li>
+                            <li><a href="#_회원_주문화면에_필요한_정보_조회">2.5.2. 회원 주문화면에 필요한 정보 조회</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -753,7 +754,7 @@
                     <div class="listingblock">
                         <div class="title">요청 (Request)</div>
                         <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /users?email=test%40test.com HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /users?email=user1%40naver.com HTTP/1.1
 Accept: application/json
 Host: localhost:8080</code></pre>
                         </div>
@@ -782,12 +783,12 @@ Host: localhost:8080</code></pre>
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
 Content-Type: application/json
-Content-Length: 143
+Content-Length: 145
 
 {
-  "id" : 10,
-  "email" : "test@test.com",
-  "password" : "$2a$10$d9nAWW7LbvY40rOI5gzlnO5LYTXJBiM34h94xMe439YfbGLbqbYA2",
+  "id" : 14,
+  "email" : "user1@naver.com",
+  "password" : "$2a$10$TAZ01pgp5nf6SpXRjbpCyegmq3zGufjBlMkTNgon/Ora6WVD1Ty6q",
   "roles" : "USER"
 }</code></pre>
                         </div>
@@ -831,12 +832,150 @@ Content-Length: 143
                     </table>
                 </div>
                 <div class="sect3">
-                    <h4 id="_회원_이름_조회"><a class="link" href="#_회원_이름_조회">2.1.2. 회원 이름 조회</a></h4>
+                    <h4 id="_회원_조회_by_id"><a class="link" href="#_회원_조회_by_id">2.1.2. 회원 조회 by id</a></h4>
+                    <div class="listingblock">
+                        <div class="title">요청 (Request)</div>
+                        <div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /users/id HTTP/1.1
+X-User-Id: 14
+Accept: application/json
+Host: localhost:8080</code></pre>
+                        </div>
+                    </div>
+                    <table class="tableblock frame-all grid-all stretch">
+                        <caption class="title">Table 1. 요청 헤더 (Request Headers)</caption>
+                        <colgroup>
+                            <col style="width: 50%;">
+                            <col style="width: 50%;">
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <th class="tableblock halign-left valign-top">Name</th>
+                            <th class="tableblock halign-left valign-top">Description</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>X-User-Id</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">사용자 식별 ID</p></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="listingblock">
+                        <div class="title">응답 (Response)</div>
+                        <div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 364
+
+{
+  "userId" : 14,
+  "email" : "user1@naver.com",
+  "name" : "유저1",
+  "phone" : "01000000001",
+  "birthDate" : "2010-10-10",
+  "point" : 10608,
+  "defaultAddress" : {
+    "addressId" : 6,
+    "alias" : "학교",
+    "roadAddress" : "광주광역시 동구 조선대5길 65",
+    "zipCode" : "61452",
+    "addressDetail" : "nhn"
+  },
+  "gradeName" : "WELCOME"
+}</code></pre>
+                        </div>
+                    </div>
+                    <table class="tableblock frame-all grid-all stretch">
+                        <caption class="title">Table 2. 응답 필드 (Response Fields)</caption>
+                        <colgroup>
+                            <col style="width: 33.3333%;">
+                            <col style="width: 33.3333%;">
+                            <col style="width: 33.3334%;">
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <th class="tableblock halign-left valign-top">Path</th>
+                            <th class="tableblock halign-left valign-top">Type</th>
+                            <th class="tableblock halign-left valign-top">Description</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>userId</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">회원 PK</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>email</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">이메일</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">이름</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>phone</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">전화번호</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>birthDate</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">생년월일</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>point</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">포인트</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>defaultAddress</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Object</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">기본 주소</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>defaultAddress.addressId</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">주소 PK</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>defaultAddress.alias</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">별칭</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>defaultAddress.roadAddress</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">도로명주소</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>defaultAddress.zipCode</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">우편번호</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>defaultAddress.addressDetail</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">상세주소</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>gradeName</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">회원 등급</p></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="sect3">
+                    <h4 id="_회원_이름_조회"><a class="link" href="#_회원_이름_조회">2.1.3. 회원 이름 조회</a></h4>
                     <div class="listingblock">
                         <div class="title">요청 (Request)</div>
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /users/name HTTP/1.1
-X-User-Id: 10
+X-User-Id: 14
 Accept: application/json
 Host: localhost:8080</code></pre>
                         </div>
@@ -865,19 +1004,19 @@ Host: localhost:8080</code></pre>
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
 Content-Type: application/json
-Content-Length: 8
+Content-Length: 7
 
-배종ok</code></pre>
+유저1</code></pre>
                         </div>
                     </div>
                 </div>
                 <div class="sect3">
-                    <h4 id="_회원_프로필_조회"><a class="link" href="#_회원_프로필_조회">2.1.3. 회원 프로필 조회</a></h4>
+                    <h4 id="_회원_프로필_조회"><a class="link" href="#_회원_프로필_조회">2.1.4. 회원 프로필 조회</a></h4>
                     <div class="listingblock">
                         <div class="title">요청 (Request)</div>
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /users/profile HTTP/1.1
-X-User-Id: 10
+X-User-Id: 14
 Accept: application/json
 Host: localhost:8080</code></pre>
                         </div>
@@ -906,41 +1045,123 @@ Host: localhost:8080</code></pre>
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
 Content-Type: application/json
-Content-Length: 360
+Content-Length: 364
 
 {
-  "userId" : 10,
-  "email" : "test@test.com",
-  "name" : "배종ok",
-  "phone" : "01011112222",
-  "birthDate" : "2025-11-30",
-  "point" : 0,
+  "userId" : 14,
+  "email" : "user1@naver.com",
+  "name" : "유저1",
+  "phone" : "01000000001",
+  "birthDate" : "2010-10-10",
+  "point" : 10608,
   "defaultAddress" : {
-    "addressId" : 42,
-    "alias" : "집",
-    "roadAddress" : "광주광역시 동구 조선대1길 9",
+    "addressId" : 6,
+    "alias" : "학교",
+    "roadAddress" : "광주광역시 동구 조선대5길 65",
     "zipCode" : "61452",
-    "addressDetail" : "약학"
+    "addressDetail" : "nhn"
   },
-  "gradeName" : "PLATINUM"
+  "gradeName" : "WELCOME"
 }</code></pre>
                         </div>
                     </div>
+                    <table class="tableblock frame-all grid-all stretch">
+                        <caption class="title">Table 2. 응답 필드 (Response Fields)</caption>
+                        <colgroup>
+                            <col style="width: 33.3333%;">
+                            <col style="width: 33.3333%;">
+                            <col style="width: 33.3334%;">
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <th class="tableblock halign-left valign-top">Path</th>
+                            <th class="tableblock halign-left valign-top">Type</th>
+                            <th class="tableblock halign-left valign-top">Description</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>userId</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">회원 PK</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>email</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">이메일</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">이름</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>phone</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">전화번호</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>birthDate</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">생년월일</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>point</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">포인트</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>defaultAddress</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Object</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">기본 주소</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>defaultAddress.addressId</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">주소 PK</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>defaultAddress.alias</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">별칭</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>defaultAddress.roadAddress</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">도로명주소</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>defaultAddress.zipCode</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">우편번호</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>defaultAddress.addressDetail</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">상세주소</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>gradeName</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">회원 등급</p></td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
                 <div class="sect3">
-                    <h4 id="_회원_프로필_수정"><a class="link" href="#_회원_프로필_수정">2.1.4. 회원 프로필 수정</a></h4>
+                    <h4 id="_회원_프로필_수정"><a class="link" href="#_회원_프로필_수정">2.1.5. 회원 프로필 수정</a></h4>
                     <div class="listingblock">
                         <div class="title">요청 (Request)</div>
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /users/profile HTTP/1.1
 Content-Type: application/json
-X-User-Id: 10
+X-User-Id: 14
 Accept: application/json
-Content-Length: 53
+Content-Length: 51
 Host: localhost:8080
 
 {
-  "name" : "배종옥",
+  "name" : "루저1",
   "phone" : "01012345678"
 }</code></pre>
                         </div>
@@ -996,23 +1217,23 @@ Host: localhost:8080
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
 Content-Type: application/json
-Content-Length: 361
+Content-Length: 364
 
 {
-  "userId" : 10,
-  "email" : "test@test.com",
-  "name" : "배종옥",
+  "userId" : 14,
+  "email" : "user1@naver.com",
+  "name" : "루저1",
   "phone" : "01012345678",
-  "birthDate" : "2025-11-30",
-  "point" : 0,
+  "birthDate" : "2010-10-10",
+  "point" : 10608,
   "defaultAddress" : {
-    "addressId" : 42,
-    "alias" : "집",
-    "roadAddress" : "광주광역시 동구 조선대1길 9",
+    "addressId" : 6,
+    "alias" : "학교",
+    "roadAddress" : "광주광역시 동구 조선대5길 65",
     "zipCode" : "61452",
-    "addressDetail" : "약학"
+    "addressDetail" : "nhn"
   },
-  "gradeName" : "PLATINUM"
+  "gradeName" : "WELCOME"
 }</code></pre>
                         </div>
                     </div>
@@ -1100,13 +1321,13 @@ Content-Length: 361
                     </table>
                 </div>
                 <div class="sect3">
-                    <h4 id="_회원_비밀번호_수정"><a class="link" href="#_회원_비밀번호_수정">2.1.5. 회원 비밀번호 수정</a></h4>
+                    <h4 id="_회원_비밀번호_수정"><a class="link" href="#_회원_비밀번호_수정">2.1.6. 회원 비밀번호 수정</a></h4>
                     <div class="listingblock">
                         <div class="title">요청 (Request)</div>
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /users/me/password HTTP/1.1
 Content-Type: application/json
-X-User-Id: 10
+X-User-Id: 14
 Accept: application/json
 Content-Length: 105
 Host: localhost:8080
@@ -1177,13 +1398,13 @@ Host: localhost:8080
                     </div>
                 </div>
                 <div class="sect3">
-                    <h4 id="_회원_탈퇴"><a class="link" href="#_회원_탈퇴">2.1.6. 회원 탈퇴</a></h4>
+                    <h4 id="_회원_탈퇴"><a class="link" href="#_회원_탈퇴">2.1.7. 회원 탈퇴</a></h4>
                     <div class="listingblock">
                         <div class="title">요청 (Request)</div>
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /users/delete HTTP/1.1
 Content-Type: application/json
-X-User-Id: 10
+X-User-Id: 14
 Accept: application/json
 Content-Length: 37
 Host: localhost:8080
@@ -1242,12 +1463,12 @@ Host: localhost:8080
                     </div>
                 </div>
                 <div class="sect3">
-                    <h4 id="_회원_권한_조회"><a class="link" href="#_회원_권한_조회">2.1.7. 회원 권한 조회</a></h4>
+                    <h4 id="_회원_권한_조회"><a class="link" href="#_회원_권한_조회">2.1.8. 회원 권한 조회</a></h4>
                     <div class="listingblock">
                         <div class="title">요청 (Request)</div>
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /users/role HTTP/1.1
-X-User-Id: 10
+X-User-Id: 14
 Accept: application/json
 Host: localhost:8080</code></pre>
                         </div>
@@ -1283,13 +1504,13 @@ USER</code></pre>
                     </div>
                 </div>
                 <div class="sect3">
-                    <h4 id="_회원_payco_로그인_후_필수_정보_수정"><a class="link" href="#_회원_payco_로그인_후_필수_정보_수정">2.1.8. 회원 payco 로그인 후 필수 정보 수정</a></h4>
+                    <h4 id="_회원_payco_로그인_후_필수_정보_수정"><a class="link" href="#_회원_payco_로그인_후_필수_정보_수정">2.1.9. 회원 payco 로그인 후 필수 정보 수정</a></h4>
                     <div class="listingblock">
                         <div class="title">요청 (Request)</div>
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /users/complete-profile HTTP/1.1
 Content-Type: application/json
-X-User-Id: 10
+X-User-Id: 14
 Accept: application/json
 Content-Length: 123
 Host: localhost:8080
@@ -1298,7 +1519,7 @@ Host: localhost:8080
   "email" : "update_email@payco.com",
   "name" : "update_name",
   "phone" : "01011223344",
-  "birthDate" : "2005-12-15"
+  "birthDate" : "2005-12-17"
 }</code></pre>
                         </div>
                     </div>
@@ -1374,7 +1595,7 @@ Host: localhost:8080
                         <div class="title">요청 (Request)</div>
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /users/me/grade HTTP/1.1
-X-User-Id: 1
+X-User-Id: 14
 Accept: application/json
 Host: localhost:8080</code></pre>
                         </div>
@@ -1403,11 +1624,11 @@ Host: localhost:8080</code></pre>
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
 Content-Type: application/json
-Content-Length: 49
+Content-Length: 48
 
 {
-  "gradeName" : "PLATINUM",
-  "pointRate" : 5
+  "gradeName" : "WELCOME",
+  "pointRate" : 1
 }</code></pre>
                         </div>
                     </div>
@@ -1445,7 +1666,7 @@ Content-Length: 49
                         <div class="title">요청 (Request)</div>
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /users/me/grade/4 HTTP/1.1
-X-User-Id: 1
+X-User-Id: 14
 Host: localhost:8080
 Content-Type: application/x-www-form-urlencoded</code></pre>
                         </div>
@@ -1503,8 +1724,8 @@ Content-Type: application/x-www-form-urlencoded</code></pre>
                     <div class="listingblock">
                         <div class="title">요청 (Request)</div>
                         <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /users/me/addresses/41 HTTP/1.1
-X-User-Id: 10
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /users/me/addresses/6 HTTP/1.1
+X-User-Id: 14
 Accept: application/json
 Host: localhost:8080</code></pre>
                         </div>
@@ -1552,14 +1773,14 @@ Host: localhost:8080</code></pre>
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
 Content-Type: application/json
-Content-Length: 173
+Content-Length: 154
 
 {
-  "addressId" : 41,
-  "alias" : "회사",
-  "roadAddress" : "경기도 성남시 분당구 대왕판교로645번길 16",
-  "zipCode" : "13487",
-  "addressDetail" : "NHN"
+  "addressId" : 6,
+  "alias" : "학교",
+  "roadAddress" : "광주광역시 동구 조선대5길 65",
+  "zipCode" : "61452",
+  "addressDetail" : "nhn"
 }</code></pre>
                         </div>
                     </div>
@@ -1612,7 +1833,7 @@ Content-Length: 173
                         <div class="title">요청 (Request)</div>
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /users/me/addresses HTTP/1.1
-X-User-Id: 10
+X-User-Id: 14
 Accept: application/json
 Host: localhost:8080</code></pre>
                         </div>
@@ -1641,44 +1862,26 @@ Host: localhost:8080</code></pre>
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
 Content-Type: application/json
-Content-Length: 992
+Content-Length: 472
 
 [ {
-  "addressId" : 41,
-  "alias" : "회사",
-  "roadAddress" : "경기도 성남시 분당구 대왕판교로645번길 16",
-  "zipCode" : "13487",
-  "addressDetail" : "NHN"
-}, {
-  "addressId" : 42,
-  "alias" : "집",
-  "roadAddress" : "광주광역시 동구 조선대1길 9",
-  "zipCode" : "61452",
-  "addressDetail" : "약학"
-}, {
-  "addressId" : 43,
+  "addressId" : 6,
   "alias" : "학교",
-  "roadAddress" : "전라남도 함평군 학교면 학교화산길 41",
-  "zipCode" : "57158",
-  "addressDetail" : "함평"
-}, {
-  "addressId" : 44,
-  "alias" : "학교",
-  "roadAddress" : "광주광역시 동구 조선대1길 8",
+  "roadAddress" : "광주광역시 동구 조선대5길 65",
   "zipCode" : "61452",
-  "addressDetail" : "조대"
+  "addressDetail" : "nhn"
 }, {
-  "addressId" : 51,
-  "alias" : "asdf",
-  "roadAddress" : "서울특별시 동작구 보라매로5길 51",
-  "zipCode" : "07071",
-  "addressDetail" : "12"
+  "addressId" : 7,
+  "alias" : "자취방",
+  "roadAddress" : "충청남도 보령시 머드로 69",
+  "zipCode" : "33488",
+  "addressDetail" : "321"
 }, {
-  "addressId" : 67,
-  "alias" : "ㅁㄹㄴㅇ",
-  "roadAddress" : "서울특별시 동작구 보라매로5길 51",
-  "zipCode" : "07071",
-  "addressDetail" : "12"
+  "addressId" : 8,
+  "alias" : "본가",
+  "roadAddress" : "서울특별시 강남구 강남대로 328",
+  "zipCode" : "06252",
+  "addressDetail" : "111"
 } ]</code></pre>
                         </div>
                     </div>
@@ -1732,7 +1935,7 @@ Content-Length: 992
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /users/me/addresses HTTP/1.1
 Content-Type: application/json
-X-User-Id: 10
+X-User-Id: 14
 Accept: application/json
 Content-Length: 150
 Host: localhost:8080
@@ -1813,9 +2016,9 @@ Host: localhost:8080
                     <div class="listingblock">
                         <div class="title">요청 (Request)</div>
                         <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /users/me/addresses/67 HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /users/me/addresses/8 HTTP/1.1
 Content-Type: application/json
-X-User-Id: 10
+X-User-Id: 14
 Accept: application/json
 Content-Length: 155
 Host: localhost:8080
@@ -1908,10 +2111,10 @@ Host: localhost:8080
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
 Content-Type: application/json
-Content-Length: 175
+Content-Length: 174
 
 {
-  "addressId" : 67,
+  "addressId" : 8,
   "alias" : "본가",
   "roadAddress" : "서울특별시 구로구 디지털로26길 72 (구로동)",
   "zipCode" : "07071",
@@ -1967,8 +2170,8 @@ Content-Length: 175
                     <div class="listingblock">
                         <div class="title">요청 (Request)</div>
                         <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">DELETE /users/me/addresses/67 HTTP/1.1
-X-User-Id: 10
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">DELETE /users/me/addresses/8 HTTP/1.1
+X-User-Id: 14
 Accept: application/json
 Host: localhost:8080</code></pre>
                         </div>
@@ -2019,53 +2222,12 @@ Host: localhost:8080</code></pre>
                     </div>
                 </div>
                 <div class="sect3">
-                    <h4 id="_회원_권한_조회_2"><a class="link" href="#_회원_권한_조회_2">2.3.6. 회원 권한 조회</a></h4>
-                    <div class="listingblock">
-                        <div class="title">요청 (Request)</div>
-                        <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /users/role HTTP/1.1
-X-User-Id: 10
-Accept: application/json
-Host: localhost:8080</code></pre>
-                        </div>
-                    </div>
-                    <table class="tableblock frame-all grid-all stretch">
-                        <caption class="title">Table 1. 요청 헤더 (Request Headers)</caption>
-                        <colgroup>
-                            <col style="width: 50%;">
-                            <col style="width: 50%;">
-                        </colgroup>
-                        <thead>
-                        <tr>
-                            <th class="tableblock halign-left valign-top">Name</th>
-                            <th class="tableblock halign-left valign-top">Description</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>X-User-Id</code></p></td>
-                            <td class="tableblock halign-left valign-top"><p class="tableblock">사용자 식별 ID</p></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    <div class="listingblock">
-                        <div class="title">응답 (Response)</div>
-                        <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
-Content-Type: application/json
-Content-Length: 4
-
-USER</code></pre>
-                        </div>
-                    </div>
-                </div>
-                <div class="sect3">
-                    <h4 id="_회원_기본_주소_조회"><a class="link" href="#_회원_기본_주소_조회">2.3.7. 회원 기본 주소 조회</a></h4>
+                    <h4 id="_회원_기본_주소_조회"><a class="link" href="#_회원_기본_주소_조회">2.3.6. 회원 기본 주소 조회</a></h4>
                     <div class="listingblock">
                         <div class="title">요청 (Request)</div>
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /users/me/addresses/default HTTP/1.1
-X-User-Id: 10
+X-User-Id: 14
 Accept: application/json
 Host: localhost:8080</code></pre>
                         </div>
@@ -2097,11 +2259,11 @@ Content-Type: application/json
 Content-Length: 154
 
 {
-  "addressId" : 42,
-  "alias" : "집",
-  "roadAddress" : "광주광역시 동구 조선대1길 9",
+  "addressId" : 6,
+  "alias" : "학교",
+  "roadAddress" : "광주광역시 동구 조선대5길 65",
   "zipCode" : "61452",
-  "addressDetail" : "약학"
+  "addressDetail" : "nhn"
 }</code></pre>
                         </div>
                     </div>
@@ -2149,12 +2311,12 @@ Content-Length: 154
                     </table>
                 </div>
                 <div class="sect3">
-                    <h4 id="_회원_기본_주소_변경"><a class="link" href="#_회원_기본_주소_변경">2.3.8. 회원 기본 주소 변경</a></h4>
+                    <h4 id="_회원_기본_주소_변경"><a class="link" href="#_회원_기본_주소_변경">2.3.7. 회원 기본 주소 변경</a></h4>
                     <div class="listingblock">
                         <div class="title">요청 (Request)</div>
                         <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /users/me/addresses/67/default HTTP/1.1
-X-User-Id: 10
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /users/me/addresses/8/default HTTP/1.1
+X-User-Id: 14
 Accept: application/json
 Host: localhost:8080
 Content-Type: application/x-www-form-urlencoded</code></pre>
@@ -2214,7 +2376,7 @@ Content-Type: application/x-www-form-urlencoded</code></pre>
                         <div class="title">요청 (Request)</div>
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /users/me/likes HTTP/1.1
-X-User-Id: 1
+X-User-Id: 14
 Accept: application/json
 Host: localhost:8080</code></pre>
                         </div>
@@ -2243,24 +2405,88 @@ Host: localhost:8080</code></pre>
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
 Content-Type: application/json
-Content-Length: 528
+Content-Length: 3158
 
 [ {
-  "bookId" : 20177,
-  "bookTitle" : "청개구리도 풍년을 노래한다",
-  "authorName" : "전이곤",
-  "priceStandard" : 7000,
-  "priceSales" : 6300,
+  "bookId" : 8599,
+  "bookTitle" : "냥 작가의 글쓰기 상담소 1 - 일기를 불러 드립니다",
+  "authorName" : "류수형",
+  "priceStandard" : 12000,
+  "priceSales" : 10800,
   "stockStatus" : "IN_STOCK",
-  "bookImage" : "http://image.aladin.co.kr/product/51/42/cover/8977983738_1.gif"
+  "bookImage" : "https://image.aladin.co.kr/product/28459/39/cover/k342835829_1.jpg"
 }, {
-  "bookId" : 96568,
-  "bookTitle" : "내가 해 줄까?",
-  "authorName" : "하영",
-  "priceStandard" : 10900,
-  "priceSales" : 9810,
+  "bookId" : 8663,
+  "bookTitle" : "물고기는 존재하지 않는다 - 상실, 사랑 그리고 숨어 있는 삶의 질서에 관한 이야기",
+  "authorName" : "정지인",
+  "priceStandard" : 17000,
+  "priceSales" : 15300,
   "stockStatus" : "IN_STOCK",
-  "bookImage" : "http://image.aladin.co.kr/product/8722/20/cover/k562535483_1.jpg"
+  "bookImage" : "https://image.aladin.co.kr/product/28465/73/cover200/k092835920_2.jpg"
+}, {
+  "bookId" : 8665,
+  "bookTitle" : "우리는 글쓰기를 너무 심각하게 생각하지 - 매일 쓰는 사람 정지우의 쓰는 법, 쓰는 생활",
+  "authorName" : "정지우",
+  "priceStandard" : 17000,
+  "priceSales" : 15300,
+  "stockStatus" : "IN_STOCK",
+  "bookImage" : "https://image.aladin.co.kr/product/28465/0/cover200/8931022573_1.jpg"
+}, {
+  "bookId" : 10303,
+  "bookTitle" : "순한 맛, 매운 맛 매생이 클럽 아이들 - 어린이를 위한 글쓰기 교육 동화",
+  "authorName" : "이은경",
+  "priceStandard" : 15000,
+  "priceSales" : 13500,
+  "stockStatus" : "IN_STOCK",
+  "bookImage" : "https://image.aladin.co.kr/product/28507/92/cover200/8947547743_1.jpg"
+}, {
+  "bookId" : 71523,
+  "bookTitle" : "나를 바꾸는 미로 여행 :자기 자신을 발견한 사람은 행복하다",
+  "authorName" : "송병선",
+  "priceStandard" : 11000,
+  "priceSales" : 9900,
+  "stockStatus" : "IN_STOCK",
+  "bookImage" : "https://image.aladin.co.kr/product/304/12/cover200/8935207608_1.jpg"
+}, {
+  "bookId" : 84787,
+  "bookTitle" : "커피의 정석",
+  "authorName" : "사단법인 대한커피협회",
+  "priceStandard" : 22000,
+  "priceSales" : 19800,
+  "stockStatus" : "IN_STOCK",
+  "bookImage" : "http://image.aladin.co.kr/product/7929/72/cover/8984894028_1.jpg"
+}, {
+  "bookId" : 99639,
+  "bookTitle" : "하루 커피 3잔 :하루 커피 3잔이 내 몸을 지킨다",
+  "authorName" : "이지현",
+  "priceStandard" : 9000,
+  "priceSales" : 8100,
+  "stockStatus" : "IN_STOCK",
+  "bookImage" : "https://image.aladin.co.kr/product/5056/69/cover200/8993418950_1.jpg"
+}, {
+  "bookId" : 127508,
+  "bookTitle" : "대학생을 위한 말하기와 글쓰기 전략",
+  "authorName" : "김형중",
+  "priceStandard" : 14000,
+  "priceSales" : 12600,
+  "stockStatus" : "IN_STOCK",
+  "bookImage" : "https://image.aladin.co.kr/product/26414/61/cover200/k612738424_1.jpg"
+}, {
+  "bookId" : 146658,
+  "bookTitle" : "글쓰기 천재가 되다",
+  "authorName" : "올드스테어즈 편집부",
+  "priceStandard" : 11500,
+  "priceSales" : 10350,
+  "stockStatus" : "IN_STOCK",
+  "bookImage" : "https://image.aladin.co.kr/product/27524/45/cover200/k572733295_1.jpg"
+}, {
+  "bookId" : 149152,
+  "bookTitle" : "퓰리처 글쓰기 수업 :논픽션 스토리텔링의 모든 것",
+  "authorName" : "정세라",
+  "priceStandard" : 19900,
+  "priceSales" : 17910,
+  "stockStatus" : "IN_STOCK",
+  "bookImage" : "https://image.aladin.co.kr/product/27509/16/cover200/k962835479_1.jpg"
 } ]</code></pre>
                         </div>
                     </div>
@@ -2323,7 +2549,7 @@ Content-Length: 528
                         <div class="title">요청 (Request)</div>
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /users/me/likes/29120 HTTP/1.1
-X-User-Id: 1
+X-User-Id: 14
 Host: localhost:8080
 Content-Type: application/x-www-form-urlencoded</code></pre>
                         </div>
@@ -2378,8 +2604,8 @@ Content-Type: application/x-www-form-urlencoded</code></pre>
                     <div class="listingblock">
                         <div class="title">요청 (Request)</div>
                         <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">DELETE /users/me/likes/20177 HTTP/1.1
-X-User-Id: 1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">DELETE /users/me/likes/8599 HTTP/1.1
+X-User-Id: 14
 Host: localhost:8080</code></pre>
                         </div>
                     </div>
@@ -2434,7 +2660,7 @@ Host: localhost:8080</code></pre>
                         <div class="title">요청 (Request)</div>
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">DELETE /users/me/likes HTTP/1.1
-X-User-Id: 1
+X-User-Id: 14
 Host: localhost:8080</code></pre>
                         </div>
                     </div>
@@ -2473,7 +2699,7 @@ Host: localhost:8080</code></pre>
                         <div class="title">요청 (Request)</div>
                         <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /users/me/orders HTTP/1.1
-X-User-Id: 71
+X-User-Id: 15
 Accept: application/json
 Host: localhost:8080</code></pre>
                         </div>
@@ -2500,109 +2726,209 @@ Host: localhost:8080</code></pre>
                     <div class="listingblock">
                         <div class="title">응답 (Response)</div>
                         <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 201 Created
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
 Content-Type: application/json
-Content-Length: 3264
+Content-Length: 7087
 
 [ {
-  "orderId" : 368,
-  "userId" : 71,
-  "createdAt" : "2025-12-14T13:46:13.919174",
+  "orderId" : 15,
+  "userId" : 15,
+  "createdAt" : "2025-12-15T11:32:46.224265",
+  "deliveryStatus" : "DELIVERED",
+  "orderItems" : [ {
+    "orderItemId" : 42,
+    "bookId" : 146658,
+    "bookTitle" : "글쓰기 천재가 되다",
+    "bookAuthor" : "올드스테어즈 편집부",
+    "bookImageUrl" : "https://image.aladin.co.kr/product/27524/45/cover/k572733295_1.jpg",
+    "quantity" : 1,
+    "salePrice" : 10350,
+    "confirmStatus" : "CONFIRMED",
+    "isReviewed" : true
+  }, {
+    "orderItemId" : 43,
+    "bookId" : 71523,
+    "bookTitle" : "나를 바꾸는 미로 여행 :자기 자신을 발견한 사람은 행복하다",
+    "bookAuthor" : "송병선",
+    "bookImageUrl" : "http://image.aladin.co.kr/product/304/12/cover/8935207608_1.jpg",
+    "quantity" : 1,
+    "salePrice" : 9900,
+    "confirmStatus" : "CONFIRMED",
+    "isReviewed" : true
+  }, {
+    "orderItemId" : 44,
+    "bookId" : 149152,
+    "bookTitle" : "퓰리처 글쓰기 수업 :논픽션 스토리텔링의 모든 것",
+    "bookAuthor" : "정세라",
+    "bookImageUrl" : "https://image.aladin.co.kr/product/27509/16/cover/k962835479_1.jpg",
+    "quantity" : 1,
+    "salePrice" : 17910,
+    "confirmStatus" : "CONFIRMED",
+    "isReviewed" : true
+  }, {
+    "orderItemId" : 45,
+    "bookId" : 127508,
+    "bookTitle" : "대학생을 위한 말하기와 글쓰기 전략",
+    "bookAuthor" : "김형중",
+    "bookImageUrl" : "https://image.aladin.co.kr/product/26414/61/cover/k612738424_1.jpg",
+    "quantity" : 1,
+    "salePrice" : 12600,
+    "confirmStatus" : "CONFIRMED",
+    "isReviewed" : true
+  }, {
+    "orderItemId" : 46,
+    "bookId" : 8599,
+    "bookTitle" : "냥 작가의 글쓰기 상담소 1 - 일기를 불러 드립니다",
+    "bookAuthor" : "류수형",
+    "bookImageUrl" : "https://image.aladin.co.kr/product/28459/39/cover/k342835829_1.jpg",
+    "quantity" : 1,
+    "salePrice" : 10800,
+    "confirmStatus" : "CONFIRMED",
+    "isReviewed" : true
+  }, {
+    "orderItemId" : 47,
+    "bookId" : 8665,
+    "bookTitle" : "우리는 글쓰기를 너무 심각하게 생각하지 - 매일 쓰는 사람 정지우의 쓰는 법, 쓰는 생활",
+    "bookAuthor" : "정지우",
+    "bookImageUrl" : "https://image.aladin.co.kr/product/28465/0/cover/8931022573_1.jpg",
+    "quantity" : 1,
+    "salePrice" : 15300,
+    "confirmStatus" : "CONFIRMED",
+    "isReviewed" : true
+  }, {
+    "orderItemId" : 48,
+    "bookId" : 10303,
+    "bookTitle" : "순한 맛, 매운 맛 매생이 클럽 아이들 - 어린이를 위한 글쓰기 교육 동화",
+    "bookAuthor" : "이은경",
+    "bookImageUrl" : "https://image.aladin.co.kr/product/28507/92/cover/8947547743_1.jpg",
+    "quantity" : 1,
+    "salePrice" : 13500,
+    "confirmStatus" : "CONFIRMED",
+    "isReviewed" : true
+  } ]
+}, {
+  "orderId" : 35,
+  "userId" : 15,
+  "createdAt" : "2025-12-15T13:28:56.939211",
+  "deliveryStatus" : "DELIVERED",
+  "orderItems" : [ {
+    "orderItemId" : 102,
+    "bookId" : 150586,
+    "bookTitle" : "공부란 무엇인가 - 우리가 지금 공부해야 하는 이유",
+    "bookAuthor" : "한근태",
+    "bookImageUrl" : "https://image.aladin.co.kr/product/28535/18/cover/8946422025_1.jpg",
+    "quantity" : 1,
+    "salePrice" : 10800,
+    "confirmStatus" : "CONFIRMED",
+    "isReviewed" : true
+  } ]
+}, {
+  "orderId" : 46,
+  "userId" : 15,
+  "createdAt" : "2025-12-16T02:37:52.052099",
   "deliveryStatus" : "WAITING",
   "orderItems" : [ {
-    "orderItemId" : 381,
-    "bookId" : 127508,
-    "bookTitle" : "대학생을 위한 말하기와 글쓰기 전략",
-    "bookAuthor" : "김형중",
-    "bookImageUrl" : "https://image.aladin.co.kr/product/26414/61/cover/k612738424_1.jpg",
+    "orderItemId" : 123,
+    "bookId" : 8599,
+    "bookTitle" : "냥 작가의 글쓰기 상담소 1 - 일기를 불러 드립니다",
+    "bookAuthor" : "류수형",
+    "bookImageUrl" : "https://image.aladin.co.kr/product/28459/39/cover/k342835829_1.jpg",
     "quantity" : 1,
-    "salePrice" : 12600,
+    "salePrice" : 10800,
     "confirmStatus" : "UNCONFIRMED",
     "isReviewed" : false
   } ]
 }, {
-  "orderId" : 369,
-  "userId" : 71,
-  "createdAt" : "2025-12-14T13:46:28.868277",
-  "deliveryStatus" : "CANCELED",
+  "orderId" : 48,
+  "userId" : 15,
+  "createdAt" : "2025-12-16T03:45:57.66565",
+  "deliveryStatus" : "WAITING",
   "orderItems" : [ {
-    "orderItemId" : 382,
-    "bookId" : 127508,
-    "bookTitle" : "대학생을 위한 말하기와 글쓰기 전략",
-    "bookAuthor" : "김형중",
-    "bookImageUrl" : "https://image.aladin.co.kr/product/26414/61/cover/k612738424_1.jpg",
-    "quantity" : 1,
-    "salePrice" : 12600,
+    "orderItemId" : 127,
+    "bookId" : 146658,
+    "bookTitle" : "글쓰기 천재가 되다",
+    "bookAuthor" : "올드스테어즈 편집부",
+    "bookImageUrl" : "https://image.aladin.co.kr/product/27524/45/cover/k572733295_1.jpg",
+    "quantity" : 50,
+    "salePrice" : 10350,
     "confirmStatus" : "UNCONFIRMED",
     "isReviewed" : false
   } ]
 }, {
-  "orderId" : 370,
-  "userId" : 71,
-  "createdAt" : "2025-12-14T13:48:51.601072",
-  "deliveryStatus" : "DELIVERED",
+  "orderId" : 49,
+  "userId" : 15,
+  "createdAt" : "2025-12-16T03:53:27.206557",
+  "deliveryStatus" : "WAITING",
   "orderItems" : [ {
-    "orderItemId" : 383,
-    "bookId" : 145650,
-    "bookTitle" : "(AWS로 시작하는) AI 서비스 :with 파이썬",
-    "bookAuthor" : "양성건",
-    "bookImageUrl" : "https://image.aladin.co.kr/product/28176/12/cover/8931465823_1.jpg",
-    "quantity" : 1,
-    "salePrice" : 19800,
-    "confirmStatus" : "CONFIRMED",
+    "orderItemId" : 128,
+    "bookId" : 146658,
+    "bookTitle" : "글쓰기 천재가 되다",
+    "bookAuthor" : "올드스테어즈 편집부",
+    "bookImageUrl" : "https://image.aladin.co.kr/product/27524/45/cover/k572733295_1.jpg",
+    "quantity" : 30,
+    "salePrice" : 10350,
+    "confirmStatus" : "UNCONFIRMED",
     "isReviewed" : false
   }, {
-    "orderItemId" : 384,
-    "bookId" : 145553,
-    "bookTitle" : "(그림으로 배우는) 파이썬 =Python",
-    "bookAuthor" : "김은철",
-    "bookImageUrl" : "https://image.aladin.co.kr/product/28157/98/cover/8931465858_1.jpg",
-    "quantity" : 2,
-    "salePrice" : 16200,
-    "confirmStatus" : "CONFIRMED",
-    "isReviewed" : true
-  } ]
-}, {
-  "orderId" : 371,
-  "userId" : 71,
-  "createdAt" : "2025-12-14T13:51:36.340287",
-  "deliveryStatus" : "DELIVERED",
-  "orderItems" : [ {
-    "orderItemId" : 385,
-    "bookId" : 141153,
-    "bookTitle" : "Social, legal, and ethical implications of IoT, cloud, and edge computing technologies",
-    "bookAuthor" : "Gianluca Cornetta",
-    "bookImageUrl" : "https://bookthumb-phinf.pstatic.net/cover/171/228/17122817.jpg?type=m1&amp;udate=20211025",
-    "quantity" : 1,
-    "salePrice" : 399600,
-    "confirmStatus" : "REFUNDED",
+    "orderItemId" : 129,
+    "bookId" : 71523,
+    "bookTitle" : "나를 바꾸는 미로 여행 :자기 자신을 발견한 사람은 행복하다",
+    "bookAuthor" : "송병선",
+    "bookImageUrl" : "http://image.aladin.co.kr/product/304/12/cover/8935207608_1.jpg",
+    "quantity" : 25,
+    "salePrice" : 9900,
+    "confirmStatus" : "UNCONFIRMED",
     "isReviewed" : false
   }, {
-    "orderItemId" : 386,
-    "bookId" : 116982,
-    "bookTitle" : "(라즈베리파이로 풀어보는) 사물인터넷 IoT",
-    "bookAuthor" : "박군종",
-    "bookImageUrl" : "https://image.aladin.co.kr/product/23569/44/cover/k962638125_1.jpg",
+    "orderItemId" : 130,
+    "bookId" : 149152,
+    "bookTitle" : "퓰리처 글쓰기 수업 :논픽션 스토리텔링의 모든 것",
+    "bookAuthor" : "정세라",
+    "bookImageUrl" : "https://image.aladin.co.kr/product/27509/16/cover/k962835479_1.jpg",
+    "quantity" : 20,
+    "salePrice" : 17910,
+    "confirmStatus" : "UNCONFIRMED",
+    "isReviewed" : false
+  }, {
+    "orderItemId" : 131,
+    "bookId" : 127508,
+    "bookTitle" : "대학생을 위한 말하기와 글쓰기 전략",
+    "bookAuthor" : "김형중",
+    "bookImageUrl" : "https://image.aladin.co.kr/product/26414/61/cover/k612738424_1.jpg",
+    "quantity" : 15,
+    "salePrice" : 12600,
+    "confirmStatus" : "UNCONFIRMED",
+    "isReviewed" : false
+  }, {
+    "orderItemId" : 132,
+    "bookId" : 8599,
+    "bookTitle" : "냥 작가의 글쓰기 상담소 1 - 일기를 불러 드립니다",
+    "bookAuthor" : "류수형",
+    "bookImageUrl" : "https://image.aladin.co.kr/product/28459/39/cover/k342835829_1.jpg",
+    "quantity" : 10,
+    "salePrice" : 10800,
+    "confirmStatus" : "UNCONFIRMED",
+    "isReviewed" : false
+  }, {
+    "orderItemId" : 133,
+    "bookId" : 8665,
+    "bookTitle" : "우리는 글쓰기를 너무 심각하게 생각하지 - 매일 쓰는 사람 정지우의 쓰는 법, 쓰는 생활",
+    "bookAuthor" : "정지우",
+    "bookImageUrl" : "https://image.aladin.co.kr/product/28465/0/cover/8931022573_1.jpg",
+    "quantity" : 5,
+    "salePrice" : 15300,
+    "confirmStatus" : "UNCONFIRMED",
+    "isReviewed" : false
+  }, {
+    "orderItemId" : 134,
+    "bookId" : 10303,
+    "bookTitle" : "순한 맛, 매운 맛 매생이 클럽 아이들 - 어린이를 위한 글쓰기 교육 동화",
+    "bookAuthor" : "이은경",
+    "bookImageUrl" : "https://image.aladin.co.kr/product/28507/92/cover/8947547743_1.jpg",
     "quantity" : 1,
-    "salePrice" : 18900,
-    "confirmStatus" : "CONFIRMED",
-    "isReviewed" : true
-  } ]
-}, {
-  "orderId" : 372,
-  "userId" : 71,
-  "createdAt" : "2025-12-14T13:52:05.624021",
-  "deliveryStatus" : "DELIVERED",
-  "orderItems" : [ {
-    "orderItemId" : 387,
-    "bookId" : 118110,
-    "bookTitle" : "소드 아트 온라인 :프로젝트 엘리시제이션",
-    "bookAuthor" : "카와하라 레키",
-    "bookImageUrl" : "https://image.aladin.co.kr/product/21415/93/cover/k212636893_1.jpg",
-    "quantity" : 1,
-    "salePrice" : 4500,
-    "confirmStatus" : "CONFIRMED",
-    "isReviewed" : true
+    "salePrice" : 13500,
+    "confirmStatus" : "UNCONFIRMED",
+    "isReviewed" : false
   } ]
 } ]</code></pre>
                         </div>
@@ -2691,6 +3017,168 @@ Content-Length: 3264
                             <td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].orderItems[].isReviewed</code></p></td>
                             <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
                             <td class="tableblock halign-left valign-top"><p class="tableblock">리뷰 작성 여부</p></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="sect3">
+                    <h4 id="_회원_주문화면에_필요한_정보_조회"><a class="link" href="#_회원_주문화면에_필요한_정보_조회">2.5.2. 회원 주문화면에 필요한 정보 조회</a></h4>
+                    <div class="listingblock">
+                        <div class="title">요청 (Request)</div>
+                        <div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /users/me/order-info HTTP/1.1
+X-User-Id: 14
+Accept: application/json
+Host: localhost:8080</code></pre>
+                        </div>
+                    </div>
+                    <table class="tableblock frame-all grid-all stretch">
+                        <caption class="title">Table 1. 요청 헤더 (Request Headers)</caption>
+                        <colgroup>
+                            <col style="width: 50%;">
+                            <col style="width: 50%;">
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <th class="tableblock halign-left valign-top">Name</th>
+                            <th class="tableblock halign-left valign-top">Description</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>X-User-Id</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">사용자 식별 ID</p></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="listingblock">
+                        <div class="title">응답 (Response)</div>
+                        <div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 786
+
+{
+  "email" : "user1@naver.com",
+  "name" : "유저1",
+  "phone" : "01000000001",
+  "point" : 10608,
+  "addressId" : 6,
+  "alias" : "학교",
+  "roadAddress" : "광주광역시 동구 조선대5길 65",
+  "zipCode" : "61452",
+  "addressDetail" : "nhn",
+  "addressResponses" : [ {
+    "addressId" : 6,
+    "alias" : "학교",
+    "roadAddress" : "광주광역시 동구 조선대5길 65",
+    "zipCode" : "61452",
+    "addressDetail" : "nhn"
+  }, {
+    "addressId" : 7,
+    "alias" : "자취방",
+    "roadAddress" : "충청남도 보령시 머드로 69",
+    "zipCode" : "33488",
+    "addressDetail" : "321"
+  }, {
+    "addressId" : 8,
+    "alias" : "본가",
+    "roadAddress" : "서울특별시 강남구 강남대로 328",
+    "zipCode" : "06252",
+    "addressDetail" : "111"
+  } ]
+}</code></pre>
+                        </div>
+                    </div>
+                    <table class="tableblock frame-all grid-all stretch">
+                        <caption class="title">Table 2. 응답 필드 (Response Fields)</caption>
+                        <colgroup>
+                            <col style="width: 33.3333%;">
+                            <col style="width: 33.3333%;">
+                            <col style="width: 33.3334%;">
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <th class="tableblock halign-left valign-top">Path</th>
+                            <th class="tableblock halign-left valign-top">Type</th>
+                            <th class="tableblock halign-left valign-top">Description</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>email</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">이메일</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">이름</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>phone</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">전화번호</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>point</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">포인트</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>addressId</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">기본주소 PK</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>alias</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">별칭</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>roadAddress</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">도로명 주소</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>zipCode</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">우편번호</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>addressDetail</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">상세주소</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>addressResponses[]</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">주소 리스트</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>addressResponses[].addressId</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">주소 PK들</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>addressResponses[].alias</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">별칭들</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>addressResponses[].roadAddress</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">도로명 주소들</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>addressResponses[].zipCode</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">우편번호들</p></td>
+                        </tr>
+                        <tr>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>addressResponses[].addressDetail</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                            <td class="tableblock halign-left valign-top"><p class="tableblock">상세주소들</p></td>
                         </tr>
                         </tbody>
                     </table>

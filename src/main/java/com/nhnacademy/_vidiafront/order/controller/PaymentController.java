@@ -1,9 +1,14 @@
 package com.nhnacademy._vidiafront.order.controller;
 
+import com.nhnacademy._vidiafront.order.client.OrderApiClient;
 import com.nhnacademy._vidiafront.order.client.PaymentApiClient;
+import com.nhnacademy._vidiafront.order.dto.order.response.OrderResponse;
 import com.nhnacademy._vidiafront.order.dto.payment.requset.PaymentConfirmRequest;
 import com.nhnacademy._vidiafront.order.dto.payment.requset.PaymentFailRequest;
 import com.nhnacademy._vidiafront.order.dto.payment.response.PaymentResponse;
+import com.nhnacademy._vidiafront.user.client.MyOrderApiClient;
+import com.nhnacademy._vidiafront.user.client.UserApiClient;
+import com.nhnacademy._vidiafront.user.dto.user.response.OrderUserResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +26,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PaymentController {
 
+    private final OrderApiClient orderApiClient;
     private final PaymentApiClient paymentApiClient;
+    private final MyOrderApiClient myOrderApiClient;
 
     @Value("${toss.clientKey}")
     private String TOSS_CLIENT_KEY;
@@ -32,16 +39,21 @@ public class PaymentController {
     public String prepareTossPage(@RequestParam long orderId,
                                   @RequestParam String orderName,
                                   @RequestParam String paymentMethod,
-                                  @RequestParam int payPrice,
+                                  @RequestParam String ordererName,
+                                  @RequestParam String ordererEmail,
                                   Model model) {
 
         String sendOrderId = "ORD-" + UUID.randomUUID();
 
+        OrderResponse orderResponse = orderApiClient.getOrderById(orderId);
+        int payPrice = orderResponse.totalBookPrice() + orderResponse.packagingFee() + orderResponse.deliveryFee()
+                - orderResponse.couponDiscount() - orderResponse.pointUsed(); // 이럴거면 최종 결제 금액 넣는게 나을지도..
+
         model.addAttribute("tossClientKey", TOSS_CLIENT_KEY);
         model.addAttribute("orderId", orderId);
         model.addAttribute("orderName", orderName);
-        model.addAttribute("customerEmail", "");
-        model.addAttribute("customerName", "홍길동");
+        model.addAttribute("customerEmail", ordererEmail);
+        model.addAttribute("customerName", ordererName);
         model.addAttribute("payPrice", payPrice);
         model.addAttribute("paymentMethod", paymentMethod);
         model.addAttribute("sendOrderId", sendOrderId);

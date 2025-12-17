@@ -115,7 +115,7 @@
                         <!-- 만료일 (적립일 때만) -->
                         <div th:if="${history.expiredDate != null}"
                              class="text-muted small"
-                             th:text="'만료일: ' + ${#temporals.format(history.expiredDate, 'yyyy-MM-dd')}"></div>
+                             th:text="+ ${#temporals.format(history.expiredDate, 'yyyy-MM-dd')} + '까지 사용 가능'"></div>
                     </div>
 
                     <!-- 포인트 금액 + / - -->

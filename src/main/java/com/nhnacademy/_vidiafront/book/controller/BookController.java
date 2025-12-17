@@ -1,10 +1,9 @@
 package com.nhnacademy._vidiafront.book.controller;
 
 import com.nhnacademy._vidiafront.book.client.BookApiClient;
+import com.nhnacademy._vidiafront.book.dto.books.gemini.GeminiBookSuggestion;
 import com.nhnacademy._vidiafront.book.dto.books.request.BookSearchRequest;
-import com.nhnacademy._vidiafront.book.dto.books.response.AiBookSearchResponse;
-import com.nhnacademy._vidiafront.book.dto.books.response.BookDetailWithReviewResponse;
-import com.nhnacademy._vidiafront.book.dto.books.response.BookListResponse;
+import com.nhnacademy._vidiafront.book.dto.books.response.*;
 import com.nhnacademy._vidiafront.global.dto.PageResponse;
 import java.util.List;
 
@@ -61,7 +60,9 @@ public class BookController {
             return "book/search";
         }
 
-        PageResponse<BookListResponse> pageResult = bookApiClient.searchBooks(request, page, size);
+        SearchBooksResponse response = bookApiClient.searchBooks(request, page, size);
+        PageResponse<BookListResponse> pageResult = response.page();
+        List<AiCacheResponse> aiCacheResponseList = response.aiCacheResponseList();
 
         model.addAttribute("books", pageResult.content());
         model.addAttribute("page", pageResult.page());
@@ -70,6 +71,7 @@ public class BookController {
         model.addAttribute("totalElements", pageResult.totalElements());
         model.addAttribute("keyword", request.keyword());
         model.addAttribute("useSemantic", request.useSemantic());
+        model.addAttribute("aiCacheResponseList", aiCacheResponseList);
 
         return "book/search";
 

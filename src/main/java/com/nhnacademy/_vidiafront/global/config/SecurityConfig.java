@@ -2,10 +2,13 @@ package com.nhnacademy._vidiafront.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.session.web.http.CookieSerializer;
+import org.springframework.session.web.http.DefaultCookieSerializer;
 
 @Configuration
 public class SecurityConfig {
@@ -34,7 +37,28 @@ public class SecurityConfig {
                 .anyRequest().permitAll()
         );
 
+
         return http.build();
 
     }
+
+    @Bean
+    @Profile("prod")
+    public CookieSerializer prodCookieSerializer() {
+        DefaultCookieSerializer serializer = new DefaultCookieSerializer();
+        serializer.setSameSite("None");
+        serializer.setUseSecureCookie(true);
+        return serializer;
+    }
+
+    @Bean
+    @Profile({"local", "test"})
+    public CookieSerializer localCookieSerializer() {
+        DefaultCookieSerializer serializer = new DefaultCookieSerializer();
+        serializer.setSameSite("Lax"); // 기본값
+        serializer.setUseSecureCookie(false);
+        return serializer;
+    }
+
+
 }

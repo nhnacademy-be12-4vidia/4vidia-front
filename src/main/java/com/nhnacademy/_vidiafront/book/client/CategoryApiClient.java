@@ -18,9 +18,9 @@ public class CategoryApiClient {
 
     private static final String BOOK_SERVICE = "/api/v1/book-service";
 
-    public List<CategoryResponse> getCategoryList() {
+    public List<CategoryResponse> getFlatCategoryList() {
         return backendApiClient.get(
-                BOOK_SERVICE + "/categories",
+                BOOK_SERVICE + "/categories/flat",
                 new ParameterizedTypeReference<>() {}
         );
     }

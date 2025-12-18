@@ -3,7 +3,6 @@ package com.nhnacademy._vidiafront.admin.dto.request;
 import com.nhnacademy._vidiafront.book.dto.authors.request.AuthorRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -24,7 +23,6 @@ public record AdminBookCreateRequest (
         String categoryCode,
 
         Integer priceStandard,
-        Integer priceSales,
         Integer stock,
         Boolean packagingAvailable,
 

@@ -150,7 +150,12 @@
                                 <label for="categoryCode">카테고리</label>
                                 <select class="form-control" id="categoryCode" name="categoryCode">
                                     <option value="">카테고리를 선택하세요</option>
-                                    <!-- Options will be dynamically loaded by JavaScript -->
+                                    <option th:each="cat : ${categories}"
+                                            th:value="${cat.kdcCode()}"
+                                            th:text="|${cat.kdcCode()}: ${cat.categoryName()}|"
+                                            th:selected="${book != null && book.categoryInfo != null && book.categoryInfo.kdcCode == cat.kdcCode()}">
+                                        카테고리명
+                                    </option>
                                 </select>
                             </div>
                         </div>
@@ -165,17 +170,12 @@
                 </div>
                 <div class="card-body">
                     <div class="form-row">
-                        <div class="form-group col-md-4">
+                        <div class="form-group col-md-6">
                             <label for="priceStandard">정가</label>
                             <input type="number" class="form-control" id="priceStandard" name="priceStandard"
                                    th:value="${book?.priceStandard}">
                         </div>
-                        <div class="form-group col-md-4">
-                            <label for="priceSales">판매가</label>
-                            <input type="number" class="form-control" id="priceSales" name="priceSales"
-                                   th:value="${book?.priceSales}">
-                        </div>
-                        <div class="form-group col-md-4">
+                        <div class="form-group col-md-6">
                             <label for="stock">재고수량</label>
                             <input type="number" class="form-control" id="stock" name="stock" 
                                    th:value="${book?.stock ?: 0}">
@@ -236,9 +236,7 @@
     <script src="/vendor/toastui/js/toastui-editor-all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script th:inline="javascript">
-        // jQuery for Select2
         $(document).ready(function() {
-            // 1. Select2 초기화
             $('#categoryCode').select2({
                 width: '100%',
                 placeholder: '카테고리 검색 (코드 또는 이름)',
@@ -249,35 +247,12 @@
                     }
                 }
             });
-
-            // 2. 카테고리 데이터 로드 (API 호출)
-            $.ajax({
-                url: '/categories',
-                method: 'GET',
-                success: function(categories) {
-                    // categories: [{code: '810', name: '[810] 문학 > 한국문학'}, ...] 형태 가정
-                    if (categories && categories.length > 0) {
-                        categories.forEach(function(cat) {
-                            var option = new Option(cat.name, cat.code, false, false);
-                            $('#categoryCode').append(option);
-                        });
-                    }
-
-                    // 수정 모드 시 기존 카테고리 선택 (book.categoryInfo.code가 있다고 가정)
-                    /*[# th:if="${book != null && book.categoryInfo != null}"]*/
-                    var initialCategoryCode = /*[[${book.categoryInfo.kdcCode}]]*/ null;
-                    if (initialCategoryCode) {
-                        $('#categoryCode').val(initialCategoryCode).trigger('change');
-                    }
-                    /*[/]*/
-                },
-                error: function(xhr, status, error) {
-                    console.error('카테고리 목록 로드 실패:', error);
-                }
-            });
         });
 
         document.addEventListener('DOMContentLoaded', function() {
+            // 페이지 로드 시 최상단으로 스크롤
+            window.scrollTo(0, 0);
+
             // Toast UI Editor 설정
             const editorEl = document.querySelector('#editor');
             let editor;
@@ -299,7 +274,7 @@
                             formData.append('image', blob);
 
                             // 이미지 업로드 API 호출
-                            fetch('/admin/api/images/upload', {
+                            fetch('/admin/books/images', {
                                 method: 'POST',
                                 body: formData
                             })
@@ -333,7 +308,7 @@
                     btnSearch.disabled = true;
                     btnSearch.innerText = '검색 중...';
 
-                    fetch(`/admin/api/books/search?isbn=${isbnInput}`)
+                    fetch(`/admin/books/search?isbn=${isbnInput}`)
                         .then(response => {
                             if (!response.ok) throw new Error('도서 정보를 찾을 수 없습니다.');
                             return response.json();
@@ -357,16 +332,10 @@
                             }
 
                             document.getElementById('publisher').value = data.publisher || '';
-                            // 날짜 형식 (yyyy-MM-dd) 확인 필요. 데이터가 어떻게 오느냐에 따라 다름.
-                            // LocalDate로 오면 'yyyy-MM-dd' 문자열로 옴.
                             document.getElementById('publishedDate').value = data.pubDate || ''; 
                             document.getElementById('language').value = data.language || 'ko';
                             document.getElementById('pageCount').value = data.pageCount || 0;
-                            
-                            // 가격 필드 타입 주의 (BigDecimal -> Number)
                             document.getElementById('priceStandard').value = data.priceStandard || 0;
-                            document.getElementById('priceSales').value = data.priceSales || (data.priceStandard || 0); // 판매가는 정가로 초기화
-                            
                             document.getElementById('stock').value = data.stock || 0;
                             document.getElementById('bookIndex').value = data.bookIndex || '';
                             
@@ -447,6 +416,16 @@
                         // 작가 데이터 수집 및 hidden input 생성
                         // 기존에 생성된 hidden input이 있다면 제거 (중복 방지 - 비동기 처리 안하므로 괜찮지만 안전하게)
                         document.querySelectorAll('input[name^="authorList"]').forEach(el => el.remove());
+
+                        // 태그 데이터 정리 (앞뒤 공백 제거)
+                        const tagsInput = document.getElementById('tags');
+                        if (tagsInput && tagsInput.value) {
+                            const rawTags = tagsInput.value;
+                            const cleanedTags = rawTags.split(',')
+                                                       .map(tag => tag.trim())
+                                                       .filter(tag => tag.length > 0);
+                            tagsInput.value = cleanedTags.join(', '); // 다시 쉼표와 공백으로 연결
+                        }
 
                         const rows = document.querySelectorAll('.author-row');
                         rows.forEach((row, index) => {

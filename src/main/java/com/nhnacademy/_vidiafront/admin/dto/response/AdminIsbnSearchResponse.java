@@ -21,7 +21,6 @@ public record AdminIsbnSearchResponse(
         String categoryCode,
 
         Integer priceStandard,
-        Integer priceSales,
         //Integer stock,
         //Boolean packagingAvailable,
 

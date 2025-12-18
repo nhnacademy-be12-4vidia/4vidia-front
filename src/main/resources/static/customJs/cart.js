@@ -121,10 +121,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const quantity = parseInt(qtyInput.value, 10);
 
+            // ★ 쿠키 가져오기
+            const csrfToken = getCsrfToken();
+
             fetch(`/cart/items/${bookId}`, {
                 method: "PUT",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "X-XSRF-TOKEN": csrfToken // ★ 헤더 추가
                 },
                 body: JSON.stringify({
                     quantity: quantity   // UpdateCartItemRequest 의 필드명에 맞춰서!

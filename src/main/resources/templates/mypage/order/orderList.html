@@ -108,10 +108,14 @@
             // 프론트 컨트롤러가 있다면, 그 컨트롤러가 Service의 confirmOrder(orderId)를 호출하도록 연결되어야 합니다.
             // 여기서는 fetch로 프론트 서버에 요청을 보내는 예시입니다.
 
+            // ★ 쿠키 가져오기
+            const csrfToken = getCsrfToken();
+
             fetch(confirmUrl + "/" + orderId, { // 혹은 body로 보낼 수도 있음, 서버 구현에 따라 다름
                 method: 'PUT', // Controller가 PutMapping이므로 PUT
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    "X-XSRF-TOKEN": csrfToken // ★ 헤더 추가
                 }
                 // backendApiClient.putNoBody를 사용하므로 body는 생략
             })
@@ -219,10 +223,15 @@
                 if (confirm(`주문번호 ${orderId}의 모든 미확정 상품(${itemsToConfirm.length}개)을 구매 확정하시겠습니까? 구매 확정 시 반품/교환 신청이 불가능할 수 있습니다.`)) {
 
                     // API 호출을 개별로 하지 않고, 주문 전체를 확정하는 API로 변경 (Controller의 confirmOrder에 매핑)
+                    const csrfToken = getCsrfToken();
+
                     $.ajax({
                         url: `${confirmAllUrlBase}?orderId=${orderId}`,
                         type: 'POST',
                         dataType: 'json',
+                        headers: {
+                            'X-XSRF-TOKEN': csrfToken   // ⭐ CSRF 헤더 추가, 헤더 이름은 SecurityConfig와 일치해야 함 (기본값이 X-XSRF-TOKEN)
+                        },
                         success: function (response) {
                             if (response.success) {
                                 alert(`구매가 확정되었습니다. ${response.message}`);
@@ -247,6 +256,7 @@
 
                 const $this = $(this);
                 const orderId = $this.data('order-id');
+                const csrfToken = getCsrfToken();
 
                 // 팝업 창을 띄워 사용자에게 확인 받기
                 if (confirm(`주문번호 ${orderId}번 주문을 정말로 취소하시겠습니까?`)) {
@@ -256,6 +266,9 @@
                         method: "PUT", // 주문 취소는 POST가 일반적
                         // headers: {"Content-Type": "application/x-www-form-urlencoded"},
                         // body: "orderId=" + orderId
+                        headers: {
+                            'X-XSRF-TOKEN': csrfToken   // ⭐ CSRF 헤더 추가, 헤더 이름은 SecurityConfig와 일치해야 함 (기본값이 X-XSRF-TOKEN)
+                        },
                     })
                         .then(res => res.json())
                         .then(response => {

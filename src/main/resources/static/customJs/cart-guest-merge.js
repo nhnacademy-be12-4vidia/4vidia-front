@@ -32,9 +32,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const yesBtn = document.getElementById('guestCartYesBtn');
     if (yesBtn) {
         yesBtn.addEventListener('click', function () {
+
+            // ★ 쿠키 가져오기
+            const csrfToken = getCsrfToken();
+
             fetch('/cart/merge-guest', {
                 method: 'POST',
-                credentials: 'same-origin'
+                credentials: 'same-origin',
+                headers: {
+                    "X-XSRF-TOKEN": csrfToken // [수정] headers 내부로 이동
+                }
             })
                 .then(function (res) {
                     if (!res.ok) {
@@ -51,11 +58,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // ✅ 3. "아니오" 버튼: 비회원 장바구니만 삭제
     const noBtn = document.getElementById('guestCartNoBtn');
+
     if (noBtn) {
         noBtn.addEventListener('click', function () {
+            // ★ 쿠키 가져오기
+            const csrfToken = getCsrfToken();
+
             fetch('/cart/guest', {
                 method: 'DELETE',
-                credentials: 'same-origin'
+                credentials: 'same-origin',
+                headers: {
+                    "X-XSRF-TOKEN": csrfToken // ★ 헤더 추가
+                }
             })
                 .then(function (res) {
                     if (!res.ok) {

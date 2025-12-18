@@ -1,7 +1,7 @@
 package com.nhnacademy._vidiafront.order.controller;
 
 import com.nhnacademy._vidiafront.coupon.client.CouponApiClient;
-import com.nhnacademy._vidiafront.coupon.dto.OrderCouponResponse;
+import com.nhnacademy._vidiafront.coupon.dto.response.OrderCouponResponse;
 import com.nhnacademy._vidiafront.global.auth.LoginStatus;
 import com.nhnacademy._vidiafront.order.client.OrderApiClient;
 import com.nhnacademy._vidiafront.order.dto.order.request.OrderCheckoutRequest;
@@ -13,7 +13,6 @@ import com.nhnacademy._vidiafront.order.dto.order.response.OrderCreateResponse;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderResponse;
 import com.nhnacademy._vidiafront.user.client.MyOrderApiClient;
 import com.nhnacademy._vidiafront.user.dto.user.response.OrderUserResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>내 쿠폰</title>
+
+    <style>
+        /* ===== 공통 카드 ===== */
+        .coupon-card {
+            border-radius: 16px;
+            padding: 28px;
+        }
+
+        .count-box {
+            background: #2D64F6;
+            color: white;
+        }
+
+        .expire-box {
+            background: #FFF8E8;
+            border: 2px solid #F7A93B;
+            color: #E38912;
+        }
+
+        /* ✅ 회색 테두리 + 흰 배경 박스 */
+        .section-box {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        /* ===== 쿠폰 리스트 ===== */
+        .coupon-item {
+            border-bottom: 1px solid #EEE;
+            padding: 20px 5px;
+        }
+
+        .coupon-item:last-child {
+            border-bottom: none;
+        }
+
+        /* ===== 상태 배지 ===== */
+        .badge-usable {
+            background: #05944F;
+        }
+
+        .badge-used {
+            background: #6C757D;
+        }
+
+        .badge-expired {
+            background: #CC2B2B;
+        }
+    </style>
+</head>
+
+<body>
+<div layout:fragment="content">
+    <div class="container mt-5" style="max-width: 900px;">
+
+        <!-- ================= 상단 요약 ================= -->
+        <div class="row g-3">
+            <div class="col-md-8">
+                <div class="coupon-card count-box">
+                    <div class="fw-semibold">보유 쿠폰</div>
+                    <div class="display-5 fw-bold"
+                         th:text="${totalCount} + '장'"></div>
+                    <div class="opacity-75">현재 사용 가능한 쿠폰</div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="coupon-card expire-box">
+                    <div class="fw-semibold">곧 만료되는 쿠폰</div>
+                    <div class="display-6 fw-bold"
+                         th:text="${expireSoonCount} + '장'"></div>
+                    <div class="small">7일 이내 만료</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= 쿠폰 안내 ================= -->
+        <div class="mt-4">
+            <h5 class="fw-bold mb-3">쿠폰 안내</h5>
+
+            <div class="section-box text-muted">
+                • 쿠폰은 주문 시 <b>1장만</b> 사용 가능합니다.<br>
+                • 만료된 쿠폰은 자동으로 사용 불가 처리됩니다.<br>
+                • 일부 쿠폰은 특정 도서 / 카테고리에서만 사용 가능합니다.
+            </div>
+        </div>
+
+        <!-- ================= 내 쿠폰 목록 ================= -->
+        <div class="mt-5 section-box">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">내 쿠폰 목록</h5>
+
+                <div class="btn-group btn-group-sm">
+                    <a class="btn"
+                       th:classappend="${status == null || status == 'ALL'} ? ' btn-primary' : ' btn-outline-primary'"
+                       th:href="@{/mypage/coupons(status='ALL')}">전체</a>
+                    <a class="btn"
+                       th:classappend="${status == 'UNUSED'} ? ' btn-primary' : ' btn-outline-primary'"
+                       th:href="@{/mypage/coupons(status='UNUSED')}">사용 가능</a>
+                    <a class="btn"
+                       th:classappend="${status == 'USED'} ? ' btn-primary' : ' btn-outline-primary'"
+                       th:href="@{/mypage/coupons(status='USED')}">사용 완료</a>
+                    <a class="btn"
+                       th:classappend="${status == 'EXPIRED'} ? ' btn-primary' : ' btn-outline-primary'"
+                       th:href="@{/mypage/coupons(status='EXPIRED')}">만료</a>
+                </div>
+            </div>
+
+            <!-- 빈 상태 -->
+            <div th:if="${coupons == null or coupons.isEmpty()}"
+                 class="text-center text-muted py-5">
+                보유한 쿠폰이 없습니다.
+            </div>
+
+            <!-- 쿠폰 리스트 -->
+            <div th:each="c : ${coupons}" class="coupon-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-semibold"
+                             th:text="${c.policyName}"></div>
+
+                        <div class="text-muted small"
+                             th:text="|만료일: ${#temporals.format(c.expireAt,'yyyy-MM-dd')}|"></div>
+
+                        <div class="text-muted small"
+                             th:if="${c.categoryKdcId != null}"
+                             th:text="|카테고리 전용 (${c.categoryKdcId})|"></div>
+
+                        <div class="text-muted small"
+                             th:if="${c.bookId != null}"
+                             th:text="|도서 전용 (ID: ${c.bookId})|"></div>
+                    </div>
+
+                    <div class="text-end">
+                        <div class="fw-bold mb-1"
+                             th:text="${c.discountType == 'PRICE'}
+                                      ? ${c.discountValue} + '원'
+                                      : ${c.discountValue} + '%'">
+                        </div>
+
+                        <span class="badge"
+                              th:classappend="${c.status == 'UNUSED'} ? 'badge-usable' :
+                                              (${c.status == 'USED'} ? 'badge-used' : 'badge-expired')"
+                              th:text="${c.status}">
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

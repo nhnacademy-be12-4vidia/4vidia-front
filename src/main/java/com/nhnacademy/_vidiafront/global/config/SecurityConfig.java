@@ -2,6 +2,7 @@ package com.nhnacademy._vidiafront.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -42,8 +43,8 @@ public class SecurityConfig {
 
     }
 
+    @Primary
     @Bean
-    @Profile("prod")
     public CookieSerializer prodCookieSerializer() {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
         serializer.setSameSite("None");

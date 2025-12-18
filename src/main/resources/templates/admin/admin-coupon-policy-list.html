@@ -274,9 +274,6 @@
 
 </div>
 
-<!-- =========================
-     JS : WELCOME / BIRTHDAY 차단
-========================== -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
 
@@ -285,7 +282,8 @@
 
         if (!issueForm || !issueBtn) return;
 
-        issueBtn.addEventListener("click", function () {
+        issueBtn.addEventListener("click", function (e) {
+            e.preventDefault(); // 🔥 form submit 차단
 
             const policyIdInput = issueForm.querySelector("input[name='policyId']");
             if (!policyIdInput || !policyIdInput.value) {
@@ -306,18 +304,38 @@
 
             const policyType = policyRow.dataset.policyType;
 
-            // 🚫 WELCOME / BIRTHDAY 차단
+            // 🚫 프론트 1차 차단 (UX 보조)
             if (policyType === "WELCOME" || policyType === "BIRTHDAY") {
                 alert("웰컴/생일 쿠폰은 선착순 쿠폰이 아니어서 발급할 수 없습니다.");
-                return; // ❌ submit 안 함
+                return;
             }
 
-            // ✅ 여기까지 왔으면 통과 → 서버로 보냄
-            issueForm.submit();
+            // 🔥 여기부터 서버 호출 (AJAX)
+            fetch(issueForm.action, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: new URLSearchParams(new FormData(issueForm))
+            })
+                .then(res => {
+                    if (!res.ok) {
+                        return res.json().then(err => { throw err; });
+                    }
+                    return res;
+                })
+                .then(() => {
+                    alert("쿠폰이 발급되었습니다.");
+                    location.reload(); // 성공 시만 새로고침
+                })
+                .catch(err => {
+                    // ✅ 백엔드에서 내려준 메시지 표시
+                    alert(err.message || "쿠폰 발급 중 오류가 발생했습니다.");
+                });
         });
-
     });
 </script>
+
 
 
 

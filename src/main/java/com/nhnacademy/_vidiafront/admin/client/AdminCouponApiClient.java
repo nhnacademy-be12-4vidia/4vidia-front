@@ -2,7 +2,7 @@ package com.nhnacademy._vidiafront.admin.client;
 
 import com.nhnacademy._vidiafront.admin.dto.request.CouponPolicyCreateRequest;
 import com.nhnacademy._vidiafront.coupon.dto.CouponPolicyDto;
-import com.nhnacademy._vidiafront.coupon.dto.MyCouponResponse;
+import com.nhnacademy._vidiafront.coupon.dto.response.MyCouponResponse;
 import com.nhnacademy._vidiafront.coupon.dto.PageDto;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import lombok.RequiredArgsConstructor;

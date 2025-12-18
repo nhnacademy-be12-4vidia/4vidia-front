@@ -33,7 +33,6 @@
 <div id="wrapper">
 
     <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-
         <a class="sidebar-brand d-flex align-items-center justify-content-center mt-3" href="/admin">
             <div class="sidebar-brand-icon">
                 <img src="/img/logo.png" style="max-height: 65px;" alt="logo">
@@ -136,20 +135,26 @@
         </div>
 
     </ul>
-    <div id="content-wrapper" class="d-flex flex-column">
-        <div class="content-wrapper">
+
+    <div id="content-wrapper" class="d-flex flex-column" style="min-height: 100vh;">
+
+        <div class="content-wrapper flex-grow-1">
             <div layout:fragment="pageContent">
-                (관리자 페이지입니다.)
+                (관리자 페이지입니다.) <br/>
+                오늘의 할 일, 쇼핑몰 현황(주문/매출), 통계(일별 매출, 트래픽), 공지사항 등
             </div>
 
             <div layout:fragment="pageScript"></div>
         </div>
 
-
         <footer class="sticky-footer bg-white">
             <div class="container my-auto">
-                <div class="copyright text-center my-auto">
-                    © 2025 Team4 4VIDIA | NHN Academy Project
+                <div class="copyright text-center my-auto d-flex flex-column align-items-center">
+                    <span class="mb-2">© 2025 Team4 4VIDIA | NHN Academy Project</span>
+
+                    <a href="/docs/index.html" target="_blank" class="text-gray-600 hover-primary">
+                        <i class="fas fa-book mr-1"></i>REST API Docs
+                    </a>
                 </div>
             </div>
         </footer>

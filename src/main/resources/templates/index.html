@@ -5,230 +5,134 @@
 <head>
     <meta charset="utf-8">
     <title>4VIDIA - 도서 쇼핑몰</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+
     <style>
         /* ------------------------------------------------ */
-        /* 공통 레이아웃 정리 */
+        /* ★ 베스트셀러 섹션 */
         /* ------------------------------------------------ */
-
-        .row {
-            display: flex;
-            flex-wrap: wrap !important;
-            justify-content: center;
-        }
-
-        /* ------------------------------------------------ */
-        /* 카드 Wrapper */
-        /* ------------------------------------------------ */
-        .book-card-wrapper {
-            flex-shrink: 0;
-            width: 250px;
-            padding: 0 0.75rem;
-            margin-bottom: 2.5rem;
-        }
-
-        /* ------------------------------------------------ */
-        /* 카드 디자인 */
-        /* ------------------------------------------------ */
-        .book-card {
-            border: none;
-            border-radius: 0.5rem;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: #ffffff;
-            box-shadow: 0 0.25rem 1.25rem rgba(0,0,0,0.12);
-            transition: all 0.25s ease;
-        }
-
-        .book-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 0.75rem 2rem rgba(0,0,0,0.18);
-        }
-
-        /* 이미지 hover 확대 */
-        .card-img-wrapper {
+        .bestseller-showcase {
             position: relative;
             overflow: hidden;
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            border-radius: 20px;
+            padding: 2rem 1.5rem;
+            box-shadow: 0 10px 25px rgba(78, 115, 223, 0.25);
+            margin-bottom: 3rem;
+            color: white;
+            z-index: 1;
         }
 
+        .bestseller-showcase::before {
+            content: ''; position: absolute; top: -50px; right: -50px; width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%; z-index: -1; pointer-events: none;
+        }
+        .bestseller-showcase::after {
+            content: ''; position: absolute; bottom: -30px; left: -30px; width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%; z-index: -1; pointer-events: none;
+        }
+
+        .bestseller-header {
+            display: flex; justify-content: center; align-items: center; position: relative; margin-bottom: 1.5rem;
+        }
+
+        .bestseller-title { color: #ffffff !important; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .bestseller-subtitle { color: rgba(255, 255, 255, 0.85) !important; margin-top: 5px; }
+
+        /* 순위 탭 버튼 */
+        .rank-tabs-container { position: absolute; right: 0; top: 50%; transform: translateY(-50%); z-index: 10; }
+        .rank-tabs { display: flex; gap: 10px; }
+        .rank-tab-btn {
+            background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white; padding: 0.5rem 1.2rem; border-radius: 30px; font-size: 0.9rem;
+            font-weight: 600; cursor: pointer; transition: all 0.3s ease; backdrop-filter: blur(5px);
+        }
+        .rank-tab-btn:hover { background: rgba(255, 255, 255, 0.3); }
+        .rank-tab-btn.active { background: white; color: #4e73df; box-shadow: 0 4px 10px rgba(0,0,0,0.15); font-weight: 800; }
+
+        @media (max-width: 768px) {
+            .bestseller-header { flex-direction: column; }
+            .rank-tabs-container { position: relative; right: auto; top: auto; transform: none; margin-top: 15px; }
+        }
+
+        /* Swiper & Card */
+        .swiper { width: 100%; padding-bottom: 10px !important; padding-top: 10px; padding-left: 5px; padding-right: 5px; }
+        .swiper-slide { height: auto; display: flex; justify-content: center; }
+
+        .book-card {
+            border: none; border-radius: 0.75rem; width: 100%; background: #ffffff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.25s ease;
+        }
+        .book-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
+
+        /* ★ [수정됨] 이미지 스타일: 전체 보이기(contain) 및 높이 조정 */
+        .card-img-wrapper { position: relative; overflow: hidden; background-color: #f8f9fa; /* 여백 부분 색상 */ }
         .card-img-wrapper img {
             width: 100%;
-            height: 300px;
-            object-fit: cover;
+            height: 220px; /* 높이 약간 증가 (책 비율에 맞춤) */
+            object-fit: contain; /* ★ 이미지가 잘리지 않고 전체 다 보임 */
             transition: transform 0.35s ease;
+            padding: 10px; /* 이미지 주변 여백 */
         }
+        .book-card:hover .card-img-wrapper img { transform: scale(1.05); }
 
-        .book-card:hover .card-img-wrapper img {
-            transform: scale(1.07);
+        /* 순위 뱃지 */
+        .rank-badge {
+            position: absolute; top: 0; left: 0; padding: 5px 12px; font-weight: 800; font-size: 1rem;
+            border-bottom-right-radius: 12px; z-index: 4; box-shadow: 2px 2px 6px rgba(0,0,0,0.25); text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
+        .rank-gold { background: linear-gradient(135deg, #FFD700 0%, #FDB931 100%); color: white; }
+        .rank-silver { background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%); color: white; }
+        .rank-bronze { background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); color: white; }
+        .rank-default { background: #34495e; color: white; font-weight: 700; font-size: 0.9rem; }
 
-        /* ------------------------------------------------ */
-        /* 좋아요 버튼 */
-        /* ------------------------------------------------ */
+        /* 기타 요소들 */
         .btn-heart {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            z-index: 5;
-            width: 38px;
-            height: 38px;
-            border: none;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.18);
-            transition: background 0.15s, transform 0.2s;
+            position: absolute; top: 8px; right: 8px; z-index: 5; width: 32px; height: 32px;
+            border: none; border-radius: 50%; background: rgba(255,255,255,0.95);
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15); transition: background 0.15s, transform 0.2s;
         }
+        .btn-heart:hover { background: #ffe5e5; transform: scale(1.08); }
+        .btn-heart i { font-size: 1rem; color: #777; }
+        .btn-heart i.fas { color: #e74a3b; }
 
-        .btn-heart:hover {
-            background: #ffe5e5;
-            transform: scale(1.08);
+        .card-body { padding: 0.7rem; display: flex; flex-direction: column; color: #333; }
+        .card-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.2rem !important; color: #2c3e50; }
+        .price-original-no-discount { color: #2c3e50; font-size: 0.95rem; font-weight: 700; text-decoration: none; }
+        .price-original { text-decoration: line-through; color: #858796; font-size: 0.8rem; margin-right: 0.3rem; }
+        .price-current { color: #4e73df; font-weight: 700; font-size: 0.95rem; }
+        .btn-block { width: 100%; border-radius: 0.35rem; font-size: 0.9rem; padding: 0.3rem 0; font-weight: 600; }
+        .btn-primary { background: #4e73df; border: none; }
+        .btn-primary:hover { background: #365acb; }
+        .btn-buy { background: #2c3e50; border: none; color: white; }
+        .btn-buy:hover { background: #1a252f; color: white; }
+
+        .swiper-button-next, .swiper-button-prev {
+            color: #4e73df; width: 45px; height: 45px; background: #ffffff; border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); border: none; transition: all 0.2s ease;
         }
+        .swiper-button-next:after, .swiper-button-prev:after { font-size: 1.2rem; font-weight: bold; }
+        .swiper-button-next:hover, .swiper-button-prev:hover { background: #f1f1f1; transform: scale(1.05); }
 
-        .btn-heart i {
-            font-size: 1.1rem;
-            color: #777;
-        }
-
-        .btn-heart i.fas {
-            color: #e74a3b;
-        }
-
-        /* ------------------------------------------------ */
-        /* 텍스트 영역 */
-        /* ------------------------------------------------ */
-        .card-body {
-            padding: 1rem;
-        }
-
-        .category-badge {
-            color: #4e73df;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .card-title {
-            font-size: 1.05rem;
-            font-weight: 700;
-        }
-
-        /* 평점 */
-        .rating {
-            color: #f6c23e;
-            font-size: 0.9rem;
-        }
-
-        /* 가격 */
-        /* 할인이 없는 경우의 정가 스타일 (취소선 없음) */
-        .price-original-no-discount {
-            color: initial;
-            font-size: 1.15rem;
-            font-weight: 700;
-            text-decoration: none;
-        }
-
-        /* 할인이 있는 경우의 정가 스타일 (취소선 있음) */
-        .price-original {
-            text-decoration: line-through;
-            color: #858796;
-            font-size: 0.9rem;
-            margin-right: 0.5rem;
-        }
-
-        .price-current {
-            color: #4e73df;
-            font-weight: 700;
-            font-size: 1.15rem;
-        }
-
-        /* ------------------------------------------------ */
-        /* 버튼 스타일 */
-        /* ------------------------------------------------ */
-        .book-card .card-body form {
-            margin-bottom: 0.6rem;
-        }
-
-        .book-card .card-body form:last-child {
-            margin-bottom: 0;
-        }
-
-        .btn-block {
-            width: 100%;
-            padding: 0.55rem 0;
-            font-weight: 600;
-            border-radius: 0.35rem;
-        }
-
-        .btn-primary {
-            background: #4e73df;
-            border: none;
-        }
-
-        .btn-primary:hover {
-            background: #365acb;
-        }
-
-        .btn-secondary {
-            background: #858796;
-            border: none;
-        }
-
-        .btn-secondary:hover {
-            background: #6c6f7a;
-        }
-
-        /* ------------------------------------------------ */
-        /* 카테고리 Pill */
-        /* ------------------------------------------------ */
         .category-pill {
-            padding: 0.5rem 1.3rem;
-            border-radius: 30px;
-            border: 1px solid #d8dce6;
-            background: white;
-            color: #61636b;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-right: 0.4rem;
-            margin-bottom: 0.5rem;
-            display: inline-block;
-            transition: all 0.2s ease;
+            padding: 0.4rem 1.2rem; border-radius: 20px; border: 1px solid #d8dce6; background: white;
+            color: #61636b; font-size: 0.85rem; font-weight: 600; margin-right: 0.4rem; margin-bottom: 0.5rem;
+            display: inline-block; transition: all 0.2s ease; text-decoration: none;
         }
-
-        .category-pill:hover {
-            background: #4e73df;
-            border-color: #4e73df;
-            color: white;
-        }
-
-        .category-pill.active {
-            background: #4e73df;
-            color: white;
-        }
-
-        /* ------------------------------------------------ */
-        /* 반응형 디자인 */
-        /* ------------------------------------------------ */
-        @media (max-width: 992px) {
-            .book-card-wrapper {
-                width: 45%;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .book-card-wrapper {
-                width: 90%;
-            }
-            .card-img-wrapper img {
-                height: 260px;
-            }
-        }
+        .category-pill:hover { background: #4e73df; border-color: #4e73df; color: white; }
+        .category-pill.active { background: #4e73df; color: white; border-color: #4e73df; }
 
     </style>
+
     <script th:src="@{/customJs/askMoveCart.js}"></script>
     <script th:src="@{/customJs/like.js}"></script>
     <script th:inline="javascript">
@@ -239,115 +143,173 @@
             useSemantic: false
         };
     </script>
-</head>
+    <script>
+        var bestSellerSwiper;
 
+        document.addEventListener('DOMContentLoaded', function() {
+            bestSellerSwiper = new Swiper(".myBestSellerSwiper", {
+                slidesPerView: 1,
+                spaceBetween: 10,
+                loop: false,
+                autoplay: {
+                    delay: 4000,
+                    disableOnInteraction: false,
+                    pauseOnMouseEnter: true,
+                },
+                navigation: {
+                    nextEl: ".swiper-button-next",
+                    prevEl: ".swiper-button-prev",
+                },
+                breakpoints: {
+                    576: { slidesPerView: 2, spaceBetween: 15 },
+                    768: { slidesPerView: 3, spaceBetween: 15 },
+                    992: { slidesPerView: 4, spaceBetween: 20 },
+                    1200: { slidesPerView: 5, spaceBetween: 20 },
+                },
+                on: {
+                    slideChange: function () {
+                        updateTabs(this.activeIndex);
+                    }
+                }
+            });
+        });
+
+        function goToSlide(index) {
+            if(bestSellerSwiper) {
+                bestSellerSwiper.slideTo(index);
+                updateTabs(index);
+            }
+        }
+
+        function updateTabs(activeIndex) {
+            const btn1 = document.getElementById('btn-rank-1-5');
+            const btn2 = document.getElementById('btn-rank-6-10');
+
+            if(!btn1 || !btn2) return;
+
+            if (activeIndex < 5) {
+                btn1.classList.add('active');
+                btn2.classList.remove('active');
+            } else {
+                btn1.classList.remove('active');
+                btn2.classList.add('active');
+            }
+        }
+    </script>
+</head>
 
 <body>
 <div layout:fragment="content">
-    <div class="container">
+    <div class="container mt-4">
 
-        <div class="d-sm-flex align-items-center justify-content-center mb-4 text-center w-100">
-            <div>
-                <h1 class="h3 mb-2 text-gray-800">베스트셀러 도서</h1>
-                <p class="mb-0 text-gray-600">4VIDIA에서 가장 인기있는 도서들을 만나보세요</p>
-            </div>
-        </div>
+        <div class="bestseller-showcase">
 
-        <div class="mb-4 text-center">
-            <a href="#" class="category-pill active" data-category="all">전체</a>
-            <a href="#" class="category-pill" data-category="문학">문학</a>
-            <a href="#" class="category-pill" data-category="소설">소설</a>
-            <a href="#" class="category-pill" data-category="에세이">에세이</a>
-            <a href="#" class="category-pill" data-category="자기계발">자기계발</a>
-            <a href="#" class="category-pill" data-category="교육">교육</a>
-            <a href="#" class="category-pill" data-category="여행">여행</a>
-        </div>
+            <div class="bestseller-header">
+                <div class="text-center position-relative" style="z-index: 2;">
+                    <h2 class="h4 mb-1 bestseller-title">🏆 베스트셀러</h2>
+                    <p class="bestseller-subtitle small mb-0">오늘의 인기 도서를 만나보세요</p>
+                </div>
 
-        <div class="row justify-content-center">
-
-            <div th:if="${#lists.isEmpty(bestSellerBook)}" class="col-12 text-center py-5">
-                <i class="fas fa-book-open fa-3x text-secondary mb-3"></i>
-                <p class="text-gray-600 font-weight-bold mb-0">도서가 없습니다.</p>
-            </div>
-
-            <div th:unless="${#lists.isEmpty(bestSellerBook)}" th:each="book : ${bestSellerBook}" class="book-card-wrapper">
-                <div class="card book-card">
-                    <div class="card-img-wrapper">
-                        <button type="button"
-                                class="btn-heart"
-                                th:attr="data-book-id=${book.id()}"
-                                onclick="toggleLike(event, this)">
-                            <i class="fa-heart" th:classappend="${book.liked() ? 'fas' : 'far'}"></i>
-                        </button>
-
-                        <a th:href="@{/books/{bookId}(bookId=${book.id()})}" style="text-decoration: none; color: inherit;">
-                            <img class="card-img-top" th:src="${book.imageUrl()}" th:alt="${book.title()}">
-                        </a>
-                    </div>
-
-                    <div class="card-body">
-
-                        <a th:href="@{/books/{bookId}(bookId=${book.id()})}" style="text-decoration: none; color: inherit;">
-                            <h5 class="card-title mb-1" th:text="${book.title()}">책제목</h5>
-                        </a>
-
-                        <p class="text-muted small mb-2"
-                           th:text="${#lists.isEmpty(book.authorNames)
-                                     ? '저자 정보 없음'
-                                     : #strings.listJoin(book.authorNames, ', ')}">
-                            저자
-                        </p>
-
-                        <div class="mb-3">
-                            <span th:if="${book.priceStandard() > book.priceSales()}"
-                                  class="price-current"
-                                  th:text="${#numbers.formatDecimal(book.priceSales(), 0, 'COMMA', 0, 'POINT') + '원'}">현재가격</span>
-
-                            <span th:if="${book.priceStandard() > book.priceSales()}"
-                                  class="price-original"
-                                  th:text="${#numbers.formatDecimal(book.priceStandard(), 0, 'COMMA', 0, 'POINT') + '원'}">정가</span>
-
-                            <span th:if="${book.priceStandard() <= book.priceSales()}"
-                                  class="price-original-no-discount"
-                                  th:text="${#numbers.formatDecimal(book.priceStandard(), 0, 'COMMA', 0, 'POINT') + '원'}">정가</span>
-
-                            <span class="badge bg-danger"
-                                  th:text="${book.priceStandard() == 0 ? '' :
-                                  #numbers.formatDecimal(
-                                    (book.priceStandard() - book.priceSales()) * 100 / book.priceStandard(),
-                                    0, 'COMMA', 0, 'POINT'
-                                  ) + '%'}">
-                            </span>
+                <div class="rank-tabs-container">
+                    <div class="rank-tabs">
+                        <div class="rank-tab-btn active" id="btn-rank-1-5" onclick="goToSlide(0)">
+                            1 - 5위
                         </div>
-
-                        <form th:action="@{/cart/add}" method="post" class="mt-auto">
-                            <input type="hidden" name="bookId" th:value="${book.id}">
-                            <button class="btn btn-primary btn-block"
-                                    th:onclick="|addToCartAndConfirmMove('${book.id}', '1'); return false;|">
-                                <i class="fas fa-shopping-cart mr-1"></i> 장바구니 담기
-                            </button>
-                        </form>
-
-                        <form th:action="@{/orders/checkout-temp}" method="post">
-                            <input type="hidden" name="bookId" th:value="${book.id()}">
-                            <input type="hidden" name="quantity" value="1">
-                            <button type="submit" class="btn btn-secondary btn-block">
-                                바로 구매
-                            </button>
-                        </form>
+                        <div class="rank-tab-btn" id="btn-rank-6-10" onclick="goToSlide(5)"
+                             th:if="${!#lists.isEmpty(bestSellerBook) and bestSellerBook.size() > 5}">
+                            6 - 10위
+                        </div>
                     </div>
                 </div>
             </div>
 
+            <div class="position-relative px-1">
+                <div class="swiper myBestSellerSwiper">
+                    <div class="swiper-wrapper">
+                        <div th:if="${#lists.isEmpty(bestSellerBook)}" class="swiper-slide text-center py-5 w-100">
+                            <div class="w-100 text-white"> <i class="fas fa-book-open fa-3x mb-3" style="opacity: 0.7;"></i>
+                                <p class="font-weight-bold mb-0">도서가 없습니다.</p>
+                            </div>
+                        </div>
+
+                        <div th:unless="${#lists.isEmpty(bestSellerBook)}"
+                             th:each="book, status : ${bestSellerBook}"
+                             class="swiper-slide">
+
+                            <div class="card book-card h-100">
+                                <div class="card-img-wrapper">
+                                    <div class="rank-badge"
+                                         th:classappend="${status.count == 1} ? 'rank-gold' :
+                                                          (${status.count == 2} ? 'rank-silver' :
+                                                          (${status.count == 3} ? 'rank-bronze' : 'rank-default'))"
+                                         th:text="${status.count} + '위'">
+                                    </div>
+                                    <button type="button" class="btn-heart" th:attr="data-book-id=${book.id()}" onclick="toggleLike(event, this)">
+                                        <i class="fa-heart" th:classappend="${book.liked() ? 'fas' : 'far'}"></i>
+                                    </button>
+                                    <a th:href="@{/books/{bookId}(bookId=${book.id()})}" style="text-decoration: none; color: inherit;">
+                                        <img class="card-img-top" th:src="${book.imageUrl()}" th:alt="${book.title()}">
+                                    </a>
+                                </div>
+
+                                <div class="card-body">
+                                    <a th:href="@{/books/{bookId}(bookId=${book.id()})}" style="text-decoration: none; color: inherit;">
+                                        <h5 class="card-title text-truncate" th:text="${book.title()}">책제목</h5>
+                                    </a>
+                                    <p class="text-muted small mb-2 text-truncate" style="font-size: 0.75rem;"
+                                       th:text="${#lists.isEmpty(book.authorNames) ? '저자 정보 없음' : #strings.listJoin(book.authorNames, ', ')}">
+                                        저자
+                                    </p>
+                                    <div class="mb-2">
+                                        <span th:if="${book.priceStandard() > book.priceSales()}" class="price-current"
+                                              th:text="${#numbers.formatDecimal(book.priceSales(), 0, 'COMMA', 0, 'POINT') + '원'}">현재가</span>
+                                        <span th:if="${book.priceStandard() > book.priceSales()}" class="price-original"
+                                              th:text="${#numbers.formatDecimal(book.priceStandard(), 0, 'COMMA', 0, 'POINT') + '원'}">정가</span>
+                                        <span th:if="${book.priceStandard() <= book.priceSales()}" class="price-original-no-discount"
+                                              th:text="${#numbers.formatDecimal(book.priceStandard(), 0, 'COMMA', 0, 'POINT') + '원'}">정가</span>
+                                        <span class="badge bg-danger ms-1" style="font-size: 0.7rem;"
+                                              th:text="${book.priceStandard() == 0 ? '' : #numbers.formatDecimal((book.priceStandard() - book.priceSales()) * 100 / book.priceStandard(), 0, 'COMMA', 0, 'POINT') + '%'}">
+                                        </span>
+                                    </div>
+                                    <div class="mt-auto d-flex gap-2">
+                                        <form th:action="@{/cart/add}" method="post" class="flex-grow-1">
+                                            <input type="hidden" name="bookId" th:value="${book.id}">
+                                            <button class="btn btn-primary btn-block" title="장바구니"
+                                                    th:onclick="|addToCartAndConfirmMove('${book.id}', '1'); return false;|">
+                                                <i class="fas fa-shopping-cart"></i> </button>
+                                        </form>
+                                        <form th:action="@{/orders/checkout-temp}" method="post" class="flex-grow-1">
+                                            <input type="hidden" name="bookId" th:value="${book.id()}">
+                                            <input type="hidden" name="quantity" value="1">
+                                            <button type="submit" class="btn btn-buy btn-block" title="구매">
+                                                <i class="fas fa-credit-card"></i> </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper-button-prev" style="left: -15px;"></div>
+                <div class="swiper-button-next" style="right: -15px;"></div>
+            </div>
+        </div>
+
+        <div class="mb-5 text-center">
+            <h6 class="mb-3 text-gray-600 font-weight-bold">📚 카테고리별 도서</h6>
+            <div class="d-flex justify-content-center flex-wrap">
+                <a href="#" class="category-pill active" data-category="all">전체</a>
+                <a href="#" class="category-pill" data-category="문학">문학</a>
+                <a href="#" class="category-pill" data-category="소설">소설</a>
+                <a href="#" class="category-pill" data-category="에세이">에세이</a>
+                <a href="#" class="category-pill" data-category="자기계발">자기계발</a>
+                <a href="#" class="category-pill" data-category="교육">교육</a>
+                <a href="#" class="category-pill" data-category="여행">여행</a>
+            </div>
         </div>
     </div>
 </div>
 
-<script>
-    // 페이지별 이벤트 리스너 추가 (필요시)
-    function initPageScripts() {
-        // 여기에 페이지 로드 후 실행할 추가적인 JavaScript 코드를 넣을 수 있습니다.
-    }
-</script>
+
 </body>
 </html>

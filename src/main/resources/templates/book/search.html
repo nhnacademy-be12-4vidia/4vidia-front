@@ -13,59 +13,58 @@
 
     <style>
         /* ------------------------------------------------ */
-        /* 공통 레이아웃 정리 */
+        /* 공통 레이아웃 */
         /* ------------------------------------------------ */
-
         .row {
             display: flex;
             flex-wrap: wrap !important;
-            justify-content: center;
+            justify-content: center; /* 카드들을 중앙 정렬 */
         }
 
         /* ------------------------------------------------ */
-        /* 카드 Wrapper */
+        /* 카드 Wrapper (Grid 제어) */
         /* ------------------------------------------------ */
         .book-card-wrapper {
             flex-shrink: 0;
-            width: 250px;
-            padding: 0 0.75rem;
-            margin-bottom: 2.5rem;
+            width: 240px; /* 메인 페이지 디자인에 맞춰 폭 조정 */
+            padding: 0 0.5rem;
+            margin-bottom: 2rem;
         }
 
         /* ------------------------------------------------ */
-        /* 카드 디자인 */
+        /* 카드 디자인 (메인 페이지 스타일 이식) */
         /* ------------------------------------------------ */
         .book-card {
             border: none;
-            border-radius: 0.5rem;
+            border-radius: 0.75rem;
             width: 100%;
-            height: 100%;
-            overflow: hidden;
+            height: 100%; /* 카드 높이를 wrapper에 맞춤 */
             background: #ffffff;
-            box-shadow: 0 0.25rem 1.25rem rgba(0,0,0,0.12);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             transition: all 0.25s ease;
+            overflow: hidden;
         }
-
         .book-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 0.75rem 2rem rgba(0,0,0,0.18);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
         }
 
-        /* 이미지 hover 확대 */
+        /* 이미지 영역 (Contain 스타일) */
         .card-img-wrapper {
             position: relative;
             overflow: hidden;
+            background-color: #f8f9fa; /* 빈 여백 색상 */
+            text-align: center;
         }
-
         .card-img-wrapper img {
             width: 100%;
-            height: 300px;
-            object-fit: cover;
+            height: 220px; /* 메인 페이지와 동일한 높이 */
+            object-fit: contain; /* 이미지가 잘리지 않음 */
             transition: transform 0.35s ease;
+            padding: 10px;
         }
-
         .book-card:hover .card-img-wrapper img {
-            transform: scale(1.07);
+            transform: scale(1.05);
         }
 
         /* ------------------------------------------------ */
@@ -73,169 +72,304 @@
         /* ------------------------------------------------ */
         .btn-heart {
             position: absolute;
-            top: 12px;
-            right: 12px;
+            top: 8px;
+            right: 8px;
             z-index: 5;
-            width: 38px;
-            height: 38px;
+            width: 32px;
+            height: 32px;
             border: none;
             border-radius: 50%;
-            background: rgba(255,255,255,0.9);
+            background: rgba(255,255,255,0.95);
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.18);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
             transition: background 0.15s, transform 0.2s;
         }
-
         .btn-heart:hover {
             background: #ffe5e5;
             transform: scale(1.08);
         }
-
         .btn-heart i {
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: #777;
         }
-
         .btn-heart i.fas {
             color: #e74a3b;
         }
 
         /* ------------------------------------------------ */
-        /* 텍스트 영역 */
+        /* 텍스트 및 가격 영역 */
         /* ------------------------------------------------ */
         .card-body {
-            padding: 1rem;
+            padding: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            color: #333;
         }
-
-        .category-badge {
-            color: #4e73df;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
         .card-title {
-            font-size: 1.05rem;
+            font-size: 0.95rem;
             font-weight: 700;
+            margin-bottom: 0.2rem !important;
+            color: #2c3e50;
         }
 
-        /* 평점 */
-        .rating {
-            color: #f6c23e;
-            font-size: 0.9rem;
-        }
-
-        /* 가격 */
-        /* 할인이 없는 경우의 정가 스타일 (취소선 없음) */
+        /* 가격 스타일 */
         .price-original-no-discount {
-            color: initial;
-            font-size: 1.15rem;
+            color: #2c3e50;
+            font-size: 0.95rem;
             font-weight: 700;
             text-decoration: none;
         }
-
-        /* 할인이 있는 경우의 정가 스타일 (취소선 있음) */
         .price-original {
             text-decoration: line-through;
             color: #858796;
-            font-size: 0.9rem;
-            margin-right: 0.5rem;
+            font-size: 0.8rem;
+            margin-right: 0.3rem;
         }
-
         .price-current {
             color: #4e73df;
             font-weight: 700;
-            font-size: 1.15rem;
+            font-size: 0.95rem;
         }
 
         /* ------------------------------------------------ */
-        /* 버튼 스타일 */
+        /* 버튼 스타일 (가로 배치) */
         /* ------------------------------------------------ */
-        .book-card .card-body form {
-            margin-bottom: 0.6rem;
-        }
-
-        .book-card .card-body form:last-child {
-            margin-bottom: 0;
-        }
-
         .btn-block {
             width: 100%;
-            padding: 0.55rem 0;
-            font-weight: 600;
             border-radius: 0.35rem;
+            font-size: 0.9rem;
+            padding: 0.3rem 0;
+            font-weight: 600;
         }
-
         .btn-primary {
             background: #4e73df;
             border: none;
         }
-
         .btn-primary:hover {
             background: #365acb;
         }
-
-        .btn-secondary {
-            background: #858796;
+        .btn-buy {
+            background: #2c3e50;
             border: none;
-        }
-
-        .btn-secondary:hover {
-            background: #6c6f7a;
-        }
-
-        /* ------------------------------------------------ */
-        /* 카테고리 Pill */
-        /* ------------------------------------------------ */
-        .category-pill {
-            padding: 0.5rem 1.3rem;
-            border-radius: 30px;
-            border: 1px solid #d8dce6;
-            background: white;
-            color: #61636b;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-right: 0.4rem;
-            margin-bottom: 0.5rem;
-            display: inline-block;
-            transition: all 0.2s ease;
-        }
-
-        .category-pill:hover {
-            background: #4e73df;
-            border-color: #4e73df;
             color: white;
         }
-
-        .category-pill.active {
-            background: #4e73df;
+        .btn-buy:hover {
+            background: #1a252f;
             color: white;
         }
 
         /* ------------------------------------------------ */
-        /* 반응형 디자인 */
+        /* 반응형 */
         /* ------------------------------------------------ */
-        @media (max-width: 992px) {
+        @media (max-width: 576px) {
             .book-card-wrapper {
-                width: 45%;
+                width: 48%; /* 모바일에서 2열 */
+                padding: 0 0.25rem;
             }
+            .card-img-wrapper img {
+                height: 180px; /* 모바일 이미지 높이 조정 */
+            }
+        }
+
+        /* ------------------------------------------------ */
+        /* AI 추천(캐시) 그리드 */
+        /* ------------------------------------------------ */
+        .ai-suggestions {
+            border: 1px solid rgba(78,115,223,0.25);
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 18px;
+            background: linear-gradient(135deg, rgba(78,115,223,0.10), rgba(246,194,62,0.10));
+            box-shadow: 0 0.35rem 1.25rem rgba(78,115,223,0.12);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ai-suggestions::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 12% 18%, rgba(78,115,223,0.18), transparent 45%),
+                        radial-gradient(circle at 85% 30%, rgba(246,194,62,0.18), transparent 45%);
+            pointer-events: none;
+        }
+
+        .ai-suggestions__header {
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .ai-suggestions__title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ai-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(78,115,223,0.14);
+            border: 1px solid rgba(78,115,223,0.22);
+            color: #2e59d9;
+            font-weight: 800;
+            font-size: 0.82rem;
+            white-space: nowrap;
+        }
+
+        .ai-suggestions__header h3 {
+            margin: 0;
+        }
+
+        .ai-suggestions__sub {
+            margin: 6px 0 0 0;
+            font-size: 0.9rem;
+            color: #5a5c69;
+        }
+
+        .ai-grid {
+            position: relative;
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 12px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 6px 4px 10px 4px;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .ai-grid::-webkit-scrollbar {
+            height: 10px;
+        }
+
+        .ai-grid::-webkit-scrollbar-thumb {
+            background: rgba(78,115,223,0.25);
+            border-radius: 999px;
+        }
+
+        .ai-grid::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+            border-radius: 999px;
+        }
+
+        .ai-card-wrapper {
+            flex: 0 0 auto;
+            width: 175px;
+            scroll-snap-align: start;
+        }
+
+        .ai-card {
+            position: relative;
+            border: none;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 0.25rem 1.25rem rgba(0,0,0,0.10);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            height: 100%;
+        }
+
+        .ai-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 0.65rem 1.8rem rgba(0,0,0,0.16);
+        }
+
+        .ai-rank-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 5;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, rgba(60, 130, 246, 0.95), rgba(246, 194, 62, 0.92));
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.85rem;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.18);
+        }
+
+        .ai-card-img {
+            width: 100%;
+            height: 210px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .ai-card-body {
+            padding: 0.9rem;
+        }
+
+        .ai-title {
+            font-size: 0.98rem;
+            font-weight: 800;
+            margin: 0 0 6px 0;
+            line-height: 1.25;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .ai-meta {
+            color: #6c757d;
+            font-size: 0.82rem;
+            margin-bottom: 6px;
+        }
+
+        .ai-meta .publisher {
+            display: block;
+            font-weight: 700;
+            color: #4e73df;
+            margin-bottom: 2px;
+        }
+
+        .ai-prices {
+            margin-top: 8px;
+        }
+
+        .ai-prices .price-original-no-discount {
+            color: initial;
+            font-size: 1.05rem;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .ai-prices .price-original {
+            text-decoration: line-through;
+            color: #858796;
+            font-size: 0.85rem;
+            margin-right: 0.4rem;
+        }
+
+        .ai-prices .price-current {
+            color: #4e73df;
+            font-weight: 800;
+            font-size: 1.05rem;
         }
 
         @media (max-width: 576px) {
-            .book-card-wrapper {
-                width: 90%;
+            .ai-card-wrapper {
+                width: 72%;
             }
-            .card-img-wrapper img {
-                height: 260px;
+            .ai-card-img {
+                height: 230px;
             }
         }
 
     </style>
+
     <script th:src="@{/customJs/askMoveCart.js}"></script>
     <script th:src="@{/customJs/like.js}"></script>
     <script th:inline="javascript">
-        // 이 변수들은 페이지네이션 링크 구성 시 사용되며, 좋아요 로직의 새로고침 기능은 제거되었습니다.
         const CURRENT_SEARCH_PARAMS = {
             keyword: [[${keyword}]],
             page: [[${page}]],
@@ -247,9 +381,9 @@
 
 <body>
 <div layout:fragment="content">
-    <div class="container-fluid">
+    <div class="container-fluid mt-4">
 
-        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <div class="d-sm-flex align-items-center justify-content-between mb-4 px-2">
             <div>
                 <h1 class="h4 mb-1 text-gray-800">
                     <span th:text="'검색 결과'">검색 결과</span>
@@ -263,12 +397,13 @@
             </div>
         </div>
 
-        <div th:if="${message}" class="alert alert-info" th:text="${message}"></div>
+        <div th:if="${message}" class="alert alert-info mx-2" th:text="${message}"></div>
 
         <div class="row" th:if="${#lists.isEmpty(books)}">
             <div class="col-12">
-                <div class="alert alert-light border">
-                    <p class="mb-1">검색 결과가 없습니다.</p>
+                <div class="alert alert-light border text-center py-5">
+                    <i class="fas fa-search fa-3x text-gray-300 mb-3"></i>
+                    <p class="mb-1 fw-bold">검색 결과가 없습니다.</p>
                     <p class="mb-0 text-muted small">
                         검색어를 조금 더 일반적으로 바꾸거나 철자를 확인해 주세요.
                     </p>
@@ -276,15 +411,74 @@
             </div>
         </div>
 
+        <!-- ✅ AI 추천(캐시) 섹션: aiCacheResponseList가 null/empty면 아예 안 보이게 -->
+        <section class="ai-suggestions"
+                 th:if="${aiCacheResponseList != null and !#lists.isEmpty(aiCacheResponseList)}">
+
+            <div class="ai-suggestions__header">
+                <div>
+                    <div class="ai-suggestions__title">
+                        <h3>AI 추천 도서</h3>
+                        <span class="ai-chip"><i class="fas fa-magic"></i> AI 추천</span>
+                    </div>
+                    <p class="ai-suggestions__sub">
+                        현재 검색어를 바탕으로 AI가 추천한 결과입니다.
+                    </p>
+                </div>
+            </div>
+
+            <div class="ai-grid">
+                <div class="ai-card-wrapper" th:each="s : ${aiCacheResponseList}">
+                    <div class="ai-card">
+                        <div class="ai-rank-badge" th:text="'#' + ${s.rank()}">#1</div>
+
+                        <a th:href="@{/books/{bookId}(bookId=${s.id()})}" style="text-decoration: none; color: inherit;">
+                            <!-- 기존 검색결과와 동일하게 imageUrl을 그대로 사용 -->
+                            <img class="ai-card-img" th:src="${s.imageUrl()}" th:alt="${s.title()}" />
+                        </a>
+
+                        <div class="ai-card-body">
+                            <div class="ai-meta">
+                                <span class="publisher" th:text="${s.publisherName()}">출판사</span>
+                                <span th:text="${#lists.isEmpty(s.authorNames()) ? '저자 정보 없음' : #strings.listJoin(s.authorNames(), ', ')}">저자</span>
+                            </div>
+
+                            <a th:href="@{/books/{bookId}(bookId=${s.id()})}" style="text-decoration: none; color: inherit;">
+                                <div class="ai-title" th:text="${s.title()}">책 제목</div>
+                            </a>
+
+                            <!-- 가격 영역: 기존 검색 페이지 로직 참조 -->
+                            <div class="ai-prices">
+                                <span th:if="${s.priceStandard() > s.priceSales()}"
+                                      class="price-current"
+                                      th:text="${#numbers.formatDecimal(s.priceSales(), 0, 'COMMA', 0, 'POINT') + '원'}">현재가격</span>
+
+                                <span th:if="${s.priceStandard() > s.priceSales()}"
+                                      class="price-original"
+                                      th:text="${#numbers.formatDecimal(s.priceStandard(), 0, 'COMMA', 0, 'POINT') + '원'}">정가</span>
+
+                                <span th:if="${s.priceStandard() <= s.priceSales()}"
+                                      class="price-original-no-discount"
+                                      th:text="${#numbers.formatDecimal(s.priceStandard(), 0, 'COMMA', 0, 'POINT') + '원'}">정가</span>
+
+                                <span class="badge bg-danger"
+                                      th:if="${s.priceStandard() > s.priceSales()}"
+                                      th:text="${s.priceStandard() == 0 ? '' : #numbers.formatDecimal((s.priceStandard() - s.priceSales()) * 100 / s.priceStandard(), 0, 'COMMA', 0, 'POINT') + '%'}">
+                                </span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <div class="row" th:if="${!#lists.isEmpty(books)}">
-            <div class="book-card-wrapper"
-                 th:each="book : ${books}">
-                <div class="card book-card">
+            <div class="book-card-wrapper" th:each="book : ${books}">
+
+                <div class="card book-card h-100">
                     <div class="card-img-wrapper">
-                        <button type="button"
-                                class="btn-heart"
-                                th:attr="data-book-id=${book.id()}"
-                                onclick="toggleLike(event, this)">
+                        <button type="button" class="btn-heart" th:attr="data-book-id=${book.id()}" onclick="toggleLike(event, this)">
                             <i class="fa-heart" th:classappend="${book.liked() ? 'fas' : 'far'}"></i>
                         </button>
 
@@ -293,65 +487,54 @@
                         </a>
                     </div>
 
-                    <div class="card-body d-flex flex-column">
-                        <div class="category-badge mb-1"
-                             th:text="${book.publisherName}">출판사명
-                        </div>
-
-                        <a th:href="@{/books/{bookId}(bookId=${book.id})}" style="text-decoration: none; color: inherit;">
-                            <h5 class="card-title mb-1" th:text="${book.title}">책제목</h5>
+                    <div class="card-body">
+                        <a th:href="@{/books/{bookId}(bookId=${book.id()})}" style="text-decoration: none; color: inherit;">
+                            <h5 class="card-title text-truncate" th:text="${book.title()}">책제목</h5>
                         </a>
 
-                        <p class="text-muted small mb-2"
-                           th:text="${#lists.isEmpty(book.authorNames)
-                                     ? '저자 정보 없음'
-                                     : #strings.listJoin(book.authorNames, ', ')}">
+                        <p class="text-muted small mb-2 text-truncate" style="font-size: 0.75rem;"
+                           th:text="${#lists.isEmpty(book.authorNames) ? '저자 정보 없음' : #strings.listJoin(book.authorNames, ', ')}">
                             저자
                         </p>
 
-                        <div class="mb-3">
-                            <span th:if="${book.priceStandard() > book.priceSales()}"
-                                  class="price-current"
-                                  th:text="${#numbers.formatDecimal(book.priceSales(), 0, 'COMMA', 0, 'POINT') + '원'}">현재가격</span>
+                        <div class="mb-2">
+                            <span th:if="${book.priceStandard() > book.priceSales()}" class="price-current"
+                                  th:text="${#numbers.formatDecimal(book.priceSales(), 0, 'COMMA', 0, 'POINT') + '원'}">현재가</span>
 
-                            <span th:if="${book.priceStandard() > book.priceSales()}"
-                                  class="price-original"
+                            <span th:if="${book.priceStandard() > book.priceSales()}" class="price-original"
                                   th:text="${#numbers.formatDecimal(book.priceStandard(), 0, 'COMMA', 0, 'POINT') + '원'}">정가</span>
 
-                            <span th:if="${book.priceStandard() <= book.priceSales()}"
-                                  class="price-original-no-discount"
+                            <span th:if="${book.priceStandard() <= book.priceSales()}" class="price-original-no-discount"
                                   th:text="${#numbers.formatDecimal(book.priceStandard(), 0, 'COMMA', 0, 'POINT') + '원'}">정가</span>
 
-                            <span class="badge bg-danger"
-                                  th:text="${book.priceStandard() == 0 ? '' :
-                                  #numbers.formatDecimal(
-                                    (book.priceStandard() - book.priceSales()) * 100 / book.priceStandard(),
-                                    0, 'COMMA', 0, 'POINT'
-                                  ) + '%'}">
+                            <span class="badge bg-danger ms-1" style="font-size: 0.7rem;"
+                                  th:text="${book.priceStandard() == 0 ? '' : #numbers.formatDecimal((book.priceStandard() - book.priceSales()) * 100 / book.priceStandard(), 0, 'COMMA', 0, 'POINT') + '%'}">
                             </span>
                         </div>
 
-                        <form th:action="@{/cart/add}" method="post" class="mt-auto">
-                            <input type="hidden" name="bookId" th:value="${book.id}">
-                            <button class="btn btn-primary btn-block"
-                                    th:onclick="|addToCartAndConfirmMove('${book.id}', '1'); return false;|">
-                                <i class="fas fa-shopping-cart mr-1"></i> 장바구니 담기
-                            </button>
-                        </form>
-
-                        <form th:action="@{/orders/checkout-temp}" method="post">
-                            <input type="hidden" name="bookId" th:value="${book.id()}">
-                            <input type="hidden" name="quantity" value="1">
-                            <button type="submit" class="btn btn-secondary btn-block">
-                                바로 구매
-                            </button>
-                        </form>
+                        <div class="mt-auto d-flex gap-2">
+                            <form th:action="@{/cart/add}" method="post" class="flex-grow-1">
+                                <input type="hidden" name="bookId" th:value="${book.id()}">
+                                <button class="btn btn-primary btn-block" title="장바구니"
+                                        th:onclick="|addToCartAndConfirmMove('${book.id()}', '1'); return false;|">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </button>
+                            </form>
+                            <form th:action="@{/orders/checkout-temp}" method="post" class="flex-grow-1">
+                                <input type="hidden" name="bookId" th:value="${book.id()}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn btn-buy btn-block" title="구매">
+                                    <i class="fas fa-credit-card"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
+
             </div>
         </div>
 
-        <nav th:if="${totalPages > 1}">
+        <nav th:if="${totalPages > 1}" class="mt-4 pb-5">
             <ul class="pagination justify-content-center">
                 <li class="page-item" th:classappend="${page == 0} ? ' disabled'">
                     <a class="page-link"

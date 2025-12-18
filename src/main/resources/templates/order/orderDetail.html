@@ -4,11 +4,11 @@
       layout:decorate="~{layout.html}">
 
 
-    <meta name="_csrf" th:content="${_csrf.token}"/>
-    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 <head>
     <meta charset="UTF-8">
     <title>주문 상세 내역</title>
+    <script th:src="@{/customJs/get-cookie.js}"></script>
+
     <script>
         function cancelOrder(orderId) {
             if (!confirm("정말 주문을 취소하시겠습니까?")) {

@@ -5,6 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <title>주문/결제</title>
+    <script th:src="@{/customJs/get-cookie.js}"></script>
 </head>
 <body>
 <div layout:fragment="content">
@@ -152,6 +153,7 @@
                             </div>
 
                             <script>
+
                                 function goPopup() {
                                     window.open("/mypage/address/jusoPopup", "pop",
                                         "width=570,height=420,scrollbars=yes,resizable=yes");
@@ -720,12 +722,25 @@
                 });
 
                 orderData.orderItems = orderItems;
+                function getCsrfToken() {
+                    // 1. Meta 태그에서 찾기
+                    const metaToken = document.querySelector('meta[name="_csrf"]');
+                    if (metaToken) {
+                        return metaToken.getAttribute('content');
+                    }
 
+                    // 2. 쿠키에서 찾기 (Meta 태그가 없을 경우 대비)
+                    return document.cookie
+                        .split('; ')
+                        .find(row => row.startsWith('XSRF-TOKEN='))
+                        ?.split('=')[1];
+                }
                 // 프론트엔드용 추가 데이터 (결제 페이지 리다이렉트용)
                 const payPrice = parseInt(document.getElementById('finalPaymentAmountInput').value) || 0;
                 const csrfToken = getCsrfToken();
                 fetch("/orders", {
                     method: 'POST',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-XSRF-TOKEN': csrfToken

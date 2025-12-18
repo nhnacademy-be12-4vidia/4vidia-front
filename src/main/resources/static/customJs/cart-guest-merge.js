@@ -5,11 +5,13 @@ document.addEventListener("DOMContentLoaded", function () {
         // 비로그인 상태 → 모달 로직 건너뜀
         return;
     }
+    const csrfToken = getCsrfToken();
 
     // ✅ 1. 비회원 장바구니 상태 조회 → 모달 표시 여부 결정
     fetch('/cart/guest/status', {
         method: 'GET',
-        credentials: 'same-origin'
+        credentials: 'same-origin',
+        headers: csrfToken
     })
         .then(function (res) {
             if (!res.ok) {

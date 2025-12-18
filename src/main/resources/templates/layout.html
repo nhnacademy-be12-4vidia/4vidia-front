@@ -3,6 +3,8 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
     <meta charset="utf-8">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
@@ -170,6 +172,7 @@
 
                     <li class="nav-item mx-2 d-flex align-items-center" th:if="${session.accessToken != null}">
                         <form th:action="@{/auth/logout}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                             <button class="btn btn-danger btn-sm" type="submit">
                                 <i class="fas fa-sign-out-alt mr-1"></i> 로그아웃
                             </button>
@@ -212,6 +215,8 @@
 <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/vendor/jquery-easing/jquery.easing.min.js}"></script>
 <script th:src="@{/js/sb-admin-2.min.js}"></script>
+
+<script th:src="@{/customJs/get-cookie.js}"></script>
 
 </body>
 </html>

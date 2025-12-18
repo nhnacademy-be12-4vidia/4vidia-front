@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <title>주소 검색</title>
 
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
     <script>
         function init() {
             const params = new URLSearchParams(location.search);
@@ -34,6 +37,8 @@
     <input type="hidden" name="returnUrl">
     <input type="hidden" name="resultType">
     <input type="hidden" id="encodingType" name="encodingType" value="UTF-8"/>
+
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 </form>
 </body>
 </html>

@@ -3,6 +3,9 @@
     <meta charset="UTF-8">
     <title>주소 처리중...</title>
 
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
     <script th:inline="javascript">
         function initCallback() {
 

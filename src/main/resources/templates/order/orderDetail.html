@@ -2,6 +2,10 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout.html}">
+
+
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 <head>
     <meta charset="UTF-8">
     <title>주문 상세 내역</title>
@@ -11,8 +15,13 @@
                 return;
             }
 
+            const csrfToken = getCsrfToken();
+
             fetch("/orders/" + orderId + "/cancel", {
-                method: "PUT"
+                method: "PUT",
+                headers: {
+                    'X-XSRF-TOKEN': csrfToken   // ⭐ CSRF 헤더 추가, 헤더 이름은 SecurityConfig와 일치해야 함 (기본값이 X-XSRF-TOKEN)
+                }
             })
                 .then(res => res.json())
                 .then(data => {

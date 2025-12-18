@@ -41,8 +41,14 @@
             }
 
             const addressId = selected[0];
+            const csrfToken = getCsrfToken();
 
-            fetch(`/mypage/address/default/${addressId}`, { method: "PUT" })
+            fetch(`/mypage/address/default/${addressId}`, {
+                method: "PUT",
+                headers: {
+                    "X-XSRF-TOKEN": csrfToken
+                },
+            })
                 .then(res => {
                     if (res.ok) {
                         location.reload();
@@ -63,6 +69,9 @@
         }
         function deleteSelectedAddresses() {
             const selected = getSelectedAddresses();
+            // ★ 쿠키 가져오기
+            const csrfToken = getCsrfToken();
+
             // 이 경고 메시지가 나오는지 확인
             if (selected.length === 0) {
                 alert("삭제할 주소를 선택하세요.");
@@ -71,7 +80,12 @@
             if (!confirm("선택한 주소를 모두 삭제하시겠습니까?")) return;
 
             Promise.all(
-                selected.map(id => fetch(`/mypage/address/${id}`, { method: "DELETE" }))
+                selected.map(id => fetch(`/mypage/address/${id}`, {
+                    method: "DELETE",
+                    headers: {
+                        "X-XSRF-TOKEN": csrfToken // [수정] headers 내부로 이동
+                    }
+                }))
             ).then(() => location.reload())
                 .catch(() => alert("삭제 중 오류 발생"));
         }

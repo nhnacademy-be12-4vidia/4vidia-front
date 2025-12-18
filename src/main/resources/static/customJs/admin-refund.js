@@ -15,9 +15,16 @@ document.addEventListener('click', function(e) {
 });
 
 async function fetchDetailAndShowModal(refundId) {
+
+    // ★ 쿠키 가져오기
+    const csrfToken = getCsrfToken();
+
     try {
         const res = await fetch(`/admin/refunds/${refundId}`, {
-            headers: { 'Accept': 'application/json' }
+            headers: {
+                'Accept': 'application/json',
+                "X-XSRF-TOKEN": csrfToken // ★ 헤더 추가
+            }
         });
 
         if (!res.ok) {
@@ -82,10 +89,16 @@ function fillModal(data) {
 async function postAction(id, action) {
     if (!confirm(action === 'accept' ? '승인하시겠습니까?' : '거절하시겠습니까?')) return;
 
+    // ★ 쿠키 가져오기
+    const csrfToken = getCsrfToken();
+
     try {
         const res = await fetch(`/admin/refunds/${id}/${action}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
+            headers: {
+                'Content-Type': 'application/json',
+                "X-XSRF-TOKEN": csrfToken // ★ 헤더 추가
+            }
         });
 
         if (!res.ok) {

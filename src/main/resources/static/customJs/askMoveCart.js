@@ -6,6 +6,8 @@ function addToCartAndConfirmMove(bookId, quantity) {
     // Thymeleaf 폼의 action URL을 가져옵니다. (여기서는 /cart/add)
     const formActionUrl = '/cart/add';
 
+    const csrfToken = getCsrfToken();
+
     // 서버에 상품 추가를 요청하는 AJAX 통신 시작
     $.ajax({
         url: formActionUrl, // 폼의 제출 URL
@@ -13,6 +15,9 @@ function addToCartAndConfirmMove(bookId, quantity) {
         data: {
             bookId: bookId,
             quantity: quantity
+        },
+        headers: {
+            'X-XSRF-TOKEN': csrfToken   // ⭐ CSRF 헤더 추가, 헤더 이름은 SecurityConfig와 일치해야 함 (기본값이 X-XSRF-TOKEN)
         },
         success: function(response) {
             // 1. 장바구니 추가 성공 후 팝업 띄우기

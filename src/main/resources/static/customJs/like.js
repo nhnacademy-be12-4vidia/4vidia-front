@@ -11,10 +11,13 @@ function toggleLike(event, button) {
     let method = isLiked ? 'DELETE' : 'POST';
     let url = `/mypage/like/test?bookId=${bookId}`;
 
+    const csrfToken = getCsrfToken();
+
     fetch(url, {
         method: method,
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/x-www-form-urlencoded',
+            "X-XSRF-TOKEN": csrfToken // ★ 헤더 추가
         }
     })
         .then(response => {

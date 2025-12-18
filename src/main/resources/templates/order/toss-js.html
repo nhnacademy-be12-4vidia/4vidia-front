@@ -4,6 +4,7 @@
     <title>토스 결제 요청</title>
     <script src="https://js.tosspayments.com/v2/standard"></script>
     <meta charset="UTF-8">
+    <script th:src="@{/customJs/get-cookie.js}"></script>
 </head>
 <body>
 
@@ -48,11 +49,16 @@
         // sendBeacon은 페이지가 닫혀도 비동기로 요청을 보냄 (POST 방식)
         const result = navigator.sendBeacon(rollbackUrl, data);
 
+        const csrfToken = getCsrfToken();
+
         // sendBeacon 실패 시 fetch keepalive 시도 (fallback)
         if (!result) {
             fetch(rollbackUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-XSRF-TOKEN': csrfToken   // ⭐ CSRF 헤더 추가, 헤더 이름은 SecurityConfig와 일치해야 함 (기본값이 X-XSRF-TOKEN)
+                },
                 body: JSON.stringify({ orderId: sendOrderId }),
                 keepalive: true // 페이지가 닫혀도 연결 유지
             });
@@ -116,12 +122,17 @@
                     console.error("Unknown payment method:", paymentMethod);
             }
         } catch (error) {
+            const csrfToken = getCsrfToken();
+
             // 사용자가 결제창 X 버튼을 눌러 취소했을 때 (에러로 잡힘)
             if (error.code === 'USER_CANCEL') {
                 // 즉시 롤백 호출 (비동기 함수로 직접 호출)
                 fetch(window.location.origin + "/payments/rollback", {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-XSRF-TOKEN': csrfToken   // ⭐ CSRF 헤더 추가, 헤더 이름은 SecurityConfig와 일치해야 함 (기본값이 X-XSRF-TOKEN)
+                    },
                     body: JSON.stringify({
                         orderId: orderId
                     })

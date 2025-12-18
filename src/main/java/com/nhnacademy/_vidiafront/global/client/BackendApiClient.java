@@ -132,8 +132,8 @@ public class BackendApiClient {
                             cookies.add("refresh", refreshToken);
                         }
                     })                    .body(body)
-                    .retrieve()
-                    .body(responseType);
+                    .retrieve()                    .body(responseType);
+
         } catch (HttpClientErrorException.Unauthorized ex) {
             TokenResponse tokenResponse = reissue(refreshToken);
             boolean isReissue = reissueIfNeeded(tokenResponse, request, response);

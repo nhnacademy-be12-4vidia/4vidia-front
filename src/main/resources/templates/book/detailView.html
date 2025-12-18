@@ -108,6 +108,52 @@
             font-weight: 700;
             margin-right: 0.4rem;
         }
+
+        /* Quantity spinner 제거 + 버튼형 수량 컨트롤 */
+        .qty-control {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid #d1d3e2;
+            border-radius: 0.35rem;
+            overflow: hidden;
+            height: 42px;
+        }
+
+        .qty-btn {
+            width: 44px;
+            height: 42px;
+            border: 0;
+            background: #f8f9fc;
+            color: #5a5c69;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .qty-btn:active {
+            background: #eaecf4;
+        }
+
+        .qty-input {
+            width: 64px;
+            height: 42px;
+            border: 0;
+            text-align: center;
+            outline: none;
+            background: #fff;
+            font-weight: 700;
+        }
+
+        /* 혹시 type=number로 바뀌어도 스피너 숨김 */
+        .qty-input::-webkit-outer-spin-button,
+        .qty-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .qty-input {
+            -moz-appearance: textfield;
+            appearance: none;
+        }
     </style>
     <script th:src="@{/customJs/askMoveCart.js}"></script>
 </head>
@@ -252,24 +298,81 @@
                         </div>
 
                         <div class="mt-3">
+                            <!-- 수량 선택 (플러스/마이너스 버튼으로만 변경) -->
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="text-muted me-2" style="min-width: 48px;">수량</span>
+                                <div class="qty-control">
+                                    <button type="button" class="qty-btn" id="qtyMinus" aria-label="수량 감소">-</button>
+                                    <input type="text" class="qty-input" id="qtyInput" value="1" inputmode="numeric" readonly>
+                                    <button type="button" class="qty-btn" id="qtyPlus" aria-label="수량 증가">+</button>
+                                </div>
+                                <small class="text-muted ms-2">최소 1개</small>
+                            </div>
+
                             <form th:action="@{/cart/add}" method="post" class="d-inline-block mr-2">
                                 <input type="hidden" name="bookId" th:value="${book.id}">
-                                <input type="hidden" name="quantity" value="1">
-                                <button class="btn btn-primary btn-block"
-                                        th:onclick="|addToCartAndConfirmMove('${book.id}', '1'); return false;|">
+                                <input type="hidden" name="quantity" value="1" id="cartQty">
+                                <button type="button" class="btn btn-primary btn-block"
+                                        th:attr="data-book-id=${book.id}"
+                                        onclick="addToCartAndConfirmMove(this.dataset.bookId, document.getElementById('qtyInput').value); return false;">
                                     <i class="fas fa-shopping-cart mr-1"></i> 장바구니 담기
                                 </button>
                             </form>
 
-
-                            <form th:action="@{/orders/checkout-temp}" method="post" class="d-inline-block">
-                                <input type="hidden" name="bookId" th:value="${book.id()}">
-                                <input type="hidden" name="quantity" value=1>
+                            <form th:action="@{/orders/checkout-temp}" method="post" class="d-inline-block" id="orderForm">
+                                <input type="hidden" name="bookId" th:value="${book.id}">
+                                <input type="hidden" name="quantity" value="1" id="orderQty">
                                 <button type="submit" class="btn btn-success">
                                     바로 구매
                                 </button>
                             </form>
                         </div>
+
+                        <script>
+                            (function () {
+                                var qtyInput = document.getElementById('qtyInput');
+                                var minusBtn = document.getElementById('qtyMinus');
+                                var plusBtn = document.getElementById('qtyPlus');
+                                var cartQty = document.getElementById('cartQty');
+                                var orderQty = document.getElementById('orderQty');
+
+                                function clampQty(n) {
+                                    var v = parseInt(n, 10);
+                                    if (isNaN(v) || v < 1) v = 1;
+                                    return v;
+                                }
+
+                                function syncHidden(v) {
+                                    if (cartQty) cartQty.value = String(v);
+                                    if (orderQty) orderQty.value = String(v);
+                                }
+
+                                function setQty(next) {
+                                    var v = clampQty(next);
+                                    qtyInput.value = String(v);
+                                    syncHidden(v);
+                                }
+
+                                // 초기 동기화
+                                setQty(qtyInput.value);
+
+                                minusBtn.addEventListener('click', function () {
+                                    setQty(clampQty(qtyInput.value) - 1);
+                                });
+
+                                plusBtn.addEventListener('click', function () {
+                                    setQty(clampQty(qtyInput.value) + 1);
+                                });
+
+                                // 폼 제출 직전에 한 번 더 동기화(안전)
+                                var orderForm = document.getElementById('orderForm');
+                                if (orderForm) {
+                                    orderForm.addEventListener('submit', function () {
+                                        syncHidden(clampQty(qtyInput.value));
+                                    });
+                                }
+                            })();
+                        </script>
                     </div>
                 </div>
 

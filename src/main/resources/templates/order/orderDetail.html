@@ -3,11 +3,48 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout.html}">
 
-
 <head>
     <meta charset="UTF-8">
     <title>주문 상세 내역</title>
     <script th:src="@{/customJs/get-cookie.js}"></script>
+
+    <style>
+        /* 1. 배송/구매 상태용 라이트 배경색 (파스텔톤) */
+        .bg-warning-light { background-color: rgba(255, 193, 7, 0.1) !important; }
+        .bg-info-light { background-color: rgba(13, 202, 240, 0.1) !important; }
+        .bg-success-light { background-color: rgba(25, 135, 84, 0.1) !important; }
+        .bg-secondary-light { background-color: rgba(108, 117, 125, 0.1) !important; }
+        .bg-danger-light { background-color: rgba(220, 53, 69, 0.1) !important; }
+
+        /* 2. 상태 배지 디자인 (제목 위 배치용) */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.6rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 4px;
+            margin-bottom: 0.5rem; /* 제목과의 간격 */
+        }
+
+        /* 3. 포장 정보 요약 박스 (우측 가격 하단) */
+        .packaging-summary {
+            font-size: 0.8rem;
+            color: #6c757d;
+            background-color: #f8f9fa;
+            padding: 0.5rem;
+            border-radius: 6px;
+            border-left: 3px solid #dee2e6;
+            margin-top: 0.5rem;
+        }
+
+        /* 4. 아이템 가격 강조 */
+        .item-total-price {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #333;
+        }
+    </style>
 
     <script>
         function cancelOrder(orderId) {
@@ -20,7 +57,7 @@
             fetch("/orders/" + orderId + "/cancel", {
                 method: "PUT",
                 headers: {
-                    'X-XSRF-TOKEN': csrfToken   // ⭐ CSRF 헤더 추가, 헤더 이름은 SecurityConfig와 일치해야 함 (기본값이 X-XSRF-TOKEN)
+                    'X-XSRF-TOKEN': csrfToken
                 }
             })
                 .then(res => res.json())
@@ -58,9 +95,13 @@
                             주문 번호: <span th:text="${order.orderId}">1001</span>
                         </h6>
                         <div class="d-flex align-items-center">
-                            <span class="badge badge-primary px-3 py-2 mr-2"
-                                  style="font-size: 0.9rem;"
-                                  th:text="${order.deliveryStatus}">배송 준비중</span>
+
+                            <span th:classappend="${order.deliveryStatus.colorClass}"
+                                  class="px-3 py-1 rounded-pill small font-weight-bold d-inline-flex align-items-center mr-2"
+                                  style="padding: .25rem .75rem;">
+                                <i th:classappend="${order.deliveryStatus.iconClass}" class="fas fa-sm mr-2"></i>
+                                <span th:text="${order.deliveryStatus.description}">배송 상태</span>
+                            </span>
 
                             <button class="btn btn-danger btn-sm"
                                     th:if="${order.deliveryStatus.name() == 'WAITING'}"
@@ -69,6 +110,7 @@
                             </button>
                         </div>
                     </div>
+
                     <div class="card-body">
                         <div class="mb-3 text-xs text-gray-600 font-weight-bold">
                             주문 일시: <span th:text="${#temporals.format(order.createdAt, 'yyyy-MM-dd HH:mm:ss')}">2025-12-03 10:00:00</span>
@@ -76,52 +118,55 @@
                         <hr>
 
                         <div th:each="item : ${order.orderItems}" class="row mb-4 border-bottom pb-4 align-items-center">
+
                             <div class="col-md-2 text-center">
-                                <img th:if="${item.bookImageUrl != null}"
-                                     th:src="${item.bookImageUrl}"
-                                     class="img-fluid rounded border"
-                                     alt="Book Cover" style="max-height: 100px;">
-                                <div th:unless="${item.bookImageUrl != null}" class="bg-light rounded p-3">
-                                    <i class="fas fa-book fa-2x text-gray-300"></i>
-                                </div>
+                                <a th:href="@{/books/{id}(id=${item.bookId})}"> <img th:if="${item.bookImageUrl != null}" th:src="${item.bookImageUrl}"
+                                                                                     class="img-fluid rounded border shadow-sm"
+                                                                                     alt="Book Cover" style="max-height: 110px;">
+                                    <div th:unless="${item.bookImageUrl != null}" class="bg-light rounded p-3 d-inline-block">
+                                        <i class="fas fa-book fa-2x text-gray-300"></i>
+                                    </div>
+                                </a>
                             </div>
 
                             <div class="col-md-7">
+                                <div class="mb-1">
+            <span th:classappend="${item.confirmStatus.colorClass}" class="status-badge">
+                <i th:classappend="${item.confirmStatus.iconClass}" class="fas fa-sm mr-1"></i>
+                <span th:text="${item.confirmStatus.description}">상태</span>
+            </span>
+                                </div>
+
                                 <h5 class="font-weight-bold text-dark mb-1">
-                                    <span th:text="${item.bookTitle}">책 제목</span>
+                                    <a th:href="@{/books/{id}(id=${item.bookId})}" class="text-dark text-decoration-none">
+                                        <span th:text="${item.bookTitle}">책 제목</span>
+                                    </a>
                                 </h5>
                                 <p class="text-sm text-gray-600 mb-2">
                                     <span th:text="${item.bookAuthor}">저자명</span>
                                 </p>
 
-                                <div class="d-flex align-items-center mb-2">
-                                    <span class="font-weight-bold mr-2"
-                                          th:text="|₩${#numbers.formatInteger(item.salePrice, 0, 'COMMA')}|">₩35,000</span>
-                                    <span class="text-xs text-gray-600" th:text="|x ${item.quantity}권|">x 1권</span>
+                                <div class="text-sm text-gray-500">
+                                    <span th:text="|₩${#numbers.formatInteger(item.salePrice, 0, 'COMMA')}|">35,000</span>
+                                    <span class="mx-1">|</span>
+                                    <span th:text="|${item.quantity}권|">1권</span>
                                 </div>
                             </div>
 
-                            <div class="col-md-3 text-right">
-                                <div class="mb-2">
-                                    <span class="badge badge-light border text-gray-600"
-                                          th:text="${item.confirmStatus}">구매확정</span>
+                            <div class="col-md-3 text-right d-flex flex-column justify-content-center" style="min-height: 110px;">
+
+                                <div class="h4 font-weight-bold text-gray-900 mb-0"
+                                     th:text="|₩${#numbers.formatInteger(item.salePrice * item.quantity, 0, 'COMMA')}|">
+                                    ₩35,000
                                 </div>
 
-                                <small class="text-muted">도서 소계</small><br>
-                                <span class="font-weight-bold text-dark h5"
-                                      th:text="|₩${#numbers.formatInteger(item.salePrice * item.quantity, 0, 'COMMA')}|">₩35,000
-                                </span>
-
-                                <div th:if="${not #lists.isEmpty(item.packagingResponses)}" class="mt-2 bg-gray-100 p-2 rounded">
+                                <div th:if="${item.totalPackagingPrice > 0}" class="mt-2">
                                     <div th:each="pack : ${item.packagingResponses}"
-                                         class="text-xs text-gray-600 d-flex justify-content-between">
-                                        <span th:text="${pack.name}">포장지 이름</span>
-                                        <span class="font-weight-bold text-primary"
-                                              th:text="|+${#numbers.formatInteger(pack.price, 0, 'COMMA')}원|">+1,000원</span>
-                                    </div>
-                                    <div class="text-xs text-right border-top mt-1 pt-1 font-weight-bold"
-                                         th:if="${item.totalPackagingPrice > 0}">
-                                        포장비 합계: <span th:text="|₩${#numbers.formatInteger(item.totalPackagingPrice, 0, 'COMMA')}|">1000</span>
+                                         th:if="${pack.price > 0}"
+                                         class="text-xs text-muted mb-1">
+                                        <i class="fas fa-gift mr-1 text-gray-400"></i> <span th:text="${pack.name}">포장지명</span>
+                                        <span class="text-primary font-weight-bold ml-1"
+                                              th:text="|+${#numbers.formatInteger(pack.price, 0, 'COMMA')}|">+1,000</span>
                                     </div>
                                 </div>
 

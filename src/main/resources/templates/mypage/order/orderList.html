@@ -82,6 +82,12 @@
         .order-item-row:hover {
             box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.1);
         }
+
+        /* 배송 상태 배지용 연한 배경색 */
+        .bg-warning-light { background-color: rgba(255, 193, 7, 0.1) !important; }
+        .bg-info-light { background-color: rgba(13, 202, 240, 0.1) !important; }
+        .bg-success-light { background-color: rgba(25, 135, 84, 0.1) !important; }
+        .bg-secondary-light { background-color: rgba(108, 117, 125, 0.1) !important; }
     </style>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -362,22 +368,11 @@
                             <span class="text-gray-400">|</span>
                             <span class="text-gray-700 small">주문번호: <strong th:text="${order.orderId()}"></strong></span>
                         </div>
-
-                        <span th:with="statusName=${order.deliveryStatus().name()}"
-                              th:classappend="${statusName == 'DELIVERED' ? 'text-success bg-success-light' :
-                                                    (statusName == 'SHIPPING' ? 'text-info bg-info-light' :
-                                                    (statusName == 'WAITING' ? 'text-warning bg-warning-light' :
-                                                    'text-secondary bg-secondary-light'))}"
+                        <span th:classappend="${order.deliveryStatus().colorClass}"
                               class="px-3 py-1 rounded-pill small font-weight-bold d-inline-flex align-items-center"
-                              style="--bs-bg-opacity: .1; padding: .25rem .75rem;">
-
-                            <i th:classappend="${statusName == 'DELIVERED' ? 'fa-check-circle' :
-                                               (statusName == 'SHIPPING' ? 'fa-truck' :
-                                               (statusName == 'WAITING' ? 'fa-box-open' :
-                                               'fa-times-circle'))}"
-                               class="fas fa-sm mr-2"></i>
-
-                            <span th:text="${statusNameMap.get(statusName)}"></span>
+                              style="padding: .25rem .75rem;">
+                            <i th:classappend="${order.deliveryStatus().iconClass}" class="fas fa-sm mr-2"></i>
+                            <span th:text="${order.deliveryStatus().description}">배송 상태</span>
                         </span>
                     </div>
 
@@ -531,5 +526,4 @@
     </div>
 </div>
 </body>
-
 </html>

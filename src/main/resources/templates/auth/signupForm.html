@@ -123,7 +123,9 @@
                                         document.getElementById('phone'),
                                         document.getElementById('email'),
                                         document.getElementById('password'),
-                                        document.getElementById('birthDate')
+                                        document.getElementById('birthDate'),
+                                        document.getElementById('birthFeedback'),
+                                        document.getElementById('signupButton')
                                     ];
                                     const signupButton = document.getElementById('signupButton');
 
@@ -136,12 +138,40 @@
 
                                     //TODO 비밀번호 검사해서 조건 안되면 화면에 알려주기
 
-                                    const canSubmit = allFieldsFilled && emailValid && isPasswordValid;
+                                    const isBirthValid = validateBirthDate();
+
+                                    const canSubmit = allFieldsFilled && emailValid && isPasswordValid && isBirthValid;
 
                                     if (signupButton) {
                                         signupButton.disabled = !canSubmit;
                                     }
                                 }
+                                function validateBirthDate(){
+                                    const birthInput = document.getElementById("birthDate");
+                                    const feedback = document.getElementById("birthFeedback");
+
+                                    if(!birthInput.value){
+                                        feedback.textContent = "";
+                                        return false;
+                                    }
+
+                                    const birth = new Date(birthInput.value + "T00:00:00");
+                                    const today = new Date();
+
+                                    let age = today.getFullYear() - birth.getFullYear();
+                                    const m = today.getMonth() - birth.getMonth();
+                                    if(m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+
+                                    if(age < 14){
+                                        feedback.textContent = "만 14세 이상만 가입할 수 있어요.";
+                                        feedback.style.color = "red";
+                                        return false;
+                                    }
+
+                                    feedback.textContent = "";
+                                    return true;
+                                }
+
 
                                 function checkEmail() {
                                     const email = document.getElementById('email').value;
@@ -155,7 +185,8 @@
                                         return;
                                     }
 
-                                    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                                    const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]*[A-Za-z][A-Za-z0-9.-]*\.[A-Za-z]{2,}$/;
+
                                     if (!emailPattern.test(email)) {
                                         feedback.textContent = "올바른 이메일 형식이 아닙니다.";
                                         feedback.style.color = "red";
@@ -204,10 +235,11 @@
 
                                 // 최종 제출 시 유효성 검사 (버튼 비활성화의 fail-safe 역할)
                                 function validateForm(event) {
-                                    if (!emailValid) {
+                                    const okBirth = validateBirthDate();
+                                    if (!emailValid || okBirth) {
                                         event.preventDefault();
                                         // Custom modal 또는 시각적 메시지를 사용해야 하지만, 여기서는 임시로 콘솔에 로그
-                                        console.warn("제출 실패: 이메일 중복확인을 완료해주세요.");
+                                        console.warn("제출 실패: 이메일 중복확인/생년월일 조건을 완료해주세요.");
                                     }
                                 }
 
@@ -224,6 +256,7 @@
                                                class="form-control form-control-user email-input"
                                                placeholder="이메일(변경불가)"
                                                required
+                                               pattern="^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]*[A-Za-z][A-Za-z0-9.-]*\.[A-Za-z]{2,}$"
                                                oninput="resetEmailValidation(); updateSignupButtonState()">
                                         <button type="button"
                                                 class="btn btn-secondary check-btn"
@@ -260,9 +293,11 @@
                                 <div class="input-wrapper">
                                     <input type="date" id="birthDate" name="birthDate"
                                            class="form-control form-control-user"
+                                           min="1900-01-01"
                                            th:max="${T(java.time.LocalDate).now()}"
                                            required
-                                           oninput="updateSignupButtonState()">
+                                           oninput="validateBirthDate(); updateSignupButtonState()">
+                                    <small id="birthFeedback" class="form-feedback"></small>
                                 </div>
                             </div>
 

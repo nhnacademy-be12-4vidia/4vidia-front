@@ -3,6 +3,7 @@ package com.nhnacademy._vidiafront.book.controller;
 import com.nhnacademy._vidiafront.book.client.BookApiClient;
 import com.nhnacademy._vidiafront.book.dto.books.gemini.GeminiBookSuggestion;
 import com.nhnacademy._vidiafront.book.dto.books.request.BookSearchRequest;
+import com.nhnacademy._vidiafront.book.dto.books.request.BookSearchWithTagRequest;
 import com.nhnacademy._vidiafront.book.dto.books.response.*;
 import com.nhnacademy._vidiafront.global.dto.PageResponse;
 import java.util.List;
@@ -74,7 +75,24 @@ public class BookController {
         model.addAttribute("aiCacheResponseList", aiCacheResponseList);
 
         return "book/search";
+    }
 
+    @GetMapping("/search/tags")
+    public String searchBooksWithTags(BookSearchWithTagRequest request,
+                                      @RequestParam(defaultValue = "0") int page,
+                                      @RequestParam(defaultValue = "20") int size,
+                                      Model model) {
+        SearchBooksResponse response = bookApiClient.searchBooksWithTags(request, page, size);
+        PageResponse<BookListResponse> pageResult = response.page();
+
+        model.addAttribute("books", pageResult.content());
+        model.addAttribute("page", pageResult.page());
+        model.addAttribute("size", pageResult.size());
+        model.addAttribute("totalPages", pageResult.totalPages());
+        model.addAttribute("totalElements", pageResult.totalElements());
+        model.addAttribute("tagRequest", request);
+
+        return "book/search-with-tag";
     }
 //
 //    @GetMapping("/search/ai")
@@ -112,7 +130,7 @@ public class BookController {
 //
 //    }
 
-    @GetMapping("/{bookId}")
+    @GetMapping("/{bookId:\\d+}")
     public String bookDetails(@PathVariable Long bookId, Model model) {
 
         BookDetailWithReviewResponse dto = bookApiClient.bookDetails(bookId);

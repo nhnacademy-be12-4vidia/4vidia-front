@@ -2,13 +2,12 @@ package com.nhnacademy._vidiafront.book.client;
 
 import com.nhnacademy._vidiafront.book.dto.books.request.BookSearchRequest;
 import com.nhnacademy._vidiafront.book.dto.books.request.BookSearchWithTagRequest;
-import com.nhnacademy._vidiafront.book.dto.books.response.AiBookSearchResponse;
-import com.nhnacademy._vidiafront.book.dto.books.response.BookDetailWithReviewResponse;
-import com.nhnacademy._vidiafront.book.dto.books.response.BookListResponse;
-import com.nhnacademy._vidiafront.book.dto.books.response.SearchBooksResponse;
+import com.nhnacademy._vidiafront.book.dto.books.response.*;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 
 import java.util.List;
+
+import com.nhnacademy._vidiafront.global.dto.PageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -71,12 +70,24 @@ public class BookApiClient {
         return backendApiClient.get(uri, SearchBooksResponse.class);
     }
 
-    public BookDetailWithReviewResponse bookDetails(Long bookId) {
+    public PageResponse<BookListResponse> searchBooksWithSpecificTagId(Long tagId, int page, int size) {
+
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromPath(BOOK_SERVICE + "/books/search/tags/" + tagId)
+                .queryParam("page", page)
+                .queryParam("size", size);
+
+        String uri = builder.toUriString();
+
+        return backendApiClient.get(uri, new ParameterizedTypeReference<PageResponse<BookListResponse>>() {});
+    }
+
+    public BookDetailResponse bookDetails(Long bookId) {
 
         UriComponentsBuilder uriBuilder = UriComponentsBuilder
             .fromPath(BOOK_SERVICE + "/books/" + bookId);
 
-        return backendApiClient.get(uriBuilder.toUriString(), BookDetailWithReviewResponse.class);
+        return backendApiClient.get(uriBuilder.toUriString(), BookDetailResponse.class);
 
     }
 

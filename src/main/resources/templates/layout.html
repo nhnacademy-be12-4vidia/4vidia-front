@@ -17,6 +17,55 @@
     <link th:href="@{/css/sb-admin-2.min.css}" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+  /* Sidebar tag menu (compact list like screenshot) */
+  .tag-sidebar-heading {
+    font-size: .72rem;
+    font-weight: 800;
+    color: rgba(255,255,255,.75);
+    padding: .65rem 1rem .25rem 1rem;
+  }
+  .tag-sidebar-list { margin: 0; padding: 0 1.05rem 0 .75rem; list-style: none; }
+  .tag-sidebar-list .nav-item { margin: 0; }
+  .tag-sidebar-list .nav-link {
+    box-sizing: border-box;
+    width: calc(100% - 2px);
+    max-width: 100%;
+    padding: .48rem 1.25rem .48rem .95rem;
+    font-size: .88rem;
+    line-height: 1.2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .6rem;
+    border-radius: .55rem;
+    margin: 0 0 .22rem 0;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.10);
+    transition: background .15s ease, transform .12s ease;
+  }
+  .tag-sidebar-list .nav-link:hover {
+    background: rgba(255,255,255,0.12);
+    transform: translateX(2px);
+  }
+  .tag-sidebar-list .nav-link .chev {
+    opacity: .75;
+    font-size: .8rem;
+  }
+  .tag-sidebar-list .nav-link .name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    width: 100%;
+  }
+  .tag-sidebar-list .nav-link .name .ico {
+    opacity: .8;
+    font-size: .85rem;
+  }
+</style>
 </head>
 
 <body id="page-top">
@@ -89,6 +138,28 @@
         </li>
 
         <hr class="sidebar-divider d-none d-md-block">
+<div class="tag-sidebar-heading">카테고리</div>
+<ul class="tag-sidebar-list">
+  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=182, tagName='인문')}"><span class="name"><i class="fas fa-tag ico"></i>인문</span><i class="fas fa-angle-right chev"></i></a></li>
+  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=36, tagName='역사')}"><span class="name"><i class="fas fa-tag ico"></i>역사</span><i class="fas fa-angle-right chev"></i></a></li>
+  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=39, tagName='예술/대중문화')}"><span class="name"><i class="fas fa-tag ico"></i>예술/대중문화</span><i class="fas fa-angle-right chev"></i></a></li>
+  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=226, tagName='에세이')}"><span class="name"><i class="fas fa-tag ico"></i>에세이</span><i class="fas fa-angle-right chev"></i></a></li>
+  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=70, tagName='종교/역학')}"><span class="name"><i class="fas fa-tag ico"></i>종교/역학</span><i class="fas fa-angle-right chev"></i></a></li>
+  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=427, tagName='과학')}"><span class="name"><i class="fas fa-tag ico"></i>과학</span><i class="fas fa-angle-right chev"></i></a></li>
+  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=188, tagName='경제/경영')}"><span class="name"><i class="fas fa-tag ico"></i>경제/경영</span><i class="fas fa-angle-right chev"></i></a></li>
+  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=119, tagName='자기계발')}"><span class="name"><i class="fas fa-tag ico"></i>자기계발</span><i class="fas fa-angle-right chev"></i></a></li>
+  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=244, tagName='만화')}"><span class="name"><i class="fas fa-tag ico"></i>만화</span><i class="fas fa-angle-right chev"></i></a></li>
+  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=103, tagName='라이트 노벨')}"><span class="name"><i class="fas fa-tag ico"></i>라이트 노벨</span><i class="fas fa-angle-right chev"></i></a></li>
+  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=107, tagName='여행')}"><span class="name"><i class="fas fa-tag ico"></i>여행</span><i class="fas fa-angle-right chev"></i></a></li>
+  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=1384, tagName='잡지')}"><span class="name"><i class="fas fa-tag ico"></i>잡지</span><i class="fas fa-angle-right chev"></i></a></li>
+  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=284, tagName='어린이')}"><span class="name"><i class="fas fa-tag ico"></i>어린이</span><i class="fas fa-angle-right chev"></i></a></li>
+  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=200, tagName='청소년')}"><span class="name"><i class="fas fa-tag ico"></i>청소년</span><i class="fas fa-angle-right chev"></i></a></li>
+  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=176, tagName='요리/살림')}"><span class="name"><i class="fas fa-tag ico"></i>요리/살림</span><i class="fas fa-angle-right chev"></i></a></li>
+  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=2696, tagName='육아')}"><span class="name"><i class="fas fa-tag ico"></i>육아</span><i class="fas fa-angle-right chev"></i></a></li>
+  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=136, tagName='건강/취미')}"><span class="name"><i class="fas fa-tag ico"></i>건강/취미</span><i class="fas fa-angle-right chev"></i></a></li>
+  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=14, tagName='컴퓨터/모바일')}"><span class="name"><i class="fas fa-tag ico"></i>컴퓨터/모바일</span><i class="fas fa-angle-right chev"></i></a></li>
+  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=97, tagName='수험서/자격증')}"><span class="name"><i class="fas fa-tag ico"></i>수험서/자격증</span><i class="fas fa-angle-right chev"></i></a></li>
+</ul>
 
         <div class="text-center d-none d-md-inline">
             <button class="rounded-circle border-0" id="sidebarToggle"></button>

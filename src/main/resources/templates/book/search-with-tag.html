@@ -480,29 +480,54 @@
 
         <!-- 페이징: tags/mode 유지 -->
         <nav th:if="${totalPages != null and totalPages > 1}" class="mt-3 pb-5">
-            <ul class="pagination justify-content-center">
+            <ul class="pagination justify-content-center"
+                th:with="blockSize=${T(java.lang.Integer).valueOf(10)},
+                         p=${T(java.lang.Integer).valueOf(page)},
+                         hasContent=${!#lists.isEmpty(books)},
+                         computedLast=${T(java.lang.Integer).valueOf(totalPages - 1)},
+                         effectiveLast=${hasContent ? computedLast : (p - 1)},
+                         lastIndex=${effectiveLast < 0 ? 0 : effectiveLast},
+                         start=${p - (p % blockSize)}">
 
+                <!-- 맨앞 -->
                 <li class="page-item" th:classappend="${page == 0} ? ' disabled'">
-                    <a class="page-link" href="javascript:void(0)" th:attr="onclick=|goPage(${page-1})|">
-                        이전
+                    <a class="page-link" href="javascript:void(0)" th:attr="onclick=|goPage(0)|" aria-label="First">
+                        <i class="fas fa-angle-double-left"></i>
                     </a>
                 </li>
 
-                <li class="page-item"
-                    th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-                    th:classappend="${i == page} ? ' active'">
-                    <a class="page-link" href="javascript:void(0)"
-                       th:text="${i + 1}"
-                       th:attr="onclick=|goPage(${i})|">
+                <!-- 이전 블록 (start-1) -->
+                <li class="page-item" th:classappend="${start == 0} ? ' disabled'">
+                    <a class="page-link" href="javascript:void(0)" th:attr="onclick=|goPage(${start - 1})|" aria-label="Prev block">
+                        <i class="fas fa-angle-left"></i>
                     </a>
                 </li>
 
-                <li class="page-item" th:classappend="${page + 1 >= totalPages} ? ' disabled'">
-                    <a class="page-link" href="javascript:void(0)" th:attr="onclick=|goPage(${page+1})|">
-                        다음
+                <!-- 현재 블록(최대 10개) -->
+                <th:block th:if="${start <= lastIndex}"
+                          th:with="end=${(lastIndex < (start + blockSize - 1)) ? lastIndex : (start + blockSize - 1)}">
+                    <li class="page-item"
+                        th:each="i : ${#numbers.sequence(start, end)}"
+                        th:classappend="${i == page} ? ' active'">
+                        <a class="page-link" href="javascript:void(0)"
+                           th:text="${i + 1}"
+                           th:attr="onclick=|goPage(${i})|"></a>
+                    </li>
+                </th:block>
+
+                <!-- 다음 블록 (start+blockSize) -->
+                <li class="page-item" th:classappend="${start + blockSize > lastIndex} ? ' disabled'">
+                    <a class="page-link" href="javascript:void(0)" th:attr="onclick=|goPage(${start + blockSize})|" aria-label="Next block">
+                        <i class="fas fa-angle-right"></i>
                     </a>
                 </li>
 
+                <!-- 맨뒤 -->
+                <li class="page-item" th:classappend="${page >= lastIndex} ? ' disabled'">
+                    <a class="page-link" href="javascript:void(0)" th:attr="onclick=|goPage(${lastIndex})|" aria-label="Last">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                </li>
             </ul>
         </nav>
 

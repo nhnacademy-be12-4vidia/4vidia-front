@@ -1,13 +1,13 @@
 package com.nhnacademy._vidiafront.book.client;
 
-import com.nhnacademy._vidiafront.book.dto.books.request.BookBestRequest;
 import com.nhnacademy._vidiafront.book.dto.books.request.BookSearchRequest;
+import com.nhnacademy._vidiafront.book.dto.books.request.BookSearchWithTagRequest;
 import com.nhnacademy._vidiafront.book.dto.books.response.AiBookSearchResponse;
 import com.nhnacademy._vidiafront.book.dto.books.response.BookDetailWithReviewResponse;
 import com.nhnacademy._vidiafront.book.dto.books.response.BookListResponse;
 import com.nhnacademy._vidiafront.book.dto.books.response.SearchBooksResponse;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
-import com.nhnacademy._vidiafront.global.dto.PageResponse;
+
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,22 +30,45 @@ public class BookApiClient {
 
     public SearchBooksResponse searchBooks(BookSearchRequest request, int page, int size) {
 
-        String url = buildSearchUrl(BOOK_SERVICE + "/books/search", request, page, size);
+        String uri = buildSearchUrl(BOOK_SERVICE + "/books/search", request, page, size);
 
         return backendApiClient.get(
-            url,
+            uri,
             SearchBooksResponse.class
         );
     }
 
     public AiBookSearchResponse searchBooksWithLlm(BookSearchRequest request, int page, int size) {
 
-        String url = buildSearchUrl(BOOK_SERVICE + "/books/search/ai", request, page, size);
+        String uri = buildSearchUrl(BOOK_SERVICE + "/books/search/ai", request, page, size);
 
         return backendApiClient.get(
-            url,
+                uri,
             AiBookSearchResponse.class
         );
+    }
+
+    public SearchBooksResponse searchBooksWithTags(BookSearchWithTagRequest request, int page, int size) {
+
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromPath(BOOK_SERVICE + "/books/search/tags")
+                .queryParam("page", page)
+                .queryParam("size", size);
+
+        if (request != null && request.tagNameList() != null) {
+            for (String tag : request.tagNameList()) {
+                if (tag == null || tag.isBlank()) continue;
+                builder.queryParam("tagNameList", tag.trim());
+            }
+        }
+
+        if (request != null && request.mode() != null) {
+            builder.queryParam("mode", request.mode());
+        }
+
+        String uri = builder.toUriString();
+
+        return backendApiClient.get(uri, SearchBooksResponse.class);
     }
 
     public BookDetailWithReviewResponse bookDetails(Long bookId) {

@@ -386,7 +386,7 @@
                             <a class="badge badge-pill badge-secondary book-tag-badge"
                                th:each="tag : ${book.tags}"
                                th:text="${tag}"
-                               th:href="@{/books/search(keyword=${tag})}">
+                               th:href="@{/books/search/tags(tagNameList=${tag}, mode='OR')}">
                                 태그
                             </a>
                         </div>

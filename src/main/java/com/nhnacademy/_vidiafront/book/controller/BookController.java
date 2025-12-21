@@ -1,10 +1,11 @@
 package com.nhnacademy._vidiafront.book.controller;
 
 import com.nhnacademy._vidiafront.book.client.BookApiClient;
-import com.nhnacademy._vidiafront.book.dto.books.gemini.GeminiBookSuggestion;
+import com.nhnacademy._vidiafront.book.client.ReviewApiClient;
 import com.nhnacademy._vidiafront.book.dto.books.request.BookSearchRequest;
 import com.nhnacademy._vidiafront.book.dto.books.request.BookSearchWithTagRequest;
 import com.nhnacademy._vidiafront.book.dto.books.response.*;
+import com.nhnacademy._vidiafront.book.dto.reviews.response.ReviewListWithSummaryResponse;
 import com.nhnacademy._vidiafront.global.dto.PageResponse;
 import java.util.List;
 
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class BookController {
 
     private final BookApiClient bookApiClient;
+    private final ReviewApiClient reviewApiClient;
 
     /**
      * 도서 검색
@@ -131,13 +133,18 @@ public class BookController {
 //    }
 
     @GetMapping("/{bookId:\\d+}")
-    public String bookDetails(@PathVariable Long bookId, Model model) {
+    public String bookDetails(@PathVariable Long bookId,
+                              @RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "20") int size,
+                              Model model) {
 
-        BookDetailWithReviewResponse dto = bookApiClient.bookDetails(bookId);
-        model.addAttribute("book", dto.book());
-        model.addAttribute("reviewPage", dto.reviews());
-        model.addAttribute("reviews", dto.reviews().content());
-        model.addAttribute("reviewSummary", dto.reviewSummary());
+        BookDetailResponse bookDetailResponse = bookApiClient.bookDetails(bookId);
+        ReviewListWithSummaryResponse reviewListWithSummary = reviewApiClient.getReviewsWithSummary(bookId, page, size);
+
+        model.addAttribute("book", bookDetailResponse);
+        model.addAttribute("reviewPage", reviewListWithSummary.reviews());
+        model.addAttribute("reviews", reviewListWithSummary.reviews().content());
+        model.addAttribute("reviewSummary", reviewListWithSummary.reviewSummary());
 
         return "book/detailView";
 

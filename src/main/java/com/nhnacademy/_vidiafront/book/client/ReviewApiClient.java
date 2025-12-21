@@ -1,16 +1,19 @@
 package com.nhnacademy._vidiafront.book.client;
 
 import com.nhnacademy._vidiafront.book.dto.reviews.request.ReviewCreateRequest;
+import com.nhnacademy._vidiafront.book.dto.reviews.response.ReviewListWithSummaryResponse;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 @RequiredArgsConstructor
@@ -46,5 +49,14 @@ public class ReviewApiClient {
         String uri = BOOK_SERVICE + "/books/" + request.bookId() + "/reviews";
 
         return backendApiClient.postMultipartFile(uri, parts, String.class);
+    }
+
+    public ReviewListWithSummaryResponse getReviewsWithSummary(Long bookId, int page, int size) {
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder
+                .fromPath(BOOK_SERVICE + "/books/" + bookId + "/reviews")
+                .queryParam("page", page)
+                .queryParam("size", size);
+
+        return backendApiClient.get(uriBuilder.toUriString(), ReviewListWithSummaryResponse.class);
     }
 }

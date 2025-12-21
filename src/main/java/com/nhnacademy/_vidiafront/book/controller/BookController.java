@@ -147,6 +147,23 @@ public class BookController {
         model.addAttribute("reviewSummary", reviewListWithSummary.reviewSummary());
 
         return "book/detailView";
+    }
 
+    @GetMapping("/search/tags/{tag-id}")
+    public String searchBooksWithSpecificTagId(@PathVariable(name = "tag-id") Long tagId,
+                                             @RequestParam(required = false, name = "tagName") String tagName,
+                                             @RequestParam(defaultValue = "0") int page,
+                                             @RequestParam(defaultValue = "20") int size,
+                                             Model model) {
+        PageResponse<BookListResponse> pageResult = bookApiClient.searchBooksWithSpecificTagId(tagId, page, size);
+
+        model.addAttribute("books", pageResult.content());
+        model.addAttribute("page", pageResult.page());
+        model.addAttribute("size", pageResult.size());
+        model.addAttribute("totalPages", pageResult.totalPages());
+        model.addAttribute("totalElements", pageResult.totalElements());
+        model.addAttribute("tagName", tagName);
+
+        return "book/search-by-tag";
     }
 }

@@ -8,6 +8,8 @@ import java.util.List;
 
 public record AdminIsbnSearchResponse(
 
+        boolean found,
+
         String coverImageUrl,
         String title,
         String subtitle,
@@ -22,7 +24,7 @@ public record AdminIsbnSearchResponse(
         String categoryCode,
 
         Integer priceStandard,
-        //Integer stock,
+        Integer stock,
         //Boolean packagingAvailable,
 
         String description,

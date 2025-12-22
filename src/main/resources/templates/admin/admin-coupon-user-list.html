@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/admin-layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>유저 쿠폰 발급</title>
+
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+
+<body>
+<div layout:fragment="pageContent">
+
+    <h1 class="h3 mb-4 text-gray-800">유저 쿠폰 발급</h1>
+
+    <!-- =========================
+         발급 가능한 쿠폰 목록
+    ========================== -->
+    <div th:if="${user != null}">
+
+        <h5 class="mb-3">
+            대상 유저 :
+            <strong th:text="${user.name}"></strong>
+            (<span th:text="${user.email}"></span>)
+        </h5>
+
+        <div class="table-responsive">
+            <table class="table table-bordered text-center align-middle">
+                <thead class="table-light">
+                <tr>
+                    <th>정책명</th>
+                    <th>정책타입</th>
+                    <th>할인</th>
+                    <th>발급</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="p : ${issuablePolicies}">
+                    <td th:text="${p.policyName}"></td>
+                    <td>
+                        <span class="badge bg-info"
+                              th:text="${p.policyType}"></span>
+                    </td>
+                    <td>
+                        <span th:if="${p.discountType == 'PRICE'}"
+                              th:text="${p.discountValue} + '원'"></span>
+                        <span th:if="${p.discountType == 'RATE'}"
+                              th:text="${p.discountValue} + '%'"></span>
+                    </td>
+                    <td>
+                        <!-- 재고 제한 쿠폰 -->
+                        <button th:if="${p.issueStatus != '무제한'}"
+                                class="btn btn-sm btn-primary"
+                                th:onclick="|issueLimited(${p.policyId})|">
+                            발급
+                        </button>
+
+                        <!-- 무제한 쿠폰 -->
+                        <button th:if="${p.issueStatus == '무제한'}"
+                                class="btn btn-sm btn-success"
+                                th:onclick="|issueEvent(${p.policyId})|">
+                            이벤트 발급
+                        </button>
+
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(issuablePolicies)}">
+                    <td colspan="4" class="text-muted">
+                        발급 가능한 쿠폰이 없습니다.
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</div>
+
+<th:block layout:fragment="pageScript">
+    <script>
+        const userId = [[${user != null ? user.userId : 'null'}]];
+
+        const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+        function issueLimited(policyId) {
+            fetch(`/admin/users/coupons/${userId}/coupons/${policyId}/issue`, {
+                method: "POST",
+                headers: {
+                    [csrfHeader]: csrfToken
+                }
+            }).then(handle);
+        }
+
+        function issueEvent(policyId) {
+            fetch(`/admin/users/coupons/${userId}/coupons/${policyId}/event-issue`, {
+                method: "POST",
+                headers: {
+                    [csrfHeader]: csrfToken
+                }
+            }).then(handle);
+        }
+
+        function handle(res) {
+            if (!res.ok) {
+                return res.text().then(t => { throw t; });
+            }
+            alert("쿠폰 발급 완료");
+            location.reload();
+        }
+    </script>
+</th:block>
+
+
+
+</body>
+</html>

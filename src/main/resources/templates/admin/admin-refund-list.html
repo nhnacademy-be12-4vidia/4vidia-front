@@ -42,7 +42,6 @@
             font-size: 0.75rem;
             display: inline-block;
         }
-        /* 너 원본은 PROCESS/ACCEPT/REJECT 탭을 쓰고 있어서 그 기준으로 색 지정 */
         .status-PROCESS { background: #f0ad4e; color: #fff; } /* 신청 */
         .status-APPROVED { background: #198754; color: #fff; } /* 승인 */
         .status-REJECTED  { background: #dc3545; color: #fff; } /* 거절 */
@@ -175,10 +174,14 @@
                     </td>
 
                     <td>
-                        <button type="button"
-                                class="btn btn-sm btn-outline-primary btn-view-detail"
-                                th:attr="data-refund-id=${r.refundId}">
-                        </button>
+                        <a th:href="@{/admin/refunds/{refundId}(refundId=${r.refundId},
+                                page=${refundsPage.page},
+                                size=${refundsPage.size},
+                                keyword=${keyword},
+                                refundStatus=${status})}"
+                           class="btn btn-outline-secondary btn-sm">
+                            상세
+                        </a>
                     </td>
                 </tr>
                 </tbody>

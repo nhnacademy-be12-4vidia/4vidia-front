@@ -8,7 +8,6 @@ import com.nhnacademy._vidiafront.refund.dto.request.RefundItemUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Component

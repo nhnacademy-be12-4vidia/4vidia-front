@@ -50,7 +50,6 @@ public class AdminDeliveryApiClient {
 
     /**
      * 배송 시작
-     * 여기서는 POST로 호출(백엔드에 맞춰 PUT/PATCH로 바꿔도 됨)
      */
     public void startDelivery(Long orderId) {
         String url = ORDER_SERVICE + "/admin/deliveries/" + orderId + "/start-delivery";

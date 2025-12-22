@@ -1,5 +1,6 @@
 package com.nhnacademy._vidiafront.coupon.dto;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record CouponPolicyDto(
@@ -12,8 +13,8 @@ public record CouponPolicyDto(
         String discountTargetType,
         String validityType,
         Integer validDays,
-        LocalDateTime startDate,
-        LocalDateTime endDate,
+        LocalDate startDate,
+        LocalDate endDate,
         Boolean isActivation,
         String issueStatus
 ) {}

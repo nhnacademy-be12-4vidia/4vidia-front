@@ -182,6 +182,12 @@
                                class="btn btn-outline-secondary btn-sm">
                                 상세
                             </a>
+
+                            <!-- 🔥 쿠폰 발급 버튼 -->
+                            <a th:href="@{/admin/users/coupons/{id}(id=${user.userId()})}"
+                               class="btn btn-success btn-sm">
+                                쿠폰 발급
+                            </a>
                         </td>
 
                     </tr>

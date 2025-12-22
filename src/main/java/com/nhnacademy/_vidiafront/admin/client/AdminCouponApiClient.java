@@ -73,13 +73,29 @@ public class AdminCouponApiClient {
         );
     }
 
-    // 유저에게 쿠폰 발급
+    // 유저에게 재고제한 쿠폰 발급
     public void issueCouponToUser(Long userId, Long policyId) {
         backendApiClient.postNoBody(
                 COUPON_SERVICE+"/admin/users/" + userId + "/coupons/" + policyId + "/issue",
                 Void.class
         );
     }
+
+    // 유저에게 무제한쿠폰발급
+    public void issueEventCouponToUser(Long  userId, Long policyId) {
+        backendApiClient.postNoBody(
+                COUPON_SERVICE+"/admin/users/"+userId+"/coupons/"+policyId + "/issue-event",
+                Void.class
+        );
+    }
+
+    public List<CouponPolicyDto> getIssuablePolicies(Long userId) {
+        return backendApiClient.get(
+                COUPON_SERVICE + "/admin/users/" + userId + "/coupons/issuable-policies",
+                new ParameterizedTypeReference<>() {}
+        );
+    }
+
 
 
 

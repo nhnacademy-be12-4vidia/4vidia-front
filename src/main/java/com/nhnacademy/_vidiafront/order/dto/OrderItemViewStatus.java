@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum OrderItemViewStatus {
-    ORDERED("구매 확정 전", "text-secondary bg-secondary-light", "fa-hourglass-half"),
+    UNCONFIRMED("구매 확정 전", "text-secondary bg-secondary-light", "fa-hourglass-half"),
     CONFIRMED("구매 확정", "text-success bg-success-light", "fa-check-circle"),
     REFUND_REQUESTED("반품 요청 중", "text-warning bg-warning-light", "fa-undo"),
     REFUNDED("반품 완료", "text-danger bg-danger-light", "fa-ban"),

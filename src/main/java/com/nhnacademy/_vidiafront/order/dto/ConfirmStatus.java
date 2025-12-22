@@ -7,9 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ConfirmStatus {
     UNCONFIRMED(0, "구매 확정 전", "text-secondary bg-secondary-light", "fa-hourglass-half"),
-    CONFIRMED(1, "구매 확정", "text-success bg-success-light", "fa-check-circle"),
-    REFUND_REQUEST(2, "반품 요청 중", "text-warning bg-warning-light", "fa-undo"),
-    REFUNDED(3, "반품 완료", "text-danger bg-danger-light", "fa-ban");
+    CONFIRMED(1, "구매 확정", "text-success bg-success-light", "fa-check-circle");
 
     private final int code;
     private final String description;

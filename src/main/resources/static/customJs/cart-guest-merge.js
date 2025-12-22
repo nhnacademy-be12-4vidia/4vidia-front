@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
     fetch('/cart/guest/status', {
         method: 'GET',
         credentials: 'same-origin',
-        headers: csrfToken
+        headers: {"X-XSRF-TOKEN": csrfToken}
     })
         .then(function (res) {
             if (!res.ok) {

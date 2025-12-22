@@ -44,8 +44,8 @@
         }
         /* 너 원본은 PROCESS/ACCEPT/REJECT 탭을 쓰고 있어서 그 기준으로 색 지정 */
         .status-PROCESS { background: #f0ad4e; color: #fff; } /* 신청 */
-        .status-ACCEPT  { background: #198754; color: #fff; } /* 승인 */
-        .status-REJECT  { background: #dc3545; color: #fff; } /* 거절 */
+        .status-APPROVED { background: #198754; color: #fff; } /* 승인 */
+        .status-REJECTED  { background: #dc3545; color: #fff; } /* 거절 */
 
         .nav-tabs .nav-link { font-size: 0.9rem; }
     </style>
@@ -66,14 +66,14 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" th:classappend="${status == 'ACCEPT'} ? ' active'"
-               th:href="@{/admin/refunds(refundStatus='ACCEPT', page=0, size=${refundsPage.size}, keyword=${keyword})}">
+            <a class="nav-link" th:classappend="${status == 'APPROVED'} ? ' active'"
+               th:href="@{/admin/refunds(refundStatus='APPROVED', page=0, size=${refundsPage.size}, keyword=${keyword})}">
                 승인
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" th:classappend="${status == 'REJECT'} ? ' active'"
-               th:href="@{/admin/refunds(refundStatus='REJECT', page=0, size=${refundsPage.size}, keyword=${keyword})}">
+            <a class="nav-link" th:classappend="${status == 'REJECTED'} ? ' active'"
+               th:href="@{/admin/refunds(refundStatus='REJECTED', page=0, size=${refundsPage.size}, keyword=${keyword})}">
                 거절
             </a>
         </li>
@@ -178,7 +178,6 @@
                         <button type="button"
                                 class="btn btn-sm btn-outline-primary btn-view-detail"
                                 th:attr="data-refund-id=${r.refundId}">
-                            상세보기
                         </button>
                     </td>
                 </tr>
@@ -203,6 +202,7 @@
             <li class="page-item" th:classappend="${currentPage == 0} ? ' disabled'">
                 <a class="page-link"
                    th:href="@{/admin/refunds(
+                        refundStatus=${status},
                         refundStatus=${status},
                         keyword=${keyword},
                         page=${currentPage - 1},
@@ -277,7 +277,7 @@
         </div>
 
     <!-- 모달 프래그먼트 포함 (그대로 유지) -->
-    <div th:replace="~{admin/admin-refund-detail::returnDetailModal}"></div>
+<!--    <div th:replace="~{admin/admin-refund-detail::returnDetailModal}"></div>-->
 
 </div>
 </body>

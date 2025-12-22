@@ -4,6 +4,7 @@ import com.nhnacademy._vidiafront.admin.dto.response.AdminRefundListResponse;
 import com.nhnacademy._vidiafront.admin.dto.response.RefundDetailResponse;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.global.dto.PageResponse;
+import com.nhnacademy._vidiafront.refund.dto.request.RefundItemUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
@@ -44,15 +45,9 @@ public class AdminRefundApiClient {
         return backendApiClient.get(url, new ParameterizedTypeReference<RefundDetailResponse>() {});
     }
 
-    public void acceptRefund(Long refundId) {
-        String url = ORDER_SERVICE + "/admin/refunds/" + refundId + "/accept";
-        backendApiClient.postNoBody(url, Void.class); // body 없으면 null
+    public void updateRefund(Long refundItemId, RefundItemUpdateRequest request) {
+        String url = ORDER_SERVICE + "/admin/refunds/" + refundItemId;
+        backendApiClient.put(url, request, Void.class); // body 없으면 null
     }
-
-    public void rejectRefund(Long refundId) {
-        String url = ORDER_SERVICE + "/admin/refunds/" + refundId + "/reject";
-        backendApiClient.postNoBody(url, Void.class);
-    }
-
 
 }

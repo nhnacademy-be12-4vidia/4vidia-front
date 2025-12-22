@@ -77,17 +77,17 @@
                     <div>반품신청</div>
                 </a>
 
-                <a th:href="@{/mypage/refund-history(status='ACCEPT')}"
-                   th:classappend="${currentStatus == 'ACCEPT' ? 'active' : ''}"
+                <a th:href="@{/mypage/refund-history(status='APPROVED')}"
+                   th:classappend="${currentStatus == 'APPROVED' ? 'active' : ''}"
                    class="status-tab">
-                    <div class="tab-count" th:text="${statusCounts['ACCEPT']}">0</div>
+                    <div class="tab-count" th:text="${statusCounts['APPROVED']}">0</div>
                     <div>반품완료</div>
                 </a>
 
-                <a th:href="@{/mypage/refund-history(status='REJECT')}"
-                   th:classappend="${currentStatus == 'REJECT' ? 'active' : ''}"
+                <a th:href="@{/mypage/refund-history(status='REJECTED')}"
+                   th:classappend="${currentStatus == 'REJECTED' ? 'active' : ''}"
                    class="status-tab">
-                    <div class="tab-count" th:text="${statusCounts['REJECT']}">0</div>
+                    <div class="tab-count" th:text="${statusCounts['REJECTED']}">0</div>
                     <div>반품거부</div>
                 </a>
             </div>

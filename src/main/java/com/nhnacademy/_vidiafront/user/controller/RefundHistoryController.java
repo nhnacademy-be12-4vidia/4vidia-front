@@ -43,8 +43,8 @@ public class RefundHistoryController {
 
         // 🔹 0 보정
         statusCounts.putIfAbsent("PROCESS", 0L);
-        statusCounts.putIfAbsent("ACCEPT", 0L);
-        statusCounts.putIfAbsent("REJECT", 0L);
+        statusCounts.putIfAbsent("APPROVED", 0L);
+        statusCounts.putIfAbsent("REJECTED", 0L);
 
         model.addAttribute("returnList", refundList);
         model.addAttribute("totalReturns", allRefunds.size());

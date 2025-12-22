@@ -23,6 +23,7 @@
         .history-item { border-bottom: 1px solid #EEE; padding: 20px 5px; }
         .text-plus { color: #05944F; font-weight: 600; }
         .text-minus { color: #CC2B2B; font-weight: 600; }
+        .text-zero { color: #343193; font-weight: 600; }
         .remain-label { opacity: 0.8; margin-top: 4px; }
     </style>
 </head>
@@ -102,12 +103,14 @@
 
                             <div th:if="${history.expiredDate != null}"
                                  class="text-muted small"
-                                 th:text="| + ${#temporals.format(history.expiredDate, 'yyyy-MM-dd')} 까지 사용 가능|"></div>
+                                 th:text="|${#temporals.format(history.expiredDate, 'yyyy-MM-dd')} 까지 사용 가능|"></div>
                         </div>
 
                         <div th:if="${history.price > 0}" class="text-plus"
                              th:text="'+' + ${history.price} + 'P'"></div>
                         <div th:if="${history.price < 0}" class="text-minus"
+                             th:text="${history.price} + 'P'"></div>
+                        <div th:if="${history.price == 0}" class="text-zero"
                              th:text="${history.price} + 'P'"></div>
                     </div>
                 </div>

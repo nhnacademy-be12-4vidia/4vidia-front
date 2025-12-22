@@ -4,11 +4,9 @@ import com.nhnacademy._vidiafront.admin.client.AdminRefundApiClient;
 import com.nhnacademy._vidiafront.admin.dto.response.AdminRefundListResponse;
 import com.nhnacademy._vidiafront.admin.dto.response.RefundDetailResponse;
 import com.nhnacademy._vidiafront.global.dto.PageResponse;
-import com.nhnacademy._vidiafront.refund.client.RefundApiClient;
 import com.nhnacademy._vidiafront.refund.dto.RefundStatus;
 import com.nhnacademy._vidiafront.refund.dto.request.RefundItemUpdateRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/admin/refunds")
 public class AdminRefundController {
     private final AdminRefundApiClient adminRefundApiClient;
-    private final RefundApiClient refundApiClient;
 
     /**
      * 관리자 반품 조회
@@ -42,13 +39,6 @@ public class AdminRefundController {
     /**
      * 반품 상세 조회
      */
-//    @GetMapping("/{refundId}")
-//    @ResponseBody
-//    public ResponseEntity<RefundDetailResponse> getRefundDetail(@PathVariable Long refundId) {
-//        RefundDetailResponse response = adminRefundApiClient.getRefundDetail(refundId);
-//        return ResponseEntity.ok(response);
-//    }
-
     @GetMapping("/{refundId}")
     public String detail(@PathVariable Long refundId,
                          @RequestParam(required = false, defaultValue = "0") Integer page,

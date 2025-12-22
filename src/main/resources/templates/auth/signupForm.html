@@ -3,72 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <title>회원가입</title>
-    <!-- 기존 CSS 및 스크립트 링크 -->
     <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
     <link href="/css/sb-admin-2.min.css" rel="stylesheet">
     <script src="/t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 
-    <!--    TODO 전체 글씨 크기 키우기 - 특히 생년월일-->
     <style>
-        /* --- [1. 레이아웃 및 정렬] --- */
-        .form-group {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 1.5rem;
-        }
-
-        /* --- [2. 라벨 디자인 및 고정] --- */
+        .form-group { display: flex; align-items: flex-start; margin-bottom: 1.5rem; }
         label {
-            font-weight: 700;
-            font-size: 1rem;
-            color: #495057;
-            display: block;
-            width: 120px;
-            flex-shrink: 0;
-            margin-right: 20px;
+            font-weight: 700; font-size: 1rem; color: #495057;
+            display: block; width: 120px; flex-shrink: 0; margin-right: 20px;
             line-height: calc(1.5em + .75rem + 2px);
         }
-
-        /* 입력 필드 및 메시지 전체를 감싸는 영역 */
-        .input-wrapper {
-            flex-grow: 1;
-        }
-
-        /* --- [3. 기타 스타일] --- */
-        .form-control-user {
-            margin-bottom: 0 !important;
-        }
-
-        .email-check-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .email-input {
-            flex: 1;
-        }
-
+        .input-wrapper { flex-grow: 1; }
+        .form-control-user { margin-bottom: 0 !important; }
+        .email-check-wrapper { display: flex; align-items: center; gap: 10px; }
+        .email-input { flex: 1; }
         .check-btn {
-            white-space: nowrap;
-            height: calc(1.5em + .75rem + 2px);
-            padding: .375rem 1rem;
-            border-radius: 10px;
+            white-space: nowrap; height: calc(1.5em + .75rem + 2px);
+            padding: .375rem 1rem; border-radius: 10px;
         }
+        .email-feedback, .form-feedback { margin-top: 6px; display: block; font-size: 0.875em; }
 
-        /* 입력 필드 바로 아래에 메시지 표시 */
-        .email-feedback, .form-feedback {
-            margin-top: 6px;
-            display: block;
-            font-size: 0.875em;
-        }
+        /* 생년월일 입력창 글씨 크기 키우기 요청 반영 */
+        input[type="date"] { font-size: 1.1rem !important; }
 
-        /* --- [4. 비활성화 버튼 스타일] --- */
         .btn-primary:disabled {
-            background-color: #8392a5 !important; /* 비활성화된 색상 (더 어둡게) */
+            background-color: #8392a5 !important;
             border-color: #8392a5 !important;
-            opacity: 0.6; /* 투명도를 낮춰 비활성화 상태 강조 */
-            cursor: not-allowed; /* 커서 변경 */
+            opacity: 0.6;
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -76,239 +39,60 @@
 <body class="bg-gradient-primary">
 <div class="container">
     <div class="card o-hidden border-0 shadow-lg my-5">
-        <div class="card o-hidden border-0  mt-5 mb-5">
-        <div class="row">
+        <div class="card o-hidden border-0 mt-5 mb-5">
+            <div class="row">
                 <div class="col-lg-7 mx-auto">
                     <div class="p-5">
                         <h1 class="h4 text-gray-900 mb-4">회원가입</h1>
 
-                        <form class="user" th:action="@{/auth/signup}" method="post" onsubmit="validateForm(event)">
+                        <form class="user" th:action="@{/auth/signup}" method="post" onsubmit="return validateForm(event)">
 
-                            <!-- 이름 필드 -->
                             <div class="form-group">
                                 <label for="name">이름</label>
                                 <div class="input-wrapper">
-                                    <input type="text" id="name" name="name"
-                                           class="form-control form-control-user"
-                                           placeholder="이름"
-                                           required
-                                           oninput="updateSignupButtonState()">
+                                    <input type="text" id="name" name="name" class="form-control form-control-user" placeholder="이름" required oninput="updateSignupButtonState()">
                                 </div>
                             </div>
 
-                            <!-- 전화번호 필드 -->
                             <div class="form-group">
                                 <label for="phone">전화번호</label>
                                 <div class="input-wrapper">
-                                    <input type="tel" id="phone" name="phone"
-                                           class="form-control form-control-user"
-                                           placeholder="전화번호"
-                                           pattern="01[016789][0-9]{7,8}"
-                                           title="숫자만 입력해주세요. 예: 01012345678"
-                                           required
-                                           oninput="updateSignupButtonState()">
+                                    <input type="tel" id="phone" name="phone" class="form-control form-control-user" placeholder="전화번호" pattern="01[016789][0-9]{7,8}" required oninput="updateSignupButtonState()">
                                 </div>
                             </div>
 
-                            <script>
-                                let emailValid = false;  // 이메일 중복확인 여부 저장
-
-                                /*
-                                 * 회원가입 버튼 상태를 업데이트하는 핵심 함수
-                                 * 모든 필수 입력 필드가 채워지고, 이메일 중복확인이 완료되었는지 확인
-                                 */
-                                function updateSignupButtonState() {
-                                    const requiredInputs = [
-                                        document.getElementById('name'),
-                                        document.getElementById('phone'),
-                                        document.getElementById('email'),
-                                        document.getElementById('password'),
-                                        document.getElementById('birthDate'),
-                                        document.getElementById('birthFeedback'),
-                                        document.getElementById('signupButton')
-                                    ];
-                                    const signupButton = document.getElementById('signupButton');
-
-                                    // 1. 모든 필수 필드가 비어있지 않은지 확인
-                                    const allFieldsFilled = requiredInputs.every(input => input && input.value.trim() !== '');
-
-                                    // 2. 이메일 중복 확인이 '사용 가능' 상태인지 확인
-                                    // 3. 비밀번호 패턴 유효성 검사 (브라우저 기본 패턴 검사)
-                                    const isPasswordValid = document.getElementById('password').checkValidity();
-
-                                    //TODO 비밀번호 검사해서 조건 안되면 화면에 알려주기
-
-                                    const isBirthValid = validateBirthDate();
-
-                                    const canSubmit = allFieldsFilled && emailValid && isPasswordValid && isBirthValid;
-
-                                    if (signupButton) {
-                                        signupButton.disabled = !canSubmit;
-                                    }
-                                }
-                                function validateBirthDate(){
-                                    const birthInput = document.getElementById("birthDate");
-                                    const feedback = document.getElementById("birthFeedback");
-
-                                    if(!birthInput.value){
-                                        feedback.textContent = "";
-                                        return false;
-                                    }
-
-                                    const birth = new Date(birthInput.value + "T00:00:00");
-                                    const today = new Date();
-
-                                    let age = today.getFullYear() - birth.getFullYear();
-                                    const m = today.getMonth() - birth.getMonth();
-                                    if(m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-
-                                    if(age < 14){
-                                        feedback.textContent = "만 14세 이상만 가입할 수 있어요.";
-                                        feedback.style.color = "red";
-                                        return false;
-                                    }
-
-                                    feedback.textContent = "";
-                                    return true;
-                                }
-
-
-                                function checkEmail() {
-                                    const email = document.getElementById('email').value;
-                                    const feedback = document.getElementById('emailFeedback');
-
-                                    if (!email) {
-                                        feedback.textContent = "이메일을 입력해주세요.";
-                                        feedback.style.color = "red";
-                                        emailValid = false;
-                                        updateSignupButtonState(); // 상태 업데이트
-                                        return;
-                                    }
-
-                                    const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]*[A-Za-z][A-Za-z0-9.-]*\.[A-Za-z]{2,}$/;
-
-                                    if (!emailPattern.test(email)) {
-                                        feedback.textContent = "올바른 이메일 형식이 아닙니다.";
-                                        feedback.style.color = "red";
-                                        emailValid = false;
-                                        updateSignupButtonState(); // 상태 업데이트
-                                        return;
-                                    }
-
-                                    fetch(`/auth/check-email?email=${encodeURIComponent(email)}`, {
-                                        method: 'GET',
-                                        credentials: 'same-origin'
-                                    })
-                                        .then(res => {
-                                            if (!res.ok) {
-                                                throw new Error("서버 오류");
-                                            }
-                                            return res.json();
-                                        })
-                                        .then(exists => {
-                                            if (exists) {
-                                                feedback.textContent = "이미 사용 중인 이메일입니다.";
-                                                feedback.style.color = "red";
-                                                emailValid = false;
-                                            } else {
-                                                feedback.textContent = "사용 가능한 이메일입니다!";
-                                                feedback.style.color = "green";
-                                                emailValid = true;
-                                            }
-                                            updateSignupButtonState(); // 상태 업데이트
-                                        })
-                                        .catch(err => {
-                                            feedback.textContent = "서버와 통신 중 오류가 발생했습니다.";
-                                            feedback.style.color = "red";
-                                            emailValid = false;
-                                            console.error(err);
-                                            updateSignupButtonState(); // 상태 업데이트
-                                        });
-                                }
-
-                                function resetEmailValidation() {
-                                    emailValid = false;
-                                    const feedback = document.getElementById('emailFeedback');
-                                    feedback.textContent = "";
-                                    updateSignupButtonState(); // 상태 업데이트
-                                }
-
-                                // 최종 제출 시 유효성 검사 (버튼 비활성화의 fail-safe 역할)
-                                function validateForm(event) {
-                                    const okBirth = validateBirthDate();
-                                    if (!emailValid || okBirth) {
-                                        event.preventDefault();
-                                        // Custom modal 또는 시각적 메시지를 사용해야 하지만, 여기서는 임시로 콘솔에 로그
-                                        console.warn("제출 실패: 이메일 중복확인/생년월일 조건을 완료해주세요.");
-                                    }
-                                }
-
-                                // 페이지 로드 시 초기 상태 설정
-                                document.addEventListener('DOMContentLoaded', updateSignupButtonState);
-                            </script>
-
-                            <!-- 이메일 필드 -->
                             <div class="form-group">
                                 <label for="email">이메일</label>
                                 <div class="input-wrapper">
                                     <div class="email-check-wrapper">
-                                        <input type="email" id="email" name="email"
-                                               class="form-control form-control-user email-input"
-                                               placeholder="이메일(변경불가)"
-                                               required
-                                               pattern="^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]*[A-Za-z][A-Za-z0-9.-]*\.[A-Za-z]{2,}$"
-                                               oninput="resetEmailValidation(); updateSignupButtonState()">
-                                        <button type="button"
-                                                class="btn btn-secondary check-btn"
-                                                onclick="checkEmail()">중복확인</button>
+                                        <input type="email" id="email" name="email" class="form-control form-control-user email-input" placeholder="이메일" required oninput="resetEmailValidation()">
+                                        <button type="button" class="btn btn-secondary check-btn" onclick="checkEmail()">중복확인</button>
                                     </div>
                                     <small id="emailFeedback" class="email-feedback"></small>
                                 </div>
                             </div>
 
-                            <!-- 비밀번호 필드 -->
                             <div class="form-group">
                                 <label for="password">비밀번호</label>
-
                                 <div class="input-wrapper">
-                                    <input type="password"
-                                           id="password"
-                                           name="password"
-                                           class="form-control form-control-user"
-                                           placeholder="비밀번호"
-                                           required
-                                           pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,20}$"
-                                           oninput="updateSignupButtonState()">
-
-                                    <small class="text-muted" style="margin-top: 4px; display: block;">
-                                        비밀번호는 영문자, 숫자, 특수문자를 포함하여 8~20자로 입력해주세요.
-                                    </small>
+                                    <input type="password" id="password" name="password" class="form-control form-control-user" placeholder="비밀번호" required pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,20}$" oninput="updateSignupButtonState()">
+                                    <small class="text-muted" style="margin-top: 4px; display: block;">영문, 숫자, 특수문자 포함 8~20자</small>
                                 </div>
                             </div>
 
-
-                            <!-- 생년월일 필드 -->
                             <div class="form-group">
                                 <label for="birthDate">생년월일</label>
                                 <div class="input-wrapper">
-                                    <input type="date" id="birthDate" name="birthDate"
-                                           class="form-control form-control-user"
+                                    <input type="date" id="birthDate" name="birthDate" class="form-control form-control-user"
                                            min="1900-01-01"
-                                           th:max="${T(java.time.LocalDate).now()}"
-                                           required
-                                           oninput="validateBirthDate(); updateSignupButtonState()">
+                                           th:max="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"
+                                           required oninput="validateBirthDate(); updateSignupButtonState()">
                                     <small id="birthFeedback" class="form-feedback"></small>
                                 </div>
                             </div>
 
-                            <hr>
-
-                            <!-- 회원가입 버튼: ID와 초기 disabled 상태 적용 -->
-                            <button type="submit" id="signupButton" class="btn btn-primary btn-user btn-block" disabled>
-                                회원가입하기
-                            </button>
+                            <button type="submit" id="signupButton" class="btn btn-primary btn-user btn-block" disabled>회원가입하기</button>
                         </form>
-
                         <hr>
                         <a th:href="@{/auth/login}">이미 계정이 있으신가요?</a>
                     </div>
@@ -317,5 +101,115 @@
         </div>
     </div>
 </div>
+
+<script>
+    let emailValid = false;
+
+    // 1. 버튼 상태 업데이트
+    function updateSignupButtonState() {
+        const name = document.getElementById('name').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password');
+        const birthDate = document.getElementById('birthDate').value;
+
+        const isPasswordValid = password.checkValidity();
+        const isBirthValid = validateBirthDate(); // 만 14세 로직
+
+        const signupButton = document.getElementById('signupButton');
+
+        // 이메일 중복확인(emailValid)이 필수 조건에 포함됨
+        const canSubmit = name && phone && email && isPasswordValid && isBirthValid && emailValid;
+        signupButton.disabled = !canSubmit;
+    }
+
+    // 2. 이메일 중복 확인
+    function checkEmail() {
+        const email = document.getElementById('email').value;
+        const feedback = document.getElementById('emailFeedback');
+        const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]*[A-Za-z][A-Za-z0-9.-]*\.[A-Za-z]{2,}$/;
+
+        if (!emailPattern.test(email)) {
+            feedback.textContent = "올바른 이메일 형식이 아닙니다.";
+            feedback.style.color = "red";
+            return;
+        }
+
+        fetch(`/auth/check-email?email=${encodeURIComponent(email)}`)
+            .then(res => res.json())
+            .then(exists => {
+                if (exists) {
+                    feedback.textContent = "이미 사용 중인 이메일입니다.";
+                    feedback.style.color = "red";
+                    emailValid = false;
+                } else {
+                    feedback.textContent = "사용 가능한 이메일입니다!";
+                    feedback.style.color = "green";
+                    emailValid = true;
+                }
+                updateSignupButtonState();
+            })
+            .catch(() => {
+                feedback.textContent = "서버 오류가 발생했습니다.";
+                feedback.style.color = "red";
+            });
+    }
+
+    // 이메일 입력 도중에는 다시 중복확인 받도록 리셋
+    function resetEmailValidation() {
+        emailValid = false;
+        document.getElementById('emailFeedback').textContent = "중복확인을 해주세요.";
+        document.getElementById('emailFeedback').style.color = "orange";
+        updateSignupButtonState();
+    }
+
+    // 3. 생년월일(만 14세) 검증
+    function validateBirthDate() {
+        const birthInput = document.getElementById("birthDate");
+        const feedback = document.getElementById("birthFeedback");
+        if (!birthInput.value) return false;
+
+        const birth = new Date(birthInput.value);
+        const today = new Date();
+
+        // 미래 날짜 차단
+        if (birth > today) {
+            feedback.textContent = "미래 날짜는 선택할 수 없습니다.";
+            feedback.style.color = "red";
+            return false;
+        }
+
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+
+        if (age < 14) {
+            feedback.textContent = "만 14세 이상만 가입할 수 있습니다.";
+            feedback.style.color = "red";
+            return false;
+        }
+
+        feedback.textContent = "가입 가능한 나이입니다.";
+        feedback.style.color = "green";
+        return true;
+    }
+
+    // 4. 최종 폼 제출 방어 (버튼 활성화와 별개로 한 번 더 체크)
+    function validateForm(event) {
+        const isBirthValid = validateBirthDate();
+
+        if (!emailValid) {
+            alert("이메일 중복 확인을 완료해주세요.");
+            return false;
+        }
+        if (!isBirthValid) {
+            alert("생년월일을 확인해주세요 (만 14세 이상).");
+            return false;
+        }
+        return true;
+    }
+
+    document.addEventListener('DOMContentLoaded', updateSignupButtonState);
+</script>
 </body>
 </html>

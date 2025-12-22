@@ -442,25 +442,43 @@
                         }
 
                         const rows = document.querySelectorAll('.author-row');
-                        rows.forEach((row, index) => {
-                            const name = row.querySelector('input[name="authorName_temp"]').value;
-                            const role = row.querySelector('input[name="authorRole_temp"]').value;
+                        let authorIndex = 0; // 글로벌 인덱스 사용
 
-                            // 이름이 있는 경우에만 전송
-                            if (name.trim() !== '') {
-                                const inputName = document.createElement('input');
-                                inputName.type = 'hidden';
-                                inputName.name = `authorList[${index}].name`;
-                                inputName.value = name;
-                                form.appendChild(inputName);
+                        rows.forEach((row) => {
+                            const name = row.querySelector('input[name="authorName_temp"]').value.trim();
+                            const rolesRaw = row.querySelector('input[name="authorRole_temp"]').value.trim();
 
-                                const inputRole = document.createElement('input');
-                                inputRole.type = 'hidden';
-                                inputRole.name = `authorList[${index}].role`;
-                                inputRole.value = role;
-                                form.appendChild(inputRole);
+                            if (name !== '') {
+                                // 역할을 쉼표로 분리하고 공백 제거, 빈 문자열 제외
+                                const roles = rolesRaw.split(',')
+                                                      .map(r => r.trim())
+                                                      .filter(r => r.length > 0);
+                                
+                                if (roles.length === 0) {
+                                    // 역할이 없는 경우 이름만 전송 (기본값 빈 문자열)
+                                    addAuthorHidden(authorIndex++, name, '');
+                                } else {
+                                    // 각 역할마다 별도의 작가 엔트리 생성
+                                    roles.forEach(role => {
+                                        addAuthorHidden(authorIndex++, name, role);
+                                    });
+                                }
                             }
                         });
+
+                        function addAuthorHidden(idx, name, role) {
+                            const inputName = document.createElement('input');
+                            inputName.type = 'hidden';
+                            inputName.name = `authorList[${idx}].name`;
+                            inputName.value = name;
+                            form.appendChild(inputName);
+
+                            const inputRole = document.createElement('input');
+                            inputRole.type = 'hidden';
+                            inputRole.name = `authorList[${idx}].role`;
+                            inputRole.value = role;
+                            form.appendChild(inputRole);
+                        }
 
                         this.submit();
                     }

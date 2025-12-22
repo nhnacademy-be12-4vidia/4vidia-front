@@ -30,7 +30,7 @@ public record OrderPreviewResponse(
     public boolean hasUnconfirmedItems() {
         if (orderItems == null) return false;
         return orderItems.stream()
-                .anyMatch(item -> item.orderItemViewStatus() == OrderItemViewStatus.ORDERED);
+                .anyMatch(item -> item.orderItemViewStatus() == OrderItemViewStatus.UNCONFIRMED);
     }
 
     // REFUND_REQUEST 상태의 항목 (REFUND_REQUEST 상태가 아닌 항목)이 하나라도 있으면 true
@@ -45,6 +45,6 @@ public record OrderPreviewResponse(
         // ORDERED 상태인 아이템이 하나라도 있으면 true -> 버튼 보임
         // 전부 CONFIRMED, REFUND_REQUESTED, REFUNDED 상태라면 false -> 버튼 숨김
         return orderItems.stream()
-                .anyMatch(item -> item.orderItemViewStatus() == OrderItemViewStatus.ORDERED);
+                .anyMatch(item -> item.orderItemViewStatus() == OrderItemViewStatus.UNCONFIRMED);
     }
 }

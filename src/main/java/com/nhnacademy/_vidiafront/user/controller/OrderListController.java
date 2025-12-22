@@ -3,6 +3,7 @@ package com.nhnacademy._vidiafront.user.controller;
 import com.nhnacademy._vidiafront.order.client.OrderApiClient;
 import com.nhnacademy._vidiafront.order.client.OrderItemApiClient;
 import com.nhnacademy._vidiafront.order.dto.ConfirmStatus;
+import com.nhnacademy._vidiafront.order.dto.OrderItemViewStatus;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderPreviewResponse;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderResponse;
 import lombok.RequiredArgsConstructor;
@@ -81,9 +82,9 @@ public class OrderListController {
         long refundRequestCount = orders.stream()
                 .flatMap(order -> order.orderItems().stream()) // 주문 항목 리스트를 스트림으로 펼치기
                 .filter(item -> {
-                    ConfirmStatus status = item.confirmStatus();
+                    OrderItemViewStatus status = item.orderItemViewStatus();
                     // REFUND_REQUEST (반품 요청) 상태만 카운트
-                    return status != null && status == ConfirmStatus.REFUND_REQUEST;
+                    return status != null && status == OrderItemViewStatus.REFUND_REQUESTED;
                 })
                 .count();
 
@@ -94,7 +95,7 @@ public class OrderListController {
         counts.putIfAbsent("CANCELED", 0L);
 
         // UI 전용 필드 업데이트
-        counts.put("CANCELED", counts.get("CANCELED"));
+//        counts.put("CANCELED", counts.get("CANCELED"));
         counts.put("REFUND_REQUEST", refundRequestCount);
         return counts;
     }
@@ -112,9 +113,9 @@ public class OrderListController {
         if ("REFUND_REQUEST".equals(filter)) {
             return allOrders.stream()
                     .filter(order -> order.orderItems().stream().anyMatch(item -> {
-                        ConfirmStatus itemStatus = item.confirmStatus();
+                        OrderItemViewStatus itemStatus = item.orderItemViewStatus();
                         // REFUND_REQUEST 상태만 필터링
-                        return itemStatus != null && itemStatus == ConfirmStatus.REFUND_REQUEST;
+                        return itemStatus != null && itemStatus == OrderItemViewStatus.REFUND_REQUESTED;
                     }))
                     .collect(Collectors.toList());
         }

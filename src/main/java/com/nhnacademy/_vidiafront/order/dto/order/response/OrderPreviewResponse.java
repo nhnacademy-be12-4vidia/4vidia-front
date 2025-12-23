@@ -1,6 +1,5 @@
 package com.nhnacademy._vidiafront.order.dto.order.response;
 
-import com.nhnacademy._vidiafront.order.dto.ConfirmStatus;
 import com.nhnacademy._vidiafront.order.dto.DeliveryStatus;
 import com.nhnacademy._vidiafront.order.dto.OrderItemViewStatus;
 

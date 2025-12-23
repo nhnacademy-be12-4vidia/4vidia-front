@@ -1,7 +1,7 @@
 package com.nhnacademy._vidiafront.user.controller;
 
 import com.nhnacademy._vidiafront.refund.client.RefundApiClient;
-import com.nhnacademy._vidiafront.refund.dto.response.RefundHistoryResponse;
+import com.nhnacademy._vidiafront.refund.dto.response.RefundHistoryGroupResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -25,26 +25,30 @@ public class RefundHistoryController {
             @RequestParam(required = false) String status,
             Model model
     ) {
-        String requestStatus = "ALL".equals(status) ? null : status;
+        // 1. 딱 한 번만 호출해서 모든 데이터를 가져옵니다.
+        List<RefundHistoryGroupResponse> allRefunds = refundApiClient.refundHistory(null);
 
-        // 🔹 전체 (탭 카운트용)
-        List<RefundHistoryResponse> allRefunds =
-                refundApiClient.refundHistory(null);
-
-        // 🔹 선택 상태 리스트 (목록용)
-        List<RefundHistoryResponse> refundList =
-                refundApiClient.refundHistory(requestStatus);
-
+        // 2. 전체 리스트를 이용해 상태별 카운트를 계산합니다. (메모리 연산)
         Map<String, Long> statusCounts = allRefunds.stream()
                 .collect(Collectors.groupingBy(
-                        RefundHistoryResponse::returnStatus,
+                        RefundHistoryGroupResponse::refundStatus, // Enum일 경우 name() 호출
                         Collectors.counting()
                 ));
 
-        // 🔹 0 보정
+        // 기본값 설정
         statusCounts.putIfAbsent("PROCESS", 0L);
         statusCounts.putIfAbsent("APPROVED", 0L);
         statusCounts.putIfAbsent("REJECTED", 0L);
+
+        // 3. 필터링 로직: 선택된 상태가 있으면 필터링하고, 없거나 "ALL"이면 전체를 사용합니다.
+        List<RefundHistoryGroupResponse> refundList;
+        if (status == null || "ALL".equals(status)) {
+            refundList = allRefunds;
+        } else {
+            refundList = allRefunds.stream()
+                    .filter(r -> status.equals(r.refundStatus()))
+                    .toList();
+        }
 
         model.addAttribute("returnList", refundList);
         model.addAttribute("totalReturns", allRefunds.size());

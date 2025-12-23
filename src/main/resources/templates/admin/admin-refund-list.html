@@ -67,13 +67,7 @@
         <li class="nav-item">
             <a class="nav-link" th:classappend="${status == 'APPROVED'} ? ' active'"
                th:href="@{/admin/refunds(refundStatus='APPROVED', page=0, size=${refundsPage.size}, keyword=${keyword})}">
-                승인
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" th:classappend="${status == 'REJECTED'} ? ' active'"
-               th:href="@{/admin/refunds(refundStatus='REJECTED', page=0, size=${refundsPage.size}, keyword=${keyword})}">
-                거절
+                처리완료
             </a>
         </li>
     </ul>

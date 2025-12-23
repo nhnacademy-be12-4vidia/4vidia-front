@@ -90,9 +90,7 @@
         /**
          * CSRF 토큰 가져오기 (Spring Security 설정에 따라 메타 태그 등에서 가져와야 함)
          */
-        function getCsrfToken() {
-            return $("meta[name='_csrf']").attr("content");
-        }
+
 
         $(document).ready(function () {
             // '전체 구매 확정' 버튼 클릭 이벤트 핸들러
@@ -102,16 +100,16 @@
                 const $this = $(this);
                 const orderId = $this.data('order-id');
 
-                // 해당 주문의 모든 미확정(ORDERED) 주문 항목 ID와 Book ID를 찾습니다.
+                // 해당 주문의 미확정(UNCONFIRMED) 및 반품거절(REFUND_REJECTED) 주문 항목 ID와 Book ID를 찾습니다.
                 const itemsToConfirm = [];
                 $this.closest('.bg-white').find('.order-item-row').each(function() {
                     const $row = $(this);
                     const orderItemId = $row.data('order-item-id');
                     const bookId = $row.data('book-id');
-                    const status = $row.data('status'); // [변경] confirmStatus -> status
+                    const status = $row.data('status');
 
-                    // [변경] UNCONFIRMED -> ORDERED (구매 확정 전 상태)
-                    if (status === 'UNCONFIRMED') {
+                    // [수정] UNCONFIRMED 또는 REFUND_REJECTED 상태를 구매 확정 대상으로 포함
+                    if (status === 'UNCONFIRMED' || status === 'REFUND_REJECTED') {
                         itemsToConfirm.push({ orderItemId, bookId });
                     }
                 });
@@ -121,7 +119,7 @@
                     return;
                 }
 
-                if (confirm(`주문번호 ${orderId}의 모든 미확정 상품(${itemsToConfirm.length}개)을 구매 확정하시겠습니까? 구매 확정 시 반품/교환 신청이 불가능할 수 있습니다.`)) {
+                if (confirm(`주문번호 ${orderId}의 대상 상품(${itemsToConfirm.length}개)을 구매 확정하시겠습니까? 구매 확정 시 반품/교환 신청이 불가능할 수 있습니다.`)) {
 
                     const csrfToken = getCsrfToken();
 
@@ -370,16 +368,16 @@
                             주문 취소
                         </a>
 
-                        <a th:if="${order.deliveryStatus().name() == 'DELIVERED'
-                                    and not #lists.isEmpty(order.orderItems.?[orderItemViewStatus.name() == 'UNCONFIRMED'])}"
+                        <a th:if="${order.deliveryStatus().name() == 'DELIVERED' and order.hasItemsToConfirm()}"
                            th:href="@{/orders/{orderId}/refund(orderId=${order.orderId()})}"
                            class="btn btn-outline-secondary btn-return-request"
                            style="flex: 1;">
                             반품 신청
                         </a>
 
-
-                        <div th:if="${(order.deliveryStatus().name() == 'DELIVERED' and order.hasUnconfirmedItems() and not order.hasRefundedRequestItems())}"
+                        <div th:if="${(order.deliveryStatus().name() == 'DELIVERED'
+                                     and order.hasItemsToConfirm()
+                                     and not order.hasRefundedRequestItems())}"
                              class="d-flex align-items-center" style="flex-shrink: 0; flex: 1;">
                             <a href="#"
                                th:data-order-id="${order.orderId()}"

@@ -25,7 +25,8 @@ public class SecurityConfig {
                                 "/auth/login",
                                 "/auth/logout",
                                 "/login/oauth2/**",
-                                "/mypage/address/jusoCallback"
+                                "/mypage/address/jusoCallback",
+                                "/mypage/address"
                         ));
         http
                 .httpBasic(AbstractHttpConfigurer::disable);
@@ -43,14 +44,6 @@ public class SecurityConfig {
 
     }
 
-    @Primary
-    @Bean
-    public CookieSerializer prodCookieSerializer() {
-        DefaultCookieSerializer serializer = new DefaultCookieSerializer();
-        serializer.setSameSite("None");
-        serializer.setUseSecureCookie(true);
-        return serializer;
-    }
 
     @Bean
     @Profile({"local", "test"})

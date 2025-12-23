@@ -40,8 +40,12 @@
                         <!-- reason 섹션 (항상 보이도록 변경) -->
                         <div class="form-section">
                             <label for="reason" class="form-label fw-bold">반품 사유</label>
-                            <textarea id="reason" name="reason" class="form-control" rows="5"
-                                      placeholder="반품 사유를 작성해 주세요 (선택사항)"></textarea>
+                            <textarea id="reason"
+                                      name="reason"
+                                      class="form-control"
+                                      rows="5"
+                                      placeholder="반품 사유를 작성해 주세요 (선택사항)"
+                                      disabled></textarea>
                             <div class="form-text text-muted">파손/불량일 경우 상세히 적어주시면 처리에 도움이 됩니다.</div>
                         </div>
 
@@ -98,36 +102,61 @@
             </div>
         </div>
     </div>
+
+    <script>
+        (function(){
+            function initReturnForm() {
+                const form = document.getElementById('returnForm');
+                if (!form) return;
+
+                const reasonTextarea = document.getElementById('reason');
+                const typeSimple = document.getElementById('typeSimple');
+                const typeDamaged = document.getElementById('typeDamaged');
+
+                function updateReasonField() {
+                    if (typeDamaged.checked) {
+                        reasonTextarea.disabled = false;
+                        reasonTextarea.required = true;
+                        reasonTextarea.placeholder = '파손/불량 사유를 반드시 입력해 주세요.';
+                    } else {
+                        reasonTextarea.value = '';
+                        reasonTextarea.disabled = true;
+                        reasonTextarea.required = false;
+                        reasonTextarea.placeholder = '단순 변심은 사유 입력이 필요하지 않습니다.';
+                    }
+                }
+
+                // 초기 상태
+                updateReasonField();
+
+                // 🔥 여기 중요
+                typeSimple.addEventListener('input', updateReasonField);
+                typeDamaged.addEventListener('input', updateReasonField);
+
+                form.addEventListener('submit', function(e) {
+                    const selected = Array.from(
+                        document.querySelectorAll('input.item-checkbox')
+                    ).filter(cb => cb.checked);
+
+                    if (selected.length === 0) {
+                        e.preventDefault();
+                        alert('반품할 항목을 하나 이상 선택해 주세요.');
+                        return;
+                    }
+
+                    if (typeDamaged.checked && reasonTextarea.value.trim() === '') {
+                        e.preventDefault();
+                        alert('파손/불량 반품은 사유 입력이 필수입니다.');
+                    }
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', initReturnForm);
+        })();
+    </script>
 </div>
 
 <!-- 간단한 검증 스크립트: 최소 하나 선택했는지 확인 -->
-<script th:inline="javascript">
-    (function(){
-        function initReturnForm() {
-            const form = document.getElementById('returnForm');
-            if (!form) return;
 
-            form.addEventListener('submit', function(e) {
-                // 체크된 항목 수집 (체크박스에 name="orderItemIds"가 있으므로 hidden 생성 불필요)
-                const selected = Array.from(document.querySelectorAll('input.item-checkbox'))
-                    .filter(cb => cb.checked)
-                    .map(cb => cb.value);
-
-                if (selected.length === 0) {
-                    e.preventDefault();
-                    alert('반품할 항목을 하나 이상 선택해 주세요.');
-                    return;
-                }
-
-            });
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initReturnForm);
-        } else {
-            initReturnForm();
-        }
-    })();
-</script>
 </body>
 </html>

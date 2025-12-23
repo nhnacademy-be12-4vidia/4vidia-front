@@ -3,7 +3,7 @@ package com.nhnacademy._vidiafront.refund.client;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.refund.dto.request.RefundRequest;
 import com.nhnacademy._vidiafront.refund.dto.response.RefundResponse;
-import com.nhnacademy._vidiafront.refund.dto.response.RefundHistoryResponse;
+import com.nhnacademy._vidiafront.refund.dto.response.RefundHistoryGroupResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
@@ -33,7 +33,7 @@ public class RefundApiClient {
     /**
      * 사용자 반품 내역 조회
      */
-    public List<RefundHistoryResponse> refundHistory(String status) {
+    public List<RefundHistoryGroupResponse> refundHistory(String status) {
         if (status == null) {
             return backendApiClient.get(
                     ORDER_SERVICE + "/users/me/refunds",

@@ -4,7 +4,6 @@ import com.nhnacademy._vidiafront.admin.client.AdminRefundApiClient;
 import com.nhnacademy._vidiafront.admin.dto.response.AdminRefundListResponse;
 import com.nhnacademy._vidiafront.admin.dto.response.RefundDetailResponse;
 import com.nhnacademy._vidiafront.global.dto.PageResponse;
-import com.nhnacademy._vidiafront.refund.dto.RefundStatus;
 import com.nhnacademy._vidiafront.refund.dto.request.RefundItemUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -55,21 +54,13 @@ public class AdminRefundController {
 
 
     // 반품 승인/거절
-    @PostMapping("/admin/refunds/{refundItemId}")
+    @PostMapping("/{refundItemId}")
     public String updateRefund(@PathVariable Long refundItemId,
-                               @RequestParam RefundStatus refundStatus,
-                               @RequestParam(required = false) String rejectDetail,
+                               @ModelAttribute RefundItemUpdateRequest request,
                                @RequestParam int page) {
-
-        RefundItemUpdateRequest request =
-                new RefundItemUpdateRequest(
-                        refundStatus,
-                        rejectDetail
-                );
 
         adminRefundApiClient.updateRefund(refundItemId, request);
 
         return "redirect:/admin/refunds?page=" + page;
     }
-
 }

@@ -377,6 +377,21 @@
             useSemantic: [[${useSemantic}]]
         };
     </script>
+    <script th:inline="javascript">
+        function goPage(p) {
+            // 현재 URL의 쿼리스트링을 그대로 가져와서 page만 바꿔치기
+            const params = new URLSearchParams(window.location.search);
+
+            params.set('page', p);
+
+            // size가 없으면 현재 모델값/기본값으로 세팅
+            const sizeFromModel = /*[[${size}]]*/ 20;
+            if (!params.get('size')) params.set('size', sizeFromModel);
+
+            // /books/search 로 이동 (컨트롤러 매핑에 맞추세요)
+            window.location.href = '/books/search?' + params.toString();
+        }
+    </script>
 </head>
 
 <body>
@@ -411,7 +426,6 @@
             </div>
         </div>
 
-        <!-- ✅ AI 추천(캐시) 섹션: aiCacheResponseList가 null/empty면 아예 안 보이게 -->
         <section class="ai-suggestions"
                  th:if="${aiCacheResponseList != null and !#lists.isEmpty(aiCacheResponseList)}">
 
@@ -534,32 +548,53 @@
             </div>
         </div>
 
-        <nav th:if="${totalPages > 1}" class="mt-4 pb-5">
-            <ul class="pagination justify-content-center">
+        <nav th:if="${totalPages != null and totalPages > 1}" class="mt-3 pb-5">
+            <ul class="pagination justify-content-center"
+                th:with="blockSize=${T(java.lang.Integer).valueOf(10)},
+                         p=${T(java.lang.Integer).valueOf(page)},
+                         hasContent=${!#lists.isEmpty(books)},
+                         computedLast=${T(java.lang.Integer).valueOf(totalPages - 1)},
+                         effectiveLast=${hasContent ? computedLast : (p - 1)},
+                         lastIndex=${effectiveLast < 0 ? 0 : effectiveLast},
+                         start=${p - (p % blockSize)}">
+
+                <!-- 맨앞 -->
                 <li class="page-item" th:classappend="${page == 0} ? ' disabled'">
-                    <a class="page-link"
-                       th:href="@{/books/search(keyword=${keyword}, page=${page - 1}, size=${size}, useSemantic=${useSemantic} ? ${useSemantic} : null)}"
-                       onclick="handleDelayedRefresh(event)">
-                        이전
+                    <a class="page-link" href="javascript:void(0)" th:attr="onclick=|goPage(0)|" aria-label="First">
+                        <i class="fas fa-angle-double-left"></i>
                     </a>
                 </li>
 
-                <li class="page-item"
-                    th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-                    th:classappend="${i == page} ? ' active'">
-                    <a class="page-link"
-                       th:text="${i + 1}"
-                       th:href="@{/books/search(keyword=${keyword}, page=${i}, size=${size}, useSemantic=${useSemantic} ? ${useSemantic} : null)}"
-                       onclick="handleDelayedRefresh(event)">
+                <!-- 이전 블록 (start-1) -->
+                <li class="page-item" th:classappend="${start == 0} ? ' disabled'">
+                    <a class="page-link" href="javascript:void(0)" th:attr="onclick=|goPage(${start - 1})|" aria-label="Prev block">
+                        <i class="fas fa-angle-left"></i>
                     </a>
                 </li>
 
-                <li class="page-item"
-                    th:classappend="${page + 1 >= totalPages} ? ' disabled'">
-                    <a class="page-link"
-                       th:href="@{/books/search(keyword=${keyword}, page=${page + 1}, size=${size}, useSemantic=${useSemantic} ? ${useSemantic} : null)}"
-                       onclick="handleDelayedRefresh(event)">
-                        다음
+                <!-- 현재 블록(최대 10개) -->
+                <th:block th:if="${start <= lastIndex}"
+                          th:with="end=${(lastIndex < (start + blockSize - 1)) ? lastIndex : (start + blockSize - 1)}">
+                    <li class="page-item"
+                        th:each="i : ${#numbers.sequence(start, end)}"
+                        th:classappend="${i == page} ? ' active'">
+                        <a class="page-link" href="javascript:void(0)"
+                           th:text="${i + 1}"
+                           th:attr="onclick=|goPage(${i})|"></a>
+                    </li>
+                </th:block>
+
+                <!-- 다음 블록 (start+blockSize) -->
+                <li class="page-item" th:classappend="${start + blockSize > lastIndex} ? ' disabled'">
+                    <a class="page-link" href="javascript:void(0)" th:attr="onclick=|goPage(${start + blockSize})|" aria-label="Next block">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                </li>
+
+                <!-- 맨뒤 -->
+                <li class="page-item" th:classappend="${page >= lastIndex} ? ' disabled'">
+                    <a class="page-link" href="javascript:void(0)" th:attr="onclick=|goPage(${lastIndex})|" aria-label="Last">
+                        <i class="fas fa-angle-double-right"></i>
                     </a>
                 </li>
             </ul>

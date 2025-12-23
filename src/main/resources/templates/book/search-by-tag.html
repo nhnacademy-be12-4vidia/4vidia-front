@@ -161,6 +161,25 @@
             font-size:0.95rem;
         }
 
+        .sort-bar{
+            display:flex;
+            flex-wrap:wrap;
+            gap:14px;
+            align-items:center;
+            justify-content:flex-start;
+        }
+        .sort-btn{
+            color:#6c757d;
+            font-weight:700;
+            text-decoration:none;
+            padding:6px 2px;
+        }
+        .sort-btn:hover{ color:#2e59d9; }
+        .sort-btn.active{
+            color:#2e59d9;
+            border-bottom:2px solid #2e59d9;
+        }
+
         .pagination .page-link{ border-radius:10px; }
     </style>
 
@@ -170,6 +189,20 @@
             const url = new URL(window.location.href);
             url.searchParams.set('page', String(pageNo));
             // size 유지
+            if (!url.searchParams.get('size')) {
+                const size = document.getElementById('pageSizeHolder')?.value;
+                if (size) url.searchParams.set('size', size);
+            }
+            window.location.href = url.toString();
+        }
+    </script>
+
+    <script>
+        function setSort(sortValue){
+            const url = new URL(window.location.href);
+            url.searchParams.set('sort', sortValue);
+            url.searchParams.set('page', '0'); // 정렬 변경 시 첫 페이지로
+
             if (!url.searchParams.get('size')) {
                 const size = document.getElementById('pageSizeHolder')?.value;
                 if (size) url.searchParams.set('size', size);
@@ -196,10 +229,27 @@
                     </p>
                 </div>
 
-                <div class="d-flex gap-2 position-relative">
-                    <a class="btn btn-outline-secondary btn-sm" th:href="@{/books/search/tags}">
-                        <i class="fas fa-sliders-h me-1"></i> 태그 조합 검색
-                    </a>
+                <!-- 정렬 버튼 바 -->
+                <div class="sort-bar mt-2">
+                    <a href="javascript:void(0)" class="sort-btn"
+                       th:classappend="${sort?.name() == 'PUBLISHED_DESC'} ? ' active' : ''"
+                       onclick="setSort('PUBLISHED_DESC')">신상품순</a>
+
+                    <a href="javascript:void(0)" class="sort-btn"
+                       th:classappend="${sort?.name() == 'PUBLISHED_ASC'} ? ' active' : ''"
+                       onclick="setSort('PUBLISHED_ASC')">오래된순</a>
+
+                    <a href="javascript:void(0)" class="sort-btn"
+                       th:classappend="${sort?.name() == 'PRICE_ASC'} ? ' active' : ''"
+                       onclick="setSort('PRICE_ASC')">최저가순</a>
+
+                    <a href="javascript:void(0)" class="sort-btn"
+                       th:classappend="${sort?.name() == 'PRICE_DESC'} ? ' active' : ''"
+                       onclick="setSort('PRICE_DESC')">최고가순</a>
+
+                    <a href="javascript:void(0)" class="sort-btn"
+                       th:classappend="${sort?.name() == 'RATING_DESC'} ? ' active' : ''"
+                       onclick="setSort('RATING_DESC')">평점순</a>
                 </div>
             </div>
         </section>

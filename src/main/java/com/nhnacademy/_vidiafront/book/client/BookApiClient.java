@@ -47,7 +47,7 @@ public class BookApiClient {
         );
     }
 
-    public SearchBooksResponse searchBooksWithTags(BookSearchWithTagRequest request, int page, int size) {
+    public PageResponse<BookListResponse> searchBooksWithTags(BookSearchWithTagRequest request, int page, int size) {
 
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromPath(BOOK_SERVICE + "/books/search/tags")
@@ -67,15 +67,25 @@ public class BookApiClient {
 
         String uri = builder.toUriString();
 
-        return backendApiClient.get(uri, SearchBooksResponse.class);
+        return backendApiClient.get(uri, new ParameterizedTypeReference<PageResponse<BookListResponse>>() {});
     }
 
-    public PageResponse<BookListResponse> searchBooksWithSpecificTagId(Long tagId, int page, int size) {
+    public PageResponse<BookListResponse> searchBooksWithSpecificTagId(Long tagId, String tagName, int page, int size, String sortKey, String direction) {
 
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromPath(BOOK_SERVICE + "/books/search/tags/" + tagId)
                 .queryParam("page", page)
                 .queryParam("size", size);
+
+        if (tagName != null && !tagName.isBlank()) {
+            builder.queryParam("tagName", tagName);
+        }
+        if (sortKey != null && !sortKey.isBlank()) {
+            builder.queryParam("sortKey", sortKey);
+        }
+        if (direction != null && !direction.isBlank()) {
+            builder.queryParam("direction", direction);
+        }
 
         String uri = builder.toUriString();
 

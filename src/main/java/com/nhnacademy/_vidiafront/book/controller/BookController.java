@@ -4,6 +4,7 @@ import com.nhnacademy._vidiafront.book.client.BookApiClient;
 import com.nhnacademy._vidiafront.book.client.ReviewApiClient;
 import com.nhnacademy._vidiafront.book.dto.books.request.BookSearchRequest;
 import com.nhnacademy._vidiafront.book.dto.books.request.BookSearchWithTagRequest;
+import com.nhnacademy._vidiafront.book.dto.books.request.BookSortOptions;
 import com.nhnacademy._vidiafront.book.dto.books.response.*;
 import com.nhnacademy._vidiafront.book.dto.reviews.response.ReviewListWithSummaryResponse;
 import com.nhnacademy._vidiafront.global.dto.PageResponse;
@@ -49,7 +50,10 @@ public class BookController {
             model.addAttribute("keyword", request.keyword());
             model.addAttribute("useSemantic", true);
 
-            model.addAttribute("page", pageResponse);              // 페이징 정보 그대로
+            model.addAttribute("page", pageResponse.page());
+            model.addAttribute("size", pageResponse.size());
+            model.addAttribute("totalPages", pageResponse.totalPages());
+            model.addAttribute("totalElements", pageResponse.totalElements());
             model.addAttribute("books", pageResponse.content()); // PageResponse 안의 리스트
             model.addAttribute("aiAnswer", aiResponse.aiAnswer());
 
@@ -84,8 +88,7 @@ public class BookController {
                                       @RequestParam(defaultValue = "0") int page,
                                       @RequestParam(defaultValue = "20") int size,
                                       Model model) {
-        SearchBooksResponse response = bookApiClient.searchBooksWithTags(request, page, size);
-        PageResponse<BookListResponse> pageResult = response.page();
+        PageResponse<BookListResponse> pageResult = bookApiClient.searchBooksWithTags(request, page, size);
 
         model.addAttribute("books", pageResult.content());
         model.addAttribute("page", pageResult.page());
@@ -154,8 +157,21 @@ public class BookController {
                                              @RequestParam(required = false, name = "tagName") String tagName,
                                              @RequestParam(defaultValue = "0") int page,
                                              @RequestParam(defaultValue = "20") int size,
+                                             @RequestParam(defaultValue = "PUBLISHED_DESC") BookSortOptions sort,
                                              Model model) {
-        PageResponse<BookListResponse> pageResult = bookApiClient.searchBooksWithSpecificTagId(tagId, page, size);
+        String sortKey = switch (sort) {
+            case PUBLISHED_DESC, PUBLISHED_ASC -> "publishedDate";
+            case PRICE_DESC, PRICE_ASC -> "priceSales";
+            case RATING_DESC -> "avgRating";
+        };
+
+        String direction = switch (sort) {
+            case PUBLISHED_ASC, PRICE_ASC -> "asc";
+            default -> "desc";
+        };
+
+
+        PageResponse<BookListResponse> pageResult = bookApiClient.searchBooksWithSpecificTagId(tagId, tagName, page, size, sortKey, direction);
 
         model.addAttribute("books", pageResult.content());
         model.addAttribute("page", pageResult.page());

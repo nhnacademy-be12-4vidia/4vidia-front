@@ -2,6 +2,7 @@ package com.nhnacademy._vidiafront.admin.controller;
 
 import com.nhnacademy._vidiafront.admin.client.AdminBookApiClient;
 import com.nhnacademy._vidiafront.admin.dto.request.AdminBookCreateRequest;
+import com.nhnacademy._vidiafront.admin.dto.request.AdminBookUpdateRequest;
 import com.nhnacademy._vidiafront.admin.dto.response.AdminIsbnSearchResponse;
 import com.nhnacademy._vidiafront.book.client.BookApiClient;
 import com.nhnacademy._vidiafront.book.client.CategoryApiClient;
@@ -54,8 +55,8 @@ public class AdminBookController {
     ) {
         BookDetailResponse bookDetails = bookApiClient.bookDetails(bookId).book();
         model.addAttribute("book", bookDetails);
-        model.addAttribute("categories", categoryApiClient.getFlatCategoryList());
         model.addAttribute("mode", "update");
+        model.addAttribute("categories", categoryApiClient.getFlatCategoryList());
         return "admin/admin-book-form";
     }
 
@@ -63,7 +64,7 @@ public class AdminBookController {
     @PutMapping("/{bookId}")
     public String updateBook(
             @PathVariable Long bookId,
-            AdminBookCreateRequest request
+            AdminBookUpdateRequest request
     ) {
         adminBookApiClient.updateBook(bookId, request);
         return "redirect:/admin/books";

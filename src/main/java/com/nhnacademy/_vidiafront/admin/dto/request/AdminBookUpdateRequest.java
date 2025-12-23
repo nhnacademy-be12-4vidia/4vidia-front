@@ -1,21 +1,19 @@
-package com.nhnacademy._vidiafront.admin.dto.response;
+package com.nhnacademy._vidiafront.admin.dto.request;
 
-import com.nhnacademy._vidiafront.book.dto.authors.response.AuthorResponse;
+import com.nhnacademy._vidiafront.book.dto.authors.request.AuthorRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.util.List;
 
-public record AdminIsbnSearchResponse(
-
-        boolean found,
-        Long bookId,
+public record AdminBookUpdateRequest(
 
         String coverImageUrl,
+        String isbn,
         String title,
         String subtitle,
-        List<AuthorResponse> authors,
-        String publisher,
+        List<AuthorRequest> authorList,
+        String publisher,     // 출판사 이름
 
         @DateTimeFormat(pattern = "yyyy-MM-dd")
         LocalDate publishedDate,
@@ -26,7 +24,7 @@ public record AdminIsbnSearchResponse(
 
         Integer priceStandard,
         Integer stock,
-        //Boolean packagingAvailable,
+        Boolean packagingAvailable,
 
         String description,
         String bookIndex,

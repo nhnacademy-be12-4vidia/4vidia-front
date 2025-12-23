@@ -1,6 +1,7 @@
 package com.nhnacademy._vidiafront.admin.client;
 
 import com.nhnacademy._vidiafront.admin.dto.request.AdminBookCreateRequest;
+import com.nhnacademy._vidiafront.admin.dto.request.AdminBookUpdateRequest;
 import com.nhnacademy._vidiafront.admin.dto.response.AdminIsbnSearchResponse;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class AdminBookApiClient {
         backendApiClient.post(url, request, Void.class);
     }
 
-    public void updateBook(Long bookId, AdminBookCreateRequest request) {
+    public void updateBook(Long bookId, AdminBookUpdateRequest request) {
         String url = BOOK_SERVICE + "/admin/books/" + bookId;
         backendApiClient.put(url, request, Void.class);
     }

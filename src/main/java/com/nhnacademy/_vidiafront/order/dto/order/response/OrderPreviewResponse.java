@@ -29,7 +29,8 @@ public record OrderPreviewResponse(
     public boolean hasUnconfirmedItems() {
         if (orderItems == null) return false;
         return orderItems.stream()
-                .anyMatch(item -> item.orderItemViewStatus() == OrderItemViewStatus.UNCONFIRMED);
+                .anyMatch(item -> item.orderItemViewStatus() == OrderItemViewStatus.UNCONFIRMED
+                        || item.orderItemViewStatus() == OrderItemViewStatus.REFUND_REJECTED);
     }
 
     // REFUND_REQUEST 상태의 항목 (REFUND_REQUEST 상태가 아닌 항목)이 하나라도 있으면 true
@@ -41,9 +42,16 @@ public record OrderPreviewResponse(
 
     public boolean isRefundAvailable() {
         if (orderItems == null) return false;
-        // ORDERED 상태인 아이템이 하나라도 있으면 true -> 버튼 보임
-        // 전부 CONFIRMED, REFUND_REQUESTED, REFUNDED 상태라면 false -> 버튼 숨김
+        // UNCONFIRMED 또는 REFUND_REJECTED 상태인 아이템이 하나라도 있으면 true
         return orderItems.stream()
-                .anyMatch(item -> item.orderItemViewStatus() == OrderItemViewStatus.UNCONFIRMED);
+                .anyMatch(item -> item.orderItemViewStatus() == OrderItemViewStatus.UNCONFIRMED
+                        || item.orderItemViewStatus() == OrderItemViewStatus.REFUND_REJECTED);
+    }
+
+    public boolean hasItemsToConfirm() {
+        if (orderItems == null) return false;
+        return orderItems.stream()
+                .anyMatch(item -> item.orderItemViewStatus() == OrderItemViewStatus.UNCONFIRMED
+                        || item.orderItemViewStatus() == OrderItemViewStatus.REFUND_REJECTED);
     }
 }

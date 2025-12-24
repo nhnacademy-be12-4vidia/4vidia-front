@@ -1,150 +1,91 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{admin/admin-layout}">
 <head>
     <meta charset="UTF-8">
-    <title>도서 쿠폰 생성</title>
+    <title>도서 쿠폰 정책 생성</title>
 
     <link th:href="@{/css/sb-admin-2.min.css}" rel="stylesheet">
 
     <style>
-        .hidden { display: none !important; }
         .result-card {
-            display: flex;
             border: 1px solid #ddd;
             padding: 12px;
             border-radius: 8px;
             cursor: pointer;
             margin-bottom: 10px;
         }
-        .result-card:hover { background: #f8f9ff; }
-        .selected { background: #e8ecff; border-color: #4e73df; }
+        .result-card:hover {
+            background: #f8f9ff;
+            border-color: #4e73df;
+        }
     </style>
 </head>
 
 <body>
-
 <div layout:fragment="pageContent">
 
     <h1 class="h3 mb-4">도서 쿠폰 정책 생성</h1>
 
-    <!-- 검색 UI -->
+    <!-- 검색 -->
     <div class="row mb-3">
-        <div class="col-md-6">
-            <label>도서 검색</label>
+        <div class="col-md-9">
             <input id="keyword" class="form-control" placeholder="도서 제목 검색">
         </div>
-
         <div class="col-md-3">
-            <label>AI 검색</label>
-            <select id="useSemantic" class="form-select">
-                <option value="false">OFF</option>
-                <option value="true">ON</option>
-            </select>
-        </div>
-
-        <div class="col-md-3">
-            <label>&nbsp;</label>
             <button class="btn btn-primary w-100" onclick="searchBook()">검색</button>
         </div>
     </div>
 
+    <!-- 검색 결과 -->
     <div id="searchResult"></div>
 
-    <!-- 선택된 도서 -->
-    <div id="selectedBookBox" class="hidden p-3 bg-light border rounded">
-        <h6>선택된 도서</h6>
-        <div id="selectedBookInfo"></div>
-    </div>
-
-    <!-- 정책 생성 -->
-    <form th:action="@{/admin/coupons/policies/book}" method="post" class="mt-4">
-        <input type="hidden" name="bookId" id="selectedBookId">
-
-        <div class="row g-3">
-
-            <div class="col-md-4">
-                <label>정책명</label>
-                <input type="text" name="policyName" class="form-control" required>
-            </div>
-
-            <div class="col-md-3">
-                <label>할인 타입</label>
-                <select name="discountType" class="form-select">
-                    <option value="PRICE">PRICE</option>
-                    <option value="RATE">RATE</option>
-                </select>
-            </div>
-
-            <div class="col-md-3">
-                <label>할인 값</label>
-                <input type="number" name="discountValue" class="form-control" required>
-            </div>
-
-            <div class="col-md-3">
-                <label>한정수량</label>
-                <input type="number" name="limitedQuantity" class="form-control" required>
-            </div>
-
-        </div>
-
-        <div class="text-end mt-4">
-            <button class="btn btn-primary btn-lg">정책 생성</button>
-        </div>
-
-    </form>
-
 </div>
+<th:block layout:fragment="pageScript">
+    <script>
+        function searchBook() {
+            const keyword = document.getElementById("keyword").value;
 
-<script>
-    function searchBook() {
-        const keyword = document.getElementById("keyword").value;
-        const useSemantic = document.getElementById("useSemantic").value;
+            if (!keyword.trim()) {
+                alert("검색어를 입력하세요.");
+                return;
+            }
 
-        if (!keyword.trim()) {
-            alert("검색어를 입력하세요.");
-            return;
+            fetch(`/admin/books/search-simple?keyword=${encodeURIComponent(keyword)}`)
+                .then(res => res.json())
+                .then(renderSearchResult)
+                .catch(() => alert("검색 실패"));
+
         }
 
-        // GATEWAY API
-        fetch(`/api/v1/book-service/books/search?keyword=${keyword}&useSemantic=${useSemantic}`)
-            .then(res => res.json())
-            .then(data => renderSearchResult(data.content))
-            .catch(() => alert("검색 실패"));
-    }
+        function renderSearchResult(list) {
+            const result = document.getElementById("searchResult");
+            result.innerHTML = "";
 
-    function renderSearchResult(list) {
-        const result = document.getElementById("searchResult");
-        result.innerHTML = "";
+            if (!list || list.length === 0) {
+                result.innerHTML = "<p class='text-muted'>검색 결과가 없습니다.</p>";
+                return;
+            }
 
-        list.forEach(book => {
-            const card = document.createElement("div");
-            card.className = "result-card";
-            card.innerHTML = `
-                <img src="${book.imageUrl}" width="80" height="110" style="margin-right:12px;">
-                <div>
+            list.forEach(book => {
+                const card = document.createElement("div");
+                card.className = "result-card";
+                card.innerHTML = `
                     <strong>${book.title}</strong><br>
-                    <span class="text-muted">${book.authorNames?.join(', ')}</span><br>
-                    <span class="text-primary fw-bold">${book.priceSales}원</span>
-                </div>
-            `;
-            card.onclick = () => selectBook(book, card);
+                    <span class="text-muted">ISBN: ${book.isbn}</span><br>
+                    <span class="text-muted">BOOK ID: ${book.id}</span>
+                `;
 
-            result.appendChild(card);
-        });
-    }
+                card.onclick = () => {
+                    location.href = `/admin/coupons/policies/book/create?bookId=${book.id}`;
+                };
 
-    function selectBook(book, card) {
-        document.querySelectorAll(".result-card").forEach(c => c.classList.remove("selected"));
-        card.classList.add("selected");
-
-        document.getElementById("selectedBookId").value = book.id;
-        document.getElementById("selectedBookInfo").innerHTML = `${book.title} (${book.authorNames})`;
-
-        document.getElementById("selectedBookBox").classList.remove("hidden");
-    }
-</script>
-
+                result.appendChild(card);
+            });
+        }
+    </script>
+</th:block>
 </body>
 </html>

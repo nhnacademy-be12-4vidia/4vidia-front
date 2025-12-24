@@ -49,6 +49,16 @@ public class AdminCouponPolicyController {
         return "redirect:/admin/coupons/policies";
     }
 
+    @GetMapping("/book/create")
+    public String createBookEventForm(
+            @RequestParam Long bookId,
+            Model model
+    ) {
+        model.addAttribute("bookId", bookId);
+        return "admin/admin-coupon-policy-book-create";
+    }
+
+
     /* ======================================================
        정책 활성 / 비활성 토글
     ====================================================== */

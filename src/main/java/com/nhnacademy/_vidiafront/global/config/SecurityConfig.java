@@ -25,7 +25,8 @@ public class SecurityConfig {
                                 "/auth/login",
                                 "/auth/logout",
                                 "/login/oauth2/**",
-                                "/mypage/address/jusoCallback"
+                                "/mypage/address/jusoCallback",
+                                "/mypage/address"
                         ));
         http
                 .httpBasic(AbstractHttpConfigurer::disable);

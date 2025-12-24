@@ -28,521 +28,365 @@ public class BackendApiClient {
     // ------------------- GET -------------------
     public <T> T get(String uri, Class<T> responseType) {
         HttpServletRequest request = getRequest();
-        HttpServletResponse response = getResponse();
-
-        HttpSession session = request.getSession(false);
-        String accessToken = session != null ? (String) session.getAttribute("accessToken") : null;
         String guestId = extractGuestId(request);
-        String refreshToken = getRefreshTokenFromCookie(request);
+        return restClient.get()
+                .uri(URI.create(uri))
+                .header("X-Guest-Id", guestId != null ? guestId : "")
+                .cookies(cookies -> {
+                    String accessSessionId =
+                            (String) request.getAttribute("NEW_SES");
 
-        try {
-            return restClient.get()
-                    .uri(URI.create(uri))
-                    .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
-                    .header("X-Guest-Id", guestId != null ? guestId : "")
-                    .cookies(cookies -> {
-                        if (refreshToken != null) {
-                            cookies.add("refresh", refreshToken);
-                        }
-                    })                    .retrieve()
-                    .body(responseType);
-        } catch (HttpClientErrorException.Unauthorized ex) {
-            TokenResponse tokenResponse = reissue(refreshToken);
-            boolean isReissue = reissueIfNeeded(tokenResponse, request, response);
-            if (isReissue) {
-                return restClient.get()
-                        .uri(uri)
-                        .header("Authorization", "Bearer " + tokenResponse.accessToken())
-                        .header("X-Guest-Id", guestId != null ? guestId : "")
-                        .cookies(cookies -> {
-                            if (refreshToken != null) {
-                                cookies.add("refresh", refreshToken);
-                            }
-                        })                        .retrieve()
-                        .body(responseType);
-            } else {
-                throw ex;
-            }
-        } catch (Exception ex) {
-            throw new ApiRequestException("Backend request failed"+ex.toString(), ex);
-        }
+                    if (accessSessionId == null) {
+                        accessSessionId = getAccessTokenFromCookie(request);
+                    }
+
+                    if (accessSessionId != null) {
+                        cookies.add("SES", accessSessionId);
+                    }
+                })
+                .cookies(cookies -> {
+                    String refreshToken =
+                            (String) request.getAttribute("NEW_AUT");
+
+                    if (refreshToken == null) {
+                        refreshToken = getRefreshTokenFromCookie(request);
+                    }
+                    if (refreshToken != null) {
+                        cookies.add("AUT", refreshToken);
+                    }
+                })
+                .retrieve()
+                .body(responseType);
+
     }
 
     public <T> T get(String uri, ParameterizedTypeReference<T> typeReference) {
         HttpServletRequest request = getRequest();
-        HttpServletResponse response = getResponse();
-
-        HttpSession session = request.getSession(false);
-        String accessToken = session != null ? (String) session.getAttribute("accessToken") : null;
         String guestId = extractGuestId(request);
-        String refreshToken = getRefreshTokenFromCookie(request);
 
-        try {
-            return restClient.get()
-                    .uri(URI.create(uri))
-                    .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
-                    .header("X-Guest-Id", guestId != null ? guestId : "")
-                    .cookies(cookies -> {
-                        if (refreshToken != null) {
-                            cookies.add("refresh", refreshToken);
-                        }
-                    })                    .retrieve()
-                    .body(typeReference);
 
-        } catch (HttpClientErrorException.Unauthorized ex) {
-            TokenResponse tokenResponse = reissue(refreshToken);
-            boolean isReissue = reissueIfNeeded(tokenResponse, request, response);
-            if (isReissue) {
-                request.getSession(true).setAttribute("accessToken", tokenResponse.accessToken());
-                return restClient.get()
-                        .uri(URI.create(uri))
-                        .header("Authorization", "Bearer " + tokenResponse.accessToken())
-                        .header("X-Guest-Id", guestId != null ? guestId : "")
-                        .cookies(cookies -> {
-                            if (refreshToken != null) {
-                                cookies.add("refresh", refreshToken);
-                            }
-                        })                        .retrieve()
-                        .body(typeReference);
-            } else {
-                throw ex;
-            }
-        } catch (Exception ex) {
-            throw new ApiRequestException("Backend request failed: " + ex.getMessage(), ex);
-        }
+        return restClient.get()
+                .uri(URI.create(uri))
+                .header("X-Guest-Id", guestId != null ? guestId : "")
+                .cookies(cookies -> {
+                    String accessSessionId =
+                            (String) request.getAttribute("NEW_SES");
+
+                    if (accessSessionId == null) {
+                        accessSessionId = getAccessTokenFromCookie(request);
+                    }
+
+                    if (accessSessionId != null) {
+                        cookies.add("SES", accessSessionId);
+                    }
+                })
+                .cookies(cookies -> {
+                    String refreshToken =
+                            (String) request.getAttribute("NEW_AUT");
+
+                    if (refreshToken == null) {
+                        refreshToken = getRefreshTokenFromCookie(request);
+                    }
+                    if (refreshToken != null) {
+                        cookies.add("AUT", refreshToken);
+                    }
+                })
+                .retrieve()
+                .body(typeReference);
+
     }
+
     // ------------------- POST -------------------
     public <T, R> T post(String uri, R body, Class<T> responseType) {
         HttpServletRequest request = getRequest();
-        HttpServletResponse response = getResponse();
-
-        HttpSession session = request.getSession(false);
-        String accessToken = session != null ? (String) session.getAttribute("accessToken") : null;
         String guestId = extractGuestId(request);
-        String refreshToken = getRefreshTokenFromCookie(request);
 
-        try {
-            return restClient.post()
-                    .uri(URI.create(uri))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
-                    .header("X-Guest-Id", guestId != null ? guestId : "")
-                    .cookies(cookies -> {
-                        if (refreshToken != null) {
-                            cookies.add("refresh", refreshToken);
-                        }
-                    })                    .body(body)
-                    .retrieve()                    .body(responseType);
+        return restClient.post()
+                .uri(URI.create(uri))
+                .contentType(MediaType.APPLICATION_JSON)
+                .cookies(cookies -> {
+                    String accessSessionId =
+                            (String) request.getAttribute("NEW_SES");
 
-        } catch (HttpClientErrorException.Unauthorized ex) {
-            TokenResponse tokenResponse = reissue(refreshToken);
-            boolean isReissue = reissueIfNeeded(tokenResponse, request, response);
-            if (isReissue) {
-                request.getSession(true).setAttribute("accessToken", tokenResponse.accessToken());
-                return restClient.post()
-                        .uri(URI.create(uri))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + tokenResponse.accessToken())
-                        .header("X-Guest-Id", guestId != null ? guestId : "")
-                        .cookies(cookies -> {
-                            if (refreshToken != null) {
-                                cookies.add("refresh", refreshToken);
-                            }
-                        })                        .body(body)
-                        .retrieve()
-                        .body(responseType);
-            } else {
-                throw ex;
-            }
-        } catch (Exception ex) {
-            throw new ApiRequestException("Backend request failed"+ex.toString(), ex);
-        }
+                    if (accessSessionId == null) {
+                        accessSessionId = getAccessTokenFromCookie(request);
+                    }
+
+                    if (accessSessionId != null) {
+                        cookies.add("SES", accessSessionId);
+                    }
+                })
+                .cookies(cookies -> {
+                    String refreshToken =
+                            (String) request.getAttribute("NEW_AUT");
+
+                    if (refreshToken == null) {
+                        refreshToken = getRefreshTokenFromCookie(request);
+                    }
+                    if (refreshToken != null) {
+                        cookies.add("AUT", refreshToken);
+                    }
+                })
+                .header("X-Guest-Id", guestId != null ? guestId : "")
+                .body(body)
+                .retrieve()
+                .body(responseType);
+
     }
 
     public <T> T postMultipartFile(String uri, MultiValueMap<String, Object> parts,
-        Class<T> responseType) {
+                                   Class<T> responseType) {
         HttpServletRequest request = getRequest();
-        HttpServletResponse response = getResponse();
-
-        HttpSession session = request.getSession(false);
-        String accessToken = session != null ? (String) session.getAttribute("accessToken") : null;
         String guestId = extractGuestId(request);
-        String refreshToken = getRefreshTokenFromCookie(request);
-
-        try {
-            return restClient.post()
+        return restClient.post()
                 .uri(URI.create(uri))
                 .contentType(MediaType.MULTIPART_FORM_DATA)
-                .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
                 .header("X-Guest-Id", guestId != null ? guestId : "")
-                .header("Cookie", refreshToken != null ? "refresh=" + refreshToken : "")
+                .cookies(cookies -> {
+                    String accessSessionId =
+                            (String) request.getAttribute("NEW_SES");
+
+                    if (accessSessionId == null) {
+                        accessSessionId = getAccessTokenFromCookie(request);
+                    }
+
+                    if (accessSessionId != null) {
+                        cookies.add("SES", accessSessionId);
+                    }
+                })
+                .cookies(cookies -> {
+                    String refreshToken =
+                            (String) request.getAttribute("NEW_AUT");
+
+                    if (refreshToken == null) {
+                        refreshToken = getRefreshTokenFromCookie(request);
+                    }
+                    if (refreshToken != null) {
+                        cookies.add("AUT", refreshToken);
+                    }
+                })
                 .body(parts)
                 .retrieve()
                 .body(responseType);
-        } catch (HttpClientErrorException.Unauthorized ex) {
-            TokenResponse tokenResponse = reissue(refreshToken);
-            boolean isReissue = reissueIfNeeded(tokenResponse, request, response);
-            if (isReissue) {
-                request.getSession(true).setAttribute("accessToken", tokenResponse.accessToken());
-                return restClient.post()
-                    .uri(URI.create(uri))
-                    .contentType(MediaType.MULTIPART_FORM_DATA)
-                    .header("Authorization", "Bearer " + tokenResponse.accessToken())
-                    .header("X-Guest-Id", guestId != null ? guestId : "")
-                    .header("Cookie", refreshToken != null ? "refresh=" + refreshToken : "")
-                    .body(parts)
-                    .retrieve()
-                    .body(responseType);
-            } else {
-                throw ex;
-            }
-        } catch (Exception ex) {
-            throw new ApiRequestException("Backend multipart request failed: " + ex, ex);
-        }
+
     }
 
     public <T, R> T postNoBody(String uri, Class<T> responseType) {
         HttpServletRequest request = getRequest();
-        HttpServletResponse response = getResponse();
-
-        HttpSession session = request.getSession(false);
-        String accessToken = session != null ? (String) session.getAttribute("accessToken") : null;
         String guestId = extractGuestId(request);
-        String refreshToken = getRefreshTokenFromCookie(request);
+        return restClient.post()
+                .uri(URI.create(uri))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("X-Guest-Id", guestId != null ? guestId : "")
+                .cookies(cookies -> {
+                    String accessSessionId =
+                            (String) request.getAttribute("NEW_SES");
 
-        try {
-            return restClient.post()
-                    .uri(URI.create(uri))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
-                    .header("X-Guest-Id", guestId != null ? guestId : "")
-                    .cookies(cookies -> {
-                        if (refreshToken != null) {
-                            cookies.add("refresh", refreshToken);
-                        }
-                    })                    .retrieve()
-                    .body(responseType);
-        } catch (HttpClientErrorException.Unauthorized ex) {
-            TokenResponse tokenResponse = reissue(refreshToken);
-            boolean isReissue = reissueIfNeeded(tokenResponse, request, response);
-            if (isReissue) {
-                request.getSession(true).setAttribute("accessToken", tokenResponse.accessToken());
-                return restClient.post()
-                        .uri(URI.create(uri))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + tokenResponse.accessToken())
-                        .header("X-Guest-Id", guestId != null ? guestId : "")
-                        .cookies(cookies -> {
-                            if (refreshToken != null) {
-                                cookies.add("refresh", refreshToken);
-                            }
-                        })                        .retrieve()
-                        .body(responseType);
-            } else {
-                throw ex;
-            }
-        } catch (Exception ex) {
-            throw new ApiRequestException("Backend request failed"+ex.toString(), ex);
-        }
+                    if (accessSessionId == null) {
+                        accessSessionId = getAccessTokenFromCookie(request);
+                    }
+
+                    if (accessSessionId != null) {
+                        cookies.add("SES", accessSessionId);
+                    }
+                })
+                .cookies(cookies -> {
+                    String refreshToken =
+                            (String) request.getAttribute("NEW_AUT");
+
+                    if (refreshToken == null) {
+                        refreshToken = getRefreshTokenFromCookie(request);
+                    }
+                    if (refreshToken != null) {
+                        cookies.add("AUT", refreshToken);
+                    }
+                })
+                .retrieve()
+                .body(responseType);
+
     }
-
 
 
     // ------------------- PATCH -------------------
     public <T, R> T patch(String uri, R body, Class<T> responseType) {
         HttpServletRequest request = getRequest();
-        HttpServletResponse response = getResponse();
-
-        HttpSession session = request.getSession(false);
-        String accessToken = session != null ? (String) session.getAttribute("accessToken") : null;
         String guestId = extractGuestId(request);
-        String refreshToken = getRefreshTokenFromCookie(request);
+        return restClient.patch()
+                .uri(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("X-Guest-Id", guestId != null ? guestId : "")
+                .cookies(cookies -> {
+                    String accessSessionId =
+                            (String) request.getAttribute("NEW_SES");
 
-        try {
-            return restClient.patch()
-                    .uri(uri)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
-                    .header("X-Guest-Id", guestId != null ? guestId : "")
-                    .cookies(cookies -> {
-                        if (refreshToken != null) {
-                            cookies.add("refresh", refreshToken);
-                        }
-                    })
-                    .body(body)
-                    .retrieve()
-                    .body(responseType);
+                    if (accessSessionId == null) {
+                        accessSessionId = getAccessTokenFromCookie(request);
+                    }
 
-        } catch (HttpClientErrorException.Unauthorized ex) {
+                    if (accessSessionId != null) {
+                        cookies.add("SES", accessSessionId);
+                    }
+                })
+                .cookies(cookies -> {
+                    String refreshToken =
+                            (String) request.getAttribute("NEW_AUT");
 
-            TokenResponse tokenResponse = reissue(refreshToken);
-            boolean isReissue = reissueIfNeeded(tokenResponse, request, response);
+                    if (refreshToken == null) {
+                        refreshToken = getRefreshTokenFromCookie(request);
+                    }
+                    if (refreshToken != null) {
+                        cookies.add("AUT", refreshToken);
+                    }
+                })
+                .body(body)
+                .retrieve()
+                .body(responseType);
 
-            if (isReissue) {
-
-                request.getSession(true).setAttribute("accessToken", tokenResponse.accessToken());
-
-                return restClient.patch()
-                        .uri(uri)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + tokenResponse.accessToken())
-                        .header("X-Guest-Id", guestId != null ? guestId : "")
-                        .cookies(cookies -> {
-                            if (refreshToken != null) {
-                                cookies.add("refresh", refreshToken);
-                            }
-                        })
-                        .body(body)
-                        .retrieve()
-                        .body(responseType);
-            } else {
-                throw ex;
-            }
-
-        } catch (Exception ex) {
-            throw new ApiRequestException("Backend PATCH request failed: " + ex, ex);
-        }
     }
 
 
     // body 없는 PATCH
     public <T> T patchNoBody(String uri, Class<T> responseType) {
         HttpServletRequest request = getRequest();
-        HttpServletResponse response = getResponse();
-
-        HttpSession session = request.getSession(false);
-        String accessToken = session != null ? (String) session.getAttribute("accessToken") : null;
         String guestId = extractGuestId(request);
-        String refreshToken = getRefreshTokenFromCookie(request);
+        return restClient.patch()
+                .uri(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("X-Guest-Id", guestId != null ? guestId : "")
+                .cookies(cookies -> {
+                    String accessSessionId =
+                            (String) request.getAttribute("NEW_SES");
 
-        try {
-            return restClient.patch()
-                    .uri(uri)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
-                    .header("X-Guest-Id", guestId != null ? guestId : "")
-                    .cookies(cookies -> {
-                        if (refreshToken != null) {
-                            cookies.add("refresh", refreshToken);
-                        }
-                    })
-                    .retrieve()
-                    .body(responseType);
+                    if (accessSessionId == null) {
+                        accessSessionId = getAccessTokenFromCookie(request);
+                    }
 
-        } catch (HttpClientErrorException.Unauthorized ex) {
+                    if (accessSessionId != null) {
+                        cookies.add("SES", accessSessionId);
+                    }
+                })
+                .cookies(cookies -> {
+                    String refreshToken =
+                            (String) request.getAttribute("NEW_AUT");
 
-            TokenResponse tokenResponse = reissue(refreshToken);
-            boolean isReissue = reissueIfNeeded(tokenResponse, request, response);
+                    if (refreshToken == null) {
+                        refreshToken = getRefreshTokenFromCookie(request);
+                    }
+                    if (refreshToken != null) {
+                        cookies.add("AUT", refreshToken);
+                    }
+                })
+                .retrieve()
+                .body(responseType);
 
-            if (isReissue) {
-
-                request.getSession(true).setAttribute("accessToken", tokenResponse.accessToken());
-
-                return restClient.patch()
-                        .uri(uri)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + tokenResponse.accessToken())
-                        .header("X-Guest-Id", guestId != null ? guestId : "")
-                        .cookies(cookies -> {
-                            if (refreshToken != null) {
-                                cookies.add("refresh", refreshToken);
-                            }
-                        })
-                        .retrieve()
-                        .body(responseType);
-            } else {
-                throw ex;
-            }
-
-        } catch (Exception ex) {
-            throw new ApiRequestException("Backend PATCH NoBody request failed: " + ex, ex);
-        }
     }
-
-
-
-
-
-
-
-
 
 
     // ------------------- PUT -------------------
     public <T, R> T put(String uri, R body, Class<T> responseType) {
         HttpServletRequest request = getRequest();
-        HttpServletResponse response = getResponse();
-
-        HttpSession session = request.getSession(false);
-        String accessToken = session != null ? (String) session.getAttribute("accessToken") : null;
         String guestId = extractGuestId(request);
-        String refreshToken = getRefreshTokenFromCookie(request);
+        return restClient.put()
+                .uri(URI.create(uri))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("X-Guest-Id", guestId != null ? guestId : "")
+                .cookies(cookies -> {
+                    String accessSessionId =
+                            (String) request.getAttribute("NEW_SES");
 
-        try {
-            return restClient.put()
-                    .uri(URI.create(uri))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
-                    .header("X-Guest-Id", guestId != null ? guestId : "")
-                    .cookies(cookies -> {
-                        if (refreshToken != null) {
-                            cookies.add("refresh", refreshToken);
-                        }
-                    })                    .body(body)
-                    .retrieve()
-                    .body(responseType);
-        } catch (HttpClientErrorException.Unauthorized ex) {
-            TokenResponse tokenResponse = reissue(refreshToken);
-            boolean isReissue = reissueIfNeeded(tokenResponse, request, response);
-            if (isReissue) {
-                request.getSession(true).setAttribute("accessToken", tokenResponse.accessToken());
-                return restClient.put()
-                        .uri(URI.create(uri))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + tokenResponse.accessToken())
-                        .header("X-Guest-Id", guestId != null ? guestId : "")
-                        .cookies(cookies -> {
-                            if (refreshToken != null) {
-                                cookies.add("refresh", refreshToken);
-                            }
-                        })                        .body(body)
-                        .retrieve()
-                        .body(responseType);
-            } else {
-                throw ex;
-            }
-        } catch (Exception ex) {
-            throw new ApiRequestException("Backend request failed"+ex.toString(), ex);
-        }
+                    if (accessSessionId == null) {
+                        accessSessionId = getAccessTokenFromCookie(request);
+                    }
+
+                    if (accessSessionId != null) {
+                        cookies.add("SES", accessSessionId);
+                    }
+                })
+                .cookies(cookies -> {
+                    String refreshToken =
+                            (String) request.getAttribute("NEW_AUT");
+
+                    if (refreshToken == null) {
+                        refreshToken = getRefreshTokenFromCookie(request);
+                    }
+                    if (refreshToken != null) {
+                        cookies.add("AUT", refreshToken);
+                    }
+                })
+                .body(body)
+                .retrieve()
+                .body(responseType);
     }
+
     public <T, R> T putNoBody(String uri, Class<T> responseType) {
         HttpServletRequest request = getRequest();
-        HttpServletResponse response = getResponse();
-
-        HttpSession session = request.getSession(false);
-        String accessToken = session != null ? (String) session.getAttribute("accessToken") : null;
         String guestId = extractGuestId(request);
-        String refreshToken = getRefreshTokenFromCookie(request);
+        return restClient.put()
+                .uri(URI.create(uri))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("X-Guest-Id", guestId != null ? guestId : "")
+                .cookies(cookies -> {
+                    String accessSessionId =
+                            (String) request.getAttribute("NEW_SES");
 
-        try {
-            return restClient.put()
-                    .uri(URI.create(uri))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
-                    .header("X-Guest-Id", guestId != null ? guestId : "")
-                    .cookies(cookies -> {
-                        if (refreshToken != null) {
-                            cookies.add("refresh", refreshToken);
-                        }
-                    })                    .retrieve()
-                    .body(responseType);
-        } catch (HttpClientErrorException.Unauthorized ex) {
-            TokenResponse tokenResponse = reissue(refreshToken);
-            boolean isReissue = reissueIfNeeded(tokenResponse, request, response);
-            if (isReissue) {
-                request.getSession(true).setAttribute("accessToken", tokenResponse.accessToken());
-                return restClient.put()
-                        .uri(URI.create(uri))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + tokenResponse.accessToken())
-                        .header("X-Guest-Id", guestId != null ? guestId : "")
-                        .cookies(cookies -> {
-                            if (refreshToken != null) {
-                                cookies.add("refresh", refreshToken);
-                            }
-                        })                        .retrieve()
-                        .body(responseType);
-            } else {
-                throw ex;
-            }
-        } catch (Exception ex) {
-            throw new ApiRequestException("Backend request failed"+ex.toString(), ex);
-        }
+                    if (accessSessionId == null) {
+                        accessSessionId = getAccessTokenFromCookie(request);
+                    }
+
+                    if (accessSessionId != null) {
+                        cookies.add("SES", accessSessionId);
+                    }
+                })
+                .cookies(cookies -> {
+                    String refreshToken =
+                            (String) request.getAttribute("NEW_AUT");
+
+                    if (refreshToken == null) {
+                        refreshToken = getRefreshTokenFromCookie(request);
+                    }
+                    if (refreshToken != null) {
+                        cookies.add("AUT", refreshToken);
+                    }
+                })
+                .retrieve()
+                .body(responseType);
+
     }
 
     // ------------------- DELETE -------------------
     public <T> T delete(String uri, Class<T> responseType) {
         HttpServletRequest request = getRequest();
-        HttpServletResponse response = getResponse();
-
-        HttpSession session = request.getSession(false);
-        String accessToken = session != null ? (String) session.getAttribute("accessToken") : null;
         String guestId = extractGuestId(request);
-        String refreshToken = getRefreshTokenFromCookie(request);
+        return restClient.delete()
+                .uri(URI.create(uri))
+                .header("X-Guest-Id", guestId != null ? guestId : "")
+                .cookies(cookies -> {
+                    String accessSessionId =
+                            (String) request.getAttribute("NEW_SES");
 
-        try {
-            return restClient.delete()
-                    .uri(URI.create(uri))
-                    .header("Authorization", accessToken != null ? "Bearer " + accessToken : "")
-                    .header("X-Guest-Id", guestId != null ? guestId : "")
-                    .cookies(cookies -> {
-                        if (refreshToken != null) {
-                            cookies.add("refresh", refreshToken);
-                        }
-                    })                    .retrieve()
-                    .body(responseType);
-        } catch (HttpClientErrorException.Unauthorized ex) {
-            TokenResponse tokenResponse = reissue(refreshToken);
-            boolean isReissue = reissueIfNeeded(tokenResponse, request, response);
-            if (isReissue) {
-                request.getSession(true).setAttribute("accessToken", tokenResponse.accessToken());
-                return restClient.delete()
-                        .uri(URI.create(uri))
-                        .header("Authorization", "Bearer " + tokenResponse.accessToken())
-                        .header("X-Guest-Id", guestId != null ? guestId : "")
-                        .cookies(cookies -> {
-                            if (refreshToken != null) {
-                                cookies.add("refresh", refreshToken);
-                            }
-                        })                        .retrieve()
-                        .body(responseType);
-            } else {
-                throw ex;
-            }
-        } catch (Exception ex) {
-            throw new ApiRequestException("Backend request failed"+ex.toString(), ex);
-        }
+                    if (accessSessionId == null) {
+                        accessSessionId = getAccessTokenFromCookie(request);
+                    }
+
+                    if (accessSessionId != null) {
+                        cookies.add("SES", accessSessionId);
+                    }
+                })
+                .cookies(cookies -> {
+                    String refreshToken =
+                            (String) request.getAttribute("NEW_AUT");
+
+                    if (refreshToken == null) {
+                        refreshToken = getRefreshTokenFromCookie(request);
+                    }
+                    if (refreshToken != null) {
+                        cookies.add("AUT", refreshToken);
+                    }
+                })
+                .retrieve()
+                .body(responseType);
     }
 
-    // ------------------- Reissue helper -------------------
-    private TokenResponse reissue(String refreshToken) {
-        try {
-            return restClient.post()
-                    .uri(AUTH + "/auth/reissue")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .cookies(cookies -> {
-                        if (refreshToken != null) {
-                            cookies.add("refresh", refreshToken);
-                        }
-                    })
-                    .retrieve()
-                    .body(TokenResponse.class);
-        } catch (HttpClientErrorException.Unauthorized ex) {
-            return null;
-        }
-    }
-    private boolean reissueIfNeeded(TokenResponse tokenResponse, HttpServletRequest request, HttpServletResponse response) {
-
-        if (tokenResponse == null) {
-            return false;
-        }
-
-        // 1) accessToken 다시 세션에 저장
-        HttpSession session = request.getSession(true);
-        if (session != null) {
-            session.setAttribute("accessToken", tokenResponse.accessToken());
-        }
-
-        // 2) refreshToken 다시 쿠키에 저장
-        Cookie refreshCookie = new Cookie("refresh", tokenResponse.refreshToken());
-        refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(false);
-        refreshCookie.setPath("/");
-        refreshCookie.setMaxAge(7 * 24 * 60 * 60);
-        response.addCookie(refreshCookie);
-
-        return true;
-    }
     private String extractGuestId(HttpServletRequest request) {
         if (request.getCookies() == null) {
             return null;
@@ -563,15 +407,21 @@ public class BackendApiClient {
                 .getRequest();
     }
 
-    // ---------------- 현재 response 가져오기 ----------------
-    private HttpServletResponse getResponse() {
-        return ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
-                .getResponse();
-    }
+
     private String getRefreshTokenFromCookie(HttpServletRequest request) {
         if (request.getCookies() == null) return null;
         for (Cookie cookie : request.getCookies()) {
-            if ("refresh".equals(cookie.getName())) {
+            if ("AUT".equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
+    }
+
+    private String getAccessTokenFromCookie(HttpServletRequest request) {
+        if (request.getCookies() == null) return null;
+        for (Cookie cookie : request.getCookies()) {
+            if ("SES".equals(cookie.getName())) {
                 return cookie.getValue();
             }
         }

@@ -131,6 +131,14 @@ public class AuthApiClient {
         return backendApiClient.postNoBody(AUTH + "/auth/logout", String.class);
     }
 
+    /**
+     *
+     * access토큰 재발급
+     */
+    public TokenResponse reissueToken(String refreshUuid) {
+        return backendApiClient.post(AUTH + "/auth/reissue", refreshUuid , TokenResponse.class);
+    }
+
     public void deleteCookie(String name, HttpServletResponse response) {
         Cookie cookie = new Cookie(name, null);
         cookie.setHttpOnly(true);

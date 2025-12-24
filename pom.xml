@@ -112,6 +112,11 @@
             <groupId>org.thymeleaf.extras</groupId>
             <artifactId>thymeleaf-extras-springsecurity6</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+            <version>10.0.2</version>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -127,6 +132,7 @@
                 <artifactId>spring-cloud-starter-loadbalancer</artifactId>
                 <version>4.3.0</version>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
 

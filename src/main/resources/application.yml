@@ -15,10 +15,6 @@ spring:
       database: 386
       timeout: 5000ms
 
-jwt:
-  secret: ${JWT_SECRET}
-jwe:
-  secret: "0123456789abcdef0123456789abcdef"
 
 eureka:
   client:

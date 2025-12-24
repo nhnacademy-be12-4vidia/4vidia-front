@@ -1,14 +1,12 @@
 package com.nhnacademy._vidiafront.user.controller;
 
 import com.nhnacademy._vidiafront.cart.client.CartApiClient;
-import com.nhnacademy._vidiafront.point.client.PointApiClient;
 import com.nhnacademy._vidiafront.user.client.AuthApiClient;
 import com.nhnacademy._vidiafront.user.client.UserApiClient;
 import com.nhnacademy._vidiafront.user.dto.auth.request.CompleteProfileRequest;
 import com.nhnacademy._vidiafront.user.dto.auth.request.LoginRequest;
 import com.nhnacademy._vidiafront.user.dto.auth.request.PaycoCodeRequest;
 import com.nhnacademy._vidiafront.user.dto.auth.response.TokenResponse;
-import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,13 +18,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
-import java.text.ParseException;
-
 @Slf4j
 @RequiredArgsConstructor
 @Controller
 public class LoginController {
-    private final PointApiClient pointApiClient;
     private final UserApiClient userApiClient;
     private final CartApiClient cartApiClient;
     private final AuthApiClient authApiClient;
@@ -92,7 +87,7 @@ public class LoginController {
 
     @GetMapping("/login/oauth2/code/payco")
     public String paycoLoginCallback(@RequestParam String code,
-                                     @RequestParam(required = false) String state, HttpServletResponse response, HttpServletRequest request) throws ParseException, JOSEException {
+                                     @RequestParam(required = false) String state, HttpServletResponse response) {
         TokenResponse tokenResponse = authApiClient.paycoCallback(new PaycoCodeRequest(code, state));
         String accessToken = tokenResponse.accessToken();
         String refreshToken = tokenResponse.refreshUuid();
@@ -121,8 +116,7 @@ public class LoginController {
      * 로그아웃
      */
     @PostMapping("/auth/logout")
-    public String logout(HttpServletRequest request,
-                         HttpServletResponse response) {
+    public String logout(HttpServletResponse response) {
         String userId = authApiClient.logout();
         log.info("로그아웃 함 -> User id: {}", userId);
         cartApiClient.logoutSync();
@@ -153,8 +147,7 @@ public class LoginController {
         return "redirect:/";
     }
     @ExceptionHandler(HttpClientErrorException.Unauthorized.class)
-    public String handleUnauthorized(HttpClientErrorException.Unauthorized e,
-                                     HttpServletResponse response) {
+    public String handleUnauthorized(HttpServletResponse response) {
 
         deleteCookie("SES", response);
         deleteCookie("AUT", response);

@@ -53,7 +53,7 @@ public class AdminBookController {
             @PathVariable Long bookId,
             Model model
     ) {
-        BookDetailResponse bookDetails = bookApiClient.bookDetails(bookId).book();
+        BookDetailResponse bookDetails = bookApiClient.bookDetails(bookId);
         model.addAttribute("book", bookDetails);
         model.addAttribute("mode", "update");
         model.addAttribute("categories", categoryApiClient.getFlatCategoryList());

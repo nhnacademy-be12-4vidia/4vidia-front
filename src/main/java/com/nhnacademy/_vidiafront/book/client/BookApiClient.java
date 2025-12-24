@@ -111,6 +111,14 @@ public class BookApiClient {
         return backendApiClient.get(uri, new ParameterizedTypeReference<List<BookListResponse>>() {});
     }
 
+    public List<BookListResponse> searchBooksSimple(String keyword) {
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromPath(BOOK_SERVICE + "/books/search-simple").queryParam("keyword", keyword);
+
+        String uri = uriBuilder.toUriString();
+
+        return backendApiClient.get(uri, new ParameterizedTypeReference<List<BookListResponse>>() {});
+    }
+
     private String buildSearchUrl(String basePath, BookSearchRequest request, int page, int size) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath(basePath)
                 .queryParam("keyword", request.keyword() == null ? "" : request.keyword())

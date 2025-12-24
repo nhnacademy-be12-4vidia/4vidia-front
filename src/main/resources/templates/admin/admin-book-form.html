@@ -64,7 +64,8 @@
                             <img id="imagePreview" 
                                  th:src="${book != null && !#lists.isEmpty(book.imageUrls) ? '/proxy?url=' + book.imageUrls[0] : '/img/logo.png'}" 
                                  alt="도서 표지 미리보기" class="book-cover-preview mb-3">
-                            <input type="hidden" id="imageUrl" name="imageUrl" 
+                            <input type="text" class="form-control mt-2" id="imageUrl" name="imageUrl" 
+                                   placeholder="이미지 URL을 입력하세요"
                                    th:value="${book != null && !#lists.isEmpty(book.imageUrls) ? book.imageUrls[0] : ''}">
                             
                             <!-- ISBN Hidden Field (Populated by Search or Pre-filled) -->
@@ -295,6 +296,21 @@
                 });
             }
 
+            // 이미지 URL 변경 시 미리보기 업데이트
+            const imageUrlInput = document.getElementById('imageUrl');
+            if (imageUrlInput) {
+                imageUrlInput.addEventListener('input', function() {
+                    const url = this.value.trim();
+                    const preview = document.getElementById('imagePreview');
+                    if (url) {
+                         // 프록시 적용
+                        preview.src = '/proxy?url=' + encodeURIComponent(url);
+                    } else {
+                        preview.src = '/img/logo.png';
+                    }
+                });
+            }
+
             // 3. ISBN 검색 버튼 핸들러
             const btnSearch = document.getElementById('btnSearchIsbn');
             if (btnSearch) {
@@ -418,8 +434,6 @@
             // 작가 삭제 버튼 이벤트 (위임)
             document.getElementById('authorListContainer').addEventListener('click', function(e) {
                 if (e.target.classList.contains('btn-remove-author')) {
-                    // 최소 1개 행은 유지하고 싶다면 아래 조건 추가
-                    // if (document.querySelectorAll('.author-row').length > 1) { ... }
                     e.target.closest('.author-row').remove();
                 }
             });

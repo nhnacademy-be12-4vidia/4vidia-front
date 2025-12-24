@@ -1,5 +1,7 @@
 package com.nhnacademy._vidiafront.refund.dto.response;
 
+import com.nhnacademy._vidiafront.refund.dto.RefundStatus;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -8,7 +10,7 @@ public record RefundHistoryGroupResponse(
         Long orderId,
         LocalDate orderDate,
         LocalDate refundDate,
-        String refundStatus,
+        RefundStatus refundStatus,
         String refundReason,
         Integer totalRefundPrice,
 
@@ -18,7 +20,7 @@ public record RefundHistoryGroupResponse(
             String title,
             int quantity,
             int price,
-            String refundItemStatus,
+            RefundItemStatus refundItemStatus,
             String rejectDetail // 거절 사유 (아이템별)
 
     ) {}

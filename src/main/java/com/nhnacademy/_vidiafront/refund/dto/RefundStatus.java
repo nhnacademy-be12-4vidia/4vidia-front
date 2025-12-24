@@ -6,19 +6,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum RefundStatus {
-    PROCESS(0), // 반품 신청 ~ 결과 나오기 전까지
-    APPROVED(1), // 승인
-    REJECTED(2); // 거절
+    PROCESS(0, "반품 진행 중", "text-warning" ), // 반품 신청 ~ 결과 나오기 전까지
+    APPROVED(1, "반품 처리 완료", "text-success" ); // 처리 완료
 
     private final int code;
-
-    public static RefundStatus fromCode(int code) {
-        for (RefundStatus status : RefundStatus.values()) {
-            if (status.getCode() == code) {
-                return status;
-            }
-        }
-        throw new IllegalArgumentException("Unknown status code: " + code);
-    }
+    private final String description;
+    private final String colorClass;
 }
-

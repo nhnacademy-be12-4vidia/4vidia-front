@@ -29,11 +29,12 @@ public class BookApiClient {
 
     public SearchBooksResponse searchBooks(BookSearchRequest request, int page, int size) {
 
+
         String uri = buildSearchUrl(BOOK_SERVICE + "/books/search", request, page, size);
 
         return backendApiClient.get(
-            uri,
-            SearchBooksResponse.class
+                uri,
+                SearchBooksResponse.class
         );
     }
 
@@ -118,7 +119,8 @@ public class BookApiClient {
 
 
         if (request.sort() != null) {
-            builder.queryParam("sort", request.sort());
+            builder.queryParam("sortKey", getSortKey(request));
+            builder.queryParam("direction", getDirection(request));
         }
         if (request.categoryId() != null) {
             builder.queryParam("categoryId", request.categoryId());
@@ -134,5 +136,21 @@ public class BookApiClient {
         }
 
         return builder.toUriString();
+    }
+
+    private String getSortKey(BookSearchRequest request) {
+        return switch (request.sort()) {
+            case PUBLISHED_DESC, PUBLISHED_ASC -> "publishedDate";
+            case PRICE_DESC, PRICE_ASC -> "priceSales";
+            case RATING_DESC -> "avgRating";
+            default -> "publishedDate";
+        };
+    }
+
+    private String getDirection(BookSearchRequest request) {
+        return switch (request.sort()) {
+            case PUBLISHED_ASC, PRICE_ASC -> "asc";
+            default -> "desc";
+        };
     }
 }

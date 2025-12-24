@@ -1,7 +1,6 @@
 package com.nhnacademy._vidiafront.user.controller;
 
 import com.nhnacademy._vidiafront.cart.client.CartApiClient;
-import com.nhnacademy._vidiafront.global.filter.JwtUtil;
 import com.nhnacademy._vidiafront.point.client.PointApiClient;
 import com.nhnacademy._vidiafront.user.client.AuthApiClient;
 import com.nhnacademy._vidiafront.user.client.UserApiClient;
@@ -9,22 +8,24 @@ import com.nhnacademy._vidiafront.user.dto.auth.request.CompleteProfileRequest;
 import com.nhnacademy._vidiafront.user.dto.auth.request.LoginRequest;
 import com.nhnacademy._vidiafront.user.dto.auth.request.PaycoCodeRequest;
 import com.nhnacademy._vidiafront.user.dto.auth.response.TokenResponse;
+import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
+
+import java.text.ParseException;
 
 @Slf4j
 @RequiredArgsConstructor
 @Controller
 public class LoginController {
-    private final JwtUtil jwtUtil;
     private final PointApiClient pointApiClient;
     private final UserApiClient userApiClient;
     private final CartApiClient cartApiClient;
@@ -50,14 +51,14 @@ public class LoginController {
     public String loginForm(LoginRequest loginRequest,
                             HttpServletRequest request,
                             HttpServletResponse response) {
-        if (request.getSession(false) != null) {
-            request.getSession(false).invalidate();
-        }
-        authApiClient.deleteCookie("JSESSIONID", response);
-        authApiClient.deleteCookie("refresh", response);
+
+        authApiClient.deleteCookie("SES", response);
+        authApiClient.deleteCookie("AUT", response);
 
         TokenResponse tokenResponse = authApiClient.login(loginRequest);
 
+        System.out.println(tokenResponse.accessToken());
+        System.out.println(tokenResponse.refreshUuid());
         String email = loginRequest.email();
         // 휴먼이면 -> 휴먼인증으로 이동
         if (authApiClient.isDormant(email)) {
@@ -67,18 +68,21 @@ public class LoginController {
 
         authApiClient.updateLastLoginAt(email);
 
+        String refreshUuid = tokenResponse.refreshUuid();
         String accessToken = tokenResponse.accessToken();
-        String refreshToken = tokenResponse.refreshToken();
 
+        Cookie accessCookie = new Cookie("SES", accessToken);
+        accessCookie.setHttpOnly(true);           // 브라우저 JS 접근 불가
+        accessCookie.setSecure(false);             // HTTPS 환경이면 true
+        accessCookie.setPath("/");
+        accessCookie.setMaxAge(30 * 60);
+        response.addCookie(accessCookie);
 
-        HttpSession session = request.getSession(true);
-        session.setAttribute("accessToken", accessToken);
-
-        Cookie refreshCookie = new Cookie("refresh", refreshToken);
+        Cookie refreshCookie = new Cookie("AUT", refreshUuid);
         refreshCookie.setHttpOnly(true);           // 브라우저 JS 접근 불가
         refreshCookie.setSecure(false);             // HTTPS 환경이면 true
         refreshCookie.setPath("/");
-        refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
+        refreshCookie.setMaxAge(7 * 24 * 60 * 60);
         response.addCookie(refreshCookie);
 
         cartApiClient.loginSync();
@@ -88,28 +92,27 @@ public class LoginController {
 
     @GetMapping("/login/oauth2/code/payco")
     public String paycoLoginCallback(@RequestParam String code,
-                                     @RequestParam(required = false) String state, HttpServletResponse response, HttpServletRequest request) {
+                                     @RequestParam(required = false) String state, HttpServletResponse response, HttpServletRequest request) throws ParseException, JOSEException {
         TokenResponse tokenResponse = authApiClient.paycoCallback(new PaycoCodeRequest(code, state));
         String accessToken = tokenResponse.accessToken();
-        String refreshToken = tokenResponse.refreshToken();
+        String refreshToken = tokenResponse.refreshUuid();
+
+        Cookie accessCookie = new Cookie("SES", accessToken);
+        accessCookie.setHttpOnly(true);           // 브라우저 JS 접근 불가
+        accessCookie.setSecure(false);             // HTTPS 환경이면 true
+        accessCookie.setPath("/");
+        accessCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
+        response.addCookie(accessCookie);
 
 
-        HttpSession session = request.getSession(true);
-        session.setAttribute("accessToken", accessToken);
-
-        Cookie refreshCookie = new Cookie("refresh", refreshToken);
+        Cookie refreshCookie = new Cookie("AUT", refreshToken);
         refreshCookie.setHttpOnly(true);           // 브라우저 JS 접근 불가
         refreshCookie.setSecure(false);             // HTTPS 환경이면 true
         refreshCookie.setPath("/");
-        refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
+        refreshCookie.setMaxAge(30 * 24 * 60 * 60); // 30일
         response.addCookie(refreshCookie);
         cartApiClient.loginSync();
-
-        String userStatus = jwtUtil.getStatus(accessToken);
-
-        if ("TEMP" .equals(userStatus)) {
-            return "redirect:/auth/complete-profile";
-        }
+        // 페이코 로그인 다시하기
 
         return "redirect:/";
     }
@@ -124,12 +127,9 @@ public class LoginController {
         log.info("로그아웃 함 -> User id: {}", userId);
         cartApiClient.logoutSync();
 
-        if (request.getSession(false) != null) {
-            request.getSession(false).invalidate();
-        }
 
-        authApiClient.deleteCookie("JSESSIONID", response);
-        authApiClient.deleteCookie("refresh", response);
+        deleteCookie("AUT", response);
+        deleteCookie("SES", response);
 
         return "redirect:/";
     }
@@ -151,5 +151,23 @@ public class LoginController {
         authApiClient.deleteCookie("refresh", response);
 
         return "redirect:/";
+    }
+    @ExceptionHandler(HttpClientErrorException.Unauthorized.class)
+    public String handleUnauthorized(HttpClientErrorException.Unauthorized e,
+                                     HttpServletResponse response) {
+
+        deleteCookie("SES", response);
+        deleteCookie("AUT", response);
+
+        return "redirect:/auth/login";
+    }
+    private void deleteCookie(String name, HttpServletResponse response) {
+        Cookie cookie = new Cookie(name, null);
+        cookie.setPath("/");     // 로그인 때 설정한 path와 반드시 동일
+        cookie.setMaxAge(0);     // 즉시 만료
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false); // 로그인 때 false면 여기서도 false
+
+        response.addCookie(cookie);
     }
 }

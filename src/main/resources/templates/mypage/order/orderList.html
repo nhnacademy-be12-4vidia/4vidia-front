@@ -79,18 +79,35 @@
         .bg-info-light { background-color: rgba(13, 202, 240, 0.1) !important; }
         .bg-success-light { background-color: rgba(25, 135, 84, 0.1) !important; }
         .bg-secondary-light { background-color: rgba(108, 117, 125, 0.1) !important; }
+        .bg-danger-light { background-color: rgba(220, 53, 69, 0.1) !important; }
     </style>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script th:inline="javascript">
         /*<![CDATA[*/
         const confirmAllUrlBase = /*[[@{/mypage/order/confirm-items}]]*/ '/mypage/order/confirm-items';
-        const reviewUrlBase = /*[[@{/books}]]*/ '/books';
 
-        /**
-         * CSRF 토큰 가져오기 (Spring Security 설정에 따라 메타 태그 등에서 가져와야 함)
-         */
+        // CSRF 토큰 가져오기 (layout이나 security 설정에 따라 메타 태그에서 가져옴)
+        function getCsrfToken() {
+            // 1. 메타 태그 확인 (<meta name="_csrf" ...>)
+            const tokenTag = document.querySelector('meta[name="_csrf"]');
+            if (tokenTag) {
+                return tokenTag.getAttribute("content");
+            }
+            // 2. 없으면 쿠키 확인 (XSRF-TOKEN)
+            const match = document.cookie.match(new RegExp('(^| )XSRF-TOKEN=([^;]+)'));
+            if (match) {
+                return match[2];
+            }
+            return '';
+        }
 
+        // CSRF 헤더 이름 가져오기
+        function getCsrfHeaderName() {
+            const headerTag = document.querySelector('meta[name="_csrf_header"]');
+            // 헤더 설정이 없으면 기본적으로 자주 쓰이는 X-XSRF-TOKEN 사용
+            return headerTag ? headerTag.getAttribute("content") : 'X-XSRF-TOKEN';
+        }
 
         $(document).ready(function () {
             // '전체 구매 확정' 버튼 클릭 이벤트 핸들러
@@ -100,35 +117,19 @@
                 const $this = $(this);
                 const orderId = $this.data('order-id');
 
-                // 해당 주문의 미확정(UNCONFIRMED) 및 반품거절(REFUND_REJECTED) 주문 항목 ID와 Book ID를 찾습니다.
-                const itemsToConfirm = [];
-                $this.closest('.bg-white').find('.order-item-row').each(function() {
-                    const $row = $(this);
-                    const orderItemId = $row.data('order-item-id');
-                    const bookId = $row.data('book-id');
-                    const status = $row.data('status');
-
-                    // [수정] UNCONFIRMED 또는 REFUND_REJECTED 상태를 구매 확정 대상으로 포함
-                    if (status === 'UNCONFIRMED' || status === 'REFUND_REJECTED') {
-                        itemsToConfirm.push({ orderItemId, bookId });
-                    }
-                });
-
-                if (itemsToConfirm.length === 0) {
-                    alert('구매 확정할 항목이 없습니다.');
-                    return;
-                }
-
-                if (confirm(`주문번호 ${orderId}의 대상 상품(${itemsToConfirm.length}개)을 구매 확정하시겠습니까? 구매 확정 시 반품/교환 신청이 불가능할 수 있습니다.`)) {
+                if (confirm(`주문번호 ${orderId}의 모든 상품을 구매 확정하시겠습니까? \n구매 확정 시 반품/교환 신청이 불가능합니다.`)) {
 
                     const csrfToken = getCsrfToken();
+                    const csrfHeader = getCsrfHeaderName();
 
                     $.ajax({
                         url: `${confirmAllUrlBase}?orderId=${orderId}`,
                         type: 'POST',
                         dataType: 'json',
-                        headers: {
-                            'X-XSRF-TOKEN': csrfToken
+                        beforeSend: function(xhr) {
+                            if (csrfToken) {
+                                xhr.setRequestHeader(csrfHeader, csrfToken);
+                            }
                         },
                         success: function (response) {
                             if (response.success) {
@@ -136,7 +137,6 @@
                                 window.location.reload();
                             } else {
                                 alert('구매 확정에 실패했습니다: ' + (response.message || '알 수 없는 오류'));
-                                console.error('Bulk Confirm Failed:', response.message);
                             }
                         },
                         error: function (xhr, status, error) {
@@ -147,28 +147,29 @@
                 }
             });
 
-
+            // 주문 취소 버튼 핸들러
             $('.btn-cancel-order').on('click', function (e) {
                 e.preventDefault();
 
                 const $this = $(this);
                 const orderId = $this.data('order-id');
+
                 const csrfToken = getCsrfToken();
+                const csrfHeader = getCsrfHeaderName();
 
                 if (confirm(`주문번호 ${orderId}번 주문을 정말로 취소하시겠습니까?`)) {
                     fetch("/orders/" + orderId + "/cancel", {
                         method: "PUT",
                         headers: {
-                            'X-XSRF-TOKEN': csrfToken
+                            [csrfHeader]: csrfToken
                         },
                     })
-                        .then(res => res.json())
-                        .then(response => {
-                            if (response.success) {
+                        .then(res => {
+                            if (res.ok) {
                                 alert(`주문번호 ${orderId}번 주문이 취소되었습니다.`);
                                 window.location.reload();
                             } else {
-                                alert('주문 취소에 실패했습니다: ' + (response.message || '알 수 없는 오류'));
+                                alert('주문 취소에 실패했습니다.');
                             }
                         })
                         .catch(error => {
@@ -189,49 +190,45 @@
         <h1 class="h3 mb-4 text-gray-800 text-center">주문/배송 목록</h1>
 
         <div class="fixed-content-area mb-4">
+
             <div class="border-bottom border-top border-gray-300 bg-white">
                 <div class="d-flex text-center small text-nowrap" style="overflow-x: auto;">
-                    <a th:href="@{/mypage/order}"
+
+                    <a th:href="@{/mypage/order(status='ALL')}"
                        th:classappend="${currentStatus == 'ALL' ? 'active' : ''}"
-                       class="order-status-tab d-flex flex-column align-items-center justify-content-center all-default-bg" style="position: relative;">
-                        <div class="tab-item-count" th:text="${totalOrders}">0</div>
+                       class="order-status-tab d-flex flex-column align-items-center justify-content-center all-default-bg">
+                        <div class="tab-item-count" th:text="${counts.total()}">0</div>
                         <div class="tab-item-label">전체주문내역</div>
                     </a>
 
                     <a th:href="@{/mypage/order(status='WAITING')}"
                        th:classappend="${currentStatus == 'WAITING' ? 'active' : ''}"
                        class="order-status-tab d-flex flex-column align-items-center justify-content-center">
-                        <div class="tab-item-count"
-                             th:text="${statusCounts['WAITING'] != null ? statusCounts['WAITING'] : 0}">0
-                        </div>
+                        <div class="tab-item-count" th:text="${counts.waiting()}">0</div>
                         <div class="tab-item-label">준비중</div>
                     </a>
 
                     <a th:href="@{/mypage/order(status='SHIPPING')}"
                        th:classappend="${currentStatus == 'SHIPPING' ? 'active' : ''}"
                        class="order-status-tab d-flex flex-column align-items-center justify-content-center">
-                        <div class="tab-item-count"
-                             th:text="${statusCounts['SHIPPING'] != null ? statusCounts['SHIPPING'] : 0}">0
-                        </div>
+                        <div class="tab-item-count" th:text="${counts.shipping()}">0</div>
                         <div class="tab-item-label">배송중</div>
                     </a>
 
                     <a th:href="@{/mypage/order(status='DELIVERED')}"
                        th:classappend="${currentStatus == 'DELIVERED' ? 'active' : ''}"
                        class="order-status-tab d-flex flex-column align-items-center justify-content-center">
-                        <div class="tab-item-count"
-                             th:text="${statusCounts['DELIVERED'] != null ? statusCounts['DELIVERED'] : 0}">0
-                        </div>
+                        <div class="tab-item-count" th:text="${counts.delivered()}">0</div>
                         <div class="tab-item-label">배송완료</div>
                     </a>
 
-                    <a th:href="@{/mypage/order(status='CANCELED')}" th:classappend="${currentStatus == 'CANCELED' ? 'active' : ''}"
+                    <a th:href="@{/mypage/order(status='CANCELED')}"
+                       th:classappend="${currentStatus == 'CANCELED' ? 'active' : ''}"
                        class="order-status-tab d-flex flex-column align-items-center justify-content-center">
-                        <div class="tab-item-count"
-                             th:text="${statusCounts['CANCELED'] != null ? statusCounts['CANCELED'] : 0}">0
-                        </div>
+                        <div class="tab-item-count" th:text="${counts.canceled()}">0</div>
                         <div class="tab-item-label">취소</div>
                     </a>
+
                 </div>
             </div>
 
@@ -253,31 +250,27 @@
                             <span class="text-gray-700 small">주문번호: <strong th:text="${order.orderId()}"></strong></span>
                         </div>
                         <span th:classappend="${order.deliveryStatus().colorClass}"
-                              class="px-3 py-1 rounded-pill small font-weight-bold d-inline-flex align-items-center"
-                              style="padding: .25rem .75rem;">
+                              class="px-3 py-1 rounded-pill small font-weight-bold d-inline-flex align-items-center">
                             <i th:classappend="${order.deliveryStatus().iconClass}" class="fas fa-sm mr-2"></i>
                             <span th:text="${order.deliveryStatus().description}">배송 상태</span>
                         </span>
                     </div>
 
                     <div class="space-y-4">
-                        <div th:each="book, bookStat : ${order.orderItems()}"
+                        <div th:each="book : ${order.orderItems()}"
                              class="d-flex gap-4 mb-3 order-item-row"
                              th:data-order-item-id="${book.orderItemId()}"
-                             th:data-book-id="${book.bookId()}"
-                             th:data-status="${book.orderItemViewStatus() != null ? book.orderItemViewStatus().name() : 'UNKNOWN'}">
+                             th:data-book-id="${book.bookId()}">
 
-                            <a th:href="@{/books/{bookId}(bookId=${book.bookId()})}"
-                               style="text-decoration: none; flex-shrink: 0;">
+                            <a th:href="@{/books/{bookId}(bookId=${book.bookId()})}" style="text-decoration: none; flex-shrink: 0;">
                                 <img th:src="${book.bookImageUrl()}" th:alt="${book.bookTitle()}"
                                      class="rounded shadow-sm" style="width: 80px; height: 112px; object-fit: cover;">
                             </a>
+
                             <div class="flex-grow-1 p-1 d-flex flex-column justify-content-between">
                                 <div>
-                                    <a th:href="@{/books/{bookId}(bookId=${book.bookId()})}"
-                                       style="text-decoration: none;">
-                                        <h4 class="text-gray-900 mb-1" th:text="${book.bookTitle()}"
-                                            style="font-size: 1rem; font-weight: 600;"></h4>
+                                    <a th:href="@{/books/{bookId}(bookId=${book.bookId()})}" style="text-decoration: none;">
+                                        <h4 class="text-gray-900 mb-1" th:text="${book.bookTitle()}" style="font-size: 1rem; font-weight: 600;"></h4>
                                     </a>
                                     <p class="text-gray-500 small mb-2" th:text="${book.bookAuthor()}"></p>
                                 </div>
@@ -286,117 +279,103 @@
                                 </div>
                             </div>
 
+                            <div class="d-flex flex-column justify-content-center align-items-end gap-1" style="width: 130px; flex-shrink: 0;">
 
-                            <div th:if="${order.deliveryStatus().name() == 'DELIVERED'}"
-                                 class="d-flex flex-column justify-content-end gap-2 item-actions-wrapper"
-                                 style="flex-shrink: 0; width: 120px;"  th:id="'item-actions-' + ${book.orderItemId()}">
+                                <span th:if="${book.isRefundProcessing()}"
+                                      class="text-warning small font-weight-bold">반품 진행중</span>
 
-                                <div class="d-flex align-items-center" style="flex-shrink: 0; height: 38px;">
+                                <span th:if="${book.isRefunded()}"
+                                      class="text-danger small font-weight-bold">반품 완료</span>
 
-                                    <div class="status-info-wrapper d-flex align-items-center justify-content-center"
-                                         style="flex-shrink: 0; width: 100%; height: 38px;"
-                                         th:if="${book.orderItemViewStatus() != null and book.orderItemViewStatus().name() == 'UNCONFIRMED'}">
-                                        <span class="small font-weight-bold" style="text-align: center; color: #5b5b9e;"></span>
-                                    </div>
+                                <span th:if="${book.isRefundRejected()}"
+                                      class="text-secondary small font-weight-bold">반품 거절됨</span>
 
-                                    <div class="review-wrapper d-flex align-items-center" style="flex-shrink: 0; width: 100%;"
-                                         th:if="${book.orderItemViewStatus() != null and book.orderItemViewStatus().name() == 'CONFIRMED' and (book.isReviewed() == null or book.isReviewed() == false)}">
-                                        <a th:href="@{/books/{bookId}/reviews(bookId=${book.bookId()}, orderItemId=${book.orderItemId()})}"
-                                           class="btn btn-primary text-white"
-                                           style="width: 100%; height: 38px; background-color: #5b5b9e; border-color: #5b5b9e;">
-                                            리뷰 작성
-                                        </a>
-                                    </div>
+                                <a th:if="${book.canWriteReview()}"
+                                   th:href="@{/books/{id}/reviews(id=${book.bookId()}, orderItemId=${book.orderItemId()})}"
+                                   class="btn btn-primary btn-sm text-white w-100" style="font-size: 0.8rem;">
+                                    리뷰 작성
+                                </a>
 
-                                    <div class="status-info-wrapper d-flex align-items-center justify-content-center"
-                                         style="flex-shrink: 0; width: 100%; height: 38px;"
-                                         th:if="${book.orderItemViewStatus() != null and book.orderItemViewStatus().name() == 'CONFIRMED' and (book.isReviewed() != null and book.isReviewed() == true)}">
-                                        <span class="small font-weight-bold" style="text-align: center; color: #5b5b9e;">리뷰 작성 완료</span>
-                                    </div>
+                                <span th:if="${book.isReviewCompleted()}"
+                                      class="text-primary small font-weight-bold">리뷰 작성 완료</span>
 
-                                    <div class="status-info-wrapper d-flex align-items-center justify-content-center"
-                                         style="flex-shrink: 0; width: 100%; height: 38px;"
-                                         th:if="${book.orderItemViewStatus() != null and book.orderItemViewStatus().name() == 'REFUND_REQUESTED'}">
-                                        <span class="text-warning small font-weight-bold"
-                                              style="width: 100%; text-align: center;">반품 요청 중</span>
-                                    </div>
-
-                                    <div class="status-info-wrapper d-flex align-items-center justify-content-center"
-                                         style="flex-shrink: 0; width: 100%; height: 38px;"
-                                         th:if="${book.orderItemViewStatus() != null and book.orderItemViewStatus().name() == 'REFUNDED'}">
-                                        <span class="text-danger small font-weight-bold"
-                                              style="width: 100%; text-align: center;">반품 완료</span>
-                                    </div>
-
-                                    <div class="status-info-wrapper d-flex align-items-center justify-content-center"
-                                         style="flex-shrink: 0; width: 100%; height: 38px;"
-                                         th:if="${book.orderItemViewStatus() != null and book.orderItemViewStatus().name() == 'REFUND_REJECTED'}">
-                                        <span class="text-secondary small font-weight-bold"
-                                              style="width: 100%; text-align: center;">반품 거절됨</span>
-                                    </div>
-
-                                </div>
-
-                                <div class="d-flex flex-column align-items-end" style="flex-shrink: 0; height: 38px; justify-content: center;">
-                                    <span class="text-gray-900 font-weight-bold" style="font-size: 1rem; line-height: 1;"
-                                          th:text="${#numbers.formatDecimal(book.salePrice(), 0, 'COMMA', 0, 'POINT') + '원'}"></span>
-                                </div>
-                            </div>
-
-                            <div th:unless="${order.deliveryStatus().name() == 'DELIVERED'}"
-                                 class="d-flex flex-column justify-content-end align-items-end price-placeholder"
-                                 style="flex-shrink: 0; width: 120px; height: 112px;">
-                                <div style="flex-shrink: 0; height: 38px;"></div>
-                                <div class="d-flex flex-column align-items-end" style="flex-shrink: 0; height: 38px; justify-content: center; margin-top: 2px;">
-                                    <span class="text-gray-900 font-weight-bold" style="font-size: 1rem; line-height: 1;"
-                                          th:text="${#numbers.formatDecimal(book.salePrice(), 0, 'COMMA', 0, 'POINT') + '원'}"></span>
-                                </div>
+                                <span class="text-gray-900 font-weight-bold mt-1"
+                                      th:text="${#numbers.formatDecimal(book.salePrice(), 0, 'COMMA', 0, 'POINT') + '원'}"></span>
                             </div>
                         </div>
                     </div>
 
                     <div class="mt-4 pt-3 border-top border-gray-200 d-flex gap-2 order-actions">
+
                         <a th:href="@{/orders/{orderId}(orderId=${order.orderId()})}"
-                           class="btn btn-light text-gray-700 shadow-sm" style="flex: 1;">
+                           class="btn btn-light text-gray-700 shadow-sm">
                             주문 상세 보기
                         </a>
 
-                        <a th:if="${order.deliveryStatus().name() == 'WAITING'}"
+                        <a th:if="${order.canCancel()}"
                            href="#"
                            th:data-order-id="${order.orderId()}"
-                           class="btn btn-danger text-white btn-cancel-order" style="flex: 1;">
+                           class="btn btn-danger text-white btn-cancel-order">
                             주문 취소
                         </a>
 
-                        <a th:if="${order.deliveryStatus().name() == 'DELIVERED' and order.hasItemsToConfirm()}"
+                        <a th:if="${order.canRequestRefund()}"
                            th:href="@{/orders/{orderId}/refund(orderId=${order.orderId()})}"
-                           class="btn btn-outline-secondary btn-return-request"
-                           style="flex: 1;">
+                           class="btn btn-outline-secondary btn-return-request">
                             반품 신청
                         </a>
 
-                        <div th:if="${(order.deliveryStatus().name() == 'DELIVERED'
-                                     and order.hasItemsToConfirm()
-                                     and not order.hasRefundedRequestItems())}"
-                             class="d-flex align-items-center" style="flex-shrink: 0; flex: 1;">
-                            <a href="#"
-                               th:data-order-id="${order.orderId()}"
-                               class="btn btn-success text-white btn-confirm-all-purchase d-flex align-items-center justify-content-center"
-                               style="width: 100%; height: 38px;">
-                                전체 구매 확정
-                            </a>
-                        </div>
+                        <a th:if="${order.canConfirmPurchase()}"
+                           href="#"
+                           th:data-order-id="${order.orderId()}"
+                           class="btn btn-success text-white btn-confirm-all-purchase">
+                            전체 구매 확정
+                        </a>
 
                     </div>
 
                 </div>
 
-                <div class="fixed-content-area py-3">
+                <div class="py-3">
                     <p class="small text-muted border-top pt-2">
                         * 배송조회는 택배사로 상품 전달 후 조회 가능합니다.
                         <br>* '전체 구매 확정' 시 해당 주문 건에 대해 반품/교환 신청이 불가능해집니다.
                     </p>
                 </div>
+            </div>
+
+            <div th:if="${pageResponse.totalElements > 0}" class="d-flex justify-content-center mt-5">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+
+                        <li class="page-item" th:classappend="${pageResponse.page == 0} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/mypage/order(page=${pageResponse.page - 1}, status=${currentStatus})}"
+                               aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+
+                        <li class="page-item"
+                            th:each="i : ${#numbers.sequence(0, pageResponse.totalPages - 1)}"
+                            th:if="${i >= pageResponse.page - 2 and i <= pageResponse.page + 2}"
+                            th:classappend="${i == pageResponse.page} ? 'active'">
+
+                            <a class="page-link"
+                               th:href="@{/mypage/order(page=${i}, status=${currentStatus})}"
+                               th:text="${i + 1}">1</a>
+                        </li>
+
+                        <li class="page-item" th:classappend="${pageResponse.last} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/mypage/order(page=${pageResponse.page + 1}, status=${currentStatus})}"
+                               aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+
+                    </ul>
+                </nav>
             </div>
 
         </div>

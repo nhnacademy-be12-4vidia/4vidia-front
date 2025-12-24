@@ -23,32 +23,63 @@ public record OrderPreviewResponse(
             Integer salePrice,
             OrderItemViewStatus orderItemViewStatus,
             Boolean isReviewed
-    ) { }
+    ) {
+        public boolean isRefundProcessing() { // 반품 진행중
+            return orderItemViewStatus == OrderItemViewStatus.REFUND_REQUESTED;
+        }
 
-    // UNCONFIRMED 상태의 항목이 하나라도 있으면 true (전체 구매 확정 버튼 표시 조건)
-    public boolean hasUnconfirmedItems() {
-        if (orderItems == null) return false;
-        return orderItems.stream()
-                .anyMatch(item -> item.orderItemViewStatus() == OrderItemViewStatus.UNCONFIRMED
-                        || item.orderItemViewStatus() == OrderItemViewStatus.REFUND_REJECTED);
+        public boolean isRefunded() { // 반품 완료
+            return orderItemViewStatus == OrderItemViewStatus.REFUNDED;
+        }
+
+        public boolean isRefundRejected() { // 반품 거절됨
+            return orderItemViewStatus == OrderItemViewStatus.REFUND_REJECTED;
+        }
+
+        public boolean isConfirmed() { // 구매 확정됨
+            return orderItemViewStatus == OrderItemViewStatus.CONFIRMED;
+        }
+
+        // 리뷰 작성 가능 여부: 구매확정 상태이고 && 리뷰를 아직 안 썼을 때
+        public boolean canWriteReview() {
+            return isConfirmed() && (Boolean.FALSE.equals(isReviewed) || isReviewed == null);
+        }
+
+        // ★ 에러 났던 메서드 추가 ★
+        public boolean isReviewCompleted() {
+            return isConfirmed() && Boolean.TRUE.equals(isReviewed);
+        }
     }
 
-    // REFUND_REQUEST 상태의 항목 (REFUND_REQUEST 상태가 아닌 항목)이 하나라도 있으면 true
-    public boolean hasRefundedRequestItems() {
-        if (orderItems == null) return false;
-        return orderItems.stream()
-                .anyMatch(item -> item.orderItemViewStatus() == OrderItemViewStatus.REFUND_REQUESTED);
+    // --- 주문(Order) 레벨 버튼 노출 로직 ---
+
+    // 1. 주문 취소 가능 (배송 준비중일 때만)
+    public boolean canCancel() {
+        return deliveryStatus == DeliveryStatus.WAITING;
     }
 
-    public boolean isRefundAvailable() {
-        if (orderItems == null) return false;
-        // UNCONFIRMED 또는 REFUND_REJECTED 상태인 아이템이 하나라도 있으면 true
-        return orderItems.stream()
-                .anyMatch(item -> item.orderItemViewStatus() == OrderItemViewStatus.UNCONFIRMED
-                        || item.orderItemViewStatus() == OrderItemViewStatus.REFUND_REJECTED);
+    // 2. 반품 신청 가능
+    // 조건: 배송완료 상태 AND (확정 전 아이템 존재 OR 반품 거절된 아이템 존재)
+    public boolean canRequestRefund() {
+        if (deliveryStatus != DeliveryStatus.DELIVERED) return false;
+        return hasItemsToProcess();
     }
 
-    public boolean hasItemsToConfirm() {
+    // 3. 전체 구매 확정 가능
+    // 조건: 배송완료 상태 AND 반품 진행중인 아이템이 하나도 없어야 함 AND 확정할 아이템이 남아있어야 함
+    public boolean canConfirmPurchase() {
+        if (deliveryStatus != DeliveryStatus.DELIVERED) return false;
+
+        boolean hasRefundProcessing = orderItems.stream()
+                .anyMatch(OrderBookResponse::isRefundProcessing);
+
+        if (hasRefundProcessing) return false; // 반품 진행중인게 있으면 확정 불가
+
+        return hasItemsToProcess(); // 확정 또는 반품신청 할 대상이 있어야 함
+    }
+
+    // 내부 헬퍼
+    private boolean hasItemsToProcess() {
         if (orderItems == null) return false;
         return orderItems.stream()
                 .anyMatch(item -> item.orderItemViewStatus() == OrderItemViewStatus.UNCONFIRMED

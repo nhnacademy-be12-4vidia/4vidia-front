@@ -1,14 +1,12 @@
 package com.nhnacademy._vidiafront.order.client;
 
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
+import com.nhnacademy._vidiafront.global.dto.PageResponse;
 import com.nhnacademy._vidiafront.order.dto.order.request.OrderCheckoutListRequest;
 import com.nhnacademy._vidiafront.order.dto.order.request.OrderCheckoutRequest;
 import com.nhnacademy._vidiafront.order.dto.order.request.OrderCreateRequest;
 import com.nhnacademy._vidiafront.order.dto.order.request.OrderTrackingRequest;
-import com.nhnacademy._vidiafront.order.dto.order.response.OrderCheckoutResponse;
-import com.nhnacademy._vidiafront.order.dto.order.response.OrderCreateResponse;
-import com.nhnacademy._vidiafront.order.dto.order.response.OrderPreviewResponse;
-import com.nhnacademy._vidiafront.order.dto.order.response.OrderResponse;
+import com.nhnacademy._vidiafront.order.dto.order.response.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
@@ -47,14 +45,20 @@ public class OrderApiClient {
     }
 
     //주문내역 미리보기
-    public List<OrderPreviewResponse> getOrderPreview() { // 기존 "/my/orders"
-        ParameterizedTypeReference<List<OrderPreviewResponse>> typeReference =
-                new ParameterizedTypeReference<List<OrderPreviewResponse>>() {};
+    public PageResponse<OrderPreviewResponse> getOrderPreview(int page, int size, String status) { // 기존 "/my/orders"
+        ParameterizedTypeReference<PageResponse<OrderPreviewResponse>> typeReference =
+                new ParameterizedTypeReference<PageResponse<OrderPreviewResponse>>() {};
 
-        List<OrderPreviewResponse> orderPreviewResponses = backendApiClient.get(ORDER_SERVICE + "/users/me/orders", typeReference);
-        return orderPreviewResponses;
+        String url = ORDER_SERVICE + "/users/me/orders?page=" + page + "&size=" + size + "&status=" + status;
+
+        return backendApiClient.get(url, typeReference);
     }
 
+    // 주문 상태별 카운트 조회
+    // 탭 상단에 표시될 숫자(전체, 준비중, 배송중 등)를 가져옴
+    public OrderCountResponse getOrderCounts() {
+        return backendApiClient.get(ORDER_SERVICE + "/users/me/orders/counts", OrderCountResponse.class);
+    }
 
     public void cancelOrder(long orderId) {
         backendApiClient.putNoBody(ORDER_SERVICE + "/orders/" + orderId + "/cancel", Void.class);

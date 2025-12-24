@@ -31,14 +31,13 @@ public class RefundHistoryController {
         // 2. 전체 리스트를 이용해 상태별 카운트를 계산합니다. (메모리 연산)
         Map<String, Long> statusCounts = allRefunds.stream()
                 .collect(Collectors.groupingBy(
-                        RefundHistoryGroupResponse::refundStatus, // Enum일 경우 name() 호출
+                        r -> r.refundStatus().name(),
                         Collectors.counting()
                 ));
 
         // 기본값 설정
         statusCounts.putIfAbsent("PROCESS", 0L);
         statusCounts.putIfAbsent("APPROVED", 0L);
-        statusCounts.putIfAbsent("REJECTED", 0L);
 
         // 3. 필터링 로직: 선택된 상태가 있으면 필터링하고, 없거나 "ALL"이면 전체를 사용합니다.
         List<RefundHistoryGroupResponse> refundList;
@@ -46,7 +45,7 @@ public class RefundHistoryController {
             refundList = allRefunds;
         } else {
             refundList = allRefunds.stream()
-                    .filter(r -> status.equals(r.refundStatus()))
+                    .filter(r -> status.equals(r.refundStatus().name()))
                     .toList();
         }
 

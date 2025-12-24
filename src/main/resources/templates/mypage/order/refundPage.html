@@ -44,7 +44,7 @@
                                       name="reason"
                                       class="form-control"
                                       rows="5"
-                                      placeholder="반품 사유를 작성해 주세요 (선택사항)"
+                                      placeholder="반품 사유를 작성해 주세요"
                                       disabled></textarea>
                             <div class="form-text text-muted">파손/불량일 경우 상세히 적어주시면 처리에 도움이 됩니다.</div>
                         </div>
@@ -83,8 +83,8 @@
                                        class="form-check-input item-checkbox"
                                        name="orderItemIds"
                                        form="returnForm"
-                                th:id="${'item-' + it.orderItemId}"
-                                th:value="${it.orderItemId}">
+                                       th:id="${'item-' + it.orderItemId}"
+                                       th:value="${it.orderItemId}">
                                 <div>
                                     <div class="book-title" th:text="${it.bookTitle}">책 제목</div>
                                     <div class="book-qty" th:text="'수량: ' + ${it.quantity}">수량: 1</div>

@@ -37,7 +37,7 @@
                 <tbody>
                 <tr>
                     <th class="bg-light" style="width: 200px;">반품번호</th>
-                    <td th:text="${refund.orderId}"></td>
+                    <td th:text="${refund.refundId}"></td>
                 </tr>
 
                 <tr>
@@ -105,21 +105,21 @@
 
                                     <!-- 아이템 상태 -->
                                     <span class="badge-status"
-                                          th:text="${item.refundStatus}"
-                                          th:classappend="' status-' + ${item.refundStatus}">
+                                          th:text="${item.refundItemStatus}"
+                                          th:classappend="' status-' + ${item.refundItemStatus}">
                                     </span>
                                 </div>
 
                                 <!-- ✅ 아이템별 승인 / 거절 -->
                                 <div class="col-md-5"
-                                     th:if="${item.refundStatus == 'PROCESS'}">
+                                     th:if="${item.refundItemStatus.name == 'PROCESS'}">
 
                                     <!-- 승인 -->
                                     <form th:action="@{/admin/refunds/{id}(id=${item.refundItemId})}"
                                           method="post"
                                           class="d-inline-block mr-2">
 
-                                        <input type="hidden" name="refundStatus" value="APPROVED">
+                                        <input type="hidden" name="refundItemStatus" value="APPROVED">
                                         <input type="hidden" name="page" th:value="${page}">
 
                                         <button type="submit"
@@ -134,7 +134,7 @@
                                           method="post"
                                           class="mt-2">
 
-                                        <input type="hidden" name="refundStatus" value="REJECTED">
+                                        <input type="hidden" name="refundItemStatus" value="REJECTED">
                                         <input type="hidden" name="page" th:value="${page}">
 
                                         <textarea name="rejectDetail"

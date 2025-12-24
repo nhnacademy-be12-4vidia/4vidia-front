@@ -84,19 +84,11 @@
                    th:classappend="${currentStatus == 'APPROVED' ? 'active' : ''}"
                    class="status-tab">
                     <div class="tab-count" th:text="${statusCounts['APPROVED']}">0</div>
-                    <div>반품완료</div>
+                    <div>반품처리완료</div>
                 </a>
-
-<!--                <a th:href="@{/mypage/refund-history(status='REJECTED')}"-->
-<!--                   th:classappend="${currentStatus == 'REJECTED' ? 'active' : ''}"-->
-<!--                   class="status-tab">-->
-<!--                    <div class="tab-count" th:text="${statusCounts['REJECTED']}">0</div>-->
-<!--                    <div>반품거부</div>-->
-<!--                </a>-->
             </div>
         </div>
 
-        <!-- ================= 리스트 ================= -->
         <div class="fixed-content-area">
 
             <div th:if="${#lists.isEmpty(returnList)}"
@@ -104,11 +96,9 @@
                 반품 내역이 없습니다.
             </div>
 
-            <!-- 🔥 Refund(반품 신청서) 단위 -->
             <div th:each="refund : ${returnList}"
                  class="bg-white rounded shadow-sm p-4 mb-4 border refund-card">
 
-                <!-- 상단 정보 -->
                 <div class="mb-3 border-bottom pb-2 d-flex justify-content-between align-items-center">
                     <div>
                         <div class="fw-bold"
@@ -123,13 +113,9 @@
                             <span th:text="${refund.orderId}"></span>
                         </div>
                     </div>
-
                     <span class="badge badge-status"
-                          th:text="${refund.refundStatus}"
-                          th:classappend="
-                              ${refund.refundStatus == 'PROCESS'} ? ' bg-warning' :
-                              (${refund.refundStatus == 'APPROVED'} ? ' bg-success' :
-                              ' bg-danger')">
+                          th:classappend="${refund.refundStatus.colorClass}"
+                          th:text="${refund.refundStatus().description}">
                     </span>
                 </div>
 
@@ -148,13 +134,10 @@
                             <div class="fw-bold"
                                  th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT') + '원'}">
                             </div>
-                            <span class="badge"
-                                  th:text="${item.refundItemStatus}"
-                                  th:classappend="
-                                      ${item.refundItemStatus == 'PROCESS'} ? ' bg-warning' :
-                                      (${item.refundItemStatus == 'APPROVED'} ? ' bg-success' :
-                                      ' bg-danger')">
-                            </span>
+                                <span class="badge"
+                                      th:classappend="${item.refundItemStatus().colorClass}"
+                                      th:text="${item.refundItemStatus().description}">
+                                </span>
                         </div>
                     </div>
 

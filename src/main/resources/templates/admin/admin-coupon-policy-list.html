@@ -164,6 +164,65 @@
                 </table>
             </div>
 
+
+            <!-- 페이지네이션 -->
+            <nav th:if="${page.totalPages > 1}" aria-label="Page navigation">
+                <ul class="pagination justify-content-center mt-3">
+
+                    <!-- 이전 -->
+                    <li class="page-item"
+                        th:classappend="${page.first} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/admin/coupons/policies(
+                    page=${page.number - 1},
+                    size=${size},
+                    keyword=${keyword},
+                    status=${status},
+                    targetType=${targetType},
+                    userId=${userId}
+               )}">
+                            이전
+                        </a>
+                    </li>
+
+                    <!-- 페이지 번호 -->
+                    <li class="page-item"
+                        th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
+                        th:classappend="${i == page.number} ? 'active'">
+                        <a class="page-link"
+                           th:text="${i + 1}"
+                           th:href="@{/admin/coupons/policies(
+                    page=${i},
+                    size=${size},
+                    keyword=${keyword},
+                    status=${status},
+                    targetType=${targetType},
+                    userId=${userId}
+               )}">
+                        </a>
+                    </li>
+
+                    <!-- 다음 -->
+                    <li class="page-item"
+                        th:classappend="${page.last} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/admin/coupons/policies(
+                    page=${page.number + 1},
+                    size=${size},
+                    keyword=${keyword},
+                    status=${status},
+                    targetType=${targetType},
+                    userId=${userId}
+               )}">
+                            다음
+                        </a>
+                    </li>
+
+                </ul>
+            </nav>
+
+
+
         </div>
     </div>
 

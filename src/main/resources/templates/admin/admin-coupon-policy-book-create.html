@@ -5,7 +5,7 @@
       layout:decorate="~{admin/admin-layout}">
 <head>
     <meta charset="UTF-8">
-    <title>도서 이벤트 쿠폰 정책 생성</title>
+    <title>도서 EVENT 쿠폰 정책 생성</title>
 
     <link th:href="@{/css/sb-admin-2.min.css}" rel="stylesheet">
 
@@ -15,13 +15,13 @@
 </head>
 
 <body>
-
 <div layout:fragment="pageContent">
+
     <h1 class="h3 mb-4">도서 EVENT 쿠폰 정책 생성</h1>
 
     <form th:action="@{/admin/coupons/policies/book}" method="post" class="row g-3">
 
-        <!-- 🔥 고정값 -->
+        <!-- 🔒 고정값 -->
         <input type="hidden" name="bookId" th:value="${bookId}">
         <input type="hidden" name="policyType" value="EVENT">
         <input type="hidden" name="discountTargetType" value="BOOK">
@@ -33,19 +33,17 @@
             <input type="text" name="policyName" class="form-control" required>
         </div>
 
-        <!-- 정책 타입 (표시용) -->
         <div class="col-md-3">
             <label>정책 타입</label>
             <input class="form-control" value="EVENT" disabled>
         </div>
 
-        <!-- 대상 (표시용) -->
         <div class="col-md-3">
             <label>대상</label>
             <input class="form-control" value="BOOK" disabled>
         </div>
 
-        <!-- 할인 타입 -->
+        <!-- 할인 -->
         <div class="col-md-3">
             <label>할인 타입</label>
             <select name="discountType" class="form-select" id="discountType">
@@ -54,125 +52,90 @@
             </select>
         </div>
 
-        <!-- 할인값 -->
         <div class="col-md-3">
             <label id="discountValueLabel">할인 금액</label>
-            <input type="number"
-                   name="discountValue"
-                   id="discountValue"
-                   class="form-control"
-                   required>
+            <input type="number" name="discountValue" id="discountValue" class="form-control" required>
         </div>
 
         <!-- 재고 -->
         <div class="col-md-3">
             <label>재고</label>
             <div class="form-check mt-2">
-                <input class="form-check-input"
-                       type="checkbox"
-                       id="unlimitedCheck"
-                       checked>
-                <label class="form-check-label">
-                    재고 무제한
-                </label>
+                <input class="form-check-input" type="checkbox" id="unlimitedCheck" checked>
+                <label class="form-check-label">무제한</label>
             </div>
         </div>
 
-        <!-- RATE 전용 -->
+        <!-- RATE 옵션 -->
         <div id="rateBox" class="row hidden">
             <div class="col-md-3">
                 <label>최소 주문 금액</label>
-                <input type="number"
-                       name="minOrderAmount"
-                       id="minOrderAmount"
-                       class="form-control">
+                <input type="number" name="minOrderAmount" id="minOrderAmount" class="form-control">
             </div>
             <div class="col-md-3">
                 <label>최대 할인 금액</label>
-                <input type="number"
-                       name="maxDiscountAmount"
-                       id="maxDiscountAmount"
-                       class="form-control">
+                <input type="number" name="maxDiscountAmount" id="maxDiscountAmount" class="form-control">
             </div>
         </div>
 
-        <!-- 유효기간 타입 -->
+        <!-- 유효기간 -->
         <div class="col-md-3">
             <label>유효기간 타입</label>
-            <select name="validityType"
-                    class="form-select"
-                    id="validityType">
+            <select name="validityType" class="form-select" id="validityType">
                 <option value="RELATIVE">RELATIVE</option>
                 <option value="ABSOLUTE">ABSOLUTE</option>
             </select>
         </div>
 
-        <!-- RELATIVE -->
         <div class="col-md-3" id="relativeBox">
             <label>유효기간(일)</label>
-            <input type="number"
-                   name="validDays"
-                   id="validDays"
-                   class="form-control">
+            <input type="number" name="validDays" id="validDays" class="form-control">
         </div>
 
-        <!-- ABSOLUTE -->
         <div class="col-md-3 hidden" id="absoluteStart">
             <label>시작일</label>
-            <input type="date"
-                   name="startDate"
-                   class="form-control">
+            <input type="date" name="startDate" class="form-control">
         </div>
 
         <div class="col-md-3 hidden" id="absoluteEnd">
             <label>종료일</label>
-            <input type="date"
-                   name="endDate"
-                   class="form-control">
+            <input type="date" name="endDate" class="form-control">
         </div>
 
         <div class="col-12 text-end mt-4">
-            <button class="btn btn-primary btn-lg" id="submitBtn">
-                정책 생성
-            </button>
+            <button class="btn btn-primary btn-lg" id="submitBtn">정책 생성</button>
         </div>
+
     </form>
 </div>
 
 <th:block layout:fragment="pageScript">
     <script>
         const discountType = document.getElementById('discountType');
-        const discountValue = document.getElementById('discountValue');
-        const discountLabel = document.getElementById('discountValueLabel');
         const rateBox = document.getElementById('rateBox');
-        const minOrder = document.getElementById('minOrderAmount');
-        const maxDiscount = document.getElementById('maxDiscountAmount');
 
         const validityType = document.getElementById('validityType');
         const relativeBox = document.getElementById('relativeBox');
         const absoluteStart = document.getElementById('absoluteStart');
         const absoluteEnd = document.getElementById('absoluteEnd');
-        const validDays = document.getElementById('validDays');
 
         const unlimitedCheck = document.getElementById('unlimitedCheck');
         const limitedInput = document.getElementById('limitedQuantity');
+
+        const minOrder = document.getElementById('minOrderAmount');
+        const maxDiscount = document.getElementById('maxDiscountAmount');
         const submitBtn = document.getElementById('submitBtn');
 
         /* 할인 타입 */
         function handleDiscountType() {
-            if (discountType.value === 'RATE') {
-                discountLabel.innerText = '할인율 (%)';
-                discountValue.min = 1;
-                discountValue.max = 100;
-                rateBox.classList.remove('hidden');
-            } else {
-                discountLabel.innerText = '할인 금액';
-                discountValue.removeAttribute('min');
-                discountValue.removeAttribute('max');
-                rateBox.classList.add('hidden');
+            const isRate = discountType.value === 'RATE';
+            rateBox.classList.toggle('hidden', !isRate);
+
+            if (!isRate) {
                 minOrder.value = '';
                 maxDiscount.value = '';
             }
+
             validateForm();
         }
 
@@ -182,40 +145,43 @@
             relativeBox.classList.toggle('hidden', !isRel);
             absoluteStart.classList.toggle('hidden', isRel);
             absoluteEnd.classList.toggle('hidden', isRel);
-            validDays.disabled = !isRel;
-            validateForm();
         }
 
-        /* 무제한 */
+        /* 재고 무제한 */
         unlimitedCheck.addEventListener('change', () => {
             limitedInput.value = unlimitedCheck.checked ? '' : '0';
         });
 
-        /* 최종 검증 */
+        /* 🔥 핵심 검증 로직 */
         function validateForm() {
             let valid = true;
 
+            // RATE면 최소주문금액 + 최대할인금액 필수
             if (discountType.value === 'RATE') {
-                if (!minOrder.value || !maxDiscount.value) valid = false;
+                if (!minOrder.value || !maxDiscount.value) {
+                    valid = false;
+                }
             }
 
             submitBtn.disabled = !valid;
         }
 
+        /* 이벤트 바인딩 */
         discountType.addEventListener('change', handleDiscountType);
         validityType.addEventListener('change', handleValidityType);
+
         document.querySelectorAll('input, select').forEach(el => {
             el.addEventListener('input', validateForm);
             el.addEventListener('change', validateForm);
         });
 
-        // 초기 세팅
-        limitedInput.value = '';
+        /* 초기 실행 */
         handleDiscountType();
         handleValidityType();
         validateForm();
     </script>
 </th:block>
+
 
 </body>
 </html>

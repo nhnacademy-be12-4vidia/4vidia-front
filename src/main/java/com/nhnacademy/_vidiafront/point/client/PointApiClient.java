@@ -11,6 +11,8 @@ import com.nhnacademy._vidiafront.point.dto.response.PointTotalResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+
 @Component
 @RequiredArgsConstructor
 
@@ -38,14 +40,16 @@ public class PointApiClient {
     }
 
 
+
     /**
-     * 포인트 내역 조회
+     * 포인트 내역 조회 (기간 파라미터 포함)
      */
-    public PointHistoryPageResponse getHistoryPage(String category,int page, int limit) {
-        return backendApiClient.get(
-                USER_SERVICE + "/users/me/points/history?category=" + category + "&page=" + page + "&size=" + limit,
-                PointHistoryPageResponse.class
-        );
+    public PointHistoryPageResponse getHistoryPage(String category, LocalDate from, LocalDate to, int page, int limit) {
+        // 날짜를 명시적으로 String으로 변환하여 전달 (ISO_DATE 형식: 2025-12-24)
+        String url = String.format("%s/users/me/points/history?category=%s&from=%s&to=%s&page=%d&size=%d",
+                USER_SERVICE, category, from, to, page, limit);
+
+        return backendApiClient.get(url, PointHistoryPageResponse.class);
     }
 
     /**

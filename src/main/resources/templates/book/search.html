@@ -364,6 +364,108 @@
                 height: 230px;
             }
         }
+        /* ------------------------------------------------ */
+        /* 필터/정렬 바 (세련된 스타일 + 오른쪽 정렬) */
+        /* ------------------------------------------------ */
+        .filter-shell{
+            background: rgba(255,255,255,0.92);
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 14px;
+            padding: 10px 12px;
+            box-shadow: 0 0.35rem 1.05rem rgba(0,0,0,0.06);
+            backdrop-filter: blur(6px);
+        }
+
+        .filter-bar{
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+            align-items:center;
+            justify-content:flex-end; /* 전체를 오른쪽으로 */
+        }
+
+        .filter-group{
+            display:flex;
+            align-items:center;
+            gap:8px;
+            padding: 6px 8px;
+            border-radius: 12px;
+            background: rgba(78,115,223,0.06);
+            border: 1px solid rgba(78,115,223,0.12);
+        }
+
+        .filter-chip{
+            display:inline-flex;
+            align-items:center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(78,115,223,0.14);
+            border: 1px solid rgba(78,115,223,0.22);
+            color: #2e59d9;
+            font-weight: 800;
+            font-size: 0.78rem;
+            white-space: nowrap;
+        }
+
+        .filter-select,
+        .filter-input{
+            height: 36px;
+            border: 1px solid rgba(0,0,0,0.12);
+            border-radius: 12px;
+            padding: 0 12px;
+            background: #fff;
+            outline: none;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .filter-input{ width: 110px; }
+        .filter-select{ width: 180px; }
+
+        .filter-select:focus,
+        .filter-input:focus{
+            border-color: rgba(78,115,223,0.55);
+            box-shadow: 0 0 0 3px rgba(78,115,223,0.18);
+        }
+
+        .tilde{ color:#9aa0a6; font-weight: 800; }
+        .unit{ color:#6c757d; font-weight: 800; font-size: 0.85rem; }
+
+        .filter-actions{
+            display:flex;
+            gap:8px;
+            align-items:center;
+        }
+
+        .filter-btn{
+            height: 36px;
+            padding: 0 14px;
+            border-radius: 12px;
+            border: 1px solid #4e73df;
+            background: #4e73df;
+            color: #fff;
+            font-weight: 900;
+            cursor: pointer;
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+        }
+
+        .filter-btn.ghost{
+            background: #fff;
+            color: #4e73df;
+        }
+
+        .filter-btn:hover{ filter: brightness(0.96); }
+
+        @media (max-width: 576px) {
+            .filter-shell{ padding: 10px; }
+            .filter-bar{ justify-content: flex-start; }
+            .filter-group{ width: 100%; justify-content: space-between; }
+            .filter-input{ width: 45%; }
+            .filter-select{ width: 100%; }
+            .filter-actions{ width: 100%; justify-content: flex-end; }
+        }
 
     </style>
 
@@ -392,6 +494,62 @@
             window.location.href = '/books/search?' + params.toString();
         }
     </script>
+    <script>
+        function setSort(sortValue){
+            // 정렬 변경만으로는 이동하지 않습니다. (적용 버튼에서 함께 처리)
+            const sel = document.getElementById('sortSelect');
+            if (sel && typeof sortValue === 'string') sel.value = sortValue;
+        }
+
+        function applyFilters(){
+            const url = new URL(window.location.href);
+            const minV = document.getElementById('minPriceInput')?.value?.trim();
+            const maxV = document.getElementById('maxPriceInput')?.value?.trim();
+            const sortV = document.getElementById('sortSelect')?.value;
+
+            if (minV && maxV) {
+                const minN = Number(minV);
+                const maxN = Number(maxV);
+                if (!Number.isNaN(minN) && !Number.isNaN(maxN) && minN > maxN) {
+                    alert('최저가가 최고가보다 클 수 없습니다.');
+                    return;
+                }
+            }
+
+            if (minV) url.searchParams.set('minPrice', minV);
+            else url.searchParams.delete('minPrice');
+
+            if (maxV) url.searchParams.set('maxPrice', maxV);
+            else url.searchParams.delete('maxPrice');
+
+            if (sortV) url.searchParams.set('sort', sortV);
+            else url.searchParams.delete('sort');
+
+            url.searchParams.set('page', '0');
+
+            if (!url.searchParams.get('size')) {
+                const size = document.getElementById('pageSizeHolder')?.value;
+                if (size) url.searchParams.set('size', size);
+            }
+
+            window.location.href = url.toString();
+        }
+
+        function resetFilters(){
+            const url = new URL(window.location.href);
+            url.searchParams.delete('minPrice');
+            url.searchParams.delete('maxPrice');
+            url.searchParams.delete('sort');
+            url.searchParams.set('page', '0');
+
+            if (!url.searchParams.get('size')) {
+                const size = document.getElementById('pageSizeHolder')?.value;
+                if (size) url.searchParams.set('size', size);
+            }
+
+            window.location.href = url.toString();
+        }
+    </script>
 </head>
 
 <body>
@@ -409,6 +567,56 @@
                           th:text="' · 총 ' + ${totalElements} + '건'"> · 총 0건</span>
                     <span th:if="${useSemantic}" class="badge bg-primary ms-2">AI 검색 사용</span>
                 </p>
+            </div>
+        </div>
+
+        <!-- 필터/정렬 바 (모두 오른쪽 정렬, 적용 시에만 반영) -->
+        <div class="filter-shell mt-2 mx-2">
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <span class="filter-chip">가격</span>
+                    <input id="minPriceInput" name="minPrice" type="number" min="0" step="100"
+                           class="filter-input" placeholder="최저"
+                           th:value="${param.minPrice}">
+                    <span class="tilde">~</span>
+                    <input id="maxPriceInput" name="maxPrice" type="number" min="0" step="100"
+                           class="filter-input" placeholder="최고"
+                           th:value="${param.maxPrice}">
+                    <span class="unit">원</span>
+                </div>
+
+                <div class="filter-group">
+                    <span class="filter-chip">정렬</span>
+                    <select id="sortSelect" class="filter-select">
+                        <option value="" th:selected="${param.sort == null or param.sort[0] == ''}">기본</option>
+
+                        <option value="PUBLISHED_DESC"
+                                th:selected="${param.sort != null and param.sort[0] == 'PUBLISHED_DESC'}">신상품순</option>
+
+                        <option value="PUBLISHED_ASC"
+                                th:selected="${param.sort != null and param.sort[0] == 'PUBLISHED_ASC'}">오래된순</option>
+
+                        <option value="PRICE_ASC"
+                                th:selected="${param.sort != null and param.sort[0] == 'PRICE_ASC'}">최저가순</option>
+
+                        <option value="PRICE_DESC"
+                                th:selected="${param.sort != null and param.sort[0] == 'PRICE_DESC'}">최고가순</option>
+
+                        <option value="RATING_DESC"
+                                th:selected="${param.sort != null and param.sort[0] == 'RATING_DESC'}">평점순</option>
+                    </select>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="button" class="filter-btn" onclick="applyFilters()">
+                        <i class="fas fa-check"></i>
+                        적용
+                    </button>
+                    <button type="button" class="filter-btn ghost" onclick="resetFilters()">
+                        <i class="fas fa-undo"></i>
+                        초기화
+                    </button>
+                </div>
             </div>
         </div>
 

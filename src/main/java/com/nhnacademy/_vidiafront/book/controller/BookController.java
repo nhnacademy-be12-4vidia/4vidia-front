@@ -99,41 +99,6 @@ public class BookController {
 
         return "book/search-with-tag";
     }
-//
-//    @GetMapping("/search/ai")
-//    public String searchBooksWithLlm(BookSearchRequest request,
-//        @RequestParam(defaultValue = "0") int page,
-//        @RequestParam(defaultValue = "20") int size,
-//        Model model) {
-//
-//        if (!StringUtils.hasText(request.keyword())) {
-//            model.addAttribute("books", List.of());
-//            model.addAttribute("keyword", "");
-//            model.addAttribute("message", "검색어를 입력해주세요.");
-//            return "book/search";
-//        }
-//
-//        AiBookSearchResponse response = bookApiClient.searchBooksWithLlm(request, page, size);
-//
-//
-//        PageResponse<BookListResponse> pageResult = response.results();
-//
-//        model.addAttribute("books", pageResult.content());
-//        model.addAttribute("page", pageResult.page());
-//        model.addAttribute("size", pageResult.size());
-//        model.addAttribute("totalPages", pageResult.totalPages());
-//        model.addAttribute("totalElements", pageResult.totalElements());
-//        model.addAttribute("keyword", request.keyword());
-//        model.addAttribute("useSemantic", request.useSemantic());
-//
-//        // AI 관련 추가 필드
-//        model.addAttribute("useAi", true);
-//        model.addAttribute("aiAnswer", response.aiAnswer());
-//
-//        return "book/search";
-//
-//
-//    }
 
     @GetMapping("/{bookId:\\d+}")
     public String bookDetails(@PathVariable Long bookId,

@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 
 public record BookSearchRequest(
     String keyword,
-    String sort,
+    BookSortOptions sort,
     Long categoryId,
     Integer minPrice,
     Integer maxPrice,

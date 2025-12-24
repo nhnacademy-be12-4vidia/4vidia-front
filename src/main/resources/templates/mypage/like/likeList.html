@@ -10,14 +10,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         .fixed-content-area {
-            width: 800px; /* 리스트의 고정 너비를 800px로 지정 (원하는 크기로 변경 가능) */
-            margin: 0 auto; /* 중앙 정렬 */
+            width: 800px;
+            margin: 0 auto;
         }
-
         @media (max-width: 830px) {
-            .container {
-                padding: 0; /* Bootstrap 컨테이너의 좌우 패딩 제거 */
-            }
+            .container { padding: 0; }
+        }
+        /* 페이지네이션 스타일 커스텀 */
+        .page-link {
+            color: #5b5b9e;
+        }
+        .page-item.active .page-link {
+            background-color: #5b5b9e;
+            border-color: #5b5b9e;
+            color: white;
         }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -33,8 +39,8 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="h4 text-gray-800">좋아요 리스트</h1>
 
-                <div th:if="${not #lists.isEmpty(likes)}" class="d-flex align-items-center gap-3">
-                    <span class="text-gray-500" th:text="${#lists.size(likes)} + '개 상품'"></span>
+                <div th:if="${likes.totalElements > 0}" class="d-flex align-items-center gap-3">
+                    <span class="text-gray-500" th:text="${likes.totalElements} + '개 상품'"></span>
 
                     <form th:action="@{/mypage/like/all}" method="post" id="deleteAllLikesForm">
                         <input type="hidden" name="_method" value="delete">
@@ -46,7 +52,7 @@
                 </div>
             </div>
 
-            <div th:if="${#lists.isEmpty(likes)}" class="text-center py-5">
+            <div th:if="${likes.totalElements == 0}" class="text-center py-5">
                 <i class="fas fa-exclamation-circle fa-3x text-light mb-3"></i>
                 <p class="text-dark font-weight-bold mb-1">찜한 상품이 없습니다.</p>
                 <p class="text-muted small mb-4">비디아의 다양한 상품과 콘텐츠를 둘러보세요!</p>
@@ -56,14 +62,14 @@
                     계속 쇼핑하기
                 </a>
             </div>
-            <div th:if="${not #lists.isEmpty(likes)}" class="card shadow-sm">
+
+            <div th:if="${likes.totalElements > 0}" class="card shadow-sm">
                 <div class="card-body p-0">
 
                     <div class="list-group list-group-flush">
 
-                        <div class="p-4 border-bottom" th:each="item : ${likes}">
+                        <div class="p-4 border-bottom" th:each="item : ${likes.content}">
                             <div class="d-flex gap-4">
-
                                 <div class="position-relative">
                                     <a th:href="@{/books/{bookId}(bookId=${item.bookId()})}" style="text-decoration: none;">
                                         <img th:src="${item.bookImage()}"
@@ -75,7 +81,6 @@
 
                                 <div class="flex-grow-1">
                                     <div class="d-flex justify-content-between align-items-start mb-2">
-
                                         <div>
                                             <a th:href="@{/books/{bookId}(bookId=${item.bookId()})}" style="text-decoration: none;">
                                                 <h5 class="text-dark mb-1" th:text="${item.bookTitle()}">책 제목</h5>
@@ -100,16 +105,14 @@
                                             <span class="text-dark font-weight-bold"
                                                   th:text="${#numbers.formatInteger(item.priceSales(), 1, 'COMMA')} + '원'">
                                             </span>
-
                                             <span class="text-muted small"
                                                   style="text-decoration: line-through;"
                                                   th:text="${#numbers.formatInteger(item.priceStandard(), 1, 'COMMA')} + '원'">
                                             </span>
-
                                             <span class="badge bg-danger"
                                                   th:text="${item.priceStandard() == 0 ? '' :
                                                   #numbers.formatDecimal(
-                                                    (item.priceStandard() - item.priceSales()) * 100 / item.priceStandard(),
+                                                    (item.priceStandard() - item.priceSales()) * 100.0 / item.priceStandard(),
                                                     0, 'COMMA', 0, 'POINT'
                                                   ) + '%'}">
                                             </span>
@@ -118,14 +121,12 @@
                                         <div th:if="${item.priceStandard() == item.priceSales()}">
                                             <span class="text-dark font-weight-bold"
                                                   th:text="${#numbers.formatInteger(item.priceStandard(), 1, 'COMMA')} + '원'">
-                                                </span>
+                                            </span>
                                         </div>
                                     </div>
 
                                     <div class="d-flex gap-2">
-
                                         <div th:if="${item.stockStatus() == 'IN_STOCK' or item.stockStatus() == 'PRE_ORDER'}" class="w-100 d-flex gap-2">
-
                                             <form th:action="@{/cart/add}" method="post" class="flex-grow-1 w-50">
                                                 <input type="hidden" name="bookId" th:value="${item.bookId()}">
                                                 <button class="btn btn-primary btn-block w-100"
@@ -133,7 +134,6 @@
                                                     <i class="fas fa-shopping-cart mr-1"></i> 장바구니 담기
                                                 </button>
                                             </form>
-
                                             <form th:action="@{/orders/checkout-temp}" method="post" class="flex-grow-1 w-50">
                                                 <input type="hidden" name="bookId" th:value="${item.bookId()}">
                                                 <input type="hidden" name="quantity" value=1>
@@ -142,25 +142,39 @@
                                                 </button>
                                             </form>
                                         </div>
-
                                         <div th:if="${item.stockStatus() == 'OUT_OF_STOCK'}" class="w-100">
-                                            <button class="btn btn-light w-100 text-gray-500 bg-light rounded" disabled>
-                                                일시 품절
-                                            </button>
+                                            <button class="btn btn-light w-100 text-gray-500 bg-light rounded" disabled>일시 품절</button>
                                         </div>
-
                                         <div th:if="${item.stockStatus() == 'OUT_OF_PRINT'}" class="w-100">
-                                            <button class="btn btn-light w-100 text-gray-500 bg-light rounded" disabled>
-                                                절판
-                                            </button>
+                                            <button class="btn btn-light w-100 text-gray-500 bg-light rounded" disabled>절판</button>
                                         </div>
-
                                     </div>
-                                </div>
-                            </div>
-                        </div>
+                                </div> </div> </div> </div>
+                </div>
 
-                    </div>
+                <div th:if="${likes.totalPages > 1}" class="d-flex justify-content-center mt-4">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            <li class="page-item" th:classappend="${likes.page == 0} ? 'disabled'">
+                                <a class="page-link" th:href="@{/mypage/like(page=${likes.page - 1})}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+
+                            <li class="page-item"
+                                th:each="pageNumber : ${#numbers.sequence(startPage, endPage)}"
+                                th:classappend="${pageNumber == likes.page + 1} ? 'active'">
+                                <a class="page-link" th:href="@{/mypage/like(page=${pageNumber - 1})}"
+                                   th:text="${pageNumber}">1</a>
+                            </li>
+
+                            <li class="page-item" th:classappend="${likes.last} ? 'disabled'">
+                                <a class="page-link" th:href="@{/mypage/like(page=${likes.page + 1})}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>

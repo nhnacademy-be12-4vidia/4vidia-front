@@ -100,7 +100,7 @@
                         <i class="fas fa-map-marker-alt fa-fw mr-1"></i>
                         회원주소 관리
                     </a>
-                    <a class="collapse-item" th:href="@{/mypage/order}" th:classappend="${currentUri == '/mypage/order' ? 'active' : ''}">
+                    <a class="collapse-item need-login" th:href="@{/mypage/order}" th:classappend="${currentUri == '/mypage/order' ? 'active' : ''}">
                         <i class="fas fa-box-open fa-fw mr-1"></i>
                         주문/배송 관리
                     </a>

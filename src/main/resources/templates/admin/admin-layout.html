@@ -15,16 +15,77 @@
           rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <style>
+        /* 1. 전체 화면 레이아웃 고정 (브라우저 스크롤 제거) */
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #wrapper {
+            height: 100vh;
+            display: flex;      /* 좌우 배치 */
+            overflow: hidden;   /* 자식 요소 스크롤 제어 */
+            width: 100%;
+        }
+
+        /* 2. 사이드바 독립 스크롤 설정 */
+        #accordionSidebar {
+            height: 100%;
+            width: 14rem;        /* 펼쳤을 때 너비 */
+            min-width: 14rem;
+            flex-shrink: 0;
+
+            display: flex;
+            flex-direction: column;
+
+            overflow-y: auto;    /* 세로 스크롤 허용 */
+            overflow-x: hidden;  /* 가로 스크롤 방지 */
+
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        /* 사이드바가 접혔을 때(.toggled) 스타일 */
+        #accordionSidebar.toggled {
+            width: 6.5rem !important;
+            min-width: 6.5rem !important;
+            /* 중요: 접혔을 때는 메뉴 팝업이 보여야 하므로 visible로 변경 */
+            overflow: visible !important;
+        }
+
+        /* 사이드바 스크롤바 디자인 (크롬/사파리) */
+        #accordionSidebar::-webkit-scrollbar { width: 5px; }
+        #accordionSidebar::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        /* 3. 메인 컨텐츠 영역 독립 스크롤 설정 */
+        #content-wrapper {
+            flex-grow: 1;
+            height: 100%;
+            min-width: 0;
+
+            display: flex;
+            flex-direction: column;
+
+            overflow-y: auto;    /* 컨텐츠만 따로 스크롤 */
+            overflow-x: hidden;
+            position: relative;
+            background-color: #f8f9fc;
+        }
+
+        /* 기존 스타일 유지 */
         .sidebar-brand {
             font-weight: 700;
             font-size: 1.2rem;
         }
-
-        .content-wrapper {
+        .content-inner-padding {
             padding: 2rem;
         }
-        /* 아이콘과 텍스트 간의 간격을 주기 위해 작은 여백 추가 */
         .nav-link i {
             margin-right: 0.5rem;
         }
@@ -64,15 +125,21 @@
             </a>
         </li>
 
-        <li class="nav-item" th:classappend="${currentUri.startsWith('/admin/books') or currentUri.startsWith('/admin/reviews')} ? 'active'">
-            <a class="nav-link" href="#"
+        <li class="nav-item"
+            th:with="isBooksActive=${currentUri.startsWith('/admin/books') or currentUri.startsWith('/admin/reviews')}"
+            th:classappend="${isBooksActive} ? 'active'">
+
+            <a class="nav-link" th:classappend="${!isBooksActive} ? 'collapsed'"
+               href="#"
                data-bs-toggle="collapse" data-bs-target="#collapseBooks"
-               aria-expanded="true" aria-controls="collapseBooks">
+               th:aria-expanded="${isBooksActive} ? 'true' : 'false'"
+               aria-controls="collapseBooks">
                 <i class="fas fa-fw fa-book"></i>
                 <span>도서 관리</span>
             </a>
-            <div id="collapseBooks" class="collapse show"
-                 aria-labelledby="headingBooks">
+
+            <div id="collapseBooks" class="collapse" th:classappend="${isBooksActive} ? 'show'"
+                 aria-labelledby="headingBooks" data-bs-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <h6 class="collapse-header">도서 관련 기능:</h6>
                     <a class="collapse-item" href="#" th:classappend="${currentUri.startsWith('/admin/books')} ? 'active'">도서 목록/등록</a>
@@ -82,15 +149,21 @@
             </div>
         </li>
 
-        <li class="nav-item" th:classappend="${currentUri.startsWith('/admin/delivery') or currentUri.startsWith('/admin/refunds')} ? 'active'">
-            <a class="nav-link" href="#"
+        <li class="nav-item"
+            th:with="isDeliveryActive=${currentUri.startsWith('/admin/delivery') or currentUri.startsWith('/admin/refunds')}"
+            th:classappend="${isDeliveryActive} ? 'active'">
+
+            <a class="nav-link" th:classappend="${!isDeliveryActive} ? 'collapsed'"
+               href="#"
                data-bs-toggle="collapse" data-bs-target="#collapseDelivery"
-               aria-expanded="true" aria-controls="collapseDelivery">
+               th:aria-expanded="${isDeliveryActive} ? 'true' : 'false'"
+               aria-controls="collapseDelivery">
                 <i class="fas fa-fw fa-truck"></i>
                 <span>배송 관리</span>
             </a>
-            <div id="collapseDelivery" class="collapse show"
-                 aria-labelledby="headingDelivery">
+
+            <div id="collapseDelivery" class="collapse" th:classappend="${isDeliveryActive} ? 'show'"
+                 aria-labelledby="headingDelivery" data-bs-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <h6 class="collapse-header">배송 및 반품:</h6>
                     <a class="collapse-item" href="/admin/delivery" th:classappend="${currentUri.startsWith('/admin/delivery')} ? 'active'">배송 현황 관리</a>
@@ -99,15 +172,21 @@
             </div>
         </li>
 
-        <li class="nav-item" th:classappend="${currentUri.startsWith('/admin/points') or currentUri.startsWith('/admin/grades') or currentUri.startsWith('/admin/coupons')} ? 'active'">
-            <a class="nav-link" href="#"
+        <li class="nav-item"
+            th:with="isMarketingActive=${currentUri.startsWith('/admin/points') or currentUri.startsWith('/admin/grades') or currentUri.startsWith('/admin/coupons')}"
+            th:classappend="${isMarketingActive} ? 'active'">
+
+            <a class="nav-link" th:classappend="${!isMarketingActive} ? 'collapsed'"
+               href="#"
                data-bs-toggle="collapse" data-bs-target="#collapseMarketing"
-               aria-expanded="true" aria-controls="collapseMarketing">
+               th:aria-expanded="${isMarketingActive} ? 'true' : 'false'"
+               aria-controls="collapseMarketing">
                 <i class="fas fa-fw fa-coins"></i>
                 <span>혜택/마케팅 관리</span>
             </a>
-            <div id="collapseMarketing" class="collapse show"
-                 aria-labelledby="headingMarketing">
+
+            <div id="collapseMarketing" class="collapse" th:classappend="${isMarketingActive} ? 'show'"
+                 aria-labelledby="headingMarketing" data-bs-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <h6 class="collapse-header">포인트 및 등급:</h6>
                     <a class="collapse-item" href="/admin/points" th:classappend="${currentUri.startsWith('/admin/points')} ? 'active'">포인트 관리</a>
@@ -120,7 +199,6 @@
                        th:classappend="${currentUri == '/admin/coupons/policies/category'} ? 'active'">
                         카테고리/전체 정책 생성
                     </a>
-
                     <a class="collapse-item"
                        href="/admin/coupons/policies/book"
                        th:classappend="${currentUri == '/admin/coupons/policies/book'} ? 'active'">
@@ -137,10 +215,9 @@
         </div>
 
     </ul>
+    <div id="content-wrapper" class="d-flex flex-column">
 
-    <div id="content-wrapper" class="d-flex flex-column" style="min-height: 100vh;">
-
-        <div class="content-wrapper flex-grow-1">
+        <div class="content-inner-padding flex-grow-1">
             <div layout:fragment="pageContent">
                 (관리자 페이지입니다.) <br/>
                 오늘의 할 일, 쇼핑몰 현황(주문/매출), 통계(일별 매출, 트래픽), 공지사항 등
@@ -148,7 +225,6 @@
 
             <div layout:fragment="pageScript"></div>
         </div>
-
         <footer class="sticky-footer bg-white">
             <div class="container my-auto">
                 <div class="copyright text-center my-auto d-flex flex-column align-items-center">
@@ -160,14 +236,13 @@
                 </div>
             </div>
         </footer>
+
     </div>
-
-
 </div>
-
 <a class="scroll-to-top rounded" href="#page-top">
     <i class="fas fa-angle-up"></i>
 </a>
+
 <script th:src="@{/vendor/jquery/jquery.min.js}"></script>
 <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/vendor/jquery-easing/jquery.easing.min.js}"></script>

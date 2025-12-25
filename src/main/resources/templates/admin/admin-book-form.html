@@ -28,19 +28,25 @@
     <div class="container-fluid">
         <h1 class="h3 mb-4 text-gray-800" th:text="${mode == 'create' ? '도서 등록' : '도서 수정'}">도서 등록</h1>
 
-        <!-- ISBN Search Section (Only for Create Mode) -->
-        <div class="card shadow mb-4" th:if="${mode == 'create'}">
+        <!-- ISBN Search Section (Both Create and Update Mode) -->
+        <div class="card shadow mb-4">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">ISBN 검색 (자동 입력)</h6>
+                <h6 class="m-0 font-weight-bold text-primary" th:text="${mode == 'create' ? 'ISBN 검색 (자동 입력)' : '부족한 정보 보강하기'}">ISBN 검색 (자동 입력)</h6>
             </div>
             <div class="card-body">
                 <div class="input-group">
-                    <input type="text" id="isbnSearchInput" class="form-control" placeholder="ISBN을 입력하세요 (13자리)">
+                    <!-- Create mode: 입력 가능, Update mode: DB ISBN 표시 (읽기 전용) -->
+                    <input type="text" id="isbnSearchInput" class="form-control"
+                           th:placeholder="${mode == 'create' ? 'ISBN을 입력하세요 (13자리)' : 'ISBN을 검색하여 부족한 정보를 보강하세요'}"
+                           th:value="${mode == 'update' ? book?.isbn : ''}"
+                           th:readonly="${mode == 'update'}">
                     <div class="input-group-append">
-                        <button class="btn btn-primary" type="button" id="btnSearchIsbn">검색</button>
+                        <button class="btn btn-primary" type="button" id="btnSearchIsbn"
+                                th:text="${mode == 'create' ? '검색' : '보강하기'}">검색</button>
                     </div>
                 </div>
-                <small class="form-text text-muted mt-2">
+                <small class="form-text text-muted mt-2"
+                       th:text="${mode == 'create' ? '* ISBN을 검색하면 도서 정보가 자동으로 입력됩니다.' : '* 부족한 설명/목차 정보를 외부 API로 보강합니다. 기존 정보는 유지됩니다.'}">
                     * ISBN을 검색하면 도서 정보가 자동으로 입력됩니다.
                 </small>
             </div>
@@ -134,7 +140,7 @@
                                 <div class="form-group col-md-4">
                                     <label for="publishedDate">출간일</label>
                                     <input type="date" class="form-control" id="publishedDate" name="publishedDate"
-                                           th:value="${book?.publishedDate}">
+                                           th:value="${book != null and book.publishedDate != null ? #temporals.format(book.publishedDate, 'yyyy-MM-dd') : ''}">
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label for="language">언어</label>
@@ -172,15 +178,24 @@
                 </div>
                 <div class="card-body">
                     <div class="form-row">
-                        <div class="form-group col-md-6">
+                        <div class="form-group col-md-4">
                             <label for="priceStandard">정가</label>
                             <input type="number" class="form-control" id="priceStandard" name="priceStandard"
                                    th:value="${book?.priceStandard}">
                         </div>
-                        <div class="form-group col-md-6">
+                        <div class="form-group col-md-4">
                             <label for="stock">재고수량</label>
                             <input type="number" class="form-control" id="stock" name="stock" 
                                    th:value="${book?.stock ?: 0}">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="stockStatus">판매 상태</label>
+                            <select class="form-control" id="stockStatus" name="stockStatus">
+                                <option value="PRE_ORDER" th:selected="${book?.stockStatus == 'PRE_ORDER'}">판매 전</option>
+                                <option value="IN_STOCK" th:selected="${book == null || book.stockStatus == 'IN_STOCK'}">판매 중</option>
+                                <option value="OUT_OF_STOCK" th:selected="${book?.stockStatus == 'OUT_OF_STOCK'}">품절</option>
+                                <option value="OUT_OF_PRINT" th:selected="${book?.stockStatus == 'OUT_OF_PRINT'}">절판</option>
+                            </select>
                         </div>
                     </div>
                     <div class="form-group form-check">
@@ -313,103 +328,6 @@
 
             // 3. ISBN 검색 버튼 핸들러
             const btnSearch = document.getElementById('btnSearchIsbn');
-            if (btnSearch) {
-                btnSearch.addEventListener('click', function() {
-                    const isbnInput = document.getElementById('isbnSearchInput').value;
-                    if(!isbnInput || isbnInput.length < 10) {
-                        alert('유효한 ISBN을 입력해주세요.');
-                        return;
-                    }
-
-                    // 로딩 표시 (선택사항)
-                    btnSearch.disabled = true;
-                    btnSearch.innerText = '검색 중...';
-
-                    fetch(`/admin/books/search?isbn=${isbnInput}`)
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('서버 통신 중 오류가 발생했습니다. 상태 코드: ' + response.status);
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data.found) {
-                                // bookId가 있으면 수정 폼으로 이동
-                                if (data.bookId) {
-                                    if (confirm('해당 ISBN의 도서가 이미 등록되어 있습니다. 수정 폼으로 이동하시겠습니까?')) {
-                                        window.location.href = `/admin/books/${data.bookId}`;
-                                        return;
-                                    }
-                                }
-
-                                // 데이터 매핑
-                                document.getElementById('isbn').value = isbnInput; // 검색한 ISBN 사용
-                                document.getElementById('title').value = data.title || '';
-                                document.getElementById('subtitle').value = data.subtitle || '';
-
-                                // 작가 정보 매핑 (동적 UI 초기화 및 추가)
-                                const authorContainer = document.getElementById('authorListContainer');
-                                authorContainer.innerHTML = ''; // 기존 입력 초기화
-
-                                if (data.authors && Array.isArray(data.authors) && data.authors.length > 0) {
-                                    data.authors.forEach(author => {
-                                        addAuthorRow(author.name, author.role);
-                                    });
-                                } else {
-                                    addAuthorRow(); // 빈 행 하나 추가
-                                }
-
-                                document.getElementById('publisher').value = data.publisher || '';
-                                document.getElementById('publishedDate').value = data.publishedDate || '';
-                                document.getElementById('language').value = data.language || 'ko';
-                                document.getElementById('pageCount').value = data.pageCount || 0;
-                                document.getElementById('priceStandard').value = data.priceStandard || 0;
-                                document.getElementById('stock').value = data.stock || 0;
-                                document.getElementById('bookIndex').value = data.bookIndex || '';
-
-                                // 태그 (List<String>) - 정보가 없으면 초기화
-                                if (data.tags && Array.isArray(data.tags)) {
-                                    document.getElementById('tags').value = data.tags.join(', ');
-                                } else {
-                                    document.getElementById('tags').value = '';
-                                }
-
-                                // 카테고리 (Select2) - 정보가 없으면 초기화
-                                if (data.categoryCode) {
-                                    $('#categoryCode').val(data.categoryCode).trigger('change');
-                                } else {
-                                    $('#categoryCode').val(null).trigger('change');
-                                }
-
-                                // 이미지 미리보기 - 정보가 없으면 기본 이미지로 초기화
-                                if (data.coverImageUrl) {
-                                    document.getElementById('imagePreview').src = data.coverImageUrl;
-                                    document.getElementById('imageUrl').value = data.coverImageUrl;
-                                } else {
-                                    document.getElementById('imagePreview').src = '/img/logo.png';
-                                    document.getElementById('imageUrl').value = '';
-                                }
-
-                                // 설명 (Editor) - 정보가 없으면 초기화
-                                if (editor) {
-                                    editor.setMarkdown(data.description || '');
-                                }
-
-                                alert('도서 정보를 성공적으로 불러왔습니다.');
-                            } else {
-                                alert('해당 ISBN에 대한 검색 결과가 없습니다.');
-                            }
-                        })
-                        .catch(error => {
-                            console.error(error);
-                            alert('도서 검색 중 오류 발생: ' + error.message);
-                        })
-                        .finally(() => {
-                            btnSearch.disabled = false;
-                            btnSearch.innerText = '검색';
-                        });
-                });
-            }
 
             // 작가 행 추가 함수
             function addAuthorRow(name = '', role = '') {
@@ -424,6 +342,95 @@
                     </div>
                 `;
                 container.appendChild(div);
+            }
+
+            // 신규 도서: 폼 채움
+            function populateForm(data) {
+                document.getElementById('isbn').value = document.getElementById('isbnSearchInput').value;
+                document.getElementById('title').value = data.title || '';
+                document.getElementById('subtitle').value = data.subtitle || '';
+
+                const authorContainer = document.getElementById('authorListContainer');
+                authorContainer.innerHTML = '';
+
+                if (data.authors && Array.isArray(data.authors) && data.authors.length > 0) {
+                    data.authors.forEach(author => {
+                        addAuthorRow(author.name, author.role);
+                    });
+                } else {
+                    addAuthorRow();
+                }
+
+                document.getElementById('publisher').value = data.publisher || '';
+                document.getElementById('publishedDate').value = data.publishedDate || '';
+                document.getElementById('language').value = data.language || 'ko';
+                document.getElementById('pageCount').value = data.pageCount || 0;
+                document.getElementById('priceStandard').value = data.priceStandard || 0;
+                document.getElementById('stock').value = data.stock || 0;
+                document.getElementById('packagingAvailable').checked = data.packagingAvailable === true;
+                document.getElementById('bookIndex').value = data.bookIndex || '';
+
+                if (data.tags && Array.isArray(data.tags)) {
+                    document.getElementById('tags').value = data.tags.join(', ');
+                } else {
+                    document.getElementById('tags').value = '';
+                }
+
+                if (data.categoryCode) {
+                    $('#categoryCode').val(data.categoryCode).trigger('change');
+                } else {
+                    $('#categoryCode').val(null).trigger('change');
+                }
+
+                if (data.coverImageUrl) {
+                    document.getElementById('imagePreview').src = data.coverImageUrl;
+                    document.getElementById('imageUrl').value = data.coverImageUrl;
+                } else {
+                    document.getElementById('imagePreview').src = '/img/logo.png';
+                    document.getElementById('imageUrl').value = '';
+                }
+
+                if (editor) {
+                    editor.setMarkdown(data.description || '');
+                }
+            }
+
+            if (btnSearch) {
+                btnSearch.addEventListener('click', function() {
+                    const isbnInput = document.getElementById('isbnSearchInput').value;
+                    if(!isbnInput || isbnInput.length < 10) {
+                        alert('유효한 ISBN을 입력해주세요.');
+                        return;
+                    }
+
+                    // 로딩 표시
+                    const originalText = btnSearch.innerText;
+                    btnSearch.disabled = true;
+                    btnSearch.innerText = '검색 중...';
+
+                    fetch(`/admin/books/search?isbn=${isbnInput}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('서버 통신 중 오류가 발생했습니다. 상태 코드: ' + response.status);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.found) {
+                                populateForm(data);
+                            } else {
+                                alert('도서 정보를 찾을 수 없습니다.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Search failed:', error);
+                            alert('도서 검색 중 오류가 발생했습니다: ' + error.message);
+                        })
+                        .finally(() => {
+                            btnSearch.disabled = false;
+                            btnSearch.innerText = originalText;
+                        });
+                });
             }
 
             // 작가 추가 버튼 이벤트

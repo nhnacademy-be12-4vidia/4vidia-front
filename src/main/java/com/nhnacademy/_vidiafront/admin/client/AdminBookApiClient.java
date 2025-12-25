@@ -36,6 +36,11 @@ public class AdminBookApiClient {
         return backendApiClient.get(url, AdminIsbnSearchResponse.class);
     }
 
+    public AdminIsbnSearchResponse getAugmentedBookInfo(String isbn) {
+        String url = BOOK_SERVICE + "/admin/books/augment?isbn=" + isbn;
+        return backendApiClient.get(url, AdminIsbnSearchResponse.class);
+    }
+
     public String uploadImage(MultipartFile image) throws IOException {
         if (image == null || image.isEmpty()) {
             return null;

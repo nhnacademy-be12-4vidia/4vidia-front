@@ -326,8 +326,10 @@
                 });
             }
 
-            // 3. ISBN 검색 버튼 핸들러
+            // 3. ISBN 검색/보강 버튼 핸들러
             const btnSearch = document.getElementById('btnSearchIsbn');
+            // Thymeleaf 변수를 JS 변수로 가져옴
+            const currentMode = /*[[${mode}]]*/ 'create';
 
             // 작가 행 추가 함수
             function addAuthorRow(name = '', role = '') {
@@ -403,36 +405,50 @@
                         return;
                     }
 
-                    // 로딩 표시
                     const originalText = btnSearch.innerText;
                     btnSearch.disabled = true;
-                    btnSearch.innerText = '검색 중...';
+                    btnSearch.innerText = (currentMode === 'create') ? '검색 중...' : '보강 중...';
 
-                    fetch(`/admin/books/search?isbn=${isbnInput}`)
+                    // 모드에 따라 호출할 URL 결정
+                    const apiUrl = (currentMode === 'create')
+                        ? `/admin/books/search?isbn=${isbnInput}`
+                        : `/admin/books/augment?isbn=${isbnInput}`;
+
+                    fetch(apiUrl)
                         .then(response => {
                             if (!response.ok) {
-                                throw new Error('서버 통신 중 오류가 발생했습니다. 상태 코드: ' + response.status);
+                                // 404 등 에러 처리
+                                if (response.status === 404) {
+                                    throw new Error('보강할 도서 정보가 DB에 없습니다.');
+                                }
+                                throw new Error('서버 통신 오류: ' + response.status);
                             }
                             return response.json();
                         })
                         .then(data => {
-                            // [Added logic] Check if book already exists in DB
-                            if (data.bookId) {
+                            // [Create Mode] DB 중복 체크
+                            if (currentMode === 'create' && data.bookId) {
                                 if (confirm(`'${data.title}'은(는) 이미 등록된 도서입니다.\n수정 페이지로 이동하시겠습니까?`)) {
                                     window.location.href = '/admin/books/' + data.bookId;
-                                    return;
                                 }
+                                // 확인을 눌러 이동하든, 취소를 눌러 머무르든 
+                                // 이미 DB에 있는 데이터로 등록 폼을 채우지 않도록 종료합니다.
+                                return;
                             }
-
-                            if (data.found) {
+                            
+                            // [Update Mode] 또는 [DB에 없는 신규 도서]
+                            if (data.found || data.title) {
                                 populateForm(data);
+                                if (currentMode === 'update') {
+                                    alert('도서 정보가 보강되었습니다.');
+                                }
                             } else {
                                 alert('도서 정보를 찾을 수 없습니다.');
                             }
                         })
                         .catch(error => {
-                            console.error('Search failed:', error);
-                            alert('도서 검색 중 오류가 발생했습니다: ' + error.message);
+                            console.error('Operation failed:', error);
+                            alert(error.message);
                         })
                         .finally(() => {
                             btnSearch.disabled = false;

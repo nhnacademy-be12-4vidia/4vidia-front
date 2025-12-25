@@ -80,6 +80,16 @@ public class AdminBookController {
         return ResponseEntity.ok(response);
     }
 
+    // [AJAX] 도서 정보 보강 (수정 모드용)
+    @ResponseBody
+    @GetMapping("/augment")
+    public ResponseEntity<AdminIsbnSearchResponse> augmentBook(
+            @RequestParam String isbn
+    ) {
+        AdminIsbnSearchResponse response = adminBookApiClient.getAugmentedBookInfo(isbn);
+        return ResponseEntity.ok(response);
+    }
+
     // [AJAX] 이미지 업로드
     @ResponseBody
     @PostMapping("/images")

@@ -80,8 +80,6 @@ public class LoginController {
         refreshCookie.setMaxAge(7 * 24 * 60 * 60);
         response.addCookie(refreshCookie);
 
-        cartApiClient.loginSync();
-
         return "redirect:/";
     }
 
@@ -106,7 +104,6 @@ public class LoginController {
         refreshCookie.setPath("/");
         refreshCookie.setMaxAge(30 * 24 * 60 * 60); // 30일
         response.addCookie(refreshCookie);
-        cartApiClient.loginSync();
         // 페이코 로그인 다시하기
 
         return "redirect:/";

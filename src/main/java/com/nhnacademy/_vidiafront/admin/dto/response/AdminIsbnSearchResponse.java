@@ -28,7 +28,7 @@ public record AdminIsbnSearchResponse(
 
         Integer priceStandard,
         Integer stock,
-        //Boolean packagingAvailable,
+        Boolean packagingAvailable,
 
         String description,
         String bookIndex,

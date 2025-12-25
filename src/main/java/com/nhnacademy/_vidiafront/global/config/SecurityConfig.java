@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
@@ -44,15 +45,16 @@ public class SecurityConfig {
 
     }
 
-
     @Bean
-    @Profile({"local", "test"})
-    public CookieSerializer localCookieSerializer() {
-        DefaultCookieSerializer serializer = new DefaultCookieSerializer();
-        serializer.setSameSite("Lax"); // 기본값
-        serializer.setUseSecureCookie(false);
-        return serializer;
+    WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring()
+                .requestMatchers(
+                        "/img/**",
+                        "/css/**",
+                        "/js/**",
+                        "/vendor/**",
+                        "/customJs/**",
+                        "/favicon.ico"
+                        );
     }
-
-
 }

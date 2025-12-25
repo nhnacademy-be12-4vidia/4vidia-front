@@ -4,9 +4,9 @@ import com.nhnacademy._vidiafront.global.exception.ApiRequestException;
 import com.nhnacademy._vidiafront.user.dto.auth.response.TokenResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.jboss.logging.MDC;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -15,21 +15,24 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
-import java.io.IOException;
 import java.net.URI;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BackendApiClient {
     private final RestClient restClient;
     private final String AUTH = "/api/v1/auth";
 
     // ------------------- GET -------------------
     public <T> T get(String uri, Class<T> responseType) {
+        log.info("{}호출",uri);
         HttpServletRequest request = getRequest();
         String guestId = extractGuestId(request);
-        return restClient.get()
+        Object traceObj = MDC.get("traceId");
+        String traceId = (traceObj instanceof String) ? (String) traceObj : null;
+
+        RestClient.RequestHeadersSpec<?> requestSpec = restClient.get()
                 .uri(URI.create(uri))
                 .header("X-Guest-Id", guestId != null ? guestId : "")
                 .cookies(cookies -> {
@@ -43,6 +46,7 @@ public class BackendApiClient {
                     if (accessSessionId != null) {
                         cookies.add("SES", accessSessionId);
                     }
+
                 })
                 .cookies(cookies -> {
                     String refreshToken =
@@ -54,18 +58,27 @@ public class BackendApiClient {
                     if (refreshToken != null) {
                         cookies.add("AUT", refreshToken);
                     }
-                })
+                });
+        if (traceId != null) {
+            requestSpec = requestSpec.header("X-Trace-Id", traceId);
+        }
+
+        return requestSpec
                 .retrieve()
                 .body(responseType);
 
     }
 
     public <T> T get(String uri, ParameterizedTypeReference<T> typeReference) {
+        log.info("{}호출",uri);
+
         HttpServletRequest request = getRequest();
         String guestId = extractGuestId(request);
 
+        Object traceObj = MDC.get("traceId");
+        String traceId = (traceObj instanceof String) ? (String) traceObj : null;
 
-        return restClient.get()
+        RestClient.RequestHeadersSpec<?> requestSpec =  restClient.get()
                 .uri(URI.create(uri))
                 .header("X-Guest-Id", guestId != null ? guestId : "")
                 .cookies(cookies -> {
@@ -90,18 +103,26 @@ public class BackendApiClient {
                     if (refreshToken != null) {
                         cookies.add("AUT", refreshToken);
                     }
-                })
+                });
+        if (traceId != null) {
+            requestSpec = requestSpec.header("X-Trace-Id", traceId);
+        }
+
+        return requestSpec
                 .retrieve()
                 .body(typeReference);
-
     }
 
     // ------------------- POST -------------------
     public <T, R> T post(String uri, R body, Class<T> responseType) {
+        log.info("{}호출",uri);
+
         HttpServletRequest request = getRequest();
         String guestId = extractGuestId(request);
 
-        return restClient.post()
+        Object traceObj = MDC.get("traceId");
+        String traceId = (traceObj instanceof String) ? (String) traceObj : null;
+        RestClient.RequestHeadersSpec<?> requestSpec =  restClient.post()
                 .uri(URI.create(uri))
                 .contentType(MediaType.APPLICATION_JSON)
                 .cookies(cookies -> {
@@ -128,7 +149,12 @@ public class BackendApiClient {
                     }
                 })
                 .header("X-Guest-Id", guestId != null ? guestId : "")
-                .body(body)
+                .body(body);
+        if (traceId != null) {
+            requestSpec = requestSpec.header("X-Trace-Id", traceId);
+        }
+
+        return requestSpec
                 .retrieve()
                 .body(responseType);
 
@@ -136,9 +162,14 @@ public class BackendApiClient {
 
     public <T> T postMultipartFile(String uri, MultiValueMap<String, Object> parts,
                                    Class<T> responseType) {
+        log.info("{}호출",uri);
+
         HttpServletRequest request = getRequest();
         String guestId = extractGuestId(request);
-        return restClient.post()
+
+        Object traceObj = MDC.get("traceId");
+        String traceId = (traceObj instanceof String) ? (String) traceObj : null;
+        RestClient.RequestHeadersSpec<?> requestSpec =  restClient.post()
                 .uri(URI.create(uri))
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .header("X-Guest-Id", guestId != null ? guestId : "")
@@ -165,16 +196,27 @@ public class BackendApiClient {
                         cookies.add("AUT", refreshToken);
                     }
                 })
-                .body(parts)
+                .body(parts);
+
+        if (traceId != null) {
+            requestSpec = requestSpec.header("X-Trace-Id", traceId);
+        }
+
+        return requestSpec
                 .retrieve()
                 .body(responseType);
 
     }
 
     public <T, R> T postNoBody(String uri, Class<T> responseType) {
+        log.info("{}호출",uri);
+
         HttpServletRequest request = getRequest();
         String guestId = extractGuestId(request);
-        return restClient.post()
+
+        Object traceObj = MDC.get("traceId");
+        String traceId = (traceObj instanceof String) ? (String) traceObj : null;
+        RestClient.RequestHeadersSpec<?> requestSpec =  restClient.post()
                 .uri(URI.create(uri))
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("X-Guest-Id", guestId != null ? guestId : "")
@@ -200,7 +242,12 @@ public class BackendApiClient {
                     if (refreshToken != null) {
                         cookies.add("AUT", refreshToken);
                     }
-                })
+                });
+        if (traceId != null) {
+            requestSpec = requestSpec.header("X-Trace-Id", traceId);
+        }
+
+        return requestSpec
                 .retrieve()
                 .body(responseType);
 
@@ -209,9 +256,14 @@ public class BackendApiClient {
 
     // ------------------- PATCH -------------------
     public <T, R> T patch(String uri, R body, Class<T> responseType) {
+        log.info("{}호출",uri);
+
         HttpServletRequest request = getRequest();
         String guestId = extractGuestId(request);
-        return restClient.patch()
+
+        Object traceObj = MDC.get("traceId");
+        String traceId = (traceObj instanceof String) ? (String) traceObj : null;
+        RestClient.RequestHeadersSpec<?> requestSpec =  restClient.patch()
                 .uri(uri)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("X-Guest-Id", guestId != null ? guestId : "")
@@ -238,7 +290,12 @@ public class BackendApiClient {
                         cookies.add("AUT", refreshToken);
                     }
                 })
-                .body(body)
+                .body(body);
+        if (traceId != null) {
+            requestSpec = requestSpec.header("X-Trace-Id", traceId);
+        }
+
+        return requestSpec
                 .retrieve()
                 .body(responseType);
 
@@ -247,9 +304,14 @@ public class BackendApiClient {
 
     // body 없는 PATCH
     public <T> T patchNoBody(String uri, Class<T> responseType) {
+        log.info("{}호출",uri);
+
         HttpServletRequest request = getRequest();
         String guestId = extractGuestId(request);
-        return restClient.patch()
+
+        Object traceObj = MDC.get("traceId");
+        String traceId = (traceObj instanceof String) ? (String) traceObj : null;
+        RestClient.RequestHeadersSpec<?> requestSpec =  restClient.patch()
                 .uri(uri)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("X-Guest-Id", guestId != null ? guestId : "")
@@ -275,18 +337,29 @@ public class BackendApiClient {
                     if (refreshToken != null) {
                         cookies.add("AUT", refreshToken);
                     }
-                })
+                });
+        if (traceId != null) {
+            requestSpec = requestSpec.header("X-Trace-Id", traceId);
+        }
+
+        return requestSpec
                 .retrieve()
                 .body(responseType);
+
 
     }
 
 
     // ------------------- PUT -------------------
     public <T, R> T put(String uri, R body, Class<T> responseType) {
+        log.info("{}호출",uri);
+
         HttpServletRequest request = getRequest();
         String guestId = extractGuestId(request);
-        return restClient.put()
+
+        Object traceObj = MDC.get("traceId");
+        String traceId = (traceObj instanceof String) ? (String) traceObj : null;
+        RestClient.RequestHeadersSpec<?> requestSpec =  restClient.put()
                 .uri(URI.create(uri))
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("X-Guest-Id", guestId != null ? guestId : "")
@@ -313,15 +386,26 @@ public class BackendApiClient {
                         cookies.add("AUT", refreshToken);
                     }
                 })
-                .body(body)
+                .body(body);
+        if (traceId != null) {
+            requestSpec = requestSpec.header("X-Trace-Id", traceId);
+        }
+
+        return requestSpec
                 .retrieve()
                 .body(responseType);
+
     }
 
     public <T, R> T putNoBody(String uri, Class<T> responseType) {
+        log.info("{}호출",uri);
+
         HttpServletRequest request = getRequest();
         String guestId = extractGuestId(request);
-        return restClient.put()
+
+        Object traceObj = MDC.get("traceId");
+        String traceId = (traceObj instanceof String) ? (String) traceObj : null;
+        RestClient.RequestHeadersSpec<?> requestSpec =  restClient.put()
                 .uri(URI.create(uri))
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("X-Guest-Id", guestId != null ? guestId : "")
@@ -347,7 +431,12 @@ public class BackendApiClient {
                     if (refreshToken != null) {
                         cookies.add("AUT", refreshToken);
                     }
-                })
+                });
+        if (traceId != null) {
+            requestSpec = requestSpec.header("X-Trace-Id", traceId);
+        }
+
+        return requestSpec
                 .retrieve()
                 .body(responseType);
 
@@ -355,9 +444,14 @@ public class BackendApiClient {
 
     // ------------------- DELETE -------------------
     public <T> T delete(String uri, Class<T> responseType) {
+        log.info("{}호출",uri);
+
         HttpServletRequest request = getRequest();
         String guestId = extractGuestId(request);
-        return restClient.delete()
+
+        Object traceObj = MDC.get("traceId");
+        String traceId = (traceObj instanceof String) ? (String) traceObj : null;
+        RestClient.RequestHeadersSpec<?> requestSpec =  restClient.delete()
                 .uri(URI.create(uri))
                 .header("X-Guest-Id", guestId != null ? guestId : "")
                 .cookies(cookies -> {
@@ -382,7 +476,12 @@ public class BackendApiClient {
                     if (refreshToken != null) {
                         cookies.add("AUT", refreshToken);
                     }
-                })
+                });
+        if (traceId != null) {
+            requestSpec = requestSpec.header("X-Trace-Id", traceId);
+        }
+
+        return requestSpec
                 .retrieve()
                 .body(responseType);
     }

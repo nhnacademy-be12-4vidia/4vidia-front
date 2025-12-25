@@ -106,7 +106,7 @@
                                     <label>저자 관리</label>
                                     <div id="authorListContainer">
                                         <!-- Dynamic Author Rows will be added here -->
-                                        <div class="input-group mb-2 author-row" th:if="${book == null or #lists.isEmpty(book.authorList)}">
+                                        <div class="input-group mb-2 author-row" th:if="${book == null or #lists.isEmpty(book.authors)}">
                                             <input type="text" class="form-control" placeholder="이름" name="authorName_temp">
                                             <input type="text" class="form-control" placeholder="역할 (예: 지음, 옮김)" name="authorRole_temp">
                                             <div class="input-group-append">
@@ -115,8 +115,8 @@
                                         </div>
                                         
                                         <!-- Existing Authors (For Update Mode) -->
-                                        <th:block th:if="${book != null and !#lists.isEmpty(book.authorList)}">
-                                            <div class="input-group mb-2 author-row" th:each="author : ${book.authorList}">
+                                        <th:block th:if="${book != null and !#lists.isEmpty(book.authors)}">
+                                            <div class="input-group mb-2 author-row" th:each="author : ${book.authors}">
                                                 <input type="text" class="form-control" placeholder="이름" name="authorName_temp" th:value="${author.name}">
                                                 <input type="text" class="form-control" placeholder="역할 (예: 지음, 옮김)" name="authorRole_temp" th:value="${author.role}">
                                                 <div class="input-group-append">
@@ -416,6 +416,14 @@
                             return response.json();
                         })
                         .then(data => {
+                            // [Added logic] Check if book already exists in DB
+                            if (data.bookId) {
+                                if (confirm(`'${data.title}'은(는) 이미 등록된 도서입니다.\n수정 페이지로 이동하시겠습니까?`)) {
+                                    window.location.href = '/admin/books/' + data.bookId;
+                                    return;
+                                }
+                            }
+
                             if (data.found) {
                                 populateForm(data);
                             } else {

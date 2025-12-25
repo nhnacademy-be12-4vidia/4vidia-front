@@ -19,8 +19,6 @@ import java.io.IOException;
 @ControllerAdvice
 public class GlobalControllerAdvice {
     private final UserApiClient userApiClient;
-    private final LoginStatus loginStatus;
-    private static final String COMPLETE_PROFILE_PATH = "/complete-profile";
 
     /**
      * layout.html에서 사용 (ex 마이페이지 누르면 열리는 목록 고정시키기?)

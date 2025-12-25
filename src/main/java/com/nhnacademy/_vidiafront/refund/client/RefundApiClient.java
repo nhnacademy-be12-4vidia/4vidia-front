@@ -1,7 +1,9 @@
 package com.nhnacademy._vidiafront.refund.client;
 
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
+import com.nhnacademy._vidiafront.global.dto.PageResponse;
 import com.nhnacademy._vidiafront.refund.dto.request.RefundRequest;
+import com.nhnacademy._vidiafront.refund.dto.response.RefundCountResponse;
 import com.nhnacademy._vidiafront.refund.dto.response.RefundResponse;
 import com.nhnacademy._vidiafront.refund.dto.response.RefundHistoryGroupResponse;
 import lombok.RequiredArgsConstructor;
@@ -33,19 +35,25 @@ public class RefundApiClient {
     /**
      * 사용자 반품 내역 조회
      */
-    public List<RefundHistoryGroupResponse> refundHistory(String status) {
-        if (status == null) {
-            return backendApiClient.get(
-                    ORDER_SERVICE + "/users/me/refunds",
-                    new ParameterizedTypeReference<>() {}
-            );
+    public PageResponse<RefundHistoryGroupResponse> refundHistory(String status, int page, int size) {
+        ParameterizedTypeReference<PageResponse<RefundHistoryGroupResponse>> typeReference =
+                new ParameterizedTypeReference<PageResponse<RefundHistoryGroupResponse>>() {};
+
+        String url = ORDER_SERVICE + "/users/me/refunds?page=" + page + "&size=" + size;
+
+        if (status != null && !status.isBlank()) {
+            url += "&status=" + status;
         }
 
-        return backendApiClient.get(
-                ORDER_SERVICE + "/users/me/refunds?status=" + status,
-                new ParameterizedTypeReference<>() {}
-        );
+        return backendApiClient.get(url, typeReference);
     }
+
+    public RefundCountResponse getRefundCounts() {
+        String url = ORDER_SERVICE + "/users/me/refunds/counts";
+        return backendApiClient.get(url, RefundCountResponse.class);
+    }
+
+
 
 
 }

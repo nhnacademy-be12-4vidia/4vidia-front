@@ -18,6 +18,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.io.IOException;
+
 @Slf4j
 @RequiredArgsConstructor
 @Controller
@@ -35,10 +37,13 @@ public class LoginController {
      */
     @GetMapping("/auth/login")
     public String loginForm(Model model) {
-        model.addAttribute("paycoLoginUrl", paycoLoginUrl);
         return "auth/loginForm";
     }
 
+    @GetMapping("/login/payco")
+    public void redirectToPayco(HttpServletResponse response) throws IOException {
+        response.sendRedirect(paycoLoginUrl);
+    }
     /**
      * 로그인
      */
@@ -56,10 +61,10 @@ public class LoginController {
         System.out.println(tokenResponse.refreshUuid());
         String email = loginRequest.email();
         // 휴먼이면 -> 휴먼인증으로 이동
-        if (authApiClient.isDormant(email)) {
-            request.setAttribute("email", email);
-            return "auth/dormant-auth";
-        }
+//        if (authApiClient.isDormant(email)) {
+//            request.setAttribute("email", email);
+//            return "auth/dormant-auth";
+//        }
 
         authApiClient.updateLastLoginAt(email);
 
@@ -89,6 +94,7 @@ public class LoginController {
     public String paycoLoginCallback(@RequestParam String code,
                                      @RequestParam(required = false) String state, HttpServletResponse response) {
         TokenResponse tokenResponse = authApiClient.paycoCallback(new PaycoCodeRequest(code, state));
+
         String accessToken = tokenResponse.accessToken();
         String refreshToken = tokenResponse.refreshUuid();
 
@@ -106,8 +112,7 @@ public class LoginController {
         refreshCookie.setPath("/");
         refreshCookie.setMaxAge(30 * 24 * 60 * 60); // 30일
         response.addCookie(refreshCookie);
-        cartApiClient.loginSync();
-        // 페이코 로그인 다시하기
+
 
         return "redirect:/";
     }
@@ -138,22 +143,13 @@ public class LoginController {
     public String completeProfile(@ModelAttribute CompleteProfileRequest completeProfileRequest, HttpServletRequest request, HttpServletResponse response) {
         userApiClient.completeProfile(completeProfileRequest);
         authApiClient.logout();
-        if (request.getSession(false) != null) {
-            request.getSession(false).invalidate();
-        }
-        authApiClient.deleteCookie("JSESSIONID", response);
-        authApiClient.deleteCookie("refresh", response);
-
-        return "redirect:/";
-    }
-    @ExceptionHandler(HttpClientErrorException.Unauthorized.class)
-    public String handleUnauthorized(HttpServletResponse response) {
-
-        deleteCookie("SES", response);
         deleteCookie("AUT", response);
+        deleteCookie("SES", response);
 
-        return "redirect:/auth/login";
+        return "redirect:/login/payco";
     }
+
+
     private void deleteCookie(String name, HttpServletResponse response) {
         Cookie cookie = new Cookie(name, null);
         cookie.setPath("/");     // 로그인 때 설정한 path와 반드시 동일

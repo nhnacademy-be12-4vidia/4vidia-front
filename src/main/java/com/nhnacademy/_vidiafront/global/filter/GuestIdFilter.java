@@ -16,7 +16,14 @@ import java.util.UUID;
 @Component
 @Slf4j
 public class GuestIdFilter extends OncePerRequestFilter {
-
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/css")
+                || path.startsWith("/js")
+                || path.startsWith("/images")
+                || path.equals("/favicon.ico");
+    }
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,

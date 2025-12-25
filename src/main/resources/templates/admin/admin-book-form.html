@@ -53,7 +53,7 @@
         </div>
 
         <!-- Registration/Edit Form -->
-        <form id="bookForm" method="post"
+        <form id="bookForm" method="post" enctype="multipart/form-data"
               th:action="${mode == 'create' ? '/admin/books' : '/admin/books/' + book.id}">
 
             <!-- For Update: Hidden HttpMethodFilter (_method=put) -->
@@ -70,14 +70,14 @@
                             <img id="imagePreview" 
                                  th:src="${book != null && !#lists.isEmpty(book.imageUrls) ? '/proxy?url=' + book.imageUrls[0] : '/img/logo.png'}" 
                                  alt="도서 표지 미리보기" class="book-cover-preview mb-3">
-                            <input type="text" class="form-control mt-2" id="imageUrl" name="imageUrl" 
+                            <input type="text" class="form-control mt-2" id="imageUrl" name="thumbnailUrl" 
                                    placeholder="이미지 URL을 입력하세요"
                                    th:value="${book != null && !#lists.isEmpty(book.imageUrls) ? book.imageUrls[0] : ''}">
                             
                             <!-- ISBN Hidden Field (Populated by Search or Pre-filled) -->
                             <input type="hidden" id="isbn" name="isbn" th:value="${book?.isbn}">
                             <div th:if="${mode == 'update'}" class="mt-2 text-muted small">
-                                ISBN: <span th:text="${book?.isbn}"></span> (수정 불가)
+                                ISBN: <span th:text="${book?.isbn}"></span>
                             </div>
                         </div>
                     </div>
@@ -131,7 +131,7 @@
                                 </div>
                                 <div class="form-group col-12">
                                     <label for="publisher">출판사</label>
-                                    <input type="text" class="form-control" id="publisher" name="publisher"
+                                    <input type="text" class="form-control" id="publisher" name="publisherName"
                                            th:value="${book?.publisherInfo?.name}">
                                 </div>
                             </div>
@@ -155,13 +155,13 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="categoryCode">카테고리</label>
-                                <select class="form-control" id="categoryCode" name="categoryCode">
+                                <label for="categoryId">카테고리</label>
+                                <select class="form-control" id="categoryId" name="categoryId">
                                     <option value="">카테고리를 선택하세요</option>
                                     <option th:each="cat : ${categories}"
-                                            th:value="${cat.kdcCode()}"
+                                            th:value="${cat.id()}"
                                             th:text="|${cat.kdcCode()}: ${cat.categoryName()}|"
-                                            th:selected="${book != null && book.categoryInfo != null && book.categoryInfo.kdcCode == cat.kdcCode()}">
+                                            th:selected="${book != null && book.categoryInfo != null && book.categoryInfo.id == cat.id()}">
                                         카테고리명
                                     </option>
                                 </select>
@@ -234,7 +234,7 @@
                     <h6 class="m-0 font-weight-bold text-primary">태그</h6>
                 </div>
                 <div class="card-body">
-                    <input type="text" class="form-control" id="tags" name="tags" 
+                    <input type="text" class="form-control" id="tagList" name="tagList" 
                            placeholder="태그를 쉼표(,)로 구분하여 입력하세요"
                            th:value="${book != null && book.tags != null ? #strings.listJoin(book.tags, ', ') : ''}">
                 </div>
@@ -254,7 +254,7 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script th:inline="javascript">
         $(document).ready(function() {
-            $('#categoryCode').select2({
+            $('#categoryId').select2({
                 width: '100%',
                 placeholder: '카테고리 검색 (코드 또는 이름)',
                 allowClear: true,
@@ -373,15 +373,22 @@
                 document.getElementById('bookIndex').value = data.bookIndex || '';
 
                 if (data.tags && Array.isArray(data.tags)) {
-                    document.getElementById('tags').value = data.tags.join(', ');
+                    document.getElementById('tagList').value = data.tags.join(', ');
                 } else {
-                    document.getElementById('tags').value = '';
+                    document.getElementById('tagList').value = '';
                 }
 
                 if (data.categoryCode) {
-                    $('#categoryCode').val(data.categoryCode).trigger('change');
+                    // KDC 코드로 옵션 찾기
+                    const option = Array.from(document.querySelectorAll('#categoryId option'))
+                        .find(opt => opt.text.startsWith(data.categoryCode + ':'));
+                    if (option) {
+                        $('#categoryId').val(option.value).trigger('change');
+                    } else {
+                        $('#categoryId').val(null).trigger('change');
+                    }
                 } else {
-                    $('#categoryCode').val(null).trigger('change');
+                    $('#categoryId').val(null).trigger('change');
                 }
 
                 if (data.coverImageUrl) {
@@ -485,7 +492,7 @@
                         document.querySelectorAll('input[name^="authorList"]').forEach(el => el.remove());
 
                         // 태그 데이터 정리 (앞뒤 공백 제거)
-                        const tagsInput = document.getElementById('tags');
+                        const tagsInput = document.getElementById('tagList');
                         if (tagsInput && tagsInput.value) {
                             const rawTags = tagsInput.value;
                             const cleanedTags = rawTags.split(',')

@@ -8,25 +8,27 @@ import java.util.List;
 
 public record AdminBookCreateRequest (
 
-        String coverImageUrl,
+        String thumbnailUrl,
         String isbn,
         String title,
         String subtitle,
         List<AuthorRequest> authorList,
-        String publisher,     // 출판사 이름
+        String publisherName,     // 출판사 이름
 
         @DateTimeFormat(pattern = "yyyy-MM-dd")
         LocalDate publishedDate,
 
         String language,
         Integer pageCount,
-        String categoryCode,
+        Long categoryId,
 
         Integer priceStandard,
         Integer stock,
+        String stockStatus,
         Boolean packagingAvailable,
 
         String description,
         String bookIndex,
-        List<String> tags
-){}
+        String tagList
+){
+}

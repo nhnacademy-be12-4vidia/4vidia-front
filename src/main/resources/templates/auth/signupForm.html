@@ -24,7 +24,6 @@
         }
         .email-feedback, .form-feedback { margin-top: 6px; display: block; font-size: 0.875em; }
 
-        /* 생년월일 입력창 글씨 크기 키우기 요청 반영 */
         input[type="date"] { font-size: 1.1rem !important; }
 
         .btn-primary:disabled {
@@ -33,21 +32,11 @@
             opacity: 0.6;
             cursor: not-allowed;
         }
-        .password-wrapper {
-            position: relative;
-        }
-
+        .password-wrapper { position: relative; }
         .password-check-icon {
-            position: absolute;
-            right: 14px;
-            top: 38%;
-            transform: translateY(-50%);
-            font-size: 1.1rem;
-            color: #1cc88a; /* SB Admin 초록 */
-            display: none;
-            pointer-events: none;
+            position: absolute; right: 14px; top: 38%; transform: translateY(-50%);
+            font-size: 1.1rem; color: #1cc88a; display: none; pointer-events: none;
         }
-
     </style>
 </head>
 
@@ -72,7 +61,11 @@
                             <div class="form-group">
                                 <label for="phone">전화번호</label>
                                 <div class="input-wrapper">
-                                    <input type="tel" id="phone" name="phone" class="form-control form-control-user" placeholder="전화번호" pattern="01[016789][0-9]{7,8}" required oninput="updateSignupButtonState()">
+                                    <input type="tel" id="phone" name="phone" class="form-control form-control-user"
+                                           placeholder="전화번호 (숫자만 입력)"
+                                           maxlength="13"
+                                           required
+                                           oninput="handlePhoneInput(this)">
                                 </div>
                             </div>
 
@@ -95,17 +88,12 @@
                                            placeholder="비밀번호" required
                                            pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,20}$"
                                            oninput="validatePassword(); updateSignupButtonState()">
-
-                                    <!-- ✅ 초록 체크 아이콘 -->
                                     <i id="passwordCheckIcon" class="fas fa-check-circle password-check-icon"></i>
-
                                     <small class="text-muted" style="margin-top: 4px; display: block;">
                                         영문, 숫자, 특수문자 포함 8~20자
                                     </small>
                                 </div>
                             </div>
-
-
 
                             <div class="form-group">
                                 <label for="birthDate">생년월일</label>
@@ -132,21 +120,44 @@
 <script>
     let emailValid = false;
 
+    // [추가] 전화번호 포맷팅 함수
+    function formatPhoneNumber(value) {
+        if (!value) return "";
+        value = value.replace(/[^0-9]/g, ''); // 숫자만 남김
+
+        if (value.length > 3 && value.length <= 7) {
+            return value.substring(0, 3) + '-' + value.substring(3);
+        } else if (value.length > 7) {
+            return value.substring(0, 3) + '-' + value.substring(3, 7) + '-' + value.substring(7, 11);
+        }
+        return value;
+    }
+
+    // [추가] 전화번호 입력 핸들러
+    function handlePhoneInput(input) {
+        input.value = formatPhoneNumber(input.value);
+        updateSignupButtonState();
+    }
+
     // 1. 버튼 상태 업데이트
     function updateSignupButtonState() {
         const name = document.getElementById('name').value.trim();
-        const phone = document.getElementById('phone').value.trim();
+        const phoneValue = document.getElementById('phone').value.trim();
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password');
         const birthDate = document.getElementById('birthDate').value;
 
+        // 전화번호 유효성 검사 (하이픈 제거 후 길이 확인)
+        const rawPhone = phoneValue.replace(/[^0-9]/g, '');
+        const isPhoneValid = rawPhone.length >= 10 && rawPhone.length <= 11;
+
         const isPasswordValid = password.checkValidity();
-        const isBirthValid = validateBirthDate(); // 만 14세 로직
+        const isBirthValid = validateBirthDate();
 
         const signupButton = document.getElementById('signupButton');
 
-        // 이메일 중복확인(emailValid)이 필수 조건에 포함됨
-        const canSubmit = name && phone && email && isPasswordValid && isBirthValid && emailValid;
+        // phone 조건 추가 (isPhoneValid)
+        const canSubmit = name && isPhoneValid && email && isPasswordValid && isBirthValid && emailValid;
         signupButton.disabled = !canSubmit;
     }
 
@@ -181,7 +192,7 @@
                 feedback.style.color = "red";
             });
     }
-    // 비밀번호 검증
+
     function validatePassword() {
         const passwordInput = document.getElementById("password");
         const checkIcon = document.getElementById("passwordCheckIcon");
@@ -193,8 +204,6 @@
         }
     }
 
-
-    // 이메일 입력 도중에는 다시 중복확인 받도록 리셋
     function resetEmailValidation() {
         emailValid = false;
         document.getElementById('emailFeedback').textContent = "중복확인을 해주세요.";
@@ -202,7 +211,6 @@
         updateSignupButtonState();
     }
 
-    // 3. 생년월일(만 14세) 검증
     function validateBirthDate() {
         const birthInput = document.getElementById("birthDate");
         const feedback = document.getElementById("birthFeedback");
@@ -211,7 +219,6 @@
         const birth = new Date(birthInput.value);
         const today = new Date();
 
-        // 미래 날짜 차단
         if (birth > today) {
             feedback.textContent = "미래 날짜는 선택할 수 없습니다.";
             feedback.style.color = "red";
@@ -233,7 +240,7 @@
         return true;
     }
 
-    // 4. 최종 폼 제출 방어 (버튼 활성화와 별개로 한 번 더 체크)
+    // 4. 최종 폼 제출 방어 (제출 시 하이픈 제거)
     function validateForm(event) {
         const isBirthValid = validateBirthDate();
 
@@ -245,6 +252,11 @@
             alert("생년월일을 확인해주세요 (만 14세 이상).");
             return false;
         }
+
+        // [중요] 서버로 보내기 직전에 하이픈 제거
+        const phoneInput = document.getElementById('phone');
+        phoneInput.value = phoneInput.value.replace(/-/g, ''); // 하이픈 제거
+
         return true;
     }
 

@@ -46,6 +46,7 @@ public class GlobalControllerAdvice {
         String refreshTokenFromCookie = getRefreshTokenFromCookie(request);
 
         boolean isLoggedIn = false;
+        boolean isAdmin = false;
 
         if (refreshTokenFromCookie != null) {
             isLoggedIn = true;
@@ -53,15 +54,23 @@ public class GlobalControllerAdvice {
 
         model.addAttribute("isLoggedIn", isLoggedIn);
 
+
         if (isLoggedIn) {
             try {
                 model.addAttribute("userName", userApiClient.getUserName());
+
+                String role = userApiClient.getUserRole();
+                if ("ADMIN".equals(role)) {
+                    isAdmin = true;
+                }
             } catch (Exception e) {
                 model.addAttribute("userName", "회원");
             }
         } else {
             model.addAttribute("userName", "비회원");
         }
+
+        model.addAttribute("isAdmin", isAdmin);
     }
     private String getRefreshTokenFromCookie(HttpServletRequest request) {
         if (request.getCookies() == null) return null;

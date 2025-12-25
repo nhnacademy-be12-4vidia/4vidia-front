@@ -17,55 +17,152 @@
     <link th:href="@{/css/sb-admin-2.min.css}" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<style>
-  /* Sidebar tag menu (compact list like screenshot) */
-  .tag-sidebar-heading {
-    font-size: .72rem;
-    font-weight: 800;
-    color: rgba(255,255,255,.75);
-    padding: .65rem 1rem .25rem 1rem;
-  }
-  .tag-sidebar-list { margin: 0; padding: 0 1.05rem 0 .75rem; list-style: none; }
-  .tag-sidebar-list .nav-item { margin: 0; }
-  .tag-sidebar-list .nav-link {
-    box-sizing: border-box;
-    width: calc(100% - 2px);
-    max-width: 100%;
-    padding: .48rem 1.25rem .48rem .95rem;
-    font-size: .88rem;
-    line-height: 1.2;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: .6rem;
-    border-radius: .55rem;
-    margin: 0 0 .22rem 0;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.10);
-    transition: background .15s ease, transform .12s ease;
-  }
-  .tag-sidebar-list .nav-link:hover {
-    background: rgba(255,255,255,0.12);
-    transform: translateX(2px);
-  }
-  .tag-sidebar-list .nav-link .chev {
-    opacity: .75;
-    font-size: .8rem;
-  }
-  .tag-sidebar-list .nav-link .name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: .45rem;
-    width: 100%;
-  }
-  .tag-sidebar-list .nav-link .name .ico {
-    opacity: .8;
-    font-size: .85rem;
-  }
-</style>
+
+    <style>
+        /* 1. 전체 화면 레이아웃 설정 */
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden; /* 브라우저 전체 스크롤 제거 */
+        }
+
+        #wrapper {
+            height: 100vh;
+            display: flex;      /* 좌우 배치 */
+            overflow: hidden;   /* 삐져나가는 내용 숨김 */
+            width: 100%;
+        }
+
+        /* 2. 사이드바 스타일 (수정됨) */
+        #accordionSidebar {
+            height: 100%;
+            width: 14rem;        /* 기본 너비 */
+            min-width: 14rem;
+            flex-shrink: 0;
+
+            display: flex;
+            flex-direction: column;
+
+            /* ✨ [핵심 수정 1] 평소에는 스크롤 허용 */
+            overflow-y: auto;
+            overflow-x: hidden;
+
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        /* ✨ [핵심 수정 2] 사이드바가 접혔을 때(.toggled) */
+        #accordionSidebar.toggled {
+            width: 6.5rem !important;
+            min-width: 6.5rem !important;
+
+            /* 💥 중요: 접혔을 때는 스크롤을 끄고(visible), 메뉴가 밖으로 튀어나오게 허용해야 함 */
+            overflow: visible !important;
+        }
+
+        /* 스크롤바 디자인 */
+        #accordionSidebar::-webkit-scrollbar { width: 5px; }
+        #accordionSidebar::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        /* 사이드바 하단 토글 버튼 위치 */
+        #accordionSidebar > .text-center {
+            margin-top: auto;
+            padding-bottom: 1.5rem;
+            width: 100%;
+        }
+
+        /* 3. 오른쪽 콘텐츠 영역 */
+        #content-wrapper {
+            flex-grow: 1;
+            height: 100%;
+            min-width: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: relative;
+            background-color: #f8f9fc;
+        }
+
+        /* 4. 태그 메뉴 스타일 (디자인 유지) */
+        .tag-sidebar-heading {
+            font-size: .72rem;
+            font-weight: 800;
+            color: rgba(255,255,255,.75);
+            padding: .65rem 1rem .25rem 1rem;
+        }
+        .tag-sidebar-list {
+            margin: 0;
+            padding: 0 1.05rem 0 0.75rem;
+            list-style: none;
+        }
+        .tag-sidebar-list .nav-item { margin: 0; }
+        .tag-sidebar-list .nav-link {
+            /* 기존 커스텀 유지 */
+            margin-right: 0 !important;
+            margin-left: 0 !important;
+            width: 90% !important;
+            margin: 0 auto 0.22rem auto !important;
+            box-sizing: border-box;
+            padding: .48rem 1.25rem .48rem .95rem;
+            font-size: .88rem;
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .6rem;
+            border-radius: .55rem;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.10);
+            transition: background .15s ease, transform .12s ease;
+        }
+        .tag-sidebar-list .nav-link:hover {
+            background: rgba(255,255,255,0.12);
+            transform: translateX(2px);
+        }
+        .tag-sidebar-list .nav-link .chev { opacity: .75; font-size: .8rem; }
+        .tag-sidebar-list .nav-link .name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: .45rem;
+            width: 100%;
+        }
+        .tag-sidebar-list .nav-link .name .ico { opacity: .8; font-size: .85rem; }
+
+        /* [접었을 때] 태그 카테고리 스타일 (중앙 정렬 + 글씨만 표시) */
+        #accordionSidebar.toggled .tag-sidebar-list .nav-link {
+            justify-content: center !important;
+            text-align: center;
+            padding: 0.7rem 0.2rem !important;
+            height: auto;
+            width: 90% !important;
+            margin: 0 auto 0.22rem auto !important;
+        }
+
+        /* 아이콘 숨기기 */
+        #accordionSidebar.toggled .tag-sidebar-list .nav-link .ico {
+            display: none !important;
+        }
+
+        /* 글씨 보이기 */
+        #accordionSidebar.toggled .tag-sidebar-list .name {
+            display: block !important;
+            font-size: 0.85rem;
+            font-weight: bold;
+            width: 100%;
+            white-space: normal;
+            line-height: 1.2;
+        }
+
+        /* 화살표 숨기기 */
+        #accordionSidebar.toggled .tag-sidebar-list .chev {
+            display: none;
+        }
+    </style>
 </head>
 
 <body id="page-top">
@@ -116,9 +213,8 @@
                         <i class="fas fa-heart fa-fw mr-1"></i>
                         좋아요 리스트
                     </a>
-                    <a class="collapse-item need-login" th:href="@{/mypage/coupons}" th:classappend="${currentUri == '/mypage/coupon' ? 'active' : ''}">
+                    <a class="collapse-item need-login" th:href="@{/mypage/coupons}" th:classappend="${currentUri == '/mypage/coupons' ? 'active' : ''}">
                         <i class="fas fa-tags fa-fw mr-1"></i>
-
                         쿠폰보유함
                     </a>
                     <a class="collapse-item need-login" th:href="@{/mypage/deactivate}" th:classappend="${currentUri == '/mypage/deactivate' ? 'active' : ''}">
@@ -129,9 +225,9 @@
             </div>
         </li>
 
-        <hr class="sidebar-divider d-none d-md-block">
 
-        <li class="nav-item">
+        <li class="nav-item" th:if="${isAdmin}">
+            <hr class="sidebar-divider d-none d-md-block">
             <a class="nav-link" href="/admin">
                 <i class="fas fa-fw fa-cog"></i>
                 <span>관리자 페이지</span>
@@ -139,28 +235,28 @@
         </li>
 
         <hr class="sidebar-divider d-none d-md-block">
-<div class="tag-sidebar-heading">카테고리</div>
-<ul class="tag-sidebar-list">
-  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=182, tagName='인문')}"><span class="name"><i class="fas fa-tag ico"></i>인문</span><i class="fas fa-angle-right chev"></i></a></li>
-  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=36, tagName='역사')}"><span class="name"><i class="fas fa-tag ico"></i>역사</span><i class="fas fa-angle-right chev"></i></a></li>
-  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=39, tagName='예술/대중문화')}"><span class="name"><i class="fas fa-tag ico"></i>예술/대중문화</span><i class="fas fa-angle-right chev"></i></a></li>
-  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=226, tagName='에세이')}"><span class="name"><i class="fas fa-tag ico"></i>에세이</span><i class="fas fa-angle-right chev"></i></a></li>
-  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=70, tagName='종교/역학')}"><span class="name"><i class="fas fa-tag ico"></i>종교/역학</span><i class="fas fa-angle-right chev"></i></a></li>
-  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=427, tagName='과학')}"><span class="name"><i class="fas fa-tag ico"></i>과학</span><i class="fas fa-angle-right chev"></i></a></li>
-  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=188, tagName='경제/경영')}"><span class="name"><i class="fas fa-tag ico"></i>경제/경영</span><i class="fas fa-angle-right chev"></i></a></li>
-  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=119, tagName='자기계발')}"><span class="name"><i class="fas fa-tag ico"></i>자기계발</span><i class="fas fa-angle-right chev"></i></a></li>
-  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=244, tagName='만화')}"><span class="name"><i class="fas fa-tag ico"></i>만화</span><i class="fas fa-angle-right chev"></i></a></li>
-  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=103, tagName='라이트 노벨')}"><span class="name"><i class="fas fa-tag ico"></i>라이트 노벨</span><i class="fas fa-angle-right chev"></i></a></li>
-  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=107, tagName='여행')}"><span class="name"><i class="fas fa-tag ico"></i>여행</span><i class="fas fa-angle-right chev"></i></a></li>
-  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=1384, tagName='잡지')}"><span class="name"><i class="fas fa-tag ico"></i>잡지</span><i class="fas fa-angle-right chev"></i></a></li>
-  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=284, tagName='어린이')}"><span class="name"><i class="fas fa-tag ico"></i>어린이</span><i class="fas fa-angle-right chev"></i></a></li>
-  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=200, tagName='청소년')}"><span class="name"><i class="fas fa-tag ico"></i>청소년</span><i class="fas fa-angle-right chev"></i></a></li>
-  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=176, tagName='요리/살림')}"><span class="name"><i class="fas fa-tag ico"></i>요리/살림</span><i class="fas fa-angle-right chev"></i></a></li>
-  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=2696, tagName='육아')}"><span class="name"><i class="fas fa-tag ico"></i>육아</span><i class="fas fa-angle-right chev"></i></a></li>
-  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=136, tagName='건강/취미')}"><span class="name"><i class="fas fa-tag ico"></i>건강/취미</span><i class="fas fa-angle-right chev"></i></a></li>
-  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=14, tagName='컴퓨터/모바일')}"><span class="name"><i class="fas fa-tag ico"></i>컴퓨터/모바일</span><i class="fas fa-angle-right chev"></i></a></li>
-  <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=97, tagName='수험서/자격증')}"><span class="name"><i class="fas fa-tag ico"></i>수험서/자격증</span><i class="fas fa-angle-right chev"></i></a></li>
-</ul>
+        <div class="tag-sidebar-heading">카테고리</div>
+        <ul class="tag-sidebar-list">
+            <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=182, tagName='인문')}" title="인문"><span class="name"><i class="fas fa-tag ico"></i>인문</span><i class="fas fa-angle-right chev"></i></a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=36, tagName='역사')}" title="역사"><span class="name"><i class="fas fa-tag ico"></i>역사</span><i class="fas fa-angle-right chev"></i></a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=39, tagName='예술/대중문화')}" title="'예술/대중문화'"><span class="name"><i class="fas fa-tag ico"></i>예술/대중문화</span><i class="fas fa-angle-right chev"></i></a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=226, tagName='에세이')}" title="에세이"><span class="name"><i class="fas fa-tag ico"></i>에세이</span><i class="fas fa-angle-right chev"></i></a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=70, tagName='종교/역학')}" title="'종교/역학'"><span class="name"><i class="fas fa-tag ico"></i>종교/역학</span><i class="fas fa-angle-right chev"></i></a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=427, tagName='과학')}" title="과학"><span class="name"><i class="fas fa-tag ico"></i>과학</span><i class="fas fa-angle-right chev"></i></a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=188, tagName='경제/경영')}" title="'경제/경영'"><span class="name"><i class="fas fa-tag ico"></i>경제/경영</span><i class="fas fa-angle-right chev"></i></a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=119, tagName='자기계발')}" title="자기계발"><span class="name"><i class="fas fa-tag ico"></i>자기계발</span><i class="fas fa-angle-right chev"></i></a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=244, tagName='만화')}" title="만화"><span class="name"><i class="fas fa-tag ico"></i>만화</span><i class="fas fa-angle-right chev"></i></a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=103, tagName='라이트 노벨')}" title="라이트 노벨"><span class="name"><i class="fas fa-tag ico"></i>라이트 노벨</span><i class="fas fa-angle-right chev"></i></a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=107, tagName='여행')}" title="여행"><span class="name"><i class="fas fa-tag ico"></i>여행</span><i class="fas fa-angle-right chev"></i></a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=1384, tagName='잡지')}" title="잡지"><span class="name"><i class="fas fa-tag ico"></i>잡지</span><i class="fas fa-angle-right chev"></i></a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=284, tagName='어린이')}" title="어린이"><span class="name"><i class="fas fa-tag ico"></i>어린이</span><i class="fas fa-angle-right chev"></i></a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=200, tagName='청소년')}" title="청소년"><span class="name"><i class="fas fa-tag ico"></i>청소년</span><i class="fas fa-angle-right chev"></i></a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=176, tagName='요리/살림')}" title="'요리/살림'"><span class="name"><i class="fas fa-tag ico"></i>요리/살림</span><i class="fas fa-angle-right chev"></i></a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=2696, tagName='육아')}" title="육아"><span class="name"><i class="fas fa-tag ico"></i>육아</span><i class="fas fa-angle-right chev"></i></a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=136, tagName='건강/취미')}" title="'건강/취미'"><span class="name"><i class="fas fa-tag ico"></i>건강/취미</span><i class="fas fa-angle-right chev"></i></a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=14, tagName='컴퓨터/모바일')}" title="'컴퓨터/모바일'"><span class="name"><i class="fas fa-tag ico"></i>컴퓨터/모바일</span><i class="fas fa-angle-right chev"></i></a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/books/search/tags/{tagId}(tagId=97, tagName='수험서/자격증')}" title="'수험서/자격증'"><span class="name"><i class="fas fa-tag ico"></i>수험서/자격증</span><i class="fas fa-angle-right chev"></i></a></li>
+        </ul>
 
         <div class="text-center d-none d-md-inline">
             <button class="rounded-circle border-0" id="sidebarToggle"></button>
@@ -171,50 +267,49 @@
 
         <div id="content">
 
-            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 sticky-top shadow">
 
                 <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
                     <i class="fa fa-bars"></i>
                 </button>
 
-              <form th:action="@{/books/search}" method="get"
-                    class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search"
-                    style="width: 70%; max-width: 40rem;">
+                <form th:action="@{/books/search}" method="get"
+                      class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search"
+                      style="width: 70%; max-width: 40rem;">
 
-                <div class="d-flex align-items-center w-100">
-                  <div class="input-group flex-grow-1" style="width: auto;">
-                    <input type="text"
-                           class="form-control bg-light border-0 small"
-                           placeholder="도서 검색..."
-                           name="keyword"
-                           th:value="${param.keyword}">
-                    <div class="input-group-append">
-                      <button class="btn btn-primary" type="submit">
-                        <i class="fas fa-search fa-sm"></i>
-                      </button>
+                    <div class="d-flex align-items-center w-100">
+                        <div class="input-group flex-grow-1" style="width: auto;">
+                            <input type="text"
+                                   class="form-control bg-light border-0 small"
+                                   placeholder="도서 검색..."
+                                   name="keyword"
+                                   th:value="${param.keyword}">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-search fa-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="custom-control custom-switch ml-2" style="white-space: nowrap;">
+                            <input class="custom-control-input"
+                                   type="checkbox"
+                                   id="useSemanticCheck"
+                                   name="useSemantic"
+                                   value="true"
+                                   th:checked="${param.useSemantic}">
+                            <label class="custom-control-label small mb-0" for="useSemanticCheck">
+                                AI 검색 사용
+                            </label>
+                        </div>
                     </div>
-                  </div>
-
-                  <div class="custom-control custom-switch ml-2" style="white-space: nowrap;">
-                    <input class="custom-control-input"
-                           type="checkbox"
-                           id="useSemanticCheck"
-                           name="useSemantic"
-                           value="true"
-                           th:checked="${param.useSemantic}">
-                    <label class="custom-control-label small mb-0" for="useSemanticCheck">
-                      AI 검색 사용
-                    </label>
-                  </div>
-                </div>
-              </form>
+                </form>
 
 
                 <ul class="navbar-nav ml-auto ">
                     <li class="nav-item dropdown no-arrow mx-1">
                         <a class="nav-link toggle" th:href="@{/cart}">
                             <i class="fas fa-shopping-cart fa-fw"></i>
-<!--                            <span class="badge badge-danger badge-counter">3</span>-->
                         </a>
                     </li>
 

@@ -41,7 +41,6 @@
                 });
 
                 if (res.ok) {
-                    // [추가된 부분] 성공 알림창
                     alert("기본 주소가 변경되었습니다.");
                     location.reload();
                 } else {
@@ -98,17 +97,10 @@
             e.preventDefault();
 
             const form = document.getElementById("addAddressForm");
-
-            // [수정 전] form 안에서 찾아서 에러 발생
-            // const submitBtn = form.querySelector("button[type='submit']");
-
-            // [수정 후] ID로 직접 찾기 (HTML에 id="saveAddressBtn" 추가 필수)
             const submitBtn = document.getElementById("saveAddressBtn");
 
-            // 안전 장치: 혹시 버튼을 못 찾았을 경우를 대비
             if (!submitBtn) {
                 console.error("저장 버튼을 찾을 수 없습니다. 버튼의 ID를 확인해주세요.");
-                // 버튼을 못 찾으면 로직을 진행하되, 중복 방지 기능(disabled)만 동작 안 함
             } else {
                 // 이미 처리 중이면 종료
                 if (submitBtn.disabled) return;
@@ -118,7 +110,6 @@
                 submitBtn.innerText = "저장 중...";
             }
 
-            // --- 아래는 기존과 동일 ---
             const formData = new FormData(form);
             const csrfToken = getCsrfToken(); // customJs 파일 확인 필요
 
@@ -157,6 +148,49 @@
                     submitBtn.innerText = "저장하기";
                 }
             }
+        }
+
+        // 단일 삭제 함수
+        async function deleteOneAddress(addressId) {
+            if (!confirm("정말 이 주소를 삭제하시겠습니까?")) return;
+
+            const csrfToken = getCsrfToken();
+
+            try {
+                // 선택 삭제와 동일하게 POST + _method=DELETE 방식 사용
+                const res = await fetch(`/mypage/address/${addressId}?_method=DELETE`, {
+                    method: "POST",
+                    credentials: "same-origin",
+                    headers: {
+                        'X-XSRF-TOKEN': csrfToken
+                    },
+                });
+
+                if (res.ok) {
+                    alert("주소가 삭제되었습니다.");
+                    location.reload();
+                } else {
+                    alert(`삭제 실패: ${res.status}`);
+                }
+            } catch (error) {
+                console.error(error);
+                alert("오류가 발생했습니다.");
+            }
+        }
+    </script>
+
+    <!-- 우편번호 팝업 콜백은 opener에서 호출됨 -->
+    <script>
+        function searchPostcode() {
+            window.open("/mypage/address/jusoPopup", "pop",
+                "width=570,height=420,scrollbars=yes,resizable=yes");
+        }
+
+        function jusoCallBack(roadAddrPart1, addrDetail, zipNo) {
+            document.getElementById("zipNo").value = zipNo;
+            document.getElementById("roadAddrPart1").value = roadAddrPart1;
+            document.getElementById("addrDetail").value = addrDetail;
+            document.getElementById("addrDetail").focus();
         }
     </script>
 </head>
@@ -234,14 +268,11 @@
                         <a th:href="@{/mypage/address/{addressId}/edit(addressId=${addr.addressId})}"
                            class="btn btn-sm btn-outline-primary me-2">수정</a>
 
-                        <!-- form 방식 삭제(DELETE)도 유지 가능. CSRF hidden 추가 -->
-                        <form th:action="@{/mypage/address/{addressId}(addressId=${addr.addressId})}"
-                              method="post" style="display:inline;"
-                              onsubmit="return confirm('정말 이 주소를 삭제하시겠습니까?');">
-                            <input type="hidden" name="_method" value="DELETE"/>
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                            <button type="submit" class="btn btn-sm btn-outline-danger">삭제</button>
-                        </form>
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger"
+                                th:onclick="'deleteOneAddress(' + ${addr.addressId} + ')'">
+                            삭제
+                        </button>
                     </td>
                 </tr>
             </th:block>
@@ -310,24 +341,6 @@
             </div>
         </div>
     </div>
-
-    <!-- 우편번호 팝업 콜백은 opener에서 호출됨 -->
-    <script>
-        function searchPostcode() {
-            window.open("/mypage/address/jusoPopup", "pop",
-                "width=570,height=420,scrollbars=yes,resizable=yes");
-        }
-
-        function jusoCallBack(roadAddrPart1, addrDetail, zipNo) {
-            document.getElementById("zipNo").value = zipNo;
-            document.getElementById("roadAddrPart1").value = roadAddrPart1;
-            document.getElementById("addrDetail").value = addrDetail;
-            document.getElementById("addrDetail").focus();
-        }
-    </script>
-
 </div>
-
-
 </body>
 </html>

@@ -18,7 +18,7 @@ function toggleLike(event, button) {
     const isLiked = icon.classList.contains('fas');
 
     let method = isLiked ? 'DELETE' : 'POST';
-    let url = `/mypage/like/test?bookId=${bookId}`;
+    let url = `/books/like?bookId=${bookId}`;
 
     fetch(url, {
         method: method,

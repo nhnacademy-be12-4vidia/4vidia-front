@@ -81,6 +81,13 @@ public class CartApiClient {
     }
 
     /**
+     * 로그인 직후 호출
+     */
+    public void loginSync(){
+        backendApiClient.postNoBody(CART_SERVICE+"/cart/login-sync", Void.class);
+    }
+
+    /**
      * 로그아웃 직후 호출
      */
     public void logoutSync(){

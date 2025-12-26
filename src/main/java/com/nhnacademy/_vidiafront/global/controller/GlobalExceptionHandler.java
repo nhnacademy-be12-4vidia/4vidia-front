@@ -67,17 +67,23 @@ public class GlobalExceptionHandler {
         return "알 수 없는 오류가 발생했습니다.";
     }
 
+
     @ExceptionHandler(HttpClientErrorException.Forbidden.class)
-    public String handleConflict(HttpClientErrorException.Forbidden ex, Model model) {
+    public String handleForbidden(HttpClientErrorException ex, HttpServletResponse response, Model model) {
 
-        log.error("403 Conflict 발생: {}", ex.getResponseBodyAsString());
+        String errorCode = ex.getResponseHeaders()
+                .getFirst("X-Error-Code");
 
-        // ProblemDetail JSON 파싱
+        if ("TEMP_USER".equals(errorCode)) {
+            return "redirect:/complete-profile";
+        }
+
+        if ("DORMANT_USER".equals(errorCode)) {
+            return "redirect:/auth/dormant-auth";
+        }
         String message = extractMessage(ex.getResponseBodyAsString());
-
         model.addAttribute("errorMessage", message);
 
-        // 원하는 에러 페이지로 이동
         return "error/errorPage";
     }
 

@@ -1,5 +1,9 @@
 package com.nhnacademy._vidiafront.order.controller;
 
+import com.nhnacademy._vidiafront.admin.client.GradePolicyApiClient;
+import com.nhnacademy._vidiafront.admin.client.PointPolicyApiClient;
+import com.nhnacademy._vidiafront.admin.dto.response.GradePolicyResponse;
+import com.nhnacademy._vidiafront.admin.dto.response.PointPolicyResponse;
 import com.nhnacademy._vidiafront.coupon.client.CouponApiClient;
 import com.nhnacademy._vidiafront.coupon.dto.response.OrderCouponResponse;
 import com.nhnacademy._vidiafront.global.auth.LoginStatus;
@@ -34,6 +38,8 @@ public class OrderController {
     private final OrderApiClient orderApiClient;
     private final MyOrderApiClient myOrderApiClient;
     private final CouponApiClient couponApiClient;
+    private final PointPolicyApiClient pointPolicyApiClient;
+    private final GradePolicyApiClient gradePolicyApiClient;
     private final LoginStatus loginStatus;
 
     // 바로구매, 장바구니에서 선택된 도서 임시 저장 후 결제 전 주문 확인 페이지로
@@ -64,7 +70,6 @@ public class OrderController {
         model.addAttribute("packagingOptions", orderCheckoutResponse.packagingOptions());
         model.addAttribute("deliveryDates", orderCheckoutResponse.deliveryDateResponses());
 
-
         if (loginStatus.isLoggedIn()) {
             OrderUserResponse orderUserResponse = myOrderApiClient.getUserOrderInfo();
             model.addAttribute("ordererName", orderUserResponse.name());
@@ -90,10 +95,15 @@ public class OrderController {
         } else {
             // 토큰 없으면 비회원/게스트 처리
             model.addAttribute("isGuest", true);
+
+            // TODO 웰컴쿠폰 정책 금액 받아오기, WELCOME 적립률 가져와서 계산
+            PointPolicyResponse pointPolicyResponse = pointPolicyApiClient.getPointPolicy(1L); // 1번이 회원가입 정책
+            model.addAttribute("welcomeDiscount", pointPolicyResponse.price());
+
+            GradePolicyResponse gradePolicyResponse = gradePolicyApiClient.getGradePolicy(1L); // 1번이 웰컴 등급 정책
+            model.addAttribute("gradePointRate", gradePolicyResponse.pointRate());
+
         }
-
-
-
         return "order/order";
     }
 

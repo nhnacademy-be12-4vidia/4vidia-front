@@ -66,10 +66,9 @@ public class LoginController {
 //            return "auth/dormant-auth";
 //        }
 
-        authApiClient.updateLastLoginAt(email);
 
-        String refreshUuid = tokenResponse.refreshUuid();
         String accessToken = tokenResponse.accessToken();
+        String refreshUuid = tokenResponse.refreshUuid();
 
         Cookie accessCookie = new Cookie("SES", accessToken);
         accessCookie.setHttpOnly(true);           // 브라우저 JS 접근 불가
@@ -85,6 +84,11 @@ public class LoginController {
         refreshCookie.setMaxAge(7 * 24 * 60 * 60);
         response.addCookie(refreshCookie);
 
+        request.setAttribute("NEW_SES", accessToken);
+        request.setAttribute("NEW_AUT", refreshUuid);
+
+        cartApiClient.loginSync();
+        authApiClient.updateLastLoginAt(email);
         return "redirect:/";
     }
 
@@ -110,6 +114,8 @@ public class LoginController {
         refreshCookie.setPath("/");
         refreshCookie.setMaxAge(30 * 24 * 60 * 60); // 30일
         response.addCookie(refreshCookie);
+
+        cartApiClient.loginSync();
 
 
         return "redirect:/";

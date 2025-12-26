@@ -89,10 +89,11 @@ public class AddressController {
      * 주소수정
      */
     @PutMapping("/{addressId}")
-    public String updateAddress(@PathVariable Long addressId,
-                                AddressRequest addressRequest) {
+    @ResponseBody
+    public ResponseEntity<Void> updateAddress(@PathVariable Long addressId,
+                                              AddressRequest addressRequest) {
         addressApiClient.updateAddress(addressId, addressRequest);
-        return "redirect:/mypage/address";
+        return ResponseEntity.ok().build();
     }
 
     /**

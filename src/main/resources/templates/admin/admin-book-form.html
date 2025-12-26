@@ -54,7 +54,7 @@
 
         <!-- Registration/Edit Form -->
         <form id="bookForm" method="post" enctype="multipart/form-data"
-              th:action="${mode == 'create' ? '/admin/books' : '/admin/books/' + book.id}">
+              th:action="${mode == 'create' ? '/admin/books' : '/admin/books/' + book.bookId}">
 
             <!-- For Update: Hidden HttpMethodFilter (_method=put) -->
             <input type="hidden" name="_method" value="put" th:if="${mode == 'update'}"/>
@@ -68,11 +68,11 @@
                         </div>
                         <div class="card-body text-center">
                             <img id="imagePreview" 
-                                 th:src="${book != null && !#lists.isEmpty(book.imageUrls) ? '/proxy?url=' + book.imageUrls[0] : '/img/logo.png'}" 
+                                 th:src="${book != null && book.coverImageUrl != null ? '/proxy?url=' + book.coverImageUrl : '/img/logo.png'}" 
                                  alt="도서 표지 미리보기" class="book-cover-preview mb-3">
                             <input type="text" class="form-control mt-2" id="imageUrl" name="thumbnailUrl" 
                                    placeholder="이미지 URL을 입력하세요"
-                                   th:value="${book != null && !#lists.isEmpty(book.imageUrls) ? book.imageUrls[0] : ''}">
+                                   th:value="${book?.coverImageUrl}">
                             
                             <!-- ISBN Hidden Field (Populated by Search or Pre-filled) -->
                             <input type="hidden" id="isbn" name="isbn" th:value="${book?.isbn}">
@@ -132,7 +132,7 @@
                                 <div class="form-group col-12">
                                     <label for="publisher">출판사</label>
                                     <input type="text" class="form-control" id="publisher" name="publisherName"
-                                           th:value="${book?.publisherInfo?.name}">
+                                           th:value="${book?.publisher}">
                                 </div>
                             </div>
 
@@ -161,7 +161,7 @@
                                     <option th:each="cat : ${categories}"
                                             th:value="${cat.id()}"
                                             th:text="|${cat.kdcCode()}: ${cat.categoryName()}|"
-                                            th:selected="${book != null && book.categoryInfo != null && book.categoryInfo.id == cat.id()}">
+                                            th:selected="${book != null && book.categoryCode == cat.kdcCode()}">
                                         카테고리명
                                     </option>
                                 </select>

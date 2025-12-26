@@ -12,6 +12,7 @@ public record AdminIsbnSearchResponse(
 
         boolean found,
         Long bookId,
+        String isbn,
 
         String coverImageUrl,
         String title,
@@ -28,6 +29,7 @@ public record AdminIsbnSearchResponse(
 
         Integer priceStandard,
         Integer stock,
+        String stockStatus,
         Boolean packagingAvailable,
 
         String description,

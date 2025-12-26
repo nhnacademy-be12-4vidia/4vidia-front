@@ -3,6 +3,7 @@ package com.nhnacademy._vidiafront.admin.client;
 import com.nhnacademy._vidiafront.admin.dto.request.AdminBookCreateRequest;
 import com.nhnacademy._vidiafront.admin.dto.request.AdminBookUpdateRequest;
 import com.nhnacademy._vidiafront.admin.dto.response.AdminIsbnSearchResponse;
+import com.nhnacademy._vidiafront.book.client.BookApiClient;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
@@ -39,6 +40,11 @@ public class AdminBookApiClient {
     public AdminIsbnSearchResponse getAugmentedBookInfo(String isbn) {
         String url = BOOK_SERVICE + "/admin/books/augment?isbn=" + isbn;
         return backendApiClient.get(url, AdminIsbnSearchResponse.class);
+    }
+
+    public String getBookIsbn(Long bookId) {
+        String url = BOOK_SERVICE + "/admin/books/" + bookId + "/isbn";
+        return backendApiClient.get(url, String.class);
     }
 
     public String uploadImage(MultipartFile image) throws IOException {

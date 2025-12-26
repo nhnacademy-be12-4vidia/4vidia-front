@@ -48,22 +48,24 @@ public class AdminBookController {
     }
 
     // 도서 수정 폼
-    @GetMapping("/{bookId}")
+    @GetMapping("/{book-id}")
     public String getBookUpdateForm(
-            @PathVariable Long bookId,
+            @PathVariable("book-id") Long bookId,
             Model model
     ) {
-        BookDetailResponse bookDetails = bookApiClient.bookDetails(bookId);
-        model.addAttribute("book", bookDetails);
+        String isbn = adminBookApiClient.getBookIsbn(bookId);
+        AdminIsbnSearchResponse adminData = adminBookApiClient.searchBookByIsbn(isbn);
+
+        model.addAttribute("book", adminData);
         model.addAttribute("mode", "update");
         model.addAttribute("categories", categoryApiClient.getFlatCategoryList());
         return "admin/admin-book-form";
     }
 
     // 도서 수정 요청
-    @PutMapping("/{bookId}")
+    @PutMapping("/{book-id}")
     public String updateBook(
-            @PathVariable Long bookId,
+            @PathVariable("book-id") Long bookId,
             AdminBookUpdateRequest request
     ) {
         adminBookApiClient.updateBook(bookId, request);

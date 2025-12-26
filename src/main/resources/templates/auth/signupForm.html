@@ -1,51 +1,253 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>회원가입</title>
-
-    <!-- 파비콘 설정 -->
-    <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
-    <link rel="shortcut icon" href="/favicon/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
-    <link rel="manifest" href="/favicon/site.webmanifest" />
-
     <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
     <link href="/css/sb-admin-2.min.css" rel="stylesheet">
     <script src="/t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+
 
     <style>
-        .form-group { display: flex; align-items: flex-start; margin-bottom: 1.5rem; }
+        /* ===== 기본 레이아웃 ===== */
+        .form-group {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
         label {
-            font-weight: 700; font-size: 1rem; color: #495057;
-            display: block; width: 120px; flex-shrink: 0; margin-right: 20px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #343a40;
+            display: block;
+            width: 120px;
+            flex-shrink: 0;
+            margin-right: 20px;
             line-height: calc(1.5em + .75rem + 2px);
         }
-        .input-wrapper { flex-grow: 1; }
-        .form-control-user { margin-bottom: 0 !important; }
-        .email-check-wrapper { display: flex; align-items: center; gap: 10px; }
-        .email-input { flex: 1; }
-        .check-btn {
-            white-space: nowrap; height: calc(1.5em + .75rem + 2px);
-            padding: .375rem 1rem; border-radius: 10px;
+
+        .input-wrapper {
+            flex-grow: 1;
+            max-width: 520px;
         }
-        .email-feedback, .form-feedback { margin-top: 6px; display: block; font-size: 0.875em; }
 
-        input[type="date"] { font-size: 1.1rem !important; }
+        /* ===== 공통 입력 필드 ===== */
+        .form-control-user {
+            margin-bottom: 0 !important;
+            border-radius: 12px;
+            height: 46px;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
 
+        .form-control-user:focus {
+            border-color: #4e73df;
+            box-shadow: 0 0 0 0.15rem rgba(78, 115, 223, 0.25);
+        }
+
+        input[type="date"] {
+            font-size: 1.1rem !important;
+        }
+
+        /* ===== 이메일 인증 영역 ===== */
+        .email-check-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 110px;
+            gap: 14px;
+            align-items: center;
+
+            background: #f8f9fc;
+            padding: 12px;
+            border-radius: 14px;
+        }
+
+        .email-input {
+            min-width: 0; /* grid에서 overflow 방지 */
+        }
+
+        .check-btn {
+            height: 34px;
+            padding: 0 0.6rem;
+            font-size: 0.85rem;
+            border-radius: 999px;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        #emailDupBtn {
+            background-color: #e9ecef;
+            color: #495057;
+            border: none;
+        }
+
+        #sendCodeBtn {
+            border: 1px solid #4e73df;
+            color: #4e73df;
+            background: #fff;
+        }
+
+        /* 인증코드 입력 영역 */
+        #codeBlock .check-btn {
+            height: 36px;
+            padding: 0.25rem 0.6rem;
+            font-size: 0.85rem;
+        }
+
+        /* ===== 피드백 문구 ===== */
+        .email-feedback,
+        .form-feedback {
+            margin-top: 6px;
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding-left: 4px;
+        }
+
+        /* ===== 버튼 disabled ===== */
         .btn-primary:disabled {
             background-color: #8392a5 !important;
             border-color: #8392a5 !important;
             opacity: 0.6;
             cursor: not-allowed;
         }
-        .password-wrapper { position: relative; }
+
+        /* ===== 비밀번호 체크 아이콘 ===== */
+        .password-wrapper {
+            position: relative;
+        }
+
         .password-check-icon {
-            position: absolute; right: 14px; top: 38%; transform: translateY(-50%);
-            font-size: 1.1rem; color: #1cc88a; display: none; pointer-events: none;
+            position: absolute;
+            right: 14px;
+            top: 38%;
+            transform: translateY(-50%);
+            font-size: 1.1rem;
+            color: #1cc88a;
+            display: none;
+            pointer-events: none;
+        }
+
+        /* ===== 배경/카드/타이틀 ===== */
+        body.bg-gradient-primary {
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        }
+
+        .card {
+            border-radius: 18px;
+        }
+
+        .card .p-5 {
+            padding: 3rem !important;
+        }
+
+        h1.h4 {
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+
+        .signup-title {
+            text-align: center;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+
+        .signup-sub {
+            font-size: 0.85rem;
+        }
+
+        hr {
+            margin: 2rem 0;
+        }
+
+        /* ===== 타이머 UI ===== */
+        #timerText {
+            font-size: 0.85rem;
+            background: #fff;
+            padding: 6px 10px;
+            border-radius: 999px;
+            display: inline-block;
+            border: 1px solid #dee2e6;
+        }
+
+        .code-input-wrapper {
+            position: relative;
+            flex: 1;
+        }
+
+        .timer-badge {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #6c757d;
+            background: #f1f3f5;
+            padding: 4px 8px;
+            border-radius: 999px;
+            pointer-events: none;
+        }
+
+        .timer-badge.danger {
+            color: #e03131;
+            background: #fff5f5;
+        }
+
+        /* ===== 로그인 링크 ===== */
+        a[href*="/auth/login"] {
+            font-size: 0.85rem;
+            color: #6c757d;
+            text-decoration: none;
+        }
+
+        a[href*="/auth/login"]:hover {
+            color: #4e73df;
+            text-decoration: underline;
+        }
+
+        /* ===== 반응형 ===== */
+        @media (max-width: 991px) {
+            .form-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            label {
+                width: 100%;
+                margin-bottom: 6px;
+                line-height: 1.4;
+            }
+
+            .input-wrapper {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            /* grid -> 모바일에서는 1열로 */
+            .email-check-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .email-check-wrapper .check-btn {
+                width: 100%;
+                height: 40px;
+            }
+
+            #codeBlock .check-btn {
+                width: 100%;
+                margin-top: 6px;
+            }
+
+            #signupButton {
+                height: 46px;
+                font-size: 1rem;
+            }
         }
     </style>
+
 </head>
 
 <body class="bg-gradient-primary">
@@ -55,14 +257,18 @@
             <div class="row">
                 <div class="col-lg-7 mx-auto">
                     <div class="p-5">
-                        <h1 class="h4 text-gray-900 mb-4">회원가입</h1>
+                        <h1 class="h3 text-gray-900 mb-3 signup-title">회원가입</h1>
+                        <p class="text-center text-muted mb-4 signup-sub">
+                            4VIDIA의 회원이 되어보세요!
+                        </p>
 
                         <form class="user" th:action="@{/auth/signup}" method="post" onsubmit="return validateForm(event)">
 
                             <div class="form-group">
                                 <label for="name">이름</label>
                                 <div class="input-wrapper">
-                                    <input type="text" id="name" name="name" class="form-control form-control-user" placeholder="이름" required oninput="updateSignupButtonState()">
+                                    <input type="text" id="name" name="name" class="form-control form-control-user"
+                                           placeholder="이름" required oninput="updateSignupButtonState()">
                                 </div>
                             </div>
 
@@ -70,21 +276,57 @@
                                 <label for="phone">전화번호</label>
                                 <div class="input-wrapper">
                                     <input type="tel" id="phone" name="phone" class="form-control form-control-user"
-                                           placeholder="전화번호 (숫자만 입력)"
-                                           maxlength="13"
-                                           required
+                                           placeholder="전화번호 (숫자만 입력)" maxlength="13" required
                                            oninput="handlePhoneInput(this)">
                                 </div>
                             </div>
 
+                            <!-- ✅ 이메일: 중복확인 + 인증코드 발송/확인 -->
                             <div class="form-group">
                                 <label for="email">이메일</label>
                                 <div class="input-wrapper">
+
+                                    <!-- 1) 이메일 입력 + 중복확인 + 코드발송 -->
                                     <div class="email-check-wrapper">
-                                        <input type="email" id="email" name="email" class="form-control form-control-user email-input" placeholder="이메일" required oninput="resetEmailValidation()">
-                                        <button type="button" class="btn btn-secondary check-btn" onclick="checkEmail()">중복확인</button>
+                                        <input type="email" id="email" name="email"
+                                               class="form-control form-control-user email-input"
+                                               placeholder="이메일" required
+                                               oninput="resetEmailValidation()">
+
+                                        <button type="button" class="btn btn-secondary check-btn"
+                                                id="emailDupBtn" onclick="checkEmail()">중복확인</button>
+                                        <button type="button" class="btn btn-outline-primary check-btn"
+                                                id="sendOrResendBtn" onclick="sendEmailCode()" disabled>
+                                            인증코드 발송
+                                        </button>
+
                                     </div>
+
                                     <small id="emailFeedback" class="email-feedback"></small>
+
+                                    <!-- 2) 인증코드 입력 + 확인 -->
+                                    <div class="email-check-wrapper mt-2" id="codeBlock" style="display:none;">
+
+                                        <!-- 인증코드 입력 + 타이머 -->
+                                        <div class="code-input-wrapper">
+                                            <input type="text" id="emailCode"
+                                                   class="form-control form-control-user email-input"
+                                                   placeholder="인증코드 6자리 입력"
+                                                   maxlength="6"
+                                                   oninput="updateSignupButtonState()">
+
+                                            <!-- ⭐ 입력창 안쪽 타이머 -->
+                                            <span id="timerBadge" class="timer-badge">03:00</span>
+                                        </div>
+
+                                        <button type="button" class="btn btn-primary check-btn"
+                                                id="verifyCodeBtn" onclick="verifyEmailCode()">인증확인</button>
+
+
+                                    </div>
+
+                                    <small id="codeFeedback" class="form-feedback"></small>
+
                                 </div>
                             </div>
 
@@ -114,8 +356,11 @@
                                 </div>
                             </div>
 
-                            <button type="submit" id="signupButton" class="btn btn-primary btn-user btn-block" disabled>회원가입하기</button>
+                            <button type="submit" id="signupButton" class="btn btn-primary btn-user btn-block" disabled>
+                                회원가입하기
+                            </button>
                         </form>
+
                         <hr>
                         <a th:href="@{/auth/login}">이미 계정이 있으신가요?</a>
                     </div>
@@ -126,12 +371,74 @@
 </div>
 
 <script>
-    let emailValid = false;
+    // ✅ 상태
+    let emailValid = false;      // 중복확인 통과
+    let emailVerified = false;   // 이메일 인증 완료
 
-    // [추가] 전화번호 포맷팅 함수
+    let timerInterval = null;
+    let remainingSeconds = 0;
+
+
+    function startTimer(seconds) {
+        stopTimer();
+        remainingSeconds = seconds;
+
+        // ✅ 타이머 배지 보이기
+        const badge = document.getElementById('timerBadge');
+        if (badge) badge.style.display = "inline-block";
+
+        updateTimerUI();
+
+        timerInterval = setInterval(() => {
+            remainingSeconds--;
+            updateTimerUI();
+
+            if (remainingSeconds <= 0) {
+                stopTimer();
+
+                emailVerified = false;
+                const codeFeedback = document.getElementById('codeFeedback');
+                codeFeedback.textContent = "인증시간이 만료되었습니다. 재발송을 눌러주세요.";
+                codeFeedback.style.color = "red";
+
+
+                // // ✅ 만료되면 재발송 가능, 인증확인은 막기(원하면)
+                document.getElementById('sendOrResendBtn').disabled = false;
+                document.getElementById('verifyCodeBtn').disabled = true;
+
+                updateSignupButtonState();
+            }
+        }, 1000);
+    }
+
+    function updateTimerUI() {
+        const mm = String(Math.floor(remainingSeconds / 60)).padStart(2, "0");
+        const ss = String(remainingSeconds % 60).padStart(2, "0");
+
+        const badge = document.getElementById('timerBadge');
+        if (!badge) return;
+
+        badge.textContent = `${mm}:${ss}`;
+
+        if (remainingSeconds <= 30) badge.classList.add('danger');
+        else badge.classList.remove('danger');
+    }
+
+    function stopTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = null;
+        remainingSeconds = 0;
+
+        // ✅ 배지 숨기기(선택)
+        const badge = document.getElementById('timerBadge');
+        if (badge) badge.style.display = "none";
+    }
+
+
+    // 전화번호 포맷팅
     function formatPhoneNumber(value) {
         if (!value) return "";
-        value = value.replace(/[^0-9]/g, ''); // 숫자만 남김
+        value = value.replace(/[^0-9]/g, '');
 
         if (value.length > 3 && value.length <= 7) {
             return value.substring(0, 3) + '-' + value.substring(3);
@@ -141,13 +448,12 @@
         return value;
     }
 
-    // [추가] 전화번호 입력 핸들러
     function handlePhoneInput(input) {
         input.value = formatPhoneNumber(input.value);
         updateSignupButtonState();
     }
 
-    // 1. 버튼 상태 업데이트
+    // 버튼 상태 업데이트
     function updateSignupButtonState() {
         const name = document.getElementById('name').value.trim();
         const phoneValue = document.getElementById('phone').value.trim();
@@ -155,7 +461,6 @@
         const password = document.getElementById('password');
         const birthDate = document.getElementById('birthDate').value;
 
-        // 전화번호 유효성 검사 (하이픈 제거 후 길이 확인)
         const rawPhone = phoneValue.replace(/[^0-9]/g, '');
         const isPhoneValid = rawPhone.length >= 10 && rawPhone.length <= 11;
 
@@ -164,20 +469,24 @@
 
         const signupButton = document.getElementById('signupButton');
 
-        // phone 조건 추가 (isPhoneValid)
-        const canSubmit = name && isPhoneValid && email && isPasswordValid && isBirthValid && emailValid;
+        // ✅ emailValid(중복확인) + emailVerified(인증완료) 둘 다 필요
+        const canSubmit = name && isPhoneValid && email && isPasswordValid && isBirthValid && emailValid && emailVerified;
         signupButton.disabled = !canSubmit;
     }
 
-    // 2. 이메일 중복 확인
+    // 이메일 중복확인
     function checkEmail() {
-        const email = document.getElementById('email').value;
+        const email = document.getElementById('email').value.trim();
         const feedback = document.getElementById('emailFeedback');
-        const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]*[A-Za-z][A-Za-z0-9.-]*\.[A-Za-z]{2,}$/;
+        const sendBtn = document.getElementById('sendOrResendBtn');
 
+        const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]*[A-Za-z][A-Za-z0-9.-]*\.[A-Za-z]{2,}$/;
         if (!emailPattern.test(email)) {
             feedback.textContent = "올바른 이메일 형식이 아닙니다.";
             feedback.style.color = "red";
+            emailValid = false;
+            sendBtn.disabled = true;
+            updateSignupButtonState();
             return;
         }
 
@@ -188,18 +497,152 @@
                     feedback.textContent = "이미 사용 중인 이메일입니다.";
                     feedback.style.color = "red";
                     emailValid = false;
+                    emailVerified = false;
+                    sendBtn.disabled = true;
+                    document.getElementById('codeBlock').style.display = "none";
                 } else {
-                    feedback.textContent = "사용 가능한 이메일입니다!";
+                    feedback.textContent = "사용 가능한 이메일입니다! 인증을 진행해주세요.";
                     feedback.style.color = "green";
                     emailValid = true;
+                    emailVerified = false;
+                    sendBtn.disabled = false;
+                    sendBtn.textContent = "인증코드 발송"; // ✅ 처음 상태로
+                    sendBtn.classList.remove("btn-outline-secondary");
+                    sendBtn.classList.add("btn-outline-primary");
+                    document.getElementById('codeBlock').style.display = "none";
                 }
                 updateSignupButtonState();
             })
             .catch(() => {
                 feedback.textContent = "서버 오류가 발생했습니다.";
                 feedback.style.color = "red";
+                emailValid = false;
+                emailVerified = false;
+                sendBtn.disabled = true;
+                updateSignupButtonState();
             });
     }
+    // 이메일 전송
+
+    function sendEmailCode() {
+        const email = document.getElementById('email').value.trim();
+        const feedback = document.getElementById('emailFeedback');
+        const codeFeedback = document.getElementById('codeFeedback');
+        const btn = document.getElementById('sendOrResendBtn');
+        btn.textContent = "재발송";
+        btn.classList.remove("btn-outline-primary");
+        btn.classList.add("btn-outline-secondary"); // 선택: 재발송 느낌
+        btn.disabled = false;
+
+
+        if (!emailValid) {
+            feedback.textContent = "먼저 이메일 중복확인을 완료해주세요.";
+            feedback.style.color = "red";
+            return;
+        }
+
+        codeFeedback.textContent = "인증코드를 발송 중입니다...";
+        codeFeedback.style.color = "#495057";
+
+
+        // ✅ 발송 중 연타 방지
+        btn.disabled = true;
+
+        fetch(`/auth/email/send-code`, {
+            method: "POST",
+            headers: {
+                ...csrfHeaders(),
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email })
+        })
+            .then(async res => {
+                if (!res.ok){
+                    const txt = await res.text();   // 서버 에러 메시지 읽기
+                    throw new Error("send failed");
+                }
+                // ✅ Void 응답이므로 json() 호출하지 않음
+                document.getElementById('codeBlock').style.display = "flex";
+                codeFeedback.textContent = "인증코드를 발송했어요. 메일함을 확인해주세요.";
+                codeFeedback.style.color = "green";
+
+
+                // ✅ 성공 시 버튼을 '재발송'으로 전환
+                btn.textContent = "재발송";
+                btn.classList.remove("btn-outline-primary");
+                btn.classList.add("btn-outline-secondary");
+                btn.disabled = false;
+
+                // ✅ 인증확인 버튼 다시 활성화
+                document.getElementById('verifyCodeBtn').disabled = false;
+
+                // ✅ 고정 TTL + 버퍼
+                startTimer(180);
+            })
+            .catch(() => {
+                codeFeedback.textContent = "인증코드 발송에 실패했습니다. 잠시 후 다시 시도해주세요.";
+                codeFeedback.style.color = "red";
+                btn.disabled = false; // ✅ 실패했으니 다시 누르게
+            });
+    }
+
+    // 인증코드 확인
+    function verifyEmailCode() {
+        const email = document.getElementById('email').value.trim();
+        const code = document.getElementById('emailCode').value.trim();
+        const codeFeedback = document.getElementById('codeFeedback');
+
+        if (code.length !== 6) {
+            codeFeedback.textContent = "인증코드 6자리를 입력해주세요.";
+            codeFeedback.style.color = "red";
+            return;
+        }
+
+        codeFeedback.textContent = "인증코드를 확인 중입니다...";
+        codeFeedback.style.color = "#495057";
+
+        fetch(`/auth/email/verify-code`, {
+            method: "POST",
+            headers: {
+                ...csrfHeaders(),
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email, code }) // ✅ token 제거
+        })
+            .then(res => {
+                if (!res.ok) throw new Error("verify failed");
+                emailVerified = true;
+
+                // ✅ 타이머 종료
+                stopTimer();
+
+                codeFeedback.textContent = "이메일 인증이 완료되었습니다!";
+                codeFeedback.style.color = "green";
+
+                const btn = document.getElementById('sendOrResendBtn');
+                btn.textContent = "인증 완료";
+                btn.disabled = true;
+
+
+                // 인증 완료 시 UI 잠금
+                document.getElementById('verifyCodeBtn').disabled = true;
+                document.getElementById('emailDupBtn').disabled = true;
+                document.getElementById('email').readOnly = true;
+
+                updateSignupButtonState();
+            })
+            .catch(() => {
+                emailVerified = false;
+                codeFeedback.textContent = "인증코드가 올바르지 않거나 만료되었습니다.";
+                codeFeedback.style.color = "red";
+                const btn = document.getElementById('sendOrResendBtn');
+                btn.textContent = "재발송";
+                btn.disabled = false;
+
+                updateSignupButtonState();
+            });
+    }
+
 
     function validatePassword() {
         const passwordInput = document.getElementById("password");
@@ -212,10 +655,25 @@
         }
     }
 
+    // 이메일 입력 변경 시 상태 초기화
     function resetEmailValidation() {
         emailValid = false;
+        emailVerified = false;
+
+        stopTimer(); // ✅ 추가
         document.getElementById('emailFeedback').textContent = "중복확인을 해주세요.";
         document.getElementById('emailFeedback').style.color = "orange";
+
+        document.getElementById('codeFeedback').textContent = "";
+        document.getElementById('codeBlock').style.display = "none";
+        document.getElementById('sendCodeBtn').disabled = true;
+
+        // UI 잠금 해제(이메일 수정 가능하도록)
+        document.getElementById('emailDupBtn').disabled = false;
+        document.getElementById('verifyCodeBtn').disabled = false;
+        document.getElementById('sendCodeBtn').disabled = true;
+        document.getElementById('email').readOnly = false;
+
         updateSignupButtonState();
     }
 
@@ -248,7 +706,7 @@
         return true;
     }
 
-    // 4. 최종 폼 제출 방어 (제출 시 하이픈 제거)
+    // 최종 폼 제출 방어
     function validateForm(event) {
         const isBirthValid = validateBirthDate();
 
@@ -256,19 +714,35 @@
             alert("이메일 중복 확인을 완료해주세요.");
             return false;
         }
+        if (!emailVerified) {
+            alert("이메일 인증을 완료해주세요.");
+            return false;
+        }
         if (!isBirthValid) {
             alert("생년월일을 확인해주세요 (만 14세 이상).");
             return false;
         }
 
-        // [중요] 서버로 보내기 직전에 하이픈 제거
+        // 서버로 보내기 직전에 하이픈 제거
         const phoneInput = document.getElementById('phone');
-        phoneInput.value = phoneInput.value.replace(/-/g, ''); // 하이픈 제거
+        phoneInput.value = phoneInput.value.replace(/-/g, '');
 
         return true;
     }
+    function csrfHeaders() {
+        const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+        const header = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
 
-    document.addEventListener('DOMContentLoaded', updateSignupButtonState);
+        const h = { "Content-Type": "application/json" };
+        if (token && header) h[header] = token;
+        return h;
+    }
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+        updateSignupButtonState();
+    });
 </script>
 </body>
 </html>

@@ -13,6 +13,7 @@ import java.util.List;
 import com.nhnacademy._vidiafront.user.client.LikeApiClient;
 import groovy.util.logging.Slf4j;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -151,18 +152,25 @@ public class BookController {
 
 
 
-    // todo : 도서 하트버튼 맵핑주소 변경해야함
-    // todo : 도서 컨트롤러로 이동해야하는거 아님?
-    // 좋아요 등록을 마이페이지에서 하지는 않음 ㅇㅇ
     @DeleteMapping("/like")
+    @ResponseBody
     public ResponseEntity<Void> deleteLikeTest(@RequestParam Long bookId) {
-        likeApiClient.deleteLike(bookId);
-        return ResponseEntity.ok().build();
+        try {
+            likeApiClient.deleteLike(bookId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
     @PostMapping("/like")
+    @ResponseBody
     public ResponseEntity<Void> addLikeTest(@RequestParam Long bookId) {
-        likeApiClient.addLike(bookId);
-        return ResponseEntity.ok().build();
+        try {
+            likeApiClient.addLike(bookId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 }

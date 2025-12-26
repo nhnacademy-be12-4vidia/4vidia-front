@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
-<head>
+<head layout:fragment="head">
     <meta charset="utf-8">
     <title>4VIDIA - 도서 쇼핑몰</title>
 
@@ -12,6 +12,11 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+
+    <!-- CSRF (Spring Security) : JS에서 동적 form 생성 시 사용 -->
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <meta name="_csrf_parameter" th:content="${_csrf.parameterName}" />
 
     <style>
         /* ------------------------------------------------ */
@@ -131,6 +136,72 @@
         .category-pill:hover { background: #4e73df; border-color: #4e73df; color: white; }
         .category-pill.active { background: #4e73df; color: white; border-color: #4e73df; }
 
+        /* ------------------------------------------------ */
+        /* ★ 카테고리별 도서(ajax) 섹션 */
+        /* ------------------------------------------------ */
+        .category-showcase {
+            position: relative;
+            overflow: hidden;
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 1.6rem 1.2rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            margin-bottom: 3.5rem;
+            color: #2c3e50;
+        }
+
+        .category-showcase .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.2rem;
+            gap: 12px;
+        }
+
+        .category-showcase .section-title {
+            margin: 0;
+            font-weight: 800;
+            letter-spacing: -0.2px;
+        }
+
+        .category-showcase .section-sub {
+            margin: 2px 0 0;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .category-showcase .badge-pill {
+            background: #f1f5ff;
+            border: 1px solid #dbe6ff;
+            color: #224abe;
+            border-radius: 999px;
+            font-weight: 700;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        .category-swiper-prev, .category-swiper-next {
+            color: #4e73df;
+            width: 45px;
+            height: 45px;
+            background: #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            border: none;
+            transition: all 0.2s ease;
+        }
+        .category-swiper-prev:after, .category-swiper-next:after { font-size: 1.2rem; font-weight: bold; }
+        .category-swiper-prev:hover, .category-swiper-next:hover { background: #f1f1f1; transform: scale(1.05); }
+
+        .category-empty {
+            padding: 1.2rem;
+            border: 1px dashed #d8dce6;
+            border-radius: 14px;
+            color: #6c757d;
+            background: #fafbff;
+        }
+
     </style>
 
     <script th:src="@{/customJs/askMoveCart.js}"></script>
@@ -157,8 +228,8 @@
                     pauseOnMouseEnter: true,
                 },
                 navigation: {
-                    nextEl: ".swiper-button-next",
-                    prevEl: ".swiper-button-prev",
+                    nextEl: ".bestseller-showcase .swiper-button-next",
+                    prevEl: ".bestseller-showcase .swiper-button-prev",
                 },
                 breakpoints: {
                     576: { slidesPerView: 2, spaceBetween: 15 },
@@ -199,7 +270,7 @@
 </head>
 
 <body>
-<div layout:fragment="content">
+<div layout:fragment="content" th:attr="data-user-id=${userId}">
     <div class="container mt-4">
 
         <div class="bestseller-showcase">
@@ -321,16 +392,367 @@
         <div class="mb-5 text-center">
             <h6 class="mb-3 text-gray-600 font-weight-bold">📚 카테고리별 도서</h6>
             <div class="d-flex justify-content-center flex-wrap">
-                <a href="#" class="category-pill active" data-category="all">전체</a>
-                <a href="#" class="category-pill" data-category="문학">문학</a>
-                <a href="#" class="category-pill" data-category="소설">소설</a>
-                <a href="#" class="category-pill" data-category="에세이">에세이</a>
-                <a href="#" class="category-pill" data-category="자기계발">자기계발</a>
-                <a href="#" class="category-pill" data-category="교육">교육</a>
-                <a href="#" class="category-pill" data-category="여행">여행</a>
+                <a href="#" class="category-pill active" data-category="전체" data-category-id="0">전체</a>
+                <a href="#" class="category-pill" data-category="소설/시" data-category-id="108">소설/시</a>
+                <a href="#" class="category-pill" data-category="소설/시" data-category-id="14">컴퓨터/모바일</a>
+                <a href="#" class="category-pill" data-category="에세이" data-category-id="226">에세이</a>
+                <a href="#" class="category-pill" data-category="자기계발" data-category-id="119">자기계발</a>
+                <a href="#" class="category-pill" data-category="교육" data-category-id="244">만화</a>
+                <a href="#" class="category-pill" data-category="교육" data-category-id="103">라이트노벨</a>
+                <a href="#" class="category-pill" data-category="여행" data-category-id="97">수험서/자격증</a>
+            </div>
+        </div>
+
+        <!-- 카테고리 도서(ajax) 슬라이더: 베스트셀러처럼 옆으로 넘기기 -->
+        <div class="category-showcase" id="category-showcase">
+            <div class="section-header">
+                <div>
+                    <h3 class="section-title" id="category-section-title">카테고리 도서</h3>
+                </div>
+                <div class="badge-pill" id="active-category-label">선택 필요</div>
+            </div>
+
+            <div class="position-relative px-1">
+                <div class="swiper myCategorySwiper">
+                    <div class="swiper-wrapper" id="category-swiper-wrapper">
+                        <div class="swiper-slide">
+                            <div class="category-empty">카테고리를 선택해 주세요.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="swiper-button-prev category-swiper-prev" style="left: -15px;"></div>
+                <div class="swiper-button-next category-swiper-next" style="right: -15px;"></div>
             </div>
         </div>
     </div>
+    <script>
+        // TODO: 실제 백엔드 엔드포인트로 바꾸세요.
+        // 예) /api/v1/books/main-page?categoryId=...&userId=...
+        const CATEGORY_BOOKS_API = '/books/api/main-list';
+
+        let categorySwiper;
+
+        // 외부 도메인(placeholder 등)이 막힌 환경에서도 깨지지 않도록, 로컬/인라인 fallback 이미지를 사용합니다.
+        const FALLBACK_IMG = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
+            <svg xmlns="http://www.w3.org/2000/svg" width="220" height="220">
+              <rect width="100%" height="100%" fill="#f1f1f1"/>
+              <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
+                    fill="#888" font-family="Arial, sans-serif" font-size="20">No Image</text>
+            </svg>
+        `);
+
+        function ensureCategorySwiper() {
+            if (categorySwiper) return;
+
+            categorySwiper = new Swiper('.myCategorySwiper', {
+                slidesPerView: 1,
+                spaceBetween: 10,
+                loop: false,
+                navigation: {
+                    nextEl: '.category-swiper-next',
+                    prevEl: '.category-swiper-prev'
+                },
+                breakpoints: {
+                    576: { slidesPerView: 2, spaceBetween: 15 },
+                    768: { slidesPerView: 3, spaceBetween: 15 },
+                    992: { slidesPerView: 4, spaceBetween: 20 },
+                    1200: { slidesPerView: 5, spaceBetween: 20 }
+                }
+            });
+        }
+
+        function formatWon(v) {
+            if (v === null || v === undefined) return '';
+            try { return Number(v).toLocaleString('ko-KR') + '원'; }
+            catch (e) { return v + '원'; }
+        }
+
+        function calcDiscountPercent(std, sale) {
+            if (!std || !sale) return '';
+            if (std <= 0 || std <= sale) return '';
+            return Math.floor((std - sale) * 100 / std) + '%';
+        }
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
+
+        function getCsrf() {
+            const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+            const header = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+            const param = document.querySelector('meta[name="_csrf_parameter"]')?.getAttribute('content');
+
+            // layout/head 미반영 등으로 meta가 없을 수 있으니, 없으면 null 반환
+            if (!token || !param) return null;
+            return { token, header, param };
+        }
+
+        function detectImageProxy() {
+            const el = document.querySelector('.bestseller-showcase img.card-img-top');
+            const sample = el?.getAttribute('src') || '';
+            if (!sample) return null;
+
+            try {
+                const u = new URL(sample, window.location.origin);
+                const keys = ['url', 'imageUrl', 'path', 'objectKey', 'key', 'src'];
+                for (const k of keys) {
+                    if (u.searchParams.has(k)) {
+                        return { base: u.pathname, key: k };
+                    }
+                }
+                return null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        const IMAGE_PROXY = detectImageProxy();
+
+        function buildImageSrc(rawUrl) {
+            if (!rawUrl) return FALLBACK_IMG;
+
+            const s = String(rawUrl);
+            // 이미 프론트에서 프록시로 내려온 값이면 그대로 사용
+            if (s.startsWith('/')) return s;
+
+            // 베스트셀러에서 쓰는 프록시 쿼리 파라미터 패턴이 있으면 그걸 그대로 따라감
+            if (IMAGE_PROXY) {
+                return `${IMAGE_PROXY.base}?${IMAGE_PROXY.key}=${encodeURIComponent(s)}`;
+            }
+
+            // 프록시 패턴을 못 찾았으면 일단 원본 URL 사용
+            return s || FALLBACK_IMG;
+        }
+
+
+        function bookSlideHtml(book) {
+            const id = book.id;
+            const title = escapeHtml(book.title);
+            const img = escapeHtml(buildImageSrc(book.imageUrl));
+
+            const authors = Array.isArray(book.authorNames) && book.authorNames.length > 0
+                ? escapeHtml(book.authorNames.join(', '))
+                : '저자 정보 없음';
+
+            const ps = book.priceStandard;
+            const sale = book.priceSales;
+            const hasDiscount = ps !== null && sale !== null && ps > sale;
+
+            const liked = !!book.liked;
+            const heartCls = liked ? 'fas' : 'far';
+
+            const csrf = getCsrf();
+            const csrfInput = (csrf?.param && csrf?.token)
+                ? `<input type="hidden" name="${escapeHtml(csrf.param)}" value="${escapeHtml(csrf.token)}">`
+                : '';
+
+            const discountTxt = calcDiscountPercent(ps, sale);
+
+            return `
+                <div class="swiper-slide">
+                    <div class="card book-card h-100">
+                        <div class="card-img-wrapper">
+                            <button type="button" class="btn-heart" data-book-id="${id}" onclick="toggleLike(event, this)">
+                                <i class="fa-heart ${heartCls}"></i>
+                            </button>
+                            <a href="/books/${id}" style="text-decoration: none; color: inherit;">
+                                <img class="card-img-top" src="${img}" alt="${title}"
+                                     onerror="this.onerror=null; this.src='${FALLBACK_IMG}';">
+                            </a>
+                        </div>
+
+                        <div class="card-body">
+                            <a href="/books/${id}" style="text-decoration: none; color: inherit;">
+                                <h5 class="card-title text-truncate">${title}</h5>
+                            </a>
+
+                            <p class="text-muted small mb-2 text-truncate" style="font-size: 0.75rem;">${authors}</p>
+
+                            <div class="mb-2">
+                                ${hasDiscount
+                                    ? `<span class="price-current">${formatWon(sale)}</span>
+                                       <span class="price-original">${formatWon(ps)}</span>
+                                       <span class="badge bg-danger ms-1" style="font-size: 0.7rem;">${discountTxt}</span>`
+                                    : `<span class="price-original-no-discount">${formatWon(ps ?? sale)}</span>`
+                                }
+                            </div>
+
+                            <div class="mt-auto d-flex gap-2">
+                                <form action="/cart/add" method="post" class="flex-grow-1">
+                                    ${csrfInput}
+                                    <input type="hidden" name="bookId" value="${id}">
+                                    <button class="btn btn-primary btn-block" title="장바구니"
+                                            onclick="addToCartAndConfirmMove('${id}', '1'); return false;">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </button>
+                                </form>
+
+                                <form action="/orders/checkout-temp" method="post" class="flex-grow-1">
+                                    ${csrfInput}
+                                    <input type="hidden" name="bookId" value="${id}">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="btn btn-buy btn-block" title="구매">
+                                        <i class="fas fa-credit-card"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setCategoryLabel(text) {
+            const badge = document.getElementById('active-category-label');
+            if (badge) badge.textContent = text || '선택 필요';
+
+            // 섹션 제목도 선택한 카테고리명으로 변경
+            const title = document.getElementById('category-section-title');
+            if (title) title.textContent = text || '카테고리 도서';
+        }
+
+        function renderCategoryBooks(books) {
+            const wrap = document.getElementById('category-swiper-wrapper');
+            if (!wrap) return;
+
+            if (!Array.isArray(books) || books.length === 0) {
+                wrap.innerHTML = `
+                    <div class="swiper-slide">
+                        <div class="category-empty">해당 카테고리에 표시할 도서가 없습니다.</div>
+                    </div>
+                `;
+                ensureCategorySwiper();
+                categorySwiper.update();
+                categorySwiper.slideTo(0);
+                return;
+            }
+
+            wrap.innerHTML = books.map(bookSlideHtml).join('');
+            ensureCategorySwiper();
+            categorySwiper.update();
+            categorySwiper.slideTo(0);
+        }
+
+        async function loadCategoryBooks(categoryId, userId) {
+            const wrap = document.getElementById('category-swiper-wrapper');
+            if (wrap) {
+                wrap.innerHTML = `
+                    <div class="swiper-slide">
+                        <div class="category-empty">불러오는 중...</div>
+                    </div>
+                `;
+            }
+
+            const params = new URLSearchParams();
+            params.set('tagId', categoryId);
+            // 백엔드가 좋아요/추천 등을 user 기준으로 계산한다면 같이 보내야 합니다.
+            if (userId && Number(userId) > 0) {
+                params.set('userId', String(userId));
+            }
+
+            const url = `${CATEGORY_BOOKS_API}?${params.toString()}`;
+
+            const res = await fetch(url, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' },
+                credentials: 'same-origin'
+            });
+
+            if (!res.ok) {
+                const body = await res.text().catch(() => '');
+                const msg = `요청 실패: ${res.status}${body ? ' / ' + body.slice(0, 200) : ''}`;
+                if (wrap) {
+                    wrap.innerHTML = `
+                        <div class="swiper-slide">
+                            <div class="category-empty">${msg}</div>
+                        </div>
+                    `;
+                }
+                ensureCategorySwiper();
+                categorySwiper.update();
+                categorySwiper.slideTo(0);
+                return;
+            }
+
+            const ct = (res.headers.get('content-type') || '').toLowerCase();
+            if (!ct.includes('application/json')) {
+                const body = await res.text().catch(() => '');
+                throw new Error('JSON이 아닌 응답이 내려왔습니다. (로그인 리다이렉트/에러페이지일 수 있음) ' + body.slice(0, 200));
+            }
+
+            const data = await res.json();
+            renderCategoryBooks(data);
+        }
+
+        function getUserId() {
+            const root = document.querySelector('[data-user-id]');
+            const raw = root?.getAttribute('data-user-id');
+            const n = parseInt(raw || '0', 10);
+            return Number.isFinite(n) ? n : 0;
+        }
+
+        function activatePill(pill) {
+            document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const userId = getUserId();
+
+            // 클릭 이벤트: 카테고리 선택 -> ajax 로딩
+            document.querySelectorAll('.category-pill').forEach(pill => {
+                pill.addEventListener('click', async (e) => {
+                    e.preventDefault();
+
+                    const categoryId = pill.dataset.categoryId;
+                    const label = pill.dataset.category || '카테고리';
+
+                    activatePill(pill);
+                    setCategoryLabel(label);
+
+                    if (!categoryId) {
+                        renderCategoryBooks([]);
+                        return;
+                    }
+
+                    try {
+                        await loadCategoryBooks(categoryId, userId);
+                    } catch (err) {
+                        const wrap = document.getElementById('category-swiper-wrapper');
+                        if (wrap) {
+                            wrap.innerHTML = `
+                                <div class="swiper-slide">
+                                    <div class="category-empty">에러: ${escapeHtml(err?.message || err)}</div>
+                                </div>
+                            `;
+                        }
+                        ensureCategorySwiper();
+                        categorySwiper.update();
+                        categorySwiper.slideTo(0);
+                    }
+                });
+            });
+
+            // 첫 로딩: "전체"가 active면 실제 categoryId가 없으니, 첫 번째 id 있는 카테고리를 자동 선택
+            const active = document.querySelector('.category-pill.active');
+            const firstWithId = document.querySelector('.category-pill[data-category-id]:not([data-category-id=""])');
+
+            if (active && active.dataset.categoryId) {
+                active.click();
+            } else if (firstWithId) {
+                firstWithId.click();
+            } else {
+                setCategoryLabel('선택 필요');
+            }
+        });
+    </script>
 </div>
 
 

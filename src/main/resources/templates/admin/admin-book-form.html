@@ -267,9 +267,6 @@
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            // 페이지 로드 시 최상단으로 스크롤
-            window.scrollTo(0, 0);
-
             // Toast UI Editor 설정
             const editorEl = document.querySelector('#editor');
             let editor;
@@ -293,6 +290,9 @@
                             // 이미지 업로드 API 호출
                             fetch('/admin/books/images', {
                                 method: 'POST',
+                                headers: {
+                                    'X-XSRF-TOKEN': getCsrfToken()
+                                },
                                 body: formData
                             })
                             .then(response => {
@@ -300,7 +300,8 @@
                                 return response.json(); // Expected: { url: 'http://...' }
                             })
                             .then(data => {
-                                callback(data.url, 'image');
+                                const proxyUrl = '/proxy?url=' + encodeURIComponent(data.url);
+                                callback(proxyUrl, 'image');
                             })
                             .catch(error => {
                                 console.error('Image upload failed:', error);
@@ -309,6 +310,8 @@
                         }
                     }
                 });
+
+                window.scrollTo(0, 0);
             }
 
             // 이미지 URL 변경 시 미리보기 업데이트

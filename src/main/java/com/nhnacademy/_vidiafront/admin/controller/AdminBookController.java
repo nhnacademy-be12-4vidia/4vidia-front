@@ -6,7 +6,6 @@ import com.nhnacademy._vidiafront.admin.dto.request.AdminBookUpdateRequest;
 import com.nhnacademy._vidiafront.admin.dto.response.AdminIsbnSearchResponse;
 import com.nhnacademy._vidiafront.book.client.BookApiClient;
 import com.nhnacademy._vidiafront.book.client.CategoryApiClient;
-import com.nhnacademy._vidiafront.book.dto.books.response.BookDetailResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -99,11 +98,11 @@ public class AdminBookController {
             @RequestParam("image") MultipartFile image
     ) {
         try {
-            String imageUrl = adminBookApiClient.uploadImage(image);
-            if (imageUrl == null) {
+            Map<String, String> response = adminBookApiClient.uploadImage(image);
+            if (response == null) {
                 return ResponseEntity.badRequest().build();
             }
-            return ResponseEntity.ok(Map.of("url", imageUrl));
+            return ResponseEntity.ok(response);
         } catch (IOException e) {
             log.error("Image upload failed", e);
             return ResponseEntity.internalServerError().build();

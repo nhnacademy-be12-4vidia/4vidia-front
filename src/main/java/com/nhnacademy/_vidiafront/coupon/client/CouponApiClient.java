@@ -3,6 +3,7 @@ package com.nhnacademy._vidiafront.coupon.client;
 import com.nhnacademy._vidiafront.coupon.dto.request.OrderCouponRequest;
 import com.nhnacademy._vidiafront.coupon.dto.response.MyCouponResponse;
 import com.nhnacademy._vidiafront.coupon.dto.response.OrderCouponResponse;
+import com.nhnacademy._vidiafront.coupon.dto.response.WelcomeCouponPolicy;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.order.dto.order.response.*;
 import lombok.RequiredArgsConstructor;
@@ -28,5 +29,10 @@ public class CouponApiClient {
                 COUPON_SERVICE + "/coupons/me",
                 new ParameterizedTypeReference<List<MyCouponResponse>>() {}
         );
+    }
+
+    public WelcomeCouponPolicy getWelcomePolicy() {
+        WelcomeCouponPolicy welcomeCouponPolicy = backendApiClient.get(COUPON_SERVICE + "/policies/welcome", WelcomeCouponPolicy.class);
+        return welcomeCouponPolicy;
     }
 }

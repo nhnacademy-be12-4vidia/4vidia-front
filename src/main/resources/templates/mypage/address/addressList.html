@@ -7,11 +7,158 @@
     <meta charset="UTF-8">
     <title>주소 관리</title>
 
-    <!-- CSRF meta -->
-    <meta name="_csrf" th:content="${_csrf.token}"/>
-    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <script th:src="@{/customJs/get-cookie.js}"></script>
+    <script>
+        function getSelectedAddresses() {
+            return Array.from(document.querySelectorAll("input[name='selectedAddress']:checked"))
+                .map(chk => chk.value);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("setDefaultBtn")?.addEventListener("click", setDefaultSelectedAddress);
+            document.getElementById("deleteSelectedBtn")?.addEventListener("click", deleteSelectedAddresses);
+        });
+
+        async function setDefaultSelectedAddress() {
+            const selected = getSelectedAddresses();
+            if (selected.length !== 1) {
+                alert("기본 주소는 하나만 선택해야 합니다.");
+                return;
+            }
+
+            const addressId = selected[0];
+            const csrfToken = getCsrfToken();
+
+            try {
+                const res = await fetch(`/mypage/address/default/${addressId}`, {
+                    method: "PUT",
+                    credentials: "same-origin",
+                    headers: {
+                        'X-XSRF-TOKEN': csrfToken
+                    },
+                });
+
+                if (res.ok) {
+                    // [추가된 부분] 성공 알림창
+                    alert("기본 주소가 변경되었습니다.");
+                    location.reload();
+                } else {
+                    alert(`기본 주소 설정 실패: ${res.status}`);
+                }
+            } catch (error) {
+                console.error(error);
+                alert("통신 중 오류가 발생했습니다.");
+            }
+        }
+
+        async function deleteSelectedAddresses() {
+            const selected = getSelectedAddresses();
+            const csrfToken = getCsrfToken();
+
+            if (selected.length === 0) {
+                alert("삭제할 주소를 선택하세요.");
+                return;
+            }
+
+            // [기존] 삭제 전 확인 질문
+            if (!confirm("선택한 주소를 모두 삭제하시겠습니까?")) return;
+
+            try {
+                const results = await Promise.all(
+                    selected.map(id =>
+                        fetch(`/mypage/address/${id}?_method=DELETE`, {
+                            method: "POST", // 405 해결을 위한 POST
+                            credentials: "same-origin",
+                            headers: {
+                                'X-XSRF-TOKEN': csrfToken
+                            },
+                        })
+                    )
+                );
+
+                const failed = results.find(r => !r.ok);
+                if (failed) {
+                    alert(`삭제 실패: ${failed.status}`);
+                    return;
+                }
+
+                // [추가된 부분] 성공 알림창
+                alert("선택한 주소가 삭제되었습니다.");
+                location.reload();
+
+            } catch (error) {
+                console.error(error);
+                alert("삭제 중 오류가 발생했습니다.");
+            }
+        }
+
+        async function submitAddress(e) {
+            e.preventDefault();
+
+            const form = document.getElementById("addAddressForm");
+
+            // [수정 전] form 안에서 찾아서 에러 발생
+            // const submitBtn = form.querySelector("button[type='submit']");
+
+            // [수정 후] ID로 직접 찾기 (HTML에 id="saveAddressBtn" 추가 필수)
+            const submitBtn = document.getElementById("saveAddressBtn");
+
+            // 안전 장치: 혹시 버튼을 못 찾았을 경우를 대비
+            if (!submitBtn) {
+                console.error("저장 버튼을 찾을 수 없습니다. 버튼의 ID를 확인해주세요.");
+                // 버튼을 못 찾으면 로직을 진행하되, 중복 방지 기능(disabled)만 동작 안 함
+            } else {
+                // 이미 처리 중이면 종료
+                if (submitBtn.disabled) return;
+
+                // 버튼 비활성화
+                submitBtn.disabled = true;
+                submitBtn.innerText = "저장 중...";
+            }
+
+            // --- 아래는 기존과 동일 ---
+            const formData = new FormData(form);
+            const csrfToken = getCsrfToken(); // customJs 파일 확인 필요
+
+            try {
+                const res = await fetch("/mypage/address", {
+                    method: "POST",
+                    credentials: "same-origin",
+                    headers: {
+                        'X-XSRF-TOKEN': csrfToken
+                    },
+                    body: formData
+                });
+
+                if (res.ok) {
+                    location.reload();
+                    return;
+                }
+
+                const text = await res.text().catch(() => "");
+                console.error("주소 저장 실패:", res.status, text);
+                alert(`주소 저장 실패: ${res.status}`);
+
+                // 실패 시 버튼 복구
+                if(submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "저장하기"; // 원래 텍스트로 복구
+                }
+
+            } catch (error) {
+                console.error("네트워크 오류:", error);
+                alert("저장 중 오류가 발생했습니다.");
+
+                // 에러 시 버튼 복구
+                if(submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "저장하기";
+                }
+            }
+        }
+    </script>
 </head>
 
 <body>
@@ -157,7 +304,7 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="submit" form="addAddressForm" class="btn btn-primary">저장하기</button>
+                    <button type="submit" id="saveAddressBtn" form="addAddressForm" class="btn btn-primary">저장하기</button>
                     <button class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
                 </div>
             </div>
@@ -181,114 +328,6 @@
 
 </div>
 
-<!-- =========================
-     JS (CSRF + fetch handlers)
-     ========================= -->
-<script>
-    // cookie(XSRF-TOKEN) 우선, meta fallback
-    function getCookie(name) {
-        return document.cookie
-            .split("; ")
-            .find(row => row.startsWith(name + "="))
-            ?.split("=")[1];
-    }
-
-    function csrfHeaders() {
-        const cookieToken = getCookie("XSRF-TOKEN");
-        if (cookieToken) {
-            return { "X-XSRF-TOKEN": decodeURIComponent(cookieToken) };
-        }
-
-        const token = document.querySelector('meta[name="_csrf"]')?.content;
-        const headerName = document.querySelector('meta[name="_csrf_header"]')?.content;
-        if (token && headerName) {
-            return { [headerName]: token };
-        }
-
-        console.warn("CSRF token not found (cookie/meta 둘 다 없음)");
-        return {};
-    }
-
-    function getSelectedAddresses() {
-        return Array.from(document.querySelectorAll("input[name='selectedAddress']:checked"))
-            .map(chk => chk.value);
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("setDefaultBtn")?.addEventListener("click", setDefaultSelectedAddress);
-        document.getElementById("deleteSelectedBtn")?.addEventListener("click", deleteSelectedAddresses);
-    });
-
-    async function setDefaultSelectedAddress() {
-        const selected = getSelectedAddresses();
-        if (selected.length !== 1) {
-            alert("기본 주소는 하나만 선택해야 합니다.");
-            return;
-        }
-
-        const addressId = selected[0];
-
-        const res = await fetch(`/mypage/address/default/${addressId}`, {
-            method: "PUT",
-            credentials: "same-origin",
-            headers: { ...csrfHeaders() }
-        });
-
-        if (res.ok) location.reload();
-        else alert(`기본 주소 설정 실패: ${res.status}`);
-    }
-
-    async function deleteSelectedAddresses() {
-        const selected = getSelectedAddresses();
-        if (selected.length === 0) {
-            alert("삭제할 주소를 선택하세요.");
-            return;
-        }
-        if (!confirm("선택한 주소를 모두 삭제하시겠습니까?")) return;
-
-        const headers = { ...csrfHeaders() };
-
-        const results = await Promise.all(
-            selected.map(id =>
-                fetch(`/mypage/address/${id}`, {
-                    method: "DELETE",
-                    credentials: "same-origin",
-                    headers
-                })
-            )
-        );
-
-        const failed = results.find(r => !r.ok);
-        if (failed) {
-            alert(`삭제 실패: ${failed.status}`);
-            return;
-        }
-        location.reload();
-    }
-
-    async function submitAddress(e) {
-        e.preventDefault();
-
-        const form = document.getElementById("addAddressForm");
-        const formData = new FormData(form);
-
-        const res = await fetch("/mypage/address", {
-            method: "POST",
-            credentials: "same-origin",
-            headers: { ...csrfHeaders() },
-            body: formData
-        });
-
-        if (res.ok) {
-            location.reload();
-            return;
-        }
-
-        const text = await res.text().catch(() => "");
-        console.error("주소 저장 실패:", res.status, text);
-        alert(`주소 저장 실패: ${res.status}`);
-    }
-</script>
 
 </body>
 </html>

@@ -155,7 +155,7 @@ public class BookController {
 
         return bookApiClient.getMainBookList(tagId);
 
-
+    }
 
     @DeleteMapping("/like")
     @ResponseBody

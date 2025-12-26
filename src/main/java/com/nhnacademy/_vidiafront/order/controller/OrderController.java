@@ -1,7 +1,12 @@
 package com.nhnacademy._vidiafront.order.controller;
 
+import com.nhnacademy._vidiafront.admin.client.GradePolicyApiClient;
+import com.nhnacademy._vidiafront.admin.client.PointPolicyApiClient;
+import com.nhnacademy._vidiafront.admin.dto.response.GradePolicyResponse;
+import com.nhnacademy._vidiafront.admin.dto.response.PointPolicyResponse;
 import com.nhnacademy._vidiafront.coupon.client.CouponApiClient;
 import com.nhnacademy._vidiafront.coupon.dto.response.OrderCouponResponse;
+import com.nhnacademy._vidiafront.coupon.dto.response.WelcomeCouponPolicy;
 import com.nhnacademy._vidiafront.global.auth.LoginStatus;
 import com.nhnacademy._vidiafront.order.client.OrderApiClient;
 import com.nhnacademy._vidiafront.order.dto.order.request.OrderCheckoutRequest;
@@ -34,6 +39,8 @@ public class OrderController {
     private final OrderApiClient orderApiClient;
     private final MyOrderApiClient myOrderApiClient;
     private final CouponApiClient couponApiClient;
+    private final PointPolicyApiClient pointPolicyApiClient;
+    private final GradePolicyApiClient gradePolicyApiClient;
     private final LoginStatus loginStatus;
 
     // 바로구매, 장바구니에서 선택된 도서 임시 저장 후 결제 전 주문 확인 페이지로
@@ -64,7 +71,6 @@ public class OrderController {
         model.addAttribute("packagingOptions", orderCheckoutResponse.packagingOptions());
         model.addAttribute("deliveryDates", orderCheckoutResponse.deliveryDateResponses());
 
-
         if (loginStatus.isLoggedIn()) {
             OrderUserResponse orderUserResponse = myOrderApiClient.getUserOrderInfo();
             model.addAttribute("ordererName", orderUserResponse.name());
@@ -90,10 +96,16 @@ public class OrderController {
         } else {
             // 토큰 없으면 비회원/게스트 처리
             model.addAttribute("isGuest", true);
+
+            PointPolicyResponse pointPolicyResponse = pointPolicyApiClient.getPointPolicy(1L); // 1번이 회원가입 정책
+            WelcomeCouponPolicy welcomeCouponPolicy = couponApiClient.getWelcomePolicy();
+            model.addAttribute("welcomeDiscount", pointPolicyResponse.price() + welcomeCouponPolicy.discountValue());
+
+            GradePolicyResponse gradePolicyResponse = gradePolicyApiClient.getGradePolicy(1L); // 1번이 웰컴 등급 정책
+
+            model.addAttribute("gradePointRate", gradePolicyResponse.pointRate());
+
         }
-
-
-
         return "order/order";
     }
 
@@ -105,8 +117,8 @@ public class OrderController {
         return ResponseEntity.ok(orderId);
     }
 
-    @GetMapping("/{orderId}")
-    public String showOrderDetail(@PathVariable long orderId,
+    @GetMapping("/{order-id}")
+    public String showOrderDetail(@PathVariable(value = "order-id") long orderId,
                                   Model model) {
 
         OrderResponse orderResponse = orderApiClient.getOrderById(orderId);
@@ -134,9 +146,9 @@ public class OrderController {
     /**
      * 배송 전 주문 취소 버튼(마이페이지)
      * */
-    @PutMapping("/{orderId}/cancel")
+    @PutMapping("/{order-id}/cancel")
     @ResponseBody
-    public Map<String, Object> cancelOrder(@PathVariable Long orderId) {
+    public Map<String, Object> cancelOrder(@PathVariable(value = "order-id") Long orderId) {
         Map<String, Object> response = new HashMap<>();
 
         try {

@@ -10,8 +10,11 @@ import com.nhnacademy._vidiafront.book.dto.reviews.response.ReviewListWithSummar
 import com.nhnacademy._vidiafront.global.dto.PageResponse;
 import java.util.List;
 
+import com.nhnacademy._vidiafront.user.client.LikeApiClient;
 import groovy.util.logging.Slf4j;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -26,6 +29,7 @@ public class BookController {
 
     private final BookApiClient bookApiClient;
     private final ReviewApiClient reviewApiClient;
+    private final LikeApiClient likeApiClient;
 
     /**
      * 도서 검색
@@ -150,5 +154,28 @@ public class BookController {
     public List<BookListResponse> getMainBookList(@RequestParam(defaultValue = "0") Long tagId) {
 
         return bookApiClient.getMainBookList(tagId);
+
+
+
+    @DeleteMapping("/like")
+    @ResponseBody
+    public ResponseEntity<Void> deleteLikeTest(@RequestParam Long bookId) {
+        try {
+            likeApiClient.deleteLike(bookId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+    @PostMapping("/like")
+    @ResponseBody
+    public ResponseEntity<Void> addLikeTest(@RequestParam Long bookId) {
+        try {
+            likeApiClient.addLike(bookId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 }

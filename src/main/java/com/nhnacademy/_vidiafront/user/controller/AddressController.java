@@ -9,6 +9,7 @@ import com.nhnacademy._vidiafront.user.dto.user.response.UserProfileResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -58,18 +59,20 @@ public class AddressController {
      * 기본 주소 등록
      */
     @PutMapping("/default/{addressId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void defaultAddress(@PathVariable Long addressId) {
+    @ResponseBody
+    public ResponseEntity<Void> defaultAddress(@PathVariable Long addressId) {
         addressApiClient.updateDefaultAddress(addressId);
+        return ResponseEntity.ok().build();
     }
 
     /**
      * 주소등록
      */
     @PostMapping
-    public String addAddress(CreateAddressRequest createAddressRequest) {
+    @ResponseBody
+    public ResponseEntity<Void> addAddress(CreateAddressRequest createAddressRequest) {
         addressApiClient.addAddress(createAddressRequest);
-        return "redirect:/mypage/address";
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**
@@ -86,19 +89,21 @@ public class AddressController {
      * 주소수정
      */
     @PutMapping("/{addressId}")
-    public String updateAddress(@PathVariable Long addressId,
-                                AddressRequest addressRequest) {
+    @ResponseBody
+    public ResponseEntity<Void> updateAddress(@PathVariable Long addressId,
+                                              AddressRequest addressRequest) {
         addressApiClient.updateAddress(addressId, addressRequest);
-        return "redirect:/mypage/address";
+        return ResponseEntity.ok().build();
     }
 
     /**
      * 주소 삭제
      */
     @DeleteMapping("/{addressId}")
-    public String deleteAddress(@PathVariable Long addressId) {
+    @ResponseBody
+    public ResponseEntity<Void> deleteAddress(@PathVariable Long addressId) {
         addressApiClient.deleteAddress(addressId);
-        return "redirect:/mypage/address";
+        return ResponseEntity.ok().build();
     }
 
 }

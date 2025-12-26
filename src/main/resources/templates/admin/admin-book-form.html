@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/admin-layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${mode == 'create' ? '도서 등록' : '도서 수정'}">도서 등록</title>
+    <script th:src="@{/customJs/get-cookie.js}"></script>
+    <!-- TOAST UI Editor CSS (Local) -->
+    <link rel="stylesheet" href="/vendor/toastui/css/toastui-editor.min.css" />
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .book-cover-preview {
+            width: 100%;
+            max-width: 200px;
+            height: auto;
+            border: 1px solid #dddfeb;
+            border-radius: 0.35rem;
+            padding: 0.25rem;
+        }
+    </style>
+</head>
+
+<body>
+<div layout:fragment="pageContent">
+    <div class="container-fluid">
+        <h1 class="h3 mb-4 text-gray-800" th:text="${mode == 'create' ? '도서 등록' : '도서 수정'}">도서 등록</h1>
+
+        <!-- ISBN Search Section (Both Create and Update Mode) -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary" th:text="${mode == 'create' ? 'ISBN 검색 (자동 입력)' : '부족한 정보 보강하기'}">ISBN 검색 (자동 입력)</h6>
+            </div>
+            <div class="card-body">
+                <div class="input-group">
+                    <!-- Create mode: 입력 가능, Update mode: DB ISBN 표시 (읽기 전용) -->
+                    <input type="text" id="isbnSearchInput" class="form-control"
+                           th:placeholder="${mode == 'create' ? 'ISBN을 입력하세요 (13자리)' : 'ISBN을 검색하여 부족한 정보를 보강하세요'}"
+                           th:value="${mode == 'update' ? book?.isbn : ''}"
+                           th:readonly="${mode == 'update'}">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="button" id="btnSearchIsbn"
+                                th:text="${mode == 'create' ? '검색' : '보강하기'}">검색</button>
+                    </div>
+                </div>
+                <small class="form-text text-muted mt-2"
+                       th:text="${mode == 'create' ? '* ISBN을 검색하면 도서 정보가 자동으로 입력됩니다.' : '* 부족한 설명/목차 정보를 외부 API로 보강합니다. 기존 정보는 유지됩니다.'}">
+                    * ISBN을 검색하면 도서 정보가 자동으로 입력됩니다.
+                </small>
+            </div>
+        </div>
+
+        <!-- Registration/Edit Form -->
+        <form id="bookForm" method="post" enctype="multipart/form-data"
+              th:action="${mode == 'create' ? '/admin/books' : '/admin/books/' + book.bookId}">
+
+            <!-- For Update: Hidden HttpMethodFilter (_method=put) -->
+            <input type="hidden" name="_method" value="put" th:if="${mode == 'update'}"/>
+            
+            <div class="row">
+                <!-- Left Column: Image & Status -->
+                <div class="col-lg-4">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">도서 이미지</h6>
+                        </div>
+                        <div class="card-body text-center">
+                            <img id="imagePreview" 
+                                 th:src="${book != null && book.coverImageUrl != null ? '/proxy?url=' + book.coverImageUrl : '/img/logo.png'}" 
+                                 alt="도서 표지 미리보기" class="book-cover-preview mb-3">
+                            <input type="text" class="form-control mt-2" id="imageUrl" name="thumbnailUrl" 
+                                   placeholder="이미지 URL을 입력하세요"
+                                   th:value="${book?.coverImageUrl}">
+                            
+                            <!-- ISBN Hidden Field (Populated by Search or Pre-filled) -->
+                            <input type="hidden" id="isbn" name="isbn" th:value="${book?.isbn}">
+                            <div th:if="${mode == 'update'}" class="mt-2 text-muted small">
+                                ISBN: <span th:text="${book?.isbn}"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Basic Info -->
+                <div class="col-lg-8">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">기본 정보</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="title">도서 제목</label>
+                                <input type="text" class="form-control" id="title" name="title" required
+                                       th:value="${book?.title}">
+                            </div>
+                            <div class="form-group">
+                                <label for="subtitle">부제목</label>
+                                <input type="text" class="form-control" id="subtitle" name="subtitle"
+                                       th:value="${book?.subtitle}">
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group col-12">
+                                    <label>저자 관리</label>
+                                    <div id="authorListContainer">
+                                        <!-- Dynamic Author Rows will be added here -->
+                                        <div class="input-group mb-2 author-row" th:if="${book == null or #lists.isEmpty(book.authors)}">
+                                            <input type="text" class="form-control" placeholder="이름" name="authorName_temp">
+                                            <input type="text" class="form-control" placeholder="역할 (예: 지음, 옮김)" name="authorRole_temp">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-outline-danger btn-remove-author" type="button">삭제</button>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Existing Authors (For Update Mode) -->
+                                        <th:block th:if="${book != null and !#lists.isEmpty(book.authors)}">
+                                            <div class="input-group mb-2 author-row" th:each="author : ${book.authors}">
+                                                <input type="text" class="form-control" placeholder="이름" name="authorName_temp" th:value="${author.name}">
+                                                <input type="text" class="form-control" placeholder="역할 (예: 지음, 옮김)" name="authorRole_temp" th:value="${author.role}">
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-outline-danger btn-remove-author" type="button">삭제</button>
+                                                </div>
+                                            </div>
+                                        </th:block>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary mt-1" id="btnAddAuthor">
+                                        <i class="fas fa-plus"></i> 작가 추가
+                                    </button>
+                                </div>
+                                <div class="form-group col-12">
+                                    <label for="publisher">출판사</label>
+                                    <input type="text" class="form-control" id="publisher" name="publisherName"
+                                           th:value="${book?.publisher}">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="publishedDate">출간일</label>
+                                    <input type="date" class="form-control" id="publishedDate" name="publishedDate"
+                                           th:value="${book != null and book.publishedDate != null ? #temporals.format(book.publishedDate, 'yyyy-MM-dd') : ''}">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="language">언어</label>
+                                    <input type="text" class="form-control" id="language" name="language" 
+                                           th:value="${book?.language ?: 'ko'}">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="pageCount">쪽수</label>
+                                    <input type="number" class="form-control" id="pageCount" name="pageCount"
+                                           th:value="${book?.pageCount}">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="categoryId">카테고리</label>
+                                <select class="form-control" id="categoryId" name="categoryId">
+                                    <option value="">카테고리를 선택하세요</option>
+                                    <option th:each="cat : ${categories}"
+                                            th:value="${cat.id()}"
+                                            th:text="|${cat.kdcCode()}: ${cat.categoryName()}|"
+                                            th:selected="${book != null && book.categoryCode == cat.kdcCode()}">
+                                        카테고리명
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricing & Stock -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">가격 및 재고</h6>
+                </div>
+                <div class="card-body">
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="priceStandard">정가</label>
+                            <input type="number" class="form-control" id="priceStandard" name="priceStandard"
+                                   th:value="${book?.priceStandard}">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="stock">재고수량</label>
+                            <input type="number" class="form-control" id="stock" name="stock" 
+                                   th:value="${book?.stock ?: 0}">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="stockStatus">판매 상태</label>
+                            <select class="form-control" id="stockStatus" name="stockStatus">
+                                <option value="PRE_ORDER" th:selected="${book?.stockStatus == 'PRE_ORDER'}">판매 전</option>
+                                <option value="IN_STOCK" th:selected="${book == null || book.stockStatus == 'IN_STOCK'}">판매 중</option>
+                                <option value="OUT_OF_STOCK" th:selected="${book?.stockStatus == 'OUT_OF_STOCK'}">품절</option>
+                                <option value="OUT_OF_PRINT" th:selected="${book?.stockStatus == 'OUT_OF_PRINT'}">절판</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input" id="packagingAvailable" name="packagingAvailable"
+                               th:checked="${book?.packagingAvailable}">
+                        <label class="form-check-label" for="packagingAvailable">선물 포장 가능</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description (WYSIWYG) -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">도서 설명</h6>
+                </div>
+                <div class="card-body">
+                    <div id="editor"></div>
+                    <input type="hidden" id="description" name="description">
+                </div>
+            </div>
+
+            <!-- Index (Textarea) -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">목차</h6>
+                </div>
+                <div class="card-body">
+                    <textarea class="form-control" id="bookIndex" name="bookIndex" rows="10"
+                              th:text="${book?.bookIndex}"></textarea>
+                </div>
+            </div>
+
+            <!-- Tags -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">태그</h6>
+                </div>
+                <div class="card-body">
+                    <input type="text" class="form-control" id="tagList" name="tagList" 
+                           placeholder="태그를 쉼표(,)로 구분하여 입력하세요"
+                           th:value="${book != null && book.tags != null ? #strings.listJoin(book.tags, ', ') : ''}">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg mb-4"
+                    th:text="${mode == 'create' ? '도서 등록' : '도서 수정'}">도서 등록</button>
+        </form>
+    </div>
+
+    <!-- TOAST UI Editor JS -->
+    <!-- Removed from here, moved to pageScript fragment -->
+</div>
+
+<th:block layout:fragment="pageScript">
+    <script src="/vendor/toastui/js/toastui-editor-all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script th:inline="javascript">
+        $(document).ready(function() {
+            $('#categoryId').select2({
+                width: '100%',
+                placeholder: '카테고리 검색 (코드 또는 이름)',
+                allowClear: true,
+                language: {
+                    noResults: function() {
+                        return "검색 결과가 없습니다.";
+                    }
+                }
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toast UI Editor 설정
+            const editorEl = document.querySelector('#editor');
+            let editor;
+
+            if (editorEl) {
+                const Editor = toastui.Editor;
+                const rawContent = /*[[${book?.description}]]*/ '';
+                const initialContent = rawContent || '';
+
+                editor = new Editor({
+                    el: editorEl,
+                    height: '500px',
+                    initialEditType: 'wysiwyg',
+                    previewStyle: 'vertical',
+                    initialValue: initialContent,
+                    hooks: {
+                        addImageBlobHook: (blob, callback) => {
+                            const formData = new FormData();
+                            formData.append('image', blob);
+
+                            // 이미지 업로드 API 호출
+                            fetch('/admin/books/images', {
+                                method: 'POST',
+                                headers: {
+                                    'X-XSRF-TOKEN': getCsrfToken()
+                                },
+                                body: formData
+                            })
+                            .then(response => {
+                                if (!response.ok) throw new Error('Network response was not ok');
+                                return response.json(); // Expected: { url: 'http://...' }
+                            })
+                            .then(data => {
+                                const proxyUrl = '/proxy?url=' + encodeURIComponent(data.url);
+                                callback(proxyUrl, 'image');
+                            })
+                            .catch(error => {
+                                console.error('Image upload failed:', error);
+                                alert('이미지 업로드에 실패했습니다.');
+                            });
+                        }
+                    }
+                });
+
+                window.scrollTo(0, 0);
+            }
+
+            // 이미지 URL 변경 시 미리보기 업데이트
+            const imageUrlInput = document.getElementById('imageUrl');
+            if (imageUrlInput) {
+                imageUrlInput.addEventListener('input', function() {
+                    const url = this.value.trim();
+                    const preview = document.getElementById('imagePreview');
+                    if (url) {
+                         // 프록시 적용
+                        preview.src = '/proxy?url=' + encodeURIComponent(url);
+                    } else {
+                        preview.src = '/img/logo.png';
+                    }
+                });
+            }
+
+            // 3. ISBN 검색/보강 버튼 핸들러
+            const btnSearch = document.getElementById('btnSearchIsbn');
+            // Thymeleaf 변수를 JS 변수로 가져옴
+            const currentMode = /*[[${mode}]]*/ 'create';
+
+            // 작가 행 추가 함수
+            function addAuthorRow(name = '', role = '') {
+                const container = document.getElementById('authorListContainer');
+                const div = document.createElement('div');
+                div.className = 'input-group mb-2 author-row';
+                div.innerHTML = `
+                    <input type="text" class="form-control" placeholder="이름" name="authorName_temp" value="${name}">
+                    <input type="text" class="form-control" placeholder="역할 (예: 지음, 옮김)" name="authorRole_temp" value="${role}">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-danger btn-remove-author" type="button">삭제</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            }
+
+            // 신규 도서: 폼 채움
+            function populateForm(data) {
+                document.getElementById('isbn').value = document.getElementById('isbnSearchInput').value;
+                document.getElementById('title').value = data.title || '';
+                document.getElementById('subtitle').value = data.subtitle || '';
+
+                const authorContainer = document.getElementById('authorListContainer');
+                authorContainer.innerHTML = '';
+
+                if (data.authors && Array.isArray(data.authors) && data.authors.length > 0) {
+                    data.authors.forEach(author => {
+                        addAuthorRow(author.name, author.role);
+                    });
+                } else {
+                    addAuthorRow();
+                }
+
+                document.getElementById('publisher').value = data.publisher || '';
+                document.getElementById('publishedDate').value = data.publishedDate || '';
+                document.getElementById('language').value = data.language || 'ko';
+                document.getElementById('pageCount').value = data.pageCount || 0;
+                document.getElementById('priceStandard').value = data.priceStandard || 0;
+                document.getElementById('stock').value = data.stock || 0;
+                document.getElementById('packagingAvailable').checked = data.packagingAvailable === true;
+                document.getElementById('bookIndex').value = data.bookIndex || '';
+
+                if (data.tags && Array.isArray(data.tags)) {
+                    document.getElementById('tagList').value = data.tags.join(', ');
+                } else {
+                    document.getElementById('tagList').value = '';
+                }
+
+                if (data.categoryCode) {
+                    // KDC 코드로 옵션 찾기
+                    const option = Array.from(document.querySelectorAll('#categoryId option'))
+                        .find(opt => opt.text.startsWith(data.categoryCode + ':'));
+                    if (option) {
+                        $('#categoryId').val(option.value).trigger('change');
+                    } else {
+                        $('#categoryId').val(null).trigger('change');
+                    }
+                } else {
+                    $('#categoryId').val(null).trigger('change');
+                }
+
+                if (data.coverImageUrl) {
+                    document.getElementById('imagePreview').src = data.coverImageUrl;
+                    document.getElementById('imageUrl').value = data.coverImageUrl;
+                } else {
+                    document.getElementById('imagePreview').src = '/img/logo.png';
+                    document.getElementById('imageUrl').value = '';
+                }
+
+                if (editor) {
+                    editor.setMarkdown(data.description || '');
+                }
+            }
+
+            if (btnSearch) {
+                btnSearch.addEventListener('click', function() {
+                    const isbnInput = document.getElementById('isbnSearchInput').value;
+                    if(!isbnInput || isbnInput.length < 10) {
+                        alert('유효한 ISBN을 입력해주세요.');
+                        return;
+                    }
+
+                    const originalText = btnSearch.innerText;
+                    btnSearch.disabled = true;
+                    btnSearch.innerText = (currentMode === 'create') ? '검색 중...' : '보강 중...';
+
+                    // 모드에 따라 호출할 URL 결정
+                    const apiUrl = (currentMode === 'create')
+                        ? `/admin/books/search?isbn=${isbnInput}`
+                        : `/admin/books/augment?isbn=${isbnInput}`;
+
+                    fetch(apiUrl)
+                        .then(response => {
+                            if (!response.ok) {
+                                // 404 등 에러 처리
+                                if (response.status === 404) {
+                                    throw new Error('보강할 도서 정보가 DB에 없습니다.');
+                                }
+                                throw new Error('서버 통신 오류: ' + response.status);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            // [Create Mode] DB 중복 체크
+                            if (currentMode === 'create' && data.bookId) {
+                                if (confirm(`'${data.title}'은(는) 이미 등록된 도서입니다.\n수정 페이지로 이동하시겠습니까?`)) {
+                                    window.location.href = '/admin/books/' + data.bookId;
+                                }
+                                // 확인을 눌러 이동하든, 취소를 눌러 머무르든 
+                                // 이미 DB에 있는 데이터로 등록 폼을 채우지 않도록 종료합니다.
+                                return;
+                            }
+                            
+                            // [Update Mode] 또는 [DB에 없는 신규 도서]
+                            if (data.found || data.title) {
+                                populateForm(data);
+                                if (currentMode === 'update') {
+                                    alert('도서 정보가 보강되었습니다.');
+                                }
+                            } else {
+                                alert('도서 정보를 찾을 수 없습니다.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Operation failed:', error);
+                            alert(error.message);
+                        })
+                        .finally(() => {
+                            btnSearch.disabled = false;
+                            btnSearch.innerText = originalText;
+                        });
+                });
+            }
+
+            // 작가 추가 버튼 이벤트
+            document.getElementById('btnAddAuthor').addEventListener('click', function() {
+                addAuthorRow();
+            });
+
+            // 작가 삭제 버튼 이벤트 (위임)
+            document.getElementById('authorListContainer').addEventListener('click', function(e) {
+                if (e.target.classList.contains('btn-remove-author')) {
+                    e.target.closest('.author-row').remove();
+                }
+            });
+
+            // 4. 폼 서브밋 핸들러
+            const form = document.getElementById('bookForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    if (confirm('저장하시겠습니까?')) {
+                        // 에디터 내용 히든 필드에 저장
+                        if (editor) {
+                            document.getElementById('description').value = editor.getMarkdown();
+                        }
+
+                        // 작가 데이터 수집 및 hidden input 생성
+                        // 기존에 생성된 hidden input이 있다면 제거 (중복 방지 - 비동기 처리 안하므로 괜찮지만 안전하게)
+                        document.querySelectorAll('input[name^="authorList"]').forEach(el => el.remove());
+
+                        // 태그 데이터 정리 (앞뒤 공백 제거)
+                        const tagsInput = document.getElementById('tagList');
+                        if (tagsInput && tagsInput.value) {
+                            const rawTags = tagsInput.value;
+                            const cleanedTags = rawTags.split(',')
+                                                       .map(tag => tag.trim())
+                                                       .filter(tag => tag.length > 0);
+                            tagsInput.value = cleanedTags.join(', '); // 다시 쉼표와 공백으로 연결
+                        }
+
+                        const rows = document.querySelectorAll('.author-row');
+                        let authorIndex = 0; // 글로벌 인덱스 사용
+
+                        rows.forEach((row) => {
+                            const name = row.querySelector('input[name="authorName_temp"]').value.trim();
+                            const rolesRaw = row.querySelector('input[name="authorRole_temp"]').value.trim();
+
+                            if (name !== '') {
+                                // 역할을 쉼표로 분리하고 공백 제거, 빈 문자열 제외
+                                const roles = rolesRaw.split(',')
+                                                      .map(r => r.trim())
+                                                      .filter(r => r.length > 0);
+                                
+                                if (roles.length === 0) {
+                                    // 역할이 없는 경우 이름만 전송 (기본값 빈 문자열)
+                                    addAuthorHidden(authorIndex++, name, '');
+                                } else {
+                                    // 각 역할마다 별도의 작가 엔트리 생성
+                                    roles.forEach(role => {
+                                        addAuthorHidden(authorIndex++, name, role);
+                                    });
+                                }
+                            }
+                        });
+
+                        function addAuthorHidden(idx, name, role) {
+                            const inputName = document.createElement('input');
+                            inputName.type = 'hidden';
+                            inputName.name = `authorList[${idx}].name`;
+                            inputName.value = name;
+                            form.appendChild(inputName);
+
+                            const inputRole = document.createElement('input');
+                            inputRole.type = 'hidden';
+                            inputRole.name = `authorList[${idx}].role`;
+                            inputRole.value = role;
+                            form.appendChild(inputRole);
+                        }
+
+                        this.submit();
+                    }
+                });
+            }
+        });
+    </script>
+</th:block>
+</body>
+</html>

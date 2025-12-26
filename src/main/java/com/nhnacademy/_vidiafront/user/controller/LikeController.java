@@ -53,20 +53,4 @@ public class LikeController {
         return "redirect:/mypage/like";
     }
 
-
-
-    // todo : 도서 하트버튼 맵핑주소 변경해야함
-    // todo : 도서 컨트롤러로 이동해야하는거 아님?
-    // 좋아요 등록을 마이페이지에서 하지는 않음 ㅇㅇ
-    @DeleteMapping("/test")
-    public ResponseEntity<Void> deleteLikeTest(@RequestParam Long bookId) {
-        likeApiClient.deleteLike(bookId);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/test")
-    public ResponseEntity<Void> addLikeTest(@RequestParam Long bookId) {
-        likeApiClient.addLike(bookId);
-        return ResponseEntity.ok().build();
-    }
 }

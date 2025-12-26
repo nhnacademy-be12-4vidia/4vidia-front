@@ -1,4 +1,4 @@
-package com.nhnacademy._vidiafront.book.dto.books.response;
+package com.nhnacademy._vidiafront.book.dto.categories.response;
 
 public record CategoryResponse(
         Long id,

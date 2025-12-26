@@ -10,15 +10,14 @@ import com.nhnacademy._vidiafront.book.dto.reviews.response.ReviewListWithSummar
 import com.nhnacademy._vidiafront.global.dto.PageResponse;
 import java.util.List;
 
+import com.nhnacademy._vidiafront.user.client.LikeApiClient;
 import groovy.util.logging.Slf4j;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 @lombok.extern.slf4j.Slf4j
 @Controller
@@ -29,6 +28,7 @@ public class BookController {
 
     private final BookApiClient bookApiClient;
     private final ReviewApiClient reviewApiClient;
+    private final LikeApiClient likeApiClient;
 
     /**
      * 도서 검색
@@ -146,5 +146,23 @@ public class BookController {
         model.addAttribute("tagName", tagName);
 
         return "book/search-by-tag";
+    }
+
+
+
+
+    // todo : 도서 하트버튼 맵핑주소 변경해야함
+    // todo : 도서 컨트롤러로 이동해야하는거 아님?
+    // 좋아요 등록을 마이페이지에서 하지는 않음 ㅇㅇ
+    @DeleteMapping("/like")
+    public ResponseEntity<Void> deleteLikeTest(@RequestParam Long bookId) {
+        likeApiClient.deleteLike(bookId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/like")
+    public ResponseEntity<Void> addLikeTest(@RequestParam Long bookId) {
+        likeApiClient.addLike(bookId);
+        return ResponseEntity.ok().build();
     }
 }

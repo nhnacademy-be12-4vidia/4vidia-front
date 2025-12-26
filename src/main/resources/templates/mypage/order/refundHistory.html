@@ -142,7 +142,7 @@
                     </div>
 
                     <!-- 거절 사유 -->
-                    <div th:if="${item.refundItemStatus == 'REJECTED'}"
+                    <div th:if="${item.refundItemStatus.name() == 'REJECTED'}"
                          class="mt-2 text-danger small">
                         거절 사유 :
                         <span th:text="${item.rejectDetail}"></span>

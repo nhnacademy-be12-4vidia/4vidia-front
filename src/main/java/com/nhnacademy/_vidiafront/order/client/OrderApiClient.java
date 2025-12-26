@@ -44,6 +44,12 @@ public class OrderApiClient {
         return orderResponse;
     }
 
+    // 결제에 필요한 Order 한개에 대한 실제 결제금액 가져오기
+    public OrderAmountResponse getOrderPayPriceById(long orderId) {
+        OrderAmountResponse orderAmountResponse = backendApiClient.get(ORDER_SERVICE + "/orders/" + orderId + "/amount", OrderAmountResponse.class);
+        return orderAmountResponse;
+    }
+
     //주문내역 미리보기
     public PageResponse<OrderPreviewResponse> getOrderPreview(int page, int size, String status) { // 기존 "/my/orders"
         ParameterizedTypeReference<PageResponse<OrderPreviewResponse>> typeReference =

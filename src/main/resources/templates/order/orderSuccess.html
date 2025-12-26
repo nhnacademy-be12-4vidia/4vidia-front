@@ -54,14 +54,28 @@
 
                         <div class="row">
                             <div class="col-6">
-                                <a th:href="@{/orders/{id}(id=${payment.orderId})}" class="btn btn-primary btn-block btn-lg">
+                                <a th:if="${isLoggedIn}"
+                                   th:href="@{/orders/{id}(id=${payment.orderId})}"
+                                   class="btn btn-primary btn-block btn-lg">
                                     <i class="fas fa-file-invoice mr-2"></i>주문상세
                                 </a>
+
+                                <div th:unless="${isLoggedIn}">
+                                    <p class="text-muted small mb-2 text-center">
+                                        <i class="fas fa-info-circle mr-1"></i>
+                                        비회원은 <strong>주문번호</strong>와 <strong>설정한 비밀번호</strong>로 조회가 가능합니다.
+                                    </p>
+                                    <a th:href="@{/auth/login}"
+                                       class="btn btn-primary btn-block btn-lg">
+                                        <i class="fas fa-search mr-2"></i>주문조회하기
+                                    </a>
+                                </div>
                             </div>
+
                             <div class="col-6">
-                                <a th:href="@{/}" class="btn btn-secondary btn-block btn-lg">
-                                    <i class="fas fa-home mr-2"></i>홈으로
-                                </a>
+                                <div th:if="${!isLoggedIn}" class="mb-4 d-none d-lg-block"></div> <a th:href="@{/}" class="btn btn-secondary btn-block btn-lg">
+                                <i class="fas fa-home mr-2"></i>홈으로
+                            </a>
                             </div>
                         </div>
 

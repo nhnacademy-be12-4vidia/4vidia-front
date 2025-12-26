@@ -5,6 +5,8 @@ import com.nhnacademy._vidiafront.order.dto.OrderItemViewStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public record OrderPreviewResponse(
         long orderId,
@@ -45,7 +47,6 @@ public record OrderPreviewResponse(
             return isConfirmed() && (Boolean.FALSE.equals(isReviewed) || isReviewed == null);
         }
 
-        // ★ 에러 났던 메서드 추가 ★
         public boolean isReviewCompleted() {
             return isConfirmed() && Boolean.TRUE.equals(isReviewed);
         }
@@ -62,7 +63,7 @@ public record OrderPreviewResponse(
     // 조건: 배송완료 상태 AND (확정 전 아이템 존재 OR 반품 거절된 아이템 존재)
     public boolean canRequestRefund() {
         if (deliveryStatus != DeliveryStatus.DELIVERED) return false;
-        return hasItemsToProcess();
+        return hasRealItemsToProcess();
     }
 
     // 3. 전체 구매 확정 가능
@@ -75,13 +76,23 @@ public record OrderPreviewResponse(
 
         if (hasRefundProcessing) return false; // 반품 진행중인게 있으면 확정 불가
 
-        return hasItemsToProcess(); // 확정 또는 반품신청 할 대상이 있어야 함
+        return hasRealItemsToProcess(); // 확정 또는 반품신청 할 대상이 있어야 함
     }
 
-    // 내부 헬퍼
-    private boolean hasItemsToProcess() {
+    // 단순히 상태만 보는 게 아니라, 같은 아이템 ID가 '완료/진행중' 상태를 가지고 있다면
+    // 그 아이템의 '거절/미확정' 상태는 무시해야 함
+    private boolean hasRealItemsToProcess() {
         if (orderItems == null) return false;
+
+        // 1. 이미 반품 완료되었거나(REFUNDED), 진행중인(REFUND_REQUESTED) 상품들의 ID를 수집
+        Set<Long> processedItemIds = orderItems.stream()
+                .filter(item -> item.isRefunded() || item.isRefundProcessing())
+                .map(OrderBookResponse::orderItemId)
+                .collect(Collectors.toSet());
+
+        // 2. 처리해야 할 항목(미확정 or 반품거절)을 찾되, 위에서 수집한 '이미 처리된 ID'는 제외
         return orderItems.stream()
+                .filter(item -> !processedItemIds.contains(item.orderItemId())) // 좀비 데이터 무시
                 .anyMatch(item -> item.orderItemViewStatus() == OrderItemViewStatus.UNCONFIRMED
                         || item.orderItemViewStatus() == OrderItemViewStatus.REFUND_REJECTED);
     }

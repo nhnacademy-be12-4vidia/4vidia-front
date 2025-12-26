@@ -54,6 +54,7 @@
                                        placeholder="예: 010-1234-5678"
                                        maxlength="13"
                                        required
+                                       pattern="010-\d{4}-\d{4}"
                                        oninput="handlePhoneInput(this)">
                                 <div class="text-danger small mt-1" th:errors="*{phone}"></div>
                             </td>
@@ -189,10 +190,22 @@
 
         function removeHyphenBeforeSubmit() {
             const phoneInput = document.getElementById('phone');
-            if (phoneInput) {
-                phoneInput.value = phoneInput.value.replace(/-/g, ''); // 하이픈 제거
+            if (!phoneInput) return false;
+
+            // 하이픈 제거
+            const rawPhone = phoneInput.value.replace(/-/g, '');
+
+            // ✅ 010 + 8자리 = 총 11자리 검증
+            const phoneRegex = /^010\d{8}$/;
+
+            if (!phoneRegex.test(rawPhone)) {
+                alert("전화번호를 올바르게 입력해주세요.\n예: 010-1234-5678");
+                phoneInput.focus();
+                return false; // ❌ 제출 중단
             }
-            return true; // 폼 제출 계속 진행
+
+            phoneInput.value = rawPhone; // 서버로는 숫자만 전달
+            return true; // ✅ 제출 허용
         }
 
         // 페이지 로드 시 기존 DB 데이터(숫자만 있는 상태)를 포맷팅해서 보여줌

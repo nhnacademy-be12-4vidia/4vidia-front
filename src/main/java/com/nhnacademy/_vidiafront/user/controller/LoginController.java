@@ -85,8 +85,6 @@ public class LoginController {
         refreshCookie.setMaxAge(7 * 24 * 60 * 60);
         response.addCookie(refreshCookie);
 
-        cartApiClient.loginSync();
-
         return "redirect:/";
     }
 

@@ -16,11 +16,14 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.Map;
 
 @Slf4j
 @Controller
@@ -232,4 +235,29 @@ public class AuthController {
             return "redirect:/auth/dormant-auth/email";
         }
     }
+
+    /**
+     * 회원가입 이메일 인증코드 발송 (프론트 → 백엔드 프록시)
+     */
+    @PostMapping("/email/send-code")
+    @ResponseBody
+    public ResponseEntity<Void> sendSignupEmailCode(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        authApiClient.sendSignupEmailCode(email);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 회원가입 이메일 인증코드 검증 (프론트 → 백엔드 프록시)
+     */
+    @PostMapping("/email/verify-code")
+    @ResponseBody
+    public ResponseEntity<Void> verifySignupEmailCode(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String code = body.get("code");
+        authApiClient.verifySignupEmailCode(email, code);
+        return ResponseEntity.ok().build();
+    }
+
+
 }

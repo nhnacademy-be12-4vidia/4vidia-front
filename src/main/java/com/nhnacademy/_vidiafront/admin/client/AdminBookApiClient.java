@@ -17,7 +17,7 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class AdminBookApiClient {
-    private static final String BOOK_SERVICE = "/api/v1/book-service/admin/books/";
+    private static final String BOOK_SERVICE = "/api/v1/book-service/admin/books";
 
     private final BackendApiClient backendApiClient;
 
@@ -27,22 +27,22 @@ public class AdminBookApiClient {
     }
 
     public void updateBook(Long bookId, AdminBookUpdateRequest request) {
-        String url = BOOK_SERVICE + bookId;
+        String url = BOOK_SERVICE + "/" + bookId;
         backendApiClient.put(url, request, Void.class);
     }
 
     public AdminIsbnSearchResponse searchBookByIsbn(String isbn) {
-        String url = BOOK_SERVICE + "search?isbn=" + isbn;
+        String url = BOOK_SERVICE + "/search?isbn=" + isbn;
         return backendApiClient.get(url, AdminIsbnSearchResponse.class);
     }
 
     public AdminIsbnSearchResponse getAugmentedBookInfo(String isbn) {
-        String url = BOOK_SERVICE + "augment?isbn=" + isbn;
+        String url = BOOK_SERVICE + "/augment?isbn=" + isbn;
         return backendApiClient.get(url, AdminIsbnSearchResponse.class);
     }
 
     public String getBookIsbn(Long bookId) {
-        String url = BOOK_SERVICE + bookId + "/isbn";
+        String url = BOOK_SERVICE + "/" + bookId + "/isbn";
         return backendApiClient.get(url, String.class);
     }
 
@@ -61,7 +61,7 @@ public class AdminBookApiClient {
         };
         parts.add("image", resource);
 
-        String url = BOOK_SERVICE + "images";
+        String url = BOOK_SERVICE + "/images";
         return backendApiClient.postMultipartFile(url, parts, Map.class);
     }
 }

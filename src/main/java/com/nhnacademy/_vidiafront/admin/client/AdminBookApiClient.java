@@ -15,6 +15,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Component
@@ -29,7 +30,7 @@ public class AdminBookApiClient {
 
         // JSON 파트 준비
         HttpHeaders jsonHeaders = new HttpHeaders();
-        jsonHeaders.setContentType(MediaType.APPLICATION_JSON);
+        jsonHeaders.setContentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8));
         HttpEntity<AdminBookCreateRequest> requestEntity = new HttpEntity<>(request, jsonHeaders);
 
         // 파트 담기
@@ -44,7 +45,7 @@ public class AdminBookApiClient {
 
         // JSON 파트 준비
         HttpHeaders jsonHeaders = new HttpHeaders();
-        jsonHeaders.setContentType(MediaType.APPLICATION_JSON);
+        jsonHeaders.setContentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8));
         HttpEntity<AdminBookUpdateRequest> requestEntity = new HttpEntity<>(request, jsonHeaders);
 
         // 파트 담기
@@ -52,7 +53,7 @@ public class AdminBookApiClient {
         parts.add("thumbnail", thumbnail.getResource());
 
         String url = BOOK_SERVICE + "/" + bookId;
-        backendApiClient.postMultipartFile(url, parts, Void.class);
+        backendApiClient.putMultipartFile(url, parts, Void.class);
     }
 
     public AdminIsbnSearchResponse searchBookByIsbn(String isbn) {

@@ -6,12 +6,16 @@ import com.nhnacademy._vidiafront.admin.dto.response.AdminIsbnSearchResponse;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Component
@@ -21,14 +25,35 @@ public class AdminBookApiClient {
 
     private final BackendApiClient backendApiClient;
 
-    public void createBook(AdminBookCreateRequest request) {
-        String url = BOOK_SERVICE;
-        backendApiClient.post(url, request, Void.class);
+    public void createBook(AdminBookCreateRequest request, MultipartFile thumbnail) {
+        MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+
+        // JSON 파트 준비
+        HttpHeaders jsonHeaders = new HttpHeaders();
+        jsonHeaders.setContentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8));
+        HttpEntity<AdminBookCreateRequest> requestEntity = new HttpEntity<>(request, jsonHeaders);
+
+        // 파트 담기
+        parts.add("request", requestEntity);
+        parts.add("thumbnail", thumbnail.getResource());
+
+        backendApiClient.postMultipartFile(BOOK_SERVICE, parts, Void.class);
     }
 
-    public void updateBook(Long bookId, AdminBookUpdateRequest request) {
+    public void updateBook(Long bookId, AdminBookUpdateRequest request, MultipartFile thumbnail) {
+        MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+
+        // JSON 파트 준비
+        HttpHeaders jsonHeaders = new HttpHeaders();
+        jsonHeaders.setContentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8));
+        HttpEntity<AdminBookUpdateRequest> requestEntity = new HttpEntity<>(request, jsonHeaders);
+
+        // 파트 담기
+        parts.add("request", requestEntity);
+        parts.add("thumbnail", thumbnail.getResource());
+
         String url = BOOK_SERVICE + "/" + bookId;
-        backendApiClient.put(url, request, Void.class);
+        backendApiClient.putMultipartFile(url, parts, Void.class);
     }
 
     public AdminIsbnSearchResponse searchBookByIsbn(String isbn) {

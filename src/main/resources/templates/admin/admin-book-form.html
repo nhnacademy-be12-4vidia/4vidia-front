@@ -387,12 +387,14 @@
 
             // 작가 행 추가 함수
             function addAuthorRow(name = '', role = '') {
+                const safeName = name || '';
+                const safeRole = role || '';
                 const container = document.getElementById('authorListContainer');
                 const div = document.createElement('div');
                 div.className = 'input-group mb-2 author-row';
                 div.innerHTML = `
-                    <input type="text" class="form-control" placeholder="이름" name="authorName_temp" value="${name}">
-                    <input type="text" class="form-control" placeholder="역할 (예: 지음, 옮김)" name="authorRole_temp" value="${role}">
+                    <input type="text" class="form-control" placeholder="이름" name="authorName_temp" value="${safeName}">
+                    <input type="text" class="form-control" placeholder="역할 (예: 지음, 옮김)" name="authorRole_temp" value="${safeRole}">
                     <div class="input-group-append">
                         <button class="btn btn-outline-danger btn-remove-author" type="button">삭제</button>
                     </div>

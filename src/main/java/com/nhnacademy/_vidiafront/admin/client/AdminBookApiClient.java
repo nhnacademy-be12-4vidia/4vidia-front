@@ -4,7 +4,9 @@ import com.nhnacademy._vidiafront.admin.dto.request.AdminBookCreateRequest;
 import com.nhnacademy._vidiafront.admin.dto.request.AdminBookUpdateRequest;
 import com.nhnacademy._vidiafront.admin.dto.response.AdminIsbnSearchResponse;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
+import com.nhnacademy._vidiafront.global.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -37,7 +39,7 @@ public class AdminBookApiClient {
         parts.add("request", requestEntity);
         parts.add("thumbnail", thumbnail.getResource());
 
-        backendApiClient.postMultipartFile(BOOK_SERVICE, parts, Void.class);
+        backendApiClient.postMultipartFile(BOOK_SERVICE, parts, new ParameterizedTypeReference<ApiResponse<Void>>() {} );
     }
 
     public void updateBook(Long bookId, AdminBookUpdateRequest request, MultipartFile thumbnail) {
@@ -58,17 +60,17 @@ public class AdminBookApiClient {
 
     public AdminIsbnSearchResponse searchBookByIsbn(String isbn) {
         String url = BOOK_SERVICE + "/search?isbn=" + isbn;
-        return backendApiClient.get(url, AdminIsbnSearchResponse.class);
+        return backendApiClient.get(url,  new ParameterizedTypeReference<>() {});
     }
 
     public AdminIsbnSearchResponse getAugmentedBookInfo(String isbn) {
         String url = BOOK_SERVICE + "/augment?isbn=" + isbn;
-        return backendApiClient.get(url, AdminIsbnSearchResponse.class);
+        return backendApiClient.get(url,  new ParameterizedTypeReference<>() {});
     }
 
     public String getBookIsbn(Long bookId) {
         String url = BOOK_SERVICE + "/" + bookId + "/isbn";
-        return backendApiClient.get(url, String.class);
+        return backendApiClient.get(url,  new ParameterizedTypeReference<>() {});
     }
 
     public Map<String, String> uploadImage(MultipartFile image) throws IOException {
@@ -87,7 +89,7 @@ public class AdminBookApiClient {
         parts.add("image", resource);
 
         String url = BOOK_SERVICE + "/images";
-        return backendApiClient.postMultipartFile(url, parts, Map.class);
+        return backendApiClient.postMultipartFile(url, parts, new ParameterizedTypeReference<>() {} );
     }
 }
 

@@ -32,7 +32,7 @@ public class CouponApiClient {
     }
 
     public WelcomeCouponPolicy getWelcomePolicy() {
-        WelcomeCouponPolicy welcomeCouponPolicy = backendApiClient.get(COUPON_SERVICE + "/policies/welcome", WelcomeCouponPolicy.class);
+        WelcomeCouponPolicy welcomeCouponPolicy = backendApiClient.get(COUPON_SERVICE + "/policies/welcome",  new ParameterizedTypeReference<>() {});
         return welcomeCouponPolicy;
     }
 }

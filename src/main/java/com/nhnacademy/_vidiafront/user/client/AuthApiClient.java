@@ -75,7 +75,7 @@ public class AuthApiClient {
         backendApiClient.post(
                 USER_SERVICE + BASE_URL + "/dormant/send-code",
                 java.util.Map.of("email", email, "webhookUrl", webhookUrl),
-                new ParameterizedTypeReference<ApiResponse<Void>>() {}        );
+                new ParameterizedTypeReference<>() {}        );
     }
 
     /**
@@ -106,7 +106,7 @@ public class AuthApiClient {
         backendApiClient.post(
                 USER_SERVICE+BASE_URL+"/email/send-code",
                 Map.of("email", email),
-                Void.class
+                new ParameterizedTypeReference<ApiResponse<Void>>() {}
         );
     }
     /**
@@ -116,7 +116,7 @@ public class AuthApiClient {
         backendApiClient.post(
                 USER_SERVICE+BASE_URL+"/email/verify-code",
                 Map.of("email",email,"code",code),
-                Void.class
+                new ParameterizedTypeReference<>() {}
         );
     }
 

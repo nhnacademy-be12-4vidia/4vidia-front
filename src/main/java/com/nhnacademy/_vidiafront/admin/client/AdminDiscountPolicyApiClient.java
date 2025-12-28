@@ -4,6 +4,7 @@ import com.nhnacademy._vidiafront.admin.dto.request.DiscountPolicyCreateRequest;
 import com.nhnacademy._vidiafront.admin.dto.request.DiscountPolicyUpdateRequest;
 import com.nhnacademy._vidiafront.admin.dto.response.DiscountPolicyResponse;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
+import com.nhnacademy._vidiafront.global.dto.ApiResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
@@ -21,25 +22,25 @@ public class AdminDiscountPolicyApiClient {
         if (categoryId != null) {
             url += "?categoryId=" + categoryId;
         }
-        return backendApiClient.get(url, new ParameterizedTypeReference<List<DiscountPolicyResponse>>() {});
+        return backendApiClient.get(url, new ParameterizedTypeReference<ApiResponse<List<DiscountPolicyResponse>>>() {});
     }
 
     public DiscountPolicyResponse getPolicy(Long id) {
         String url = DISCOUNT_POLICY_URL + "/" + id;
-        return backendApiClient.get(url, DiscountPolicyResponse.class);
+        return backendApiClient.get(url, new ParameterizedTypeReference<ApiResponse<DiscountPolicyResponse>>() {});
     }
 
     public void createPolicy(DiscountPolicyCreateRequest request) {
-        backendApiClient.post(DISCOUNT_POLICY_URL, request, Void.class);
+        backendApiClient.post(DISCOUNT_POLICY_URL, request, new ParameterizedTypeReference<ApiResponse<Void>>() {});
     }
 
     public void updatePolicy(Long id, DiscountPolicyUpdateRequest request) {
         String url = DISCOUNT_POLICY_URL + "/" + id;
-        backendApiClient.put(url, request, Void.class);
+        backendApiClient.put(url, request, new ParameterizedTypeReference<ApiResponse<Void>>() {});
     }
 
     public void deletePolicy(Long id) {
         String url = DISCOUNT_POLICY_URL + "/" + id;
-        backendApiClient.delete(url, Void.class);
+        backendApiClient.delete(url, new ParameterizedTypeReference<ApiResponse<Void>>() {});
     }
 }

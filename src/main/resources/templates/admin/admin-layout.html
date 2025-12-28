@@ -140,7 +140,7 @@
         </li>
 
         <li class="nav-item"
-            th:with="isBooksActive=${currentUri != null && (currentUri.startsWith('/admin/books') or currentUri.startsWith('/admin/reviews'))}"
+            th:with="isBooksActive=${currentUri != null && (currentUri.startsWith('/admin/books') or currentUri.startsWith('/admin/reviews') or currentUri.startsWith('/admin/categories') or currentUri.startsWith('/admin/discount-policies'))}"
             th:classappend="${isBooksActive} ? 'active'">
 
             <a class="nav-link" th:classappend="${!isBooksActive} ? 'collapsed'"
@@ -156,8 +156,9 @@
                  aria-labelledby="headingBooks" data-bs-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <h6 class="collapse-header">도서 관련 기능:</h6>
-                    <a class="collapse-item" href="/admin/books" th:classappend="${currentUri == '/admin/books'} ? 'active'">도서 등록</a>
-                    <a class="collapse-item" href="#">도서 할인 정책</a>
+                    <a class="collapse-item" href="/admin/books" th:classappend="${currentUri != null && currentUri == '/admin/books'} ? 'active'">도서 등록</a>
+                    <a class="collapse-item" href="/admin/discount-policies" th:classappend="${currentUri != null && currentUri.startsWith('/admin/discount-policies')} ? 'active'">도서 할인 정책</a>
+                    <a class="collapse-item" href="/admin/categories" th:classappend="${currentUri != null && currentUri.startsWith('/admin/categories')} ? 'active'">카테고리 관리</a>
                     <a class="collapse-item" href="/admin/reviews" th:classappend="${currentUri != null && currentUri.startsWith('/admin/reviews')} ? 'active'">리뷰 관리</a>
                 </div>
             </div>

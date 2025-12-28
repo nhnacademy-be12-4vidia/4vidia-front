@@ -7,7 +7,10 @@
 <head>
     <meta charset="UTF-8">
     <title>4VIDIA - 도서 상세</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
     <style>
+        /* --- 도서 이미지 및 기본 스타일 --- */
         .book-cover-main {
             width: 100%;
             max-width: 320px;
@@ -35,14 +38,9 @@
             font-size: 0.9rem;
         }
 
-        .book-description {
+        .book-description, .book-index {
             white-space: pre-line;
             font-size: 0.95rem;
-        }
-
-        .book-index {
-            white-space: pre-line;
-            font-size: 0.9rem;
         }
 
         .price-standard {
@@ -58,58 +56,11 @@
             margin-right: 0.5rem;
         }
 
-        .stock-status-in {
-            color: #1cc88a;
-            font-weight: 600;
-        }
+        .stock-status-in { color: #1cc88a; font-weight: 600; }
+        .stock-status-out { color: #e74a3b; font-weight: 600; }
+        .book-subtitle { font-size: 1rem; color: #858796; }
 
-        .stock-status-out {
-            color: #e74a3b;
-            font-weight: 600;
-        }
-
-        .book-subtitle {
-            font-size: 1rem;
-            color: #858796;
-        }
-
-        .review-summary-card {
-            border-left: 0.35rem solid #4e73df;
-            background: #f8f9fc;
-            box-shadow: 0 0.15rem 1.0rem 0 rgba(58, 59, 69, 0.12);
-        }
-
-        .review-summary-title {
-            font-weight: 700;
-            color: #2e59d9;
-            margin-bottom: 0.25rem;
-        }
-
-        .review-summary-note {
-            color: #858796;
-            font-size: 0.8rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .review-summary-text {
-            white-space: pre-line;
-            font-size: 0.92rem;
-            color: #343a40;
-            line-height: 1.45;
-        }
-
-        .ai-badge {
-            display: inline-block;
-            padding: 0.2rem 0.45rem;
-            border-radius: 0.35rem;
-            background: rgba(78, 115, 223, 0.12);
-            color: #2e59d9;
-            font-size: 0.75rem;
-            font-weight: 700;
-            margin-right: 0.4rem;
-        }
-
-        /* Quantity spinner 제거 + 버튼형 수량 컨트롤 */
+        /* --- 수량 컨트롤 버튼 스타일 --- */
         .qty-control {
             display: inline-flex;
             align-items: center;
@@ -118,7 +69,6 @@
             overflow: hidden;
             height: 42px;
         }
-
         .qty-btn {
             width: 44px;
             height: 42px;
@@ -128,11 +78,7 @@
             font-weight: 800;
             cursor: pointer;
         }
-
-        .qty-btn:active {
-            background: #eaecf4;
-        }
-
+        .qty-btn:active { background: #eaecf4; }
         .qty-input {
             width: 64px;
             height: 42px;
@@ -141,21 +87,194 @@
             outline: none;
             background: #fff;
             font-weight: 700;
-        }
-
-        /* 혹시 type=number로 바뀌어도 스피너 숨김 */
-        .qty-input::-webkit-outer-spin-button,
-        .qty-input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        .qty-input {
             -moz-appearance: textfield;
             appearance: none;
         }
+        .qty-input::-webkit-outer-spin-button,
+        .qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+
+        /* --- AI 리뷰 요약 섹션 스타일 --- */
+        .review-summary-card {
+            border-left: 0.35rem solid #4e73df;
+            background: #f8f9fc;
+            box-shadow: 0 0.15rem 1.0rem 0 rgba(58, 59, 69, 0.12);
+        }
+
+        .review-summary-title {
+            font-weight: 700;
+            color: #2e59d9;
+            font-size: 1.1rem;
+        }
+
+        .review-summary-note {
+            color: #858796;
+            font-size: 0.85rem;
+        }
+
+        /* AI 배지 펄스 애니메이션 */
+        .ai-badge {
+            display: inline-block;
+            padding: 0.2rem 0.45rem;
+            border-radius: 0.35rem;
+            background: rgba(78, 115, 223, 0.12);
+            color: #2e59d9;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-right: 0.4rem;
+            animation: pulse-badge 2s infinite;
+        }
+        @keyframes pulse-badge {
+            0% { box-shadow: 0 0 0 0 rgba(78, 115, 223, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(78, 115, 223, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(78, 115, 223, 0); }
+        }
+
+        /* 요약 및 추천 섹션 헤더 */
+        .summary-section-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+        .fa-icon-margin { margin-right: 0.5rem; }
+
+        /* 타이핑 내용 박스 */
+        .summary-content-box {
+            background-color: #fff;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            border: 1px solid #e3e6f0;
+            min-height: 3.5rem; /* 빈 박스일 때도 최소 높이 유지 */
+            font-size: 0.95rem;
+            color: #343a40;
+            line-height: 1.6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        /* 타이핑 커서 애니메이션 */
+        .typing-cursor::after {
+            content: '|';
+            display: inline-block;
+            margin-left: 2px;
+            color: #2e59d9;
+            font-weight: bold;
+            animation: blink-cursor 0.8s step-end infinite;
+        }
+        @keyframes blink-cursor {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
     </style>
+
     <script th:src="@{/customJs/askMoveCart.js}"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 1. 데이터 가져오기
+            const rawDataElement = document.getElementById('rawSummaryData');
+            const summaryOutput = document.getElementById('summaryOutput');
+            const recommendOutput = document.getElementById('recommendOutput');
+
+            // 데이터가 없으면 중단
+            if (!rawDataElement || !summaryOutput || !recommendOutput) return;
+
+            const fullText = rawDataElement.textContent;
+            let summaryText = "";
+            let recommendText = "";
+
+            // 2. 텍스트 파싱 ("리뷰요약:" 과 "추천대상:" 분리)
+            if (fullText.includes("추천대상:")) {
+                const parts = fullText.split("추천대상:");
+                // 앞부분에서 "리뷰요약:" 제거
+                summaryText = parts[0].replace("리뷰요약:", "").trim();
+                recommendText = parts[1].trim();
+            } else {
+                // 추천대상이 없는 경우 전체를 요약으로
+                summaryText = fullText.replace("리뷰요약:", "").trim();
+                recommendText = "추천 대상 정보가 없습니다.";
+            }
+
+            const speed = 25; // 타이핑 속도 (ms)
+
+            // 3. 타이핑 함수 정의 (재귀적 호출)
+            function typeWriter(element, text, callback) {
+                let i = 0;
+                element.classList.add('typing-cursor'); // 커서 켜기
+
+                function type() {
+                    if (i < text.length) {
+                        element.textContent += text.charAt(i);
+                        i++;
+                        setTimeout(type, speed);
+                    } else {
+                        element.classList.remove('typing-cursor'); // 커서 끄기
+                        if (callback) callback(); // 콜백 실행
+                    }
+                }
+                type();
+            }
+
+            // 4. 화면 감지 (Intersection Observer)
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // 화면에 보이면 요약 타이핑 시작
+                        typeWriter(summaryOutput, summaryText, function() {
+                            // 요약 완료 후 0.3초 뒤 추천대상 타이핑 시작
+                            setTimeout(() => {
+                                typeWriter(recommendOutput, recommendText, null);
+                            }, 300);
+                        });
+                        // 한 번 실행 후 관찰 중단
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 }); // 10% 보이면 실행
+
+            // 카드 전체를 감지 대상으로 설정
+            const cardElement = document.querySelector('.review-summary-card');
+            if(cardElement) observer.observe(cardElement);
+
+
+            // --- 수량 조절 로직 (IIFE) ---
+            (function () {
+                var qtyInput = document.getElementById('qtyInput');
+                var minusBtn = document.getElementById('qtyMinus');
+                var plusBtn = document.getElementById('qtyPlus');
+                var cartQty = document.getElementById('cartQty');
+                var orderQty = document.getElementById('orderQty');
+
+                if(!qtyInput) return;
+
+                function clampQty(n) {
+                    var v = parseInt(n, 10);
+                    if (isNaN(v) || v < 1) v = 1;
+                    return v;
+                }
+                function syncHidden(v) {
+                    if (cartQty) cartQty.value = String(v);
+                    if (orderQty) orderQty.value = String(v);
+                }
+                function setQty(next) {
+                    var v = clampQty(next);
+                    qtyInput.value = String(v);
+                    syncHidden(v);
+                }
+
+                setQty(qtyInput.value); // 초기화
+
+                minusBtn.addEventListener('click', function () { setQty(clampQty(qtyInput.value) - 1); });
+                plusBtn.addEventListener('click', function () { setQty(clampQty(qtyInput.value) + 1); });
+
+                var orderForm = document.getElementById('orderForm');
+                if (orderForm) {
+                    orderForm.addEventListener('submit', function () { syncHidden(clampQty(qtyInput.value)); });
+                }
+            })();
+        });
+    </script>
 </head>
 
 <body>
@@ -190,12 +309,12 @@
                             <span class="text-muted small">저자</span><br>
                             <span th:if="${#lists.isEmpty(book.authors)}">저자 정보 없음</span>
                             <span th:if="${!#lists.isEmpty(book.authors)}">
-                <span th:each="author, stat : ${book.authors}">
-                  <a th:href="@{/books/search(keyword=${author.name})}"
-                     th:text="${author.name}">저자명</a>
-                  <span th:if="${!stat.last}">, </span>
-                </span>
-              </span>
+                                <span th:each="author, stat : ${book.authors}">
+                                  <a th:href="@{/books/search(keyword=${author.name})}"
+                                     th:text="${author.name}">저자명</a>
+                                  <span th:if="${!stat.last}">, </span>
+                                </span>
+                            </span>
                         </div>
 
                         <div class="book-meta-row">
@@ -204,74 +323,52 @@
                                 <span th:if="${book.publisherInfo == null}">정보 없음</span>
                                 <a th:if="${book.publisherInfo != null}"
                                    th:href="@{/books/search(keyword=${book.publisherInfo.name})}"
-                                   th:text="${book.publisherInfo.name}">
-                                    출판사명
-                                </a>
+                                   th:text="${book.publisherInfo.name}">출판사명</a>
                             </div>
                         </div>
-
                         <div class="book-meta-row">
                             <div class="book-meta-label">출간일</div>
                             <div th:text="${book.publishedDate != null ? #temporals.format(book.publishedDate, 'yyyy-MM-dd') : '정보 없음'}">
                                 2025-01-01
                             </div>
                         </div>
-
                         <div class="book-meta-row">
                             <div class="book-meta-label">카테고리</div>
                             <div>
                                 <span th:if="${book.categoryInfo == null}">정보 없음</span>
                                 <a th:if="${book.categoryInfo != null}"
                                    th:href="@{/books/search(categoryId=${book.categoryInfo.id})}"
-                                   th:text="${book.categoryInfo.name}">
-                                    카테고리명
-                                </a>
+                                   th:text="${book.categoryInfo.name}">카테고리명</a>
                             </div>
                         </div>
-
                         <div class="book-meta-row">
                             <div class="book-meta-label">ISBN</div>
-                            <div th:text="${book.isbn != null and !#strings.isEmpty(book.isbn) ? book.isbn : '정보 없음'}">
-                                9780000000000
-                            </div>
-                        </div>
-
-                        <div class="book-meta-row">
-                            <div class="book-meta-label">언어</div>
-                            <div th:text="${book.language != null and !#strings.isEmpty(book.language) ? book.language : '정보 없음'}">
-                                Korean
-                            </div>
+                            <div th:text="${book.isbn}">9780000000000</div>
                         </div>
                         <div class="book-meta-row">
                             <div class="book-meta-label">쪽수</div>
-                            <div th:text="${book.pageCount != null ? book.pageCount + '쪽' : '정보 없음'}">
-                                320쪽
-                            </div>
+                            <div th:text="${book.pageCount != null ? book.pageCount + '쪽' : '정보 없음'}">320쪽</div>
                         </div>
 
                         <hr>
                         <div class="d-flex align-items-baseline mb-2">
-              <span class="price-sales"
-                    th:text="${book.priceSales != null ? #numbers.formatInteger(book.priceSales, 0, 'COMMA') + '원' : '가격 미정'}">
-                15,000원
-              </span>
+                            <span class="price-sales"
+                                  th:text="${book.priceSales != null ? #numbers.formatInteger(book.priceSales, 0, 'COMMA') + '원' : '가격 미정'}">
+                                15,000원
+                            </span>
                             <span class="price-standard ms-2"
                                   th:if="${book.priceStandard != null and book.priceSales != null and book.priceStandard > book.priceSales}"
                                   th:text="${#numbers.formatInteger(book.priceStandard, 0, 'COMMA')} + '원'">
-                18,000원
-              </span>
+                                18,000원
+                            </span>
                         </div>
 
                         <div class="mb-2">
-              <span th:if="${book.stock != null and book.stock > 0}"
-                    class="stock-status-in"
-                    th:text="'재고 있음 (' + ${book.stock} + '권)'">
-                재고 있음 (10권)
-              </span>
-                            <span th:unless="${book.stock != null and book.stock > 0}"
-                                  class="stock-status-out">
-                품절 또는 재고 정보 없음
-              </span>
+                            <span th:if="${book.stock != null and book.stock > 0}" class="stock-status-in"
+                                  th:text="'재고 있음 (' + ${book.stock} + '권)'">재고 있음</span>
+                            <span th:unless="${book.stock != null and book.stock > 0}" class="stock-status-out">
+                                품절 또는 재고 정보 없음
+                            </span>
                         </div>
 
                         <div class="mb-2">
@@ -279,26 +376,12 @@
                                 아직 작성된 리뷰가 없습니다.
                             </span>
                             <span th:if="${book.reviewCount != null and book.reviewCount > 0}">
-                                평점
-                                <strong th:text="${#numbers.formatDecimal(book.avgRating, 1, 1)}">0.0</strong>
-                                / 5
-                                <span class="text-muted small">
-                                    (
-                                    <span th:text="${book.reviewCount}">0</span>
-                                    건)
-                                </span>
+                                평점 <strong th:text="${#numbers.formatDecimal(book.avgRating, 1, 1)}">0.0</strong> / 5
+                                <span class="text-muted small">(<span th:text="${book.reviewCount}">0</span>건)</span>
                             </span>
                         </div>
 
-                        <div class="mb-3">
-              <span class="badge bg-light text-dark border"
-                    th:text="${book.packagingAvailable ? '선물 포장 가능' : '포장 불가 또는 정보 없음'}">
-                선물 포장 가능
-              </span>
-                        </div>
-
                         <div class="mt-3">
-                            <!-- 수량 선택 (플러스/마이너스 버튼으로만 변경) -->
                             <div class="d-flex align-items-center mb-3">
                                 <span class="text-muted me-2" style="min-width: 48px;">수량</span>
                                 <div class="qty-control">
@@ -322,73 +405,22 @@
                             <form th:action="@{/orders/checkout-temp}" method="post" class="d-inline-block" id="orderForm">
                                 <input type="hidden" name="bookId" th:value="${book.id}">
                                 <input type="hidden" name="quantity" value="1" id="orderQty">
-                                <button type="submit" class="btn btn-success">
-                                    바로 구매
-                                </button>
+                                <button type="submit" class="btn btn-success">바로 구매</button>
                             </form>
                         </div>
-
-                        <script>
-                            (function () {
-                                var qtyInput = document.getElementById('qtyInput');
-                                var minusBtn = document.getElementById('qtyMinus');
-                                var plusBtn = document.getElementById('qtyPlus');
-                                var cartQty = document.getElementById('cartQty');
-                                var orderQty = document.getElementById('orderQty');
-
-                                function clampQty(n) {
-                                    var v = parseInt(n, 10);
-                                    if (isNaN(v) || v < 1) v = 1;
-                                    return v;
-                                }
-
-                                function syncHidden(v) {
-                                    if (cartQty) cartQty.value = String(v);
-                                    if (orderQty) orderQty.value = String(v);
-                                }
-
-                                function setQty(next) {
-                                    var v = clampQty(next);
-                                    qtyInput.value = String(v);
-                                    syncHidden(v);
-                                }
-
-                                // 초기 동기화
-                                setQty(qtyInput.value);
-
-                                minusBtn.addEventListener('click', function () {
-                                    setQty(clampQty(qtyInput.value) - 1);
-                                });
-
-                                plusBtn.addEventListener('click', function () {
-                                    setQty(clampQty(qtyInput.value) + 1);
-                                });
-
-                                // 폼 제출 직전에 한 번 더 동기화(안전)
-                                var orderForm = document.getElementById('orderForm');
-                                if (orderForm) {
-                                    orderForm.addEventListener('submit', function () {
-                                        syncHidden(clampQty(qtyInput.value));
-                                    });
-                                }
-                            })();
-                        </script>
                     </div>
                 </div>
 
                 <div class="card">
                     <div class="card-body">
                         <h6 class="text-gray-800 mb-3">태그</h6>
-                        <div th:if="${#lists.isEmpty(book.tags)}">
-                            <span class="text-muted small">등록된 태그가 없습니다.</span>
-                        </div>
                         <div th:if="${!#lists.isEmpty(book.tags)}">
                             <a class="badge badge-pill badge-secondary book-tag-badge"
-                               th:each="tag : ${book.tags}"
-                               th:text="${tag}"
-                               th:href="@{/books/search/tags(tagNameList=${tag}, mode='OR')}">
-                                태그
-                            </a>
+                               th:each="tag : ${book.tags}" th:text="${tag}"
+                               th:href="@{/books/search/tags(tagNameList=${tag}, mode='OR')}">태그</a>
+                        </div>
+                        <div th:if="${#lists.isEmpty(book.tags)}">
+                            <span class="text-muted small">등록된 태그가 없습니다.</span>
                         </div>
                     </div>
                 </div>
@@ -403,14 +435,7 @@
                     </div>
                     <div class="card-body">
                         <div class="book-description"
-                             th:if="${book.description != null and !#strings.isEmpty(book.description)}"
-                             th:text="${book.description}">
-                            책 소개 내용이 들어갑니다.
-                        </div>
-                        <div th:unless="${book.description != null and !#strings.isEmpty(book.description)}"
-                             class="text-muted small">
-                            등록된 소개글이 없습니다.
-                        </div>
+                             th:text="${book.description} ?: '등록된 소개글이 없습니다.'"></div>
                     </div>
                 </div>
 
@@ -420,128 +445,102 @@
                     </div>
                     <div class="card-body">
                         <div class="book-index"
-                             th:if="${book.bookIndex != null and !#strings.isEmpty(book.bookIndex)}"
-                             th:text="${book.bookIndex}">
-                            목차 내용이 들어갑니다.
-                        </div>
-                        <div th:unless="${book.bookIndex != null and !#strings.isEmpty(book.bookIndex)}"
-                             class="text-muted small">
-                            등록된 목차 정보가 없습니다.
-                        </div>
+                             th:text="${book.bookIndex} ?: '등록된 목차 정보가 없습니다.'"></div>
                     </div>
                 </div>
-            </div>
-
-            <div class="col-lg-4 mb-4">
             </div>
         </div>
 
         <div class="row mt-4">
             <div class="col-lg-8 mb-4">
-                <!-- AI 리뷰 요약 (요약 텍스트가 있을 때만 표시) -->
+
                 <div class="card review-summary-card mb-3"
                      th:if="${reviewSummary != null and !#strings.isEmpty(reviewSummary)}">
                     <div class="card-body">
-                        <div class="review-summary-title">
-                            <span class="ai-badge">AI</span>
-                            리뷰 요약
+                        <div class="review-summary-title mb-2">
+                            <span class="ai-badge">AI</span> 리뷰 요약 리포트
                         </div>
-                        <div class="review-summary-note">
-                            아래 내용은 사용자 리뷰를 기반으로 AI가 자동 요약한 결과입니다. 참고용으로만 활용해 주세요.
+                        <div class="review-summary-note mb-4">
+                            사용자 리뷰를 분석하여 핵심 내용과 추천 대상을 정리했습니다.
                         </div>
-                        <div class="review-summary-text"
-                             th:text="${reviewSummary}">
-                            총평: ...
-                            장점: ...
-                            단점: ...
-                            추천대상: ...
+
+                        <div id="rawSummaryData" style="display:none;" th:text="${reviewSummary}"></div>
+
+                        <div class="mb-4">
+                            <div class="summary-section-title text-primary">
+                                <i class="fas fa-file-alt fa-icon-margin"></i> 핵심 요약
+                            </div>
+                            <div id="summaryOutput" class="summary-content-box"></div>
+                        </div>
+
+                        <div>
+                            <div class="summary-section-title text-success">
+                                <i class="fas fa-bullseye fa-icon-margin"></i> 추천 대상
+                            </div>
+                            <div id="recommendOutput" class="summary-content-box"></div>
                         </div>
                     </div>
                 </div>
+
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h6 class="m-0 font-weight-bold text-primary">리뷰</h6>
-                        <span class="text-muted small"
-                              th:if="${reviewPage != null}"
-                              th:text="'총 ' + ${reviewPage.totalElements} + '건'">
-              총 0건
-            </span>
+                        <span class="text-muted small" th:if="${reviewPage != null}"
+                              th:text="'총 ' + ${reviewPage.totalElements} + '건'">총 0건</span>
                     </div>
 
                     <div class="card-body">
-                        <div th:if="${reviews == null or #lists.isEmpty(reviews)}"> <p class="text-muted small mb-0">등록된 리뷰가 없습니다.</p>
+                        <div th:if="${reviews == null or #lists.isEmpty(reviews)}">
+                            <p class="text-muted small mb-0">등록된 리뷰가 없습니다.</p>
                         </div>
 
                         <div th:if="${reviews != null and !#lists.isEmpty(reviews)}">
-                            <div class="mb-3 pb-3 border-bottom"
-                                 th:each="review : ${reviews}">
+                            <div class="mb-3 pb-3 border-bottom" th:each="review : ${reviews}">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <div>
-                                        <strong th:text="${review.userName() != null ? review.userName() : '익명'}">작성자</strong>
-                                    </div>
+                                    <strong th:text="${review.userName() ?: '익명'}">작성자</strong>
                                     <small class="text-muted"
                                            th:text="${review.createdAt() != null ? #temporals.format(review.createdAt(), 'yyyy-MM-dd') : ''}">
-                                        2025-01-01
+                                        날짜
                                     </small>
                                 </div>
-
                                 <div class="mb-2">
-                  <span th:each="i : ${#numbers.sequence(1,5)}">
-                    <i class="fas fa-star"
-                       th:classappend="${review.rating() != null and i <= review.rating()} ? ' text-warning' : ' text-muted'"></i> </span>
+                                    <span th:each="i : ${#numbers.sequence(1,5)}">
+                                        <i class="fas fa-star"
+                                           th:classappend="${review.rating() != null and i <= review.rating()} ? ' text-warning' : ' text-muted'"></i>
+                                    </span>
                                 </div>
+                                <p class="mb-0" th:text="${review.content() ?: '내용 없음'}">리뷰 내용</p>
 
-                                <p class="mb-0"
-                                   th:text="${review.content() != null and !#strings.isEmpty(review.content()) ? review.content() : '내용 없음'}">
-                                    리뷰 내용이 들어갑니다.
-                                </p>
-
-                              <div class="mt-2"
-                                   th:if="${review.imageUrlList() != null and !#lists.isEmpty(review.imageUrlList())}">
-                                <img th:each="imgUrl : ${review.imageUrlList()}"
-                                     th:src="@{/proxy(url=${imgUrl})}"
-                                     alt="리뷰 이미지"
-                                     class="img-thumbnail me-2 mb-2"
-                                     style="width: 80px; height: 80px; object-fit: cover;">
-                              </div>
+                                <div class="mt-2" th:if="${!#lists.isEmpty(review.imageUrlList())}">
+                                    <img th:each="imgUrl : ${review.imageUrlList()}"
+                                         th:src="@{/proxy(url=${imgUrl})}"
+                                         alt="리뷰 이미지" class="img-thumbnail me-2 mb-2"
+                                         style="width: 80px; height: 80px; object-fit: cover;">
+                                </div>
                             </div>
                         </div>
 
                         <nav th:if="${reviewPage != null and reviewPage.totalPages() > 1}">
                             <ul class="pagination justify-content-center mb-0">
-                                <li class="page-item"
-                                    th:classappend="${reviewPage.page() == 0} ? ' disabled'">
+                                <li class="page-item" th:classappend="${reviewPage.page() == 0} ? ' disabled'">
                                     <a class="page-link"
-                                       th:href="@{|/books/${book.id}?reviewPage=${reviewPage.page() - 1}&reviewSize=${reviewPage.size()}|}">
-                                        이전
-                                    </a>
+                                       th:href="@{|/books/${book.id}?reviewPage=${reviewPage.page() - 1}&reviewSize=${reviewPage.size()}|}">이전</a>
                                 </li>
-
-                                <li class="page-item"
-                                    th:each="i : ${#numbers.sequence(0, reviewPage.totalPages() - 1)}"
+                                <li class="page-item" th:each="i : ${#numbers.sequence(0, reviewPage.totalPages() - 1)}"
                                     th:classappend="${i == reviewPage.page()} ? ' active'">
-                                    <a class="page-link"
-                                       th:text="${i + 1}"
-                                       th:href="@{|/books/${book.id}?reviewPage=${i}&reviewSize=${reviewPage.size()}|}">
-                                    </a>
+                                    <a class="page-link" th:text="${i + 1}"
+                                       th:href="@{|/books/${book.id}?reviewPage=${i}&reviewSize=${reviewPage.size()}|}">1</a>
                                 </li>
-
-                                <li class="page-item"
-                                    th:classappend="${reviewPage.page() + 1 >= reviewPage.totalPages()} ? ' disabled'">
+                                <li class="page-item" th:classappend="${reviewPage.page() + 1 >= reviewPage.totalPages()} ? ' disabled'">
                                     <a class="page-link"
-                                       th:href="@{|/books/${book.id}?reviewSize=${reviewPage.size()}&reviewPage=${reviewPage.page() + 1}|}">
-                                        다음
-                                    </a>
+                                       th:href="@{|/books/${book.id}?reviewSize=${reviewPage.size()}&reviewPage=${reviewPage.page() + 1}|}">다음</a>
                                 </li>
                             </ul>
                         </nav>
-
                     </div>
                 </div>
             </div>
-
-            <div class="col-lg-4 mb-4">
-            </div>
+            <div class="col-lg-4 mb-4"></div>
         </div>
 
     </div>

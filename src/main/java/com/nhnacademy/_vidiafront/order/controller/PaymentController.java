@@ -50,9 +50,14 @@ public class PaymentController {
         OrderAmountResponse orderAmountResponse = orderApiClient.getOrderPayPriceById(orderId);
         int payPrice = orderAmountResponse.payPrice();
 
+        String safeOrderName = orderName;
+        if (orderName.length() > 90) {
+            safeOrderName = orderName.substring(0, 90) + "...";
+        }
+
         model.addAttribute("tossClientKey", TOSS_CLIENT_KEY);
         model.addAttribute("orderId", orderId);
-        model.addAttribute("orderName", orderName);
+        model.addAttribute("orderName", safeOrderName);
         model.addAttribute("customerEmail", ordererEmail);
         model.addAttribute("customerName", ordererName);
         model.addAttribute("payPrice", payPrice);

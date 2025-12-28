@@ -34,19 +34,19 @@ public class AdminRefundApiClient {
 
         String url = builder.toUriString();
 
-        return backendApiClient.get(url, new ParameterizedTypeReference<PageResponse<AdminRefundListResponse>>() {
+        return backendApiClient.get(url, new ParameterizedTypeReference<>() {
         });
 
     }
 
     public RefundDetailResponse getRefundDetail(Long refundId) {
         String url = ORDER_SERVICE + "/admin/refunds/" + refundId;
-        return backendApiClient.get(url, new ParameterizedTypeReference<RefundDetailResponse>() {});
+        return backendApiClient.get(url, new ParameterizedTypeReference<>() {});
     }
 
     public void updateRefund(Long refundItemId, RefundItemUpdateRequest request) {
         String url = ORDER_SERVICE + "/admin/refunds/" + refundItemId;
-        backendApiClient.put(url, request, Void.class); // body 없으면 null
+        backendApiClient.put(url, request, new ParameterizedTypeReference<>() {}); // body 없으면 null
     }
 
 }

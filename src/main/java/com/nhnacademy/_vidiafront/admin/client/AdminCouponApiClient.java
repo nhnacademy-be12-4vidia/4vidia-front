@@ -5,6 +5,7 @@ import com.nhnacademy._vidiafront.coupon.dto.CouponPolicyDto;
 import com.nhnacademy._vidiafront.coupon.dto.response.MyCouponResponse;
 import com.nhnacademy._vidiafront.coupon.dto.PageDto;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
+import com.nhnacademy._vidiafront.global.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
@@ -24,7 +25,7 @@ public class AdminCouponApiClient {
         backendApiClient.post(
                 COUPON_SERVICE + "/policies",
                 request,
-                Void.class
+                new ParameterizedTypeReference<ApiResponse<Void>>(){}
         );
     }
 
@@ -32,7 +33,7 @@ public class AdminCouponApiClient {
     public void toggleActivation(Long policyId) {
         backendApiClient.patchNoBody(
                 COUPON_SERVICE + "/policies/" + policyId + "/toggle",
-                Void.class
+                new ParameterizedTypeReference<ApiResponse<Void>>(){}
         );
     }
 
@@ -61,7 +62,7 @@ public class AdminCouponApiClient {
 
         return backendApiClient.get(
                 uriBuilder.encode().build().toUriString(),
-                new ParameterizedTypeReference<PageDto<CouponPolicyDto>>() {}
+                new ParameterizedTypeReference<>() {}
         );
     }
 
@@ -77,16 +78,14 @@ public class AdminCouponApiClient {
     public void issueCouponToUser(Long userId, Long policyId) {
         backendApiClient.postNoBody(
                 COUPON_SERVICE+"/admin/users/" + userId + "/coupons/" + policyId + "/issue",
-                Void.class
-        );
+                new ParameterizedTypeReference<ApiResponse<Void>>(){}        );
     }
 
     // 유저에게 무제한쿠폰발급
     public void issueEventCouponToUser(Long  userId, Long policyId) {
         backendApiClient.postNoBody(
                 COUPON_SERVICE+"/admin/users/"+userId+"/coupons/"+policyId + "/issue-event",
-                Void.class
-        );
+                new ParameterizedTypeReference<ApiResponse<Void>>(){}        );
     }
 
     public List<CouponPolicyDto> getIssuablePolicies(Long userId) {

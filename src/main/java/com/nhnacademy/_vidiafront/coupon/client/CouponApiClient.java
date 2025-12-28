@@ -20,14 +20,14 @@ public class CouponApiClient {
 
     public OrderCouponResponse orderCouponResponse(List<OrderBookResponse> bookItems) {
         OrderCouponRequest orderCouponRequest = OrderCouponRequest.from(bookItems);
-        OrderCouponResponse OrderCouponResponse = backendApiClient.post(COUPON_SERVICE + "/coupons/validate", orderCouponRequest, OrderCouponResponse.class);
+        OrderCouponResponse OrderCouponResponse = backendApiClient.post(COUPON_SERVICE + "/coupons/validate", orderCouponRequest, new ParameterizedTypeReference<>() {});
         return OrderCouponResponse;
     }
 
     public List<MyCouponResponse> getMyCoupons() {
         return backendApiClient.get(
                 COUPON_SERVICE + "/coupons/me",
-                new ParameterizedTypeReference<List<MyCouponResponse>>() {}
+                new ParameterizedTypeReference<>() {}
         );
     }
 

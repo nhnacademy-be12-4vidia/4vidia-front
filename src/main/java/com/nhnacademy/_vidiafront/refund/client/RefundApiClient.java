@@ -22,35 +22,32 @@ public class RefundApiClient {
      * 반품 가능 도서 조회
      */
     public RefundResponse getRefundList(long orderId){
-        return backendApiClient.get(ORDER_SERVICE + "/orders/" + orderId + "/refunds" , RefundResponse.class);
+        return backendApiClient.get(ORDER_SERVICE + "/orders/" + orderId + "/refunds" , new ParameterizedTypeReference<>() {});
     }
 
     /**
      * 반품 신청
      */
     public void refundRegister(RefundRequest refundRequest){
-        backendApiClient.post(ORDER_SERVICE + "/refunds", refundRequest, Void.class);
+        backendApiClient.post(ORDER_SERVICE + "/refunds", refundRequest, new ParameterizedTypeReference<>() {});
     }
 
     /**
      * 사용자 반품 내역 조회
      */
     public PageResponse<RefundHistoryGroupResponse> refundHistory(String status, int page, int size) {
-        ParameterizedTypeReference<PageResponse<RefundHistoryGroupResponse>> typeReference =
-                new ParameterizedTypeReference<PageResponse<RefundHistoryGroupResponse>>() {};
-
         String url = ORDER_SERVICE + "/users/me/refunds?page=" + page + "&size=" + size;
 
         if (status != null && !status.isBlank()) {
             url += "&status=" + status;
         }
 
-        return backendApiClient.get(url, typeReference);
+        return backendApiClient.get(url, new ParameterizedTypeReference<>() {});
     }
 
     public RefundCountResponse getRefundCounts() {
         String url = ORDER_SERVICE + "/users/me/refunds/counts";
-        return backendApiClient.get(url, RefundCountResponse.class);
+        return backendApiClient.get(url, new ParameterizedTypeReference<>() {});
     }
 
 

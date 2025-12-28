@@ -31,6 +31,7 @@ public class GlobalExceptionHandler {
         // 예: 세션 무효화 또는 쿠키 삭제 (현재는 BackendApiClient에서 토큰 재발급 후 실패 시 이리로 오므로 필요 없을 수도 있음)
 
         // 최종 사용자(브라우저)에게 리다이렉트 명령을 내립니다.
+        log.info(ex.getMessage());
         return "redirect:/auth/login";
     }
 

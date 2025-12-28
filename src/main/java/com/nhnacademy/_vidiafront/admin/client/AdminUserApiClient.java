@@ -45,7 +45,7 @@ public class AdminUserApiClient {
      */
     public AdminUserResponse getUser(Long userId) {
         String url = USER_SERVICE + "/admin/users/"+userId;
-        return backendApiClient.get(url, AdminUserResponse.class);
+        return backendApiClient.get(url, new ParameterizedTypeReference<>() {});
     }
 
     /**
@@ -54,7 +54,7 @@ public class AdminUserApiClient {
     public void updateUserStatus(Long userId, String status){
         String url = USER_SERVICE + "/admin/users/"+userId+"/status";
         UpdateUserStatusRequest body = new UpdateUserStatusRequest(status);
-        backendApiClient.put(url, body, Void.class);
+        backendApiClient.put(url, body, new ParameterizedTypeReference<>() {});
     }
 
 

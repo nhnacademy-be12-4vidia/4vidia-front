@@ -3,6 +3,7 @@ package com.nhnacademy._vidiafront.admin.client;
 import com.nhnacademy._vidiafront.admin.dto.request.AdminReviewSearchRequest;
 import com.nhnacademy._vidiafront.admin.dto.response.AdminReviewResponse;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
+import com.nhnacademy._vidiafront.global.dto.ApiResponse;
 import com.nhnacademy._vidiafront.global.dto.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
@@ -50,7 +51,7 @@ public class AdminReviewApiClient {
 
     public void deleteReview (Long reviewId) {
         String url = REVIEW_SERVICE + "/admin/reviews/"+reviewId;
-        backendApiClient.delete(url, Void.class);
+        backendApiClient.delete(url, new ParameterizedTypeReference<ApiResponse<Void>>(){});
     }
 
 

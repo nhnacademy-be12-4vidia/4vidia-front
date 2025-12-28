@@ -1,12 +1,13 @@
 package com.nhnacademy._vidiafront.global.client;
 
+import com.nhnacademy._vidiafront.global.dto.ApiResponse;
 import com.nhnacademy._vidiafront.global.exception.ApiRequestException;
 import com.nhnacademy._vidiafront.user.dto.auth.response.TokenResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
+import org.jboss.logging.MDC;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class BackendApiClient {
     private final String AUTH = "/api/v1/auth";
 
     // ------------------- GET -------------------
-    public <T> T get(String uri, Class<T> responseType) {
+    public <T> T get(String uri, ParameterizedTypeReference<ApiResponse<T>> responseType) {
         log.info("{}호출",uri);
         HttpServletRequest request = getRequest();
         String guestId = extractGuestId(request);
@@ -63,58 +64,12 @@ public class BackendApiClient {
             requestSpec = requestSpec.header("X-Trace-Id", traceId);
         }
 
-        return requestSpec
-                .retrieve()
-                .body(responseType);
+        return exchange(requestSpec, responseType);
 
-    }
-
-    public <T> T get(String uri, ParameterizedTypeReference<T> typeReference) {
-        log.info("{}호출",uri);
-
-        HttpServletRequest request = getRequest();
-        String guestId = extractGuestId(request);
-
-        Object traceObj = MDC.get("traceId");
-        String traceId = (traceObj instanceof String) ? (String) traceObj : null;
-
-        RestClient.RequestHeadersSpec<?> requestSpec =  restClient.get()
-                .uri(URI.create(uri))
-                .header("X-Guest-Id", guestId != null ? guestId : "")
-                .cookies(cookies -> {
-                    String accessSessionId =
-                            (String) request.getAttribute("NEW_SES");
-
-                    if (accessSessionId == null) {
-                        accessSessionId = getAccessTokenFromCookie(request);
-                    }
-
-                    if (accessSessionId != null) {
-                        cookies.add("SES", accessSessionId);
-                    }
-                })
-                .cookies(cookies -> {
-                    String refreshToken =
-                            (String) request.getAttribute("NEW_AUT");
-
-                    if (refreshToken == null) {
-                        refreshToken = getRefreshTokenFromCookie(request);
-                    }
-                    if (refreshToken != null) {
-                        cookies.add("AUT", refreshToken);
-                    }
-                });
-        if (traceId != null) {
-            requestSpec = requestSpec.header("X-Trace-Id", traceId);
-        }
-
-        return requestSpec
-                .retrieve()
-                .body(typeReference);
     }
 
     // ------------------- POST -------------------
-    public <T, R> T post(String uri, R body, Class<T> responseType) {
+    public <T, R> T post(String uri, R body, ParameterizedTypeReference<ApiResponse<T>> responseType) {
         log.info("{}호출",uri);
 
         HttpServletRequest request = getRequest();
@@ -154,14 +109,13 @@ public class BackendApiClient {
             requestSpec = requestSpec.header("X-Trace-Id", traceId);
         }
 
-        return requestSpec
-                .retrieve()
-                .body(responseType);
+        return exchange(requestSpec, responseType);
+
 
     }
 
     public <T> T postMultipartFile(String uri, MultiValueMap<String, Object> parts,
-                                   Class<T> responseType) {
+                                   ParameterizedTypeReference<ApiResponse<T>> responseType) {
         log.info("{}호출",uri);
 
         HttpServletRequest request = getRequest();
@@ -202,13 +156,12 @@ public class BackendApiClient {
             requestSpec = requestSpec.header("X-Trace-Id", traceId);
         }
 
-        return requestSpec
-                .retrieve()
-                .body(responseType);
+        return exchange(requestSpec, responseType);
+
 
     }
 
-    public <T, R> T postNoBody(String uri, Class<T> responseType) {
+    public <T, R> T postNoBody(String uri, ParameterizedTypeReference<ApiResponse<T>> responseType) {
         log.info("{}호출",uri);
 
         HttpServletRequest request = getRequest();
@@ -247,15 +200,13 @@ public class BackendApiClient {
             requestSpec = requestSpec.header("X-Trace-Id", traceId);
         }
 
-        return requestSpec
-                .retrieve()
-                .body(responseType);
+        return exchange(requestSpec, responseType);
 
     }
 
 
     // ------------------- PATCH -------------------
-    public <T, R> T patch(String uri, R body, Class<T> responseType) {
+    public <T, R> T patch(String uri, R body, ParameterizedTypeReference<ApiResponse<T>> responseType) {
         log.info("{}호출",uri);
 
         HttpServletRequest request = getRequest();
@@ -295,15 +246,13 @@ public class BackendApiClient {
             requestSpec = requestSpec.header("X-Trace-Id", traceId);
         }
 
-        return requestSpec
-                .retrieve()
-                .body(responseType);
+        return exchange(requestSpec, responseType);
 
     }
 
 
     // body 없는 PATCH
-    public <T> T patchNoBody(String uri, Class<T> responseType) {
+    public <T> T patchNoBody(String uri, ParameterizedTypeReference<ApiResponse<T>> responseType) {
         log.info("{}호출",uri);
 
         HttpServletRequest request = getRequest();
@@ -342,16 +291,14 @@ public class BackendApiClient {
             requestSpec = requestSpec.header("X-Trace-Id", traceId);
         }
 
-        return requestSpec
-                .retrieve()
-                .body(responseType);
+        return exchange(requestSpec, responseType);
 
 
     }
 
 
     // ------------------- PUT -------------------
-    public <T, R> T put(String uri, R body, Class<T> responseType) {
+    public <T, R> T put(String uri, R body, ParameterizedTypeReference<ApiResponse<T>> responseType) {
         log.info("{}호출",uri);
 
         HttpServletRequest request = getRequest();
@@ -391,13 +338,11 @@ public class BackendApiClient {
             requestSpec = requestSpec.header("X-Trace-Id", traceId);
         }
 
-        return requestSpec
-                .retrieve()
-                .body(responseType);
+        return exchange(requestSpec, responseType);
 
     }
 
-    public <T, R> T putNoBody(String uri, Class<T> responseType) {
+    public <T, R> T putNoBody(String uri, ParameterizedTypeReference<ApiResponse<T>> responseType) {
         log.info("{}호출",uri);
 
         HttpServletRequest request = getRequest();
@@ -436,9 +381,7 @@ public class BackendApiClient {
             requestSpec = requestSpec.header("X-Trace-Id", traceId);
         }
 
-        return requestSpec
-                .retrieve()
-                .body(responseType);
+        return exchange(requestSpec, responseType);
 
     }
 
@@ -491,7 +434,7 @@ public class BackendApiClient {
     }
 
     // ------------------- DELETE -------------------
-    public <T> T delete(String uri, Class<T> responseType) {
+    public <T> T delete(String uri, ParameterizedTypeReference<ApiResponse<T>> responseType) {
         log.info("{}호출",uri);
 
         HttpServletRequest request = getRequest();
@@ -529,9 +472,8 @@ public class BackendApiClient {
             requestSpec = requestSpec.header("X-Trace-Id", traceId);
         }
 
-        return requestSpec
-                .retrieve()
-                .body(responseType);
+        return exchange(requestSpec, responseType);
+
     }
 
     private String extractGuestId(HttpServletRequest request) {
@@ -573,5 +515,22 @@ public class BackendApiClient {
             }
         }
         return null;
+    }
+    private <T> T exchange(
+            RestClient.RequestHeadersSpec<?> spec,
+            ParameterizedTypeReference<ApiResponse<T>> typeRef
+    ) {
+        log.info(spec.toString(), typeRef);
+        ApiResponse<T> response = spec.retrieve().body(typeRef);
+        if (response == null || response.header() == null) {
+            throw new ApiRequestException("응답이 비어있습니다.");
+        }
+
+        if (!response.header().isSuccessful()) {
+            throw new ApiRequestException(
+                    response.header().resultMessage()
+            );
+        }
+        return response.data();
     }
 }

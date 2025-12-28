@@ -7,6 +7,7 @@ import com.nhnacademy._vidiafront.user.dto.user.request.DeleteUserRequest;
 import com.nhnacademy._vidiafront.user.dto.user.request.UpdateUserRequest;
 import com.nhnacademy._vidiafront.user.dto.user.response.UserProfileResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -22,7 +23,7 @@ public class UserApiClient {
      * 기존 "/my/name"
      */
     public String getUserName() {
-        return backendApiClient.get(USER_SERVICE + BASE_URL + "/name", String.class);
+        return backendApiClient.get(USER_SERVICE + BASE_URL + "/name", new ParameterizedTypeReference<>() {});
     }
 
     /**
@@ -30,7 +31,7 @@ public class UserApiClient {
      * 기존 "/my/profile"
      * */
     public UserProfileResponse getUserProfile() {
-        return backendApiClient.get(USER_SERVICE + BASE_URL + "/profile", UserProfileResponse.class);
+        return backendApiClient.get(USER_SERVICE + BASE_URL + "/profile", new ParameterizedTypeReference<>() {});
     }
 
     /**
@@ -38,7 +39,7 @@ public class UserApiClient {
      * 기존 "/my/profile"
      * */
     public UserProfileResponse updateUserProfile(UpdateUserRequest updateUserRequest) {
-        return backendApiClient.put(USER_SERVICE + BASE_URL + "/profile",updateUserRequest, UserProfileResponse.class);
+        return backendApiClient.put(USER_SERVICE + BASE_URL + "/profile",updateUserRequest, new ParameterizedTypeReference<>() {});
     }
 
     /**
@@ -46,7 +47,7 @@ public class UserApiClient {
      * 기존 "/my/change-password"
      * */
     public Void changePassword(ChangePasswordRequest changePasswordRequest) {
-        return backendApiClient.put(USER_SERVICE + BASE_URL + "/me/password", changePasswordRequest, Void.class);
+        return backendApiClient.put(USER_SERVICE + BASE_URL + "/me/password", changePasswordRequest, new ParameterizedTypeReference<>() {});
     }
 
     /**
@@ -54,18 +55,18 @@ public class UserApiClient {
      * 기존 "/my/delete"
      */
     public Void deleteUser(DeleteUserRequest deleteUserRequest) {
-        return backendApiClient.put(USER_SERVICE + BASE_URL + "/delete", deleteUserRequest, Void.class);
+        return backendApiClient.put(USER_SERVICE + BASE_URL + "/delete", deleteUserRequest, new ParameterizedTypeReference<>() {});
     }
 
     public String getUserRole() {
-        return backendApiClient.get(USER_SERVICE + BASE_URL + "/role", String.class);
+        return backendApiClient.get(USER_SERVICE + BASE_URL + "/role", new ParameterizedTypeReference<>() {});
     }
 
     /**
      * payco 로그인 필수 정보 가입
      */
     public void completeProfile(CompleteProfileRequest completeProfileRequest) {
-        backendApiClient.put(USER_SERVICE + BASE_URL + "/complete-profile", completeProfileRequest, Void.class);
+        backendApiClient.put(USER_SERVICE + BASE_URL + "/complete-profile", completeProfileRequest, new ParameterizedTypeReference<>() {});
     }
 
     // 기존 마지막로그인시간 업데이트 auth api client로 이동시킴

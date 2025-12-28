@@ -34,8 +34,7 @@ public class BookApiClient {
 
         return backendApiClient.get(
                 uri,
-                SearchBooksResponse.class
-        );
+                new ParameterizedTypeReference<>() {}        );
     }
 
     public AiBookSearchResponse searchBooksWithLlm(BookSearchRequest request, int page, int size) {
@@ -44,8 +43,7 @@ public class BookApiClient {
 
         return backendApiClient.get(
                 uri,
-            AiBookSearchResponse.class
-        );
+                new ParameterizedTypeReference<>() {}        );
     }
 
     public PageResponse<BookListResponse> searchBooksWithTags(BookSearchWithTagRequest request, int page, int size) {
@@ -68,7 +66,7 @@ public class BookApiClient {
 
         String uri = builder.toUriString();
 
-        return backendApiClient.get(uri, new ParameterizedTypeReference<PageResponse<BookListResponse>>() {});
+        return backendApiClient.get(uri, new ParameterizedTypeReference<>() {});
     }
 
     public PageResponse<BookListResponse> searchBooksWithSpecificTagId(Long tagId, String tagName, int page, int size, String sortKey, String direction) {
@@ -90,7 +88,7 @@ public class BookApiClient {
 
         String uri = builder.toUriString();
 
-        return backendApiClient.get(uri, new ParameterizedTypeReference<PageResponse<BookListResponse>>() {});
+        return backendApiClient.get(uri, new ParameterizedTypeReference<>() {});
     }
 
     public BookDetailResponse bookDetails(Long bookId) {
@@ -98,7 +96,7 @@ public class BookApiClient {
         UriComponentsBuilder uriBuilder = UriComponentsBuilder
             .fromPath(BOOK_SERVICE + "/books/" + bookId);
 
-        return backendApiClient.get(uriBuilder.toUriString(), BookDetailResponse.class);
+        return backendApiClient.get(uriBuilder.toUriString(), new ParameterizedTypeReference<>() {});
 
     }
 
@@ -108,7 +106,7 @@ public class BookApiClient {
 
         String uri = uriBuilder.toUriString();
 
-        return backendApiClient.get(uri, new ParameterizedTypeReference<List<BookListResponse>>() {});
+        return backendApiClient.get(uri, new ParameterizedTypeReference<>() {});
     }
 
     public List<BookListResponse> searchBooksSimple(String keyword) {
@@ -116,7 +114,7 @@ public class BookApiClient {
 
         String uri = uriBuilder.toUriString();
 
-        return backendApiClient.get(uri, new ParameterizedTypeReference<List<BookListResponse>>() {});
+        return backendApiClient.get(uri, new ParameterizedTypeReference<>() {});
     }
 
     public List<BookListResponse> getMainBookList(Long tagId) {

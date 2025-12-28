@@ -1,6 +1,7 @@
 package com.nhnacademy._vidiafront.user.client;
 
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
+import com.nhnacademy._vidiafront.global.dto.ApiResponse;
 import com.nhnacademy._vidiafront.global.dto.PageResponse;
 import com.nhnacademy._vidiafront.user.dto.like.response.LikeResponse;
 import lombok.RequiredArgsConstructor;
@@ -40,20 +41,20 @@ public class LikeApiClient {
      * POST 좋아요 등록
      */
     public void addLike(Long bookId) {
-        backendApiClient.postNoBody(USER_SERVICE + BASE_URL + "/" + bookId, Void.class);
+        backendApiClient.postNoBody(USER_SERVICE + BASE_URL + "/" + bookId, new ParameterizedTypeReference<ApiResponse<Void>>() {});
     }
 
     /**
      * DELETE 좋아요 삭제
      */
     public void deleteLike(Long bookId) {
-        backendApiClient.delete(USER_SERVICE + BASE_URL + "/" + bookId, Void.class);
+        backendApiClient.delete(USER_SERVICE + BASE_URL + "/" + bookId, new ParameterizedTypeReference<ApiResponse<Void>>() {});
     }
 
     /**
      * DELETE 좋아요 전체 삭제
      */
     public void deleteAllLikes() {
-        backendApiClient.delete(USER_SERVICE + BASE_URL, Void.class);
+        backendApiClient.delete(USER_SERVICE + BASE_URL, new ParameterizedTypeReference<ApiResponse<Void>>() {});
     }
 }

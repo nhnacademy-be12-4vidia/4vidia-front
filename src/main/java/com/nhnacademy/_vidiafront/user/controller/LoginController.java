@@ -66,6 +66,7 @@ public class LoginController {
 //            return "auth/dormant-auth";
 //        }
 
+        authApiClient.updateLastLoginAt(email);
 
         String accessToken = tokenResponse.accessToken();
         String refreshUuid = tokenResponse.refreshUuid();
@@ -86,9 +87,10 @@ public class LoginController {
 
         request.setAttribute("NEW_SES", accessToken);
         request.setAttribute("NEW_AUT", refreshUuid);
+//
+//        cartApiClient.loginSync();
+//        authApiClient.updateLastLoginAt(email);
 
-        cartApiClient.loginSync();
-        authApiClient.updateLastLoginAt(email);
         return "redirect:/";
     }
 

@@ -4,6 +4,7 @@ import com.nhnacademy._vidiafront.admin.dto.request.AdminDeliverySearchRequest;
 import com.nhnacademy._vidiafront.admin.dto.response.AdminDeliveryPageResponse;
 import com.nhnacademy._vidiafront.admin.dto.response.DeliveryResponse;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
+import com.nhnacademy._vidiafront.global.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
@@ -45,7 +46,7 @@ public class AdminDeliveryApiClient {
      */
     public DeliveryResponse getOrder(Long orderId) {
         String url = ORDER_SERVICE + "/admin/deliveries/" + orderId;
-        return backendApiClient.get(url, DeliveryResponse.class);
+        return backendApiClient.get(url, new ParameterizedTypeReference<>() {});
     }
 
     /**
@@ -53,7 +54,7 @@ public class AdminDeliveryApiClient {
      */
     public void startDelivery(Long orderId) {
         String url = ORDER_SERVICE + "/admin/deliveries/" + orderId + "/start-delivery";
-        backendApiClient.putNoBody(url, Void.class);
+        backendApiClient.putNoBody(url, new ParameterizedTypeReference<ApiResponse<Void>>() {});
     }
 
     /**
@@ -61,6 +62,6 @@ public class AdminDeliveryApiClient {
      */
     public void completeDelivery(Long orderId) {
         String url = ORDER_SERVICE + "/admin/deliveries/" + orderId + "/complete-delivery";
-        backendApiClient.putNoBody(url, Void.class);
+        backendApiClient.putNoBody(url, new ParameterizedTypeReference<ApiResponse<Void>>() {});
     }
 }

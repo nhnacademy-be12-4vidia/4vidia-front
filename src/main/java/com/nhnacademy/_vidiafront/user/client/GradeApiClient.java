@@ -3,6 +3,7 @@ package com.nhnacademy._vidiafront.user.client;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.user.dto.grade.response.GradeResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,7 +19,7 @@ public class GradeApiClient {
      * 기존 "/my/grade"
      */
     public GradeResponse getGrade() {
-        return backendApiClient.get(USER_SERVICE + BASE_URL, GradeResponse.class);
+        return backendApiClient.get(USER_SERVICE + BASE_URL, new ParameterizedTypeReference<>() {});
     }
 
     /**
@@ -26,7 +27,7 @@ public class GradeApiClient {
      * 기존 "/my/grade"
      */
     public String updateGrade(Long gradeId) {
-        return backendApiClient.putNoBody(USER_SERVICE + BASE_URL + "/" + gradeId, String.class);
+        return backendApiClient.putNoBody(USER_SERVICE + BASE_URL + "/" + gradeId, new ParameterizedTypeReference<>() {});
     }
 
 }

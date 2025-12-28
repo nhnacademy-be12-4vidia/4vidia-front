@@ -21,7 +21,7 @@ public class PointPolicyApiClient {
     }
 
     public void updatePointPolicy(Long pointPolicyId, PointPolicyRequest pointPolicyRequest){
-        backendApiClient.put(POLICY_SERVICE + "/admin/point-policies/" + pointPolicyId, pointPolicyRequest , Void.class);
+        backendApiClient.put(POLICY_SERVICE + "/admin/point-policies/" + pointPolicyId, pointPolicyRequest , new ParameterizedTypeReference<>() {});
     }
 }
 

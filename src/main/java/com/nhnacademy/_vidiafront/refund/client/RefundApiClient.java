@@ -1,6 +1,7 @@
 package com.nhnacademy._vidiafront.refund.client;
 
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
+import com.nhnacademy._vidiafront.global.dto.ApiResponse;
 import com.nhnacademy._vidiafront.refund.dto.request.RefundRequest;
 import com.nhnacademy._vidiafront.refund.dto.response.RefundResponse;
 import com.nhnacademy._vidiafront.refund.dto.response.RefundHistoryGroupResponse;
@@ -20,14 +21,14 @@ public class RefundApiClient {
      * 반품 가능 도서 조회
      */
     public RefundResponse getRefundList(long orderId){
-        return backendApiClient.get(ORDER_SERVICE + "/orders/" + orderId + "/refunds" , RefundResponse.class);
+        return backendApiClient.get(ORDER_SERVICE + "/orders/" + orderId + "/refunds" , new ParameterizedTypeReference<>() {});
     }
 
     /**
      * 반품 신청
      */
     public void refundRegister(RefundRequest refundRequest){
-        backendApiClient.post(ORDER_SERVICE + "/refunds", refundRequest, Void.class);
+        backendApiClient.post(ORDER_SERVICE + "/refunds", refundRequest, new ParameterizedTypeReference<ApiResponse<Void>>() {});
     }
 
     /**

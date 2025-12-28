@@ -23,7 +23,7 @@ public class GradePolicyApiClient {
     }
 
     public void updatePointPolicy(Long gradeId, GradePolicyUpdateRequest gradePolicyUpdateRequest){
-        backendApiClient.put(POLICY_SERVICE + "/admin/grade-policies/" + gradeId, gradePolicyUpdateRequest , Void.class);
+        backendApiClient.put(POLICY_SERVICE + "/admin/grade-policies/" + gradeId, gradePolicyUpdateRequest , new ParameterizedTypeReference<>() {});
     }
 }
 

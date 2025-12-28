@@ -385,6 +385,54 @@ public class BackendApiClient {
 
     }
 
+    public <T> T putMultipartFile(String uri, MultiValueMap<String, Object> parts,
+                                  Class<T> responseType) {
+        log.info("{}호출",uri);
+
+        HttpServletRequest request = getRequest();
+        String guestId = extractGuestId(request);
+
+        Object traceObj = MDC.get("traceId");
+        String traceId = (traceObj instanceof String) ? (String) traceObj : null;
+        RestClient.RequestHeadersSpec<?> requestSpec =  restClient.put()
+                .uri(URI.create(uri))
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .header("X-Guest-Id", guestId != null ? guestId : "")
+                .cookies(cookies -> {
+                    String accessSessionId =
+                            (String) request.getAttribute("NEW_SES");
+
+                    if (accessSessionId == null) {
+                        accessSessionId = getAccessTokenFromCookie(request);
+                    }
+
+                    if (accessSessionId != null) {
+                        cookies.add("SES", accessSessionId);
+                    }
+                })
+                .cookies(cookies -> {
+                    String refreshToken =
+                            (String) request.getAttribute("NEW_AUT");
+
+                    if (refreshToken == null) {
+                        refreshToken = getRefreshTokenFromCookie(request);
+                    }
+                    if (refreshToken != null) {
+                        cookies.add("AUT", refreshToken);
+                    }
+                })
+                .body(parts);
+
+        if (traceId != null) {
+            requestSpec = requestSpec.header("X-Trace-Id", traceId);
+        }
+
+        return requestSpec
+                .retrieve()
+                .body(responseType);
+
+    }
+
     // ------------------- DELETE -------------------
     public <T> T delete(String uri, ParameterizedTypeReference<ApiResponse<T>> responseType) {
         log.info("{}호출",uri);

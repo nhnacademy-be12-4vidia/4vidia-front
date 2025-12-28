@@ -16,6 +16,10 @@ public class PointPolicyApiClient {
 
     private final BackendApiClient backendApiClient;
 
+    public PointPolicyResponse getPointPolicy(Long pointPolicyId) {
+        return backendApiClient.get(POLICY_SERVICE + "/admin/point-policies/" + pointPolicyId, PointPolicyResponse.class);
+    }
+
     public List<PointPolicyResponse> getPointPolicyList(){
         return backendApiClient.get(POLICY_SERVICE + "/admin/point-policies", new ParameterizedTypeReference<>(){});
     }

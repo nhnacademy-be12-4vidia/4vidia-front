@@ -10,15 +10,15 @@ import com.nhnacademy._vidiafront.book.dto.reviews.response.ReviewListWithSummar
 import com.nhnacademy._vidiafront.global.dto.PageResponse;
 import java.util.List;
 
+import com.nhnacademy._vidiafront.user.client.LikeApiClient;
 import groovy.util.logging.Slf4j;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 @lombok.extern.slf4j.Slf4j
 @Controller
@@ -29,6 +29,7 @@ public class BookController {
 
     private final BookApiClient bookApiClient;
     private final ReviewApiClient reviewApiClient;
+    private final LikeApiClient likeApiClient;
 
     /**
      * 도서 검색
@@ -36,9 +37,9 @@ public class BookController {
 
     @GetMapping("/search")
     public String searchBooks(BookSearchRequest request,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "20") int size,
-        Model model) {
+                              @RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "20") int size,
+                              Model model) {
 
         boolean useSemantic = Boolean.TRUE.equals(request.useSemantic());
 
@@ -119,11 +120,11 @@ public class BookController {
 
     @GetMapping("/search/tags/{tag-id}")
     public String searchBooksWithSpecificTagId(@PathVariable(name = "tag-id") Long tagId,
-                                             @RequestParam(required = false, name = "tagName") String tagName,
-                                             @RequestParam(defaultValue = "0") int page,
-                                             @RequestParam(defaultValue = "20") int size,
-                                             @RequestParam(defaultValue = "PUBLISHED_DESC") BookSortOptions sort,
-                                             Model model) {
+                                               @RequestParam(required = false, name = "tagName") String tagName,
+                                               @RequestParam(defaultValue = "0") int page,
+                                               @RequestParam(defaultValue = "20") int size,
+                                               @RequestParam(defaultValue = "PUBLISHED_DESC") BookSortOptions sort,
+                                               Model model) {
         String sortKey = switch (sort) {
             case PUBLISHED_DESC, PUBLISHED_ASC -> "publishedDate";
             case PRICE_DESC, PRICE_ASC -> "priceSales";
@@ -146,5 +147,35 @@ public class BookController {
         model.addAttribute("tagName", tagName);
 
         return "book/search-by-tag";
+    }
+
+    @GetMapping("/api/main-list")
+    @ResponseBody
+    public List<BookListResponse> getMainBookList(@RequestParam(defaultValue = "0") Long tagId) {
+
+        return bookApiClient.getMainBookList(tagId);
+
+    }
+
+    @DeleteMapping("/like")
+    @ResponseBody
+    public ResponseEntity<Void> deleteLikeTest(@RequestParam Long bookId) {
+        try {
+            likeApiClient.deleteLike(bookId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+    @PostMapping("/like")
+    @ResponseBody
+    public ResponseEntity<Void> addLikeTest(@RequestParam Long bookId) {
+        try {
+            likeApiClient.addLike(bookId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 }

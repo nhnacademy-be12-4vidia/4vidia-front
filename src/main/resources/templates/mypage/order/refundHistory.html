@@ -66,21 +66,23 @@
         <!-- ================= 상태 탭 ================= -->
         <div class="fixed-content-area mb-4">
             <div class="d-flex text-center border-bottom">
-                <a th:href="@{/mypage/refund-history(status='ALL')}"
+                <!-- ✅ page=0,size 유지 -->
+                <a th:href="@{/mypage/refund-history(status='ALL', page=0, size=${size})}"
                    th:classappend="${currentStatus == 'ALL' ? 'active' : ''}"
                    class="status-tab">
                     <div class="tab-count" th:text="${totalReturns}">0</div>
                     <div>전체</div>
                 </a>
 
-                <a th:href="@{/mypage/refund-history(status='PROCESS')}"
+
+                <a th:href="@{/mypage/refund-history(status='PROCESS', page=0, size=${size})}"
                    th:classappend="${currentStatus == 'PROCESS' ? 'active' : ''}"
                    class="status-tab">
                     <div class="tab-count" th:text="${statusCounts['PROCESS']}">0</div>
                     <div>반품신청</div>
                 </a>
 
-                <a th:href="@{/mypage/refund-history(status='APPROVED')}"
+                <a th:href="@{/mypage/refund-history(status='APPROVED', page=0, size=${size})}"
                    th:classappend="${currentStatus == 'APPROVED' ? 'active' : ''}"
                    class="status-tab">
                     <div class="tab-count" th:text="${statusCounts['APPROVED']}">0</div>
@@ -142,7 +144,7 @@
                     </div>
 
                     <!-- 거절 사유 -->
-                    <div th:if="${item.refundItemStatus == 'REJECTED'}"
+                    <div th:if="${item.refundItemStatus.name() == 'REJECTED'}"
                          class="mt-2 text-danger small">
                         거절 사유 :
                         <span th:text="${item.rejectDetail}"></span>
@@ -157,7 +159,9 @@
                     </button>
                 </div>
 
-                <div th:id="'detail-' + ${refund.refundId()}"
+
+                <!-- ✅ refundId() -> refundId 로 통일 -->
+                <div th:id="'detail-' + ${refund.refundId}"
                      style="display:none"
                      class="detail-box mt-3">
                     <!-- 반품 사유 -->
@@ -172,6 +176,54 @@
                     </div>
                 </div>
             </div>
+            <nav th:if="${totalPages > 1}" class="mt-4">
+                <ul class="pagination justify-content-center">
+
+                    <!-- 이전 -->
+                    <li class="page-item" th:classappend="${isFirst} ? 'disabled'">
+                    <a class="page-link"
+                           th:href="@{/mypage/refund-history(status=${currentStatus}, page=${page - 1}, size=${size})}">
+                            &laquo;
+                        </a>
+                    </li>
+
+                    <!-- 앞쪽 ... -->
+                    <li class="page-item disabled"
+                        th:if="${page > 2}">
+                        <span class="page-link">…</span>
+                    </li>
+
+                    <!-- 페이지 번호 (현재 기준 -2 ~ +2) -->
+                    <li class="page-item"
+                        th:each="i : ${#numbers.sequence(
+                T(java.lang.Math).max(0, page - 2),
+                T(java.lang.Math).min(totalPages - 1, page + 2)
+            )}"
+                        th:classappend="${i == page} ? 'active'">
+                        <a class="page-link"
+                           th:text="${i + 1}"
+                           th:href="@{/mypage/refund-history(status=${currentStatus}, page=${i}, size=${size})}">
+                        </a>
+                    </li>
+
+                    <!-- 뒤쪽 ... -->
+                    <li class="page-item disabled"
+                        th:if="${page < totalPages - 3}">
+                        <span class="page-link">…</span>
+                    </li>
+
+                    <!-- 다음 -->
+                    <li class="page-item" th:classappend="${isLast} ? 'disabled'">
+
+                    <a class="page-link"
+                           th:href="@{/mypage/refund-history(status=${currentStatus}, page=${page + 1}, size=${size})}">
+                            &raquo;
+                        </a>
+                    </li>
+
+                </ul>
+            </nav>
+
         </div>
     </div>
 </div>

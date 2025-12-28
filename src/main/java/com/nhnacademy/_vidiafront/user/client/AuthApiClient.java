@@ -99,6 +99,27 @@ public class AuthApiClient {
                 new ParameterizedTypeReference<ApiResponse<Void>>() {}
         );
     }
+    /**
+     * 회원가입 이메일 인증코드 발송
+     */
+    public void sendSignupEmailCode(String email){
+        backendApiClient.post(
+                USER_SERVICE+BASE_URL+"/email/send-code",
+                Map.of("email", email),
+                Void.class
+        );
+    }
+    /**
+     * 회원가입 이메일 인증코드 검증
+     */
+    public void verifySignupEmailCode(String email, String code){
+        backendApiClient.post(
+                USER_SERVICE+BASE_URL+"/email/verify-code",
+                Map.of("email",email,"code",code),
+                Void.class
+        );
+    }
+
 
     /**
      * 마지막로그인시간 업데이트하기
@@ -148,4 +169,8 @@ public class AuthApiClient {
         cookie.setMaxAge(0); // 즉시 만료
         response.addCookie(cookie);
     }
+
+
+
+
 }

@@ -122,7 +122,7 @@ public class BookApiClient {
 
         String uri = uriBuilder.toUriString();
 
-        return backendApiClient.get(uri, new ParameterizedTypeReference<List<BookListResponse>>() {});
+        return backendApiClient.get(uri, new ParameterizedTypeReference<>() {});
     }
 
     private String buildSearchUrl(String basePath, BookSearchRequest request, int page, int size) {

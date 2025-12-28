@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/admin-layout}">
+
+<head>
+    <title>카테고리 관리</title>
+</head>
+
+<div layout:fragment="pageContent">
+    <div class="container-fluid">
+        <!-- Page Heading -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">카테고리 관리</h1>
+            <button class="btn btn-primary btn-icon-split" data-toggle="modal" data-target="#registerModal">
+                <span class="icon text-white-50">
+                    <i class="fas fa-plus"></i>
+                </span>
+                <span class="text">카테고리 등록</span>
+            </button>
+        </div>
+
+        <!-- List -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">전체 카테고리 목록</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>KDC 코드</th>
+                            <th>Depth</th>
+                            <th>카테고리명</th>
+                            <th>관리</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(categories)}">
+                            <td colspan="5" class="text-center">등록된 카테고리가 없습니다.</td>
+                        </tr>
+                        <tr th:each="cat : ${categories}" 
+                            th:class="'category-row depth-' + ${cat.depth()}" 
+                            th:data-kdc="${cat.kdcCode()}" 
+                            th:data-depth="${cat.depth()}"
+                            th:style="${cat.depth() > 1 ? 'display: none;' : ''}">
+                            <td th:text="${cat.id()}"></td>
+                            <td th:text="${cat.kdcCode()}"></td>
+                            <td th:text="${cat.depth()}"></td>
+                            <td>
+                                <span th:if="${cat.depth() > 1}" th:each="i : ${#numbers.sequence(1, cat.depth() - 1)}" style="margin-left: 20px;"></span>
+                                
+                                <!-- Toggle Icon for depth 1 and 2 -->
+                                <span th:if="${cat.depth() < 3}" class="toggle-icon mr-1" style="cursor: pointer;" 
+                                      th:onclick="toggleCategory([[${cat.kdcCode()}]], [[${cat.depth()}]], this)">
+                                    <i class="fas fa-chevron-right text-primary"></i>
+                                </span>
+                                <i th:if="${cat.depth() == 3}" class="fas fa-reply fa-rotate-180 mr-1 text-gray-400"></i>
+                                
+                                <span th:text="${cat.categoryName()}"></span>
+                            </td>
+                            <td>
+                                <!-- Edit Button -->
+                                <button type="button" class="btn btn-info btn-sm"
+                                        th:onclick="openEditModal([[${cat.id()}]], [[${cat.categoryName()}]])">수정</button>
+                                <!-- Delete Button -->
+                                <form th:action="@{/admin/categories/{id}(id=${cat.id()})}" th:method="delete" style="display:inline;" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                                    <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="registerModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registerModalLabel">새 카테고리 등록</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <form th:action="@{/admin/categories}" method="post">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="regKdcCode">KDC 코드 (3자리 숫자 또는 대문자)</label>
+                            <input type="text" class="form-control" id="regKdcCode" name="kdcCode" required minlength="3" maxlength="3" pattern="^[A-Z0-9]{3}$" placeholder="예: 813, UNC">
+                            <small class="form-text text-muted">정확히 3자리를 입력하세요 (숫자/대문자). 코드를 통해 계층이 자동 결정됩니다.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="regCategoryName">카테고리 이름</label>
+                            <input type="text" class="form-control" id="regCategoryName" name="categoryName" required placeholder="예: 한국문학">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+                        <button class="btn btn-primary" type="submit">등록</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">카테고리 수정</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <form id="editForm" th:action="@{/admin/categories}" method="post">
+                    <input type="hidden" name="_method" value="put">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="editCategoryName">카테고리 이름</label>
+                            <input type="text" class="form-control" id="editCategoryName" name="categoryName" required>
+                            <small class="form-text text-muted">이미 이름이 있는 경우 수정되며, 없는 경우 활성화됩니다.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+                        <button class="btn btn-primary" type="submit">수정 완료</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        function toggleCategory(kdcCode, depth, element) {
+            const icon = element.querySelector('i');
+            const isCollapsing = icon.classList.contains('fa-chevron-down');
+            
+            // Toggle icon
+            if (isCollapsing) {
+                icon.classList.replace('fa-chevron-down', 'fa-chevron-right');
+            } else {
+                icon.classList.replace('fa-chevron-right', 'fa-chevron-down');
+            }
+
+            // Find prefix to identify children
+            let prefix;
+            if (depth === 1 && /^\d+$/.test(kdcCode)) {
+                prefix = kdcCode.charAt(0);
+            } else if (depth === 1) {
+                prefix = kdcCode; // Non-numeric depth 1 codes (like UNC) use full code
+            } else if (depth === 2) {
+                prefix = kdcCode.substring(0, 2);
+            } else {
+                return;
+            }
+
+            const rows = document.querySelectorAll('.category-row');
+            rows.forEach(row => {
+                const rowKdc = row.getAttribute('data-kdc');
+                const rowDepth = parseInt(row.getAttribute('data-depth'));
+                
+                // If it's a descendant
+                if (rowKdc !== kdcCode && rowKdc.startsWith(prefix) && rowDepth > depth) {
+                    if (isCollapsing) {
+                        row.style.display = 'none';
+                    } else {
+                        // When expanding, only show direct children or check their own toggles
+                        // Simplified: show all descendants, but ideally we should check intermediate state
+                        row.style.display = '';
+                        
+                        // If the child is also a parent and was collapsed, we might want to keep its children hidden
+                        // But for simplicity in this logic, we just show all.
+                    }
+                }
+            });
+        }
+
+        function openEditModal(id, name) {
+            document.getElementById('editCategoryName').value = name;
+            document.getElementById('editForm').action = '/admin/categories/' + id;
+            $('#editModal').modal('show');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var errorMessage = /*[[${errorMessage}]]*/ null;
+            var errorDetail = /*[[${errorDetail}]]*/ null;
+            
+            if (errorMessage) {
+                var msg = errorMessage;
+                if (errorDetail) {
+                    try {
+                        var detailObj = JSON.parse(errorDetail);
+                        if (detailObj.detail) {
+                            msg += "\n사유: " + detailObj.detail;
+                        }
+                    } catch (e) {
+                        // ignore parsing error
+                    }
+                }
+                alert(msg);
+            }
+        });
+        /*]]>*/
+    </script>
+</div>
+</html>

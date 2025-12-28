@@ -3,6 +3,7 @@ package com.nhnacademy._vidiafront.admin.client;
 import com.nhnacademy._vidiafront.admin.dto.request.AdminBookCreateRequest;
 import com.nhnacademy._vidiafront.admin.dto.request.AdminBookUpdateRequest;
 import com.nhnacademy._vidiafront.admin.dto.response.AdminIsbnSearchResponse;
+import com.nhnacademy._vidiafront.admin.dto.response.BookIsbnResponse;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.global.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -70,7 +71,8 @@ public class AdminBookApiClient {
 
     public String getBookIsbn(Long bookId) {
         String url = BOOK_SERVICE + "/" + bookId + "/isbn";
-        return backendApiClient.get(url,  new ParameterizedTypeReference<>() {});
+        BookIsbnResponse response = backendApiClient.get(url, new ParameterizedTypeReference<>() {});
+        return response.isbn();
     }
 
     public Map<String, String> uploadImage(MultipartFile image) throws IOException {
@@ -89,7 +91,7 @@ public class AdminBookApiClient {
         parts.add("image", resource);
 
         String url = BOOK_SERVICE + "/images";
-        return backendApiClient.postMultipartFile(url, parts, new ParameterizedTypeReference<>() {} );
+        return backendApiClient.postMultipartFile(url, parts, new ParameterizedTypeReference<>() {});
     }
 }
 

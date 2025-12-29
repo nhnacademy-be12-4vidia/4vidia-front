@@ -11,10 +11,10 @@ public record BookDetailResponse(
     String bookIndex,
     String description,
 
-    PublisherInfo publisherInfo,
+    PublisherInfo publisher,
     LocalDate publishedDate,
 
-    CategoryInfo categoryInfo,
+    CategoryInfo category,
 
     Integer pageCount,
     String language,

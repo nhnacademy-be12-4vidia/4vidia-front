@@ -117,10 +117,30 @@
         .expanded .text-clamp { -webkit-line-clamp: unset; }
     </style>
 
+    <!-- Toast UI Editor (Viewer) -->
+    <link rel="stylesheet" href="/vendor/toastui/css/toastui-editor.min.css" />
+    <script src="/vendor/toastui/js/toastui-editor-all.min.js"></script>
+
     <script th:src="@{/customJs/askMoveCart.js}"></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
+            // [0] Toast UI Viewer 초기화
+            const viewerEl = document.querySelector('#bookDescriptionViewer');
+            if (viewerEl) {
+                const rawContent = document.getElementById('bookDescriptionRaw').value;
+                if (rawContent && rawContent.trim().length > 0) {
+                    const Editor = toastui.Editor;
+                    Editor.factory({
+                        el: viewerEl,
+                        viewer: true,
+                        initialValue: rawContent
+                    });
+                } else {
+                    viewerEl.innerHTML = '등록된 소개글이 없습니다.';
+                }
+            }
+
             // [1] 더보기/접기 기능
             function initShowMore(selector, lineHeightRem, maxLines) {
                 const elements = document.querySelectorAll(selector);
@@ -311,7 +331,7 @@
                                     </div>
                                     <div class="book-meta-row">
                                         <span class="text-muted small">출판사</span>
-                                        <span class="text-dark small"><a th:if="${book.publisherInfo != null}" th:href="@{/books/search(keyword=${book.publisherInfo.name})}" th:text="${book.publisherInfo.name}">출판사명</a></span>
+                                        <span class="text-dark small"><a th:if="${book.publisher != null}" th:href="@{/books/search(keyword=${book.publisher.name})}" th:text="${book.publisher.name}">출판사명</a></span>
                                     </div>
                                     <div class="book-meta-row">
                                         <span class="text-muted small">출간일</span>
@@ -390,8 +410,10 @@
                             <h6 class="m-0 font-weight-bold text-primary">책 소개</h6>
                         </div>
                         <div class="card-body">
-                            <div class="book-description text-clamp clamp-5"
-                                 th:text="${book.description} ?: '등록된 소개글이 없습니다.'"></div>
+                            <div class="book-description text-clamp clamp-5">
+                                <div id="bookDescriptionViewer"></div>
+                            </div>
+                            <input type="hidden" id="bookDescriptionRaw" th:value="${book.description} ?: ''" />
                             <button type="button" class="btn-more-toggle"><span>더보기</span> <i class="fas fa-chevron-down"></i></button>
                         </div>
                     </div>
@@ -503,7 +525,7 @@
                                     </div>
                                     <div class="book-meta-row">
                                         <span class="text-muted small">출판사</span>
-                                        <span class="text-dark small"><a th:if="${book.publisherInfo != null}" th:href="@{/books/search(keyword=${book.publisherInfo.name})}" th:text="${book.publisherInfo.name}">출판사명</a></span>
+                                        <span class="text-dark small"><a th:if="${book.publisher != null}" th:href="@{/books/search(keyword=${book.publisher.name})}" th:text="${book.publisher.name}">출판사명</a></span>
                                     </div>
                                     <div class="book-meta-row">
                                         <span class="text-muted small">출간일</span>

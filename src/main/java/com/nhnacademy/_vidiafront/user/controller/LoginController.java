@@ -36,7 +36,9 @@ public class LoginController {
      *
      */
     @GetMapping("/auth/login")
-    public String loginForm(Model model) {
+    public String loginForm(Model model, HttpServletResponse response) {
+        deleteCookie("AUT", response);
+        deleteCookie("SES", response);
         return "auth/loginForm";
     }
 
@@ -52,8 +54,7 @@ public class LoginController {
                             HttpServletRequest request,
                             HttpServletResponse response) {
 
-        authApiClient.deleteCookie("SES", response);
-        authApiClient.deleteCookie("AUT", response);
+        deleteCookie("AUT", response);
 
         TokenResponse tokenResponse = authApiClient.login(loginRequest);
 

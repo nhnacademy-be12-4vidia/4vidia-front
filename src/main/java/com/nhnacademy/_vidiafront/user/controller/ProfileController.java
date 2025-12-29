@@ -45,7 +45,7 @@ public class ProfileController {
         log.info("user profile updated: {}", user);
 
         redirectAttributes.addFlashAttribute("message", "회원 정보가 수정되었습니다.");
-        return "redirect:/mypage/profile"; // todo: 회원정보 조회,수정을 한페이지에서 하는데 너무 짜침, 수정도 너무 쉬움
+        return "redirect:/mypage/profile";
     }
 
     /**

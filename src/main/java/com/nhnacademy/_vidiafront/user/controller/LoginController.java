@@ -60,13 +60,7 @@ public class LoginController {
         System.out.println(tokenResponse.accessToken());
         System.out.println(tokenResponse.refreshUuid());
         String email = loginRequest.email();
-        // 휴먼이면 -> 휴먼인증으로 이동
-//        if (authApiClient.isDormant(email)) {
-//            request.setAttribute("email", email);
-//            return "auth/dormant-auth";
-//        }
 
-        authApiClient.updateLastLoginAt(email);
 
         String accessToken = tokenResponse.accessToken();
         String refreshUuid = tokenResponse.refreshUuid();
@@ -87,9 +81,8 @@ public class LoginController {
 
         request.setAttribute("NEW_SES", accessToken);
         request.setAttribute("NEW_AUT", refreshUuid);
-//
-//        cartApiClient.loginSync();
-//        authApiClient.updateLastLoginAt(email);
+
+        authApiClient.updateLastLoginAt(email);
 
         return "redirect:/";
     }

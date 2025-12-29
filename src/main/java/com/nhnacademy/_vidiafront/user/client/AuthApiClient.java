@@ -131,7 +131,6 @@ public class AuthApiClient {
     }
 
 
-    // todo : /api/v1/auth/auth /login or /logout 인데 맞아요?? auth 두 번???
     /**
      * 로그인
      */

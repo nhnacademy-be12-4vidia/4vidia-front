@@ -61,10 +61,11 @@ jobs:
 
             echo "$GH_TOKEN" | docker login ghcr.io -u baejongto --password-stdin
             cd ~
-
-            ############################
+            
+            echo "Pulling latest images..."
+            docker compose pull 4vidia-front-1 4vidia-front-2
+            
             # GREEN (front-1) 배포
-            ############################
             echo "Starting 4vidia-front-1 (GREEN)..."
             docker compose up -d 4vidia-front-1
 
@@ -85,19 +86,15 @@ jobs:
               echo "GREEN container failed. Aborting deployment."
               exit 1
             fi
-
-            ############################
+            
             # BLUE (front-2) 트래픽 드레인
-            ############################
             echo "Setting BLUE container DOWN in Eureka..."
             curl -X PUT \
               "http://${ADMIN_ID}:${ADMIN_PASSWORD}@4vidia-discovery-1:8761/eureka/v2/apps/4VIDIA-FRONT/4vidia-front-2/status?value=DOWN" || true
 
             sleep 30
-
-            ############################
+            
             # BLUE 재기동
-            ############################
             echo "Stopping 4vidia-front-2 (BLUE)..."
             docker compose stop 4vidia-front-2
 
@@ -121,9 +118,6 @@ jobs:
               echo "BLUE container failed."
               exit 1
             fi
-            ############################
-            # 마무리
-            ############################
             echo "Cleaning up unused Docker images..."
             docker image prune -f
 

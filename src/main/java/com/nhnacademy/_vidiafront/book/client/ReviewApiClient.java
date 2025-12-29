@@ -1,6 +1,7 @@
 package com.nhnacademy._vidiafront.book.client;
 
 import com.nhnacademy._vidiafront.book.dto.reviews.request.ReviewCreateRequest;
+import com.nhnacademy._vidiafront.book.dto.reviews.request.ReviewUpdateRequest;
 import com.nhnacademy._vidiafront.book.dto.reviews.response.ReviewListWithSummaryResponse;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import java.io.IOException;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -61,5 +63,37 @@ public class ReviewApiClient {
                 .queryParam("size", size);
 
         return backendApiClient.get(uriBuilder.toUriString(), new ParameterizedTypeReference<>(){});
+    }
+
+    public void deactivateReview(Long reviewId, Long bookId) {
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromPath(BOOK_SERVICE + "/books/" + bookId + "/reviews/" + reviewId + "/deactivate");
+
+        backendApiClient.postNoBody(uriBuilder.toUriString(), Void.class);
+    }
+
+    public void editReview(ReviewUpdateRequest request, List<MultipartFile> newImageList) throws IOException {
+        MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+
+        parts.add("bookId", request.getBookId());
+        parts.add("content", request.getContent());
+        parts.add("rating", request.getRating());
+
+        if (newImageList != null) {
+            for (MultipartFile file : newImageList) {
+                if (file == null || file.isEmpty()) continue;
+
+                ByteArrayResource resource = new ByteArrayResource(file.getBytes()){
+                    @Override
+                    public String getFilename() {
+                        return file.getOriginalFilename();}
+                };
+                parts.add("images", resource);
+            }
+        }
+
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromPath(BOOK_SERVICE + "/books/" + request.getBookId() + "/reviews/" + request.getReviewId() + "/edit");
+
+        backendApiClient.postMultipartFile(uriBuilder.toUriString(), parts, Void.class);
+
     }
 }

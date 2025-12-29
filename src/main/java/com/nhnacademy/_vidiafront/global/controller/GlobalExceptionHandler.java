@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 
@@ -26,7 +27,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ApiRequestException.class)
     public String handleApiRequestException(
             ApiRequestException e,
-            HttpServletRequest request
+            HttpServletRequest request,
+            RedirectAttributes redirectAttributes
     ) {
         log.warn("API error: status={}, errorCode={}, message={}",
                 e.getStatus(), e.getErrorCode(), e.getMessage());
@@ -43,6 +45,13 @@ public class GlobalExceptionHandler {
             }
             if ("DORMANT_USER".equals(e.getErrorCode())) {
                 return "redirect:/auth/dormant-auth";
+            }
+            if ("DELETED_USER".equals(e.getErrorCode())) {
+                redirectAttributes.addFlashAttribute(
+                        "alertMessage",
+                        "이미 탈퇴 처리된 계정입니다."
+                );
+                return "redirect:/auth/login";
             }
         }
 

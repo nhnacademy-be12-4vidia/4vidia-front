@@ -16,7 +16,8 @@ public record ReviewListResponse(
     List<String> imageUrlList,
     LocalDate createdAt,
 
-    boolean myReview
+    boolean myReview,
+    boolean modified
 
 ) {
 

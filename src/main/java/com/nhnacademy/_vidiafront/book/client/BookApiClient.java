@@ -7,6 +7,7 @@ import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 
 import java.util.List;
 
+import com.nhnacademy._vidiafront.global.dto.ApiResponse;
 import com.nhnacademy._vidiafront.global.dto.PageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -106,7 +107,7 @@ public class BookApiClient {
 
         String uri = uriBuilder.toUriString();
 
-        return backendApiClient.get(uri, new ParameterizedTypeReference<>() {});
+        return backendApiClient.get(uri, new ParameterizedTypeReference<ApiResponse<List<BookListResponse>>>() {});
     }
 
     public List<BookListResponse> searchBooksSimple(String keyword) {

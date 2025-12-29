@@ -3,6 +3,7 @@ package com.nhnacademy._vidiafront.global.controller;
 import com.nhnacademy._vidiafront.global.dto.ApiResponse;
 import com.nhnacademy._vidiafront.global.exception.ApiRequestException;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,15 +22,35 @@ public class GlobalExceptionHandler {
 
 
 
+
     @ExceptionHandler(ApiRequestException.class)
-    public ResponseEntity<ApiResponse<Void>> handleApiRequestException(ApiRequestException e) {
-        log.warn("API 호출 중 에러 발생: status={}, errorCode={}, msg={}",
+    public String handleApiRequestException(
+            ApiRequestException e,
+            HttpServletRequest request
+    ) {
+        log.warn("API error: status={}, errorCode={}, message={}",
                 e.getStatus(), e.getErrorCode(), e.getMessage());
 
-        return ResponseEntity
-                .status(e.getStatus())
-                .body(ApiResponse.fail(e.getStatus(), e.getMessage(), e.getErrorCode()));
+        // ===== 인증 관련 =====
+        if (e.getStatus() == 401) {
+            return "redirect:/auth/login";
+        }
+
+        // ===== 권한 관련 =====
+        if (e.getStatus() == 403) {
+            if ("TEMP_USER".equals(e.getErrorCode())) {
+                return "redirect:/complete-profile";
+            }
+            if ("DORMANT_USER".equals(e.getErrorCode())) {
+                return "redirect:/auth/dormant-auth";
+            }
+        }
+
+        // ===== 그 외 에러 페이지 =====
+        request.setAttribute("errorMessage", e.getMessage());
+        return "error/errorPage";
     }
+
 
     @ExceptionHandler(HttpClientErrorException.Unauthorized.class)
     public String handleUnauthorizedException(HttpClientErrorException.Unauthorized ex, HttpServletResponse response) {

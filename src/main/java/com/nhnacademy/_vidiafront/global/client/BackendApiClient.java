@@ -1,5 +1,6 @@
 package com.nhnacademy._vidiafront.global.client;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy._vidiafront.global.dto.ApiResponse;
@@ -29,7 +30,7 @@ import java.net.URI;
 public class BackendApiClient {
     private final RestClient restClient;
     private final String AUTH = "/api/v1/auth";
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
 
     // ------------------- GET -------------------
@@ -528,58 +529,28 @@ public class BackendApiClient {
             RestClient.RequestHeadersSpec<?> spec,
             ParameterizedTypeReference<ApiResponse<T>> typeRef
     ) {
+        String body;
+
         try {
             log.debug("[BackendApiClient] requestSpec = {}", spec);
 
-            ApiResponse<T> response = spec.retrieve().body(typeRef);
+            // ✅ 1. 무조건 String으로 먼저 받는다
+            body = spec.retrieve().body(String.class);
 
-            log.debug("[BackendApiClient] response received = {}", response);
-
-            if (response == null || response.header() == null) {
-                log.error("[BackendApiClient] EMPTY_RESPONSE");
-                throw new ApiRequestException(502, "응답이 비어있습니다.", "EMPTY_RESPONSE");
-            }
-
-            log.debug(
-                    "[BackendApiClient] header.isSuccessful={}, resultCode={}, errorCode={}, message={}",
-                    response.header().isSuccessful(),
-                    response.header().resultCode(),
-                    response.header().errorCode(),
-                    response.header().resultMessage()
-            );
-
-            // ✅ 200인데 실패로 내려온 경우
-            if (!response.header().isSuccessful()) {
-                log.warn("[BackendApiClient] logical failure detected");
-                throw new ApiRequestException(
-                        response.header().resultCode(),
-                        response.header().resultMessage(),
-                        response.header().errorCode()
-                );
-            }
-
-            log.debug("[BackendApiClient] success, returning data");
-            return response.data();
+            log.debug("[BackendApiClient] raw response body = {}", body);
 
         } catch (RestClientResponseException e) {
             int status = e.getStatusCode().value();
-            String body = e.getResponseBodyAsString();
+            String errorBody = e.getResponseBodyAsString();
 
             log.warn(
                     "[BackendApiClient] HTTP error from backend. status={}, body={}",
-                    status, body
+                    status, errorBody
             );
 
-            ApiResponse.Header h = tryParseHeaderFromBody(body);
+            ApiResponse.Header h = tryParseHeaderFromBody(errorBody);
 
             if (h != null) {
-                log.warn(
-                        "[BackendApiClient] parsed ApiResponse.fail header. resultCode={}, errorCode={}, message={}",
-                        h.resultCode(),
-                        h.errorCode(),
-                        h.resultMessage()
-                );
-
                 throw new ApiRequestException(
                         h.resultCode(),
                         h.resultMessage(),
@@ -587,22 +558,61 @@ public class BackendApiClient {
                 );
             }
 
-            log.error("[BackendApiClient] NON_JSON response from backend");
             throw new ApiRequestException(
                     status,
                     "서버 응답이 올바르지 않습니다.",
                     "NON_JSON"
             );
+        }
+
+        // ✅ 2. 여기부터는 "HTTP 성공"이든 "논리 실패"든 동일 처리
+        ApiResponse<T> response;
+        try {
+            JavaType javaType = objectMapper.getTypeFactory()
+                    .constructType(typeRef.getType());
+
+            response = objectMapper.readValue(body, javaType);
 
         } catch (Exception e) {
-            log.error("[BackendApiClient] unexpected error", e);
+            log.error("[BackendApiClient] JSON parse error. body={}", body, e);
             throw new ApiRequestException(
                     500,
-                    "요청 처리 중 오류가 발생했습니다.",
-                    "API_CLIENT_ERROR"
+                    "응답 파싱에 실패했습니다.",
+                    "RESPONSE_PARSE_ERROR"
             );
         }
+
+
+        if (response == null || response.header() == null) {
+            log.error("[BackendApiClient] EMPTY_RESPONSE");
+            throw new ApiRequestException(
+                    502,
+                    "응답이 비어있습니다.",
+                    "EMPTY_RESPONSE"
+            );
+        }
+
+        log.debug(
+                "[BackendApiClient] header.isSuccessful={}, resultCode={}, errorCode={}, message={}",
+                response.header().isSuccessful(),
+                response.header().resultCode(),
+                response.header().errorCode(),
+                response.header().resultMessage()
+        );
+
+        // ✅ 3. 논리 실패 (TEMP / DORMANT 포함)
+        if (!response.header().isSuccessful()) {
+            throw new ApiRequestException(
+                    response.header().resultCode(),
+                    response.header().resultMessage(),
+                    response.header().errorCode()
+            );
+        }
+
+        log.debug("[BackendApiClient] success, returning data");
+        return response.data();
     }
+
 
     private ApiResponse.Header tryParseHeaderFromBody(String body) {
         if (body == null || body.isBlank()) return null;

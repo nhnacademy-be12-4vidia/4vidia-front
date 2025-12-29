@@ -165,6 +165,7 @@ public class AuthController {
                                     RedirectAttributes rttr) {
         try {
             authApiClient.verifyDormantCode(email, code);
+            rttr.addAttribute("email", email);
             rttr.addAttribute("success", true);
             return "redirect:/auth/dormant-auth";
 
@@ -201,7 +202,7 @@ public class AuthController {
     public String sendEmailCode(@RequestParam String email,
                                 @RequestParam String contactEmail,
                                 RedirectAttributes rttr) {
-        authApiClient.sendDormantCodeByEmail(email, contactEmail);
+        authApiClient.sendDormantCodeByEmail(contactEmail, contactEmail);
 
         rttr.addAttribute("email", email);
         rttr.addAttribute("sent", true);

@@ -93,7 +93,7 @@ public class ReviewApiClient {
 
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromPath(BOOK_SERVICE + "/books/" + request.getBookId() + "/reviews/" + request.getReviewId() + "/edit");
 
-        backendApiClient.postMultipartFile(uriBuilder.toUriString(), parts,  new ParameterizedTypeReference<ApiResponse<Void>>() {});
+        backendApiClient.postMultipartFile(uriBuilder.toUriString(), parts,  new ParameterizedTypeReference<>() {});
 
     }
 }

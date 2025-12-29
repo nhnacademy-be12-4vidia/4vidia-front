@@ -74,7 +74,7 @@
       <div class="card shadow-sm mb-4">
         <div class="card-body">
 
-          <form th:action="@{/books/{bookId}/reviews/{reviewId}/update(bookId=${request.bookId}, reviewId=${request.reviewId})}"
+          <form th:action="@{/books/{bookId}/reviews/{reviewId}/edit(bookId=${request.bookId}, reviewId=${request.reviewId})}"
                 method="post"
                 enctype="multipart/form-data">
 

@@ -9,6 +9,8 @@ import com.nhnacademy._vidiafront.book.dto.books.response.*;
 import com.nhnacademy._vidiafront.book.dto.reviews.request.ReviewUpdateRequest;
 import com.nhnacademy._vidiafront.book.dto.reviews.response.ReviewListWithSummaryResponse;
 import com.nhnacademy._vidiafront.global.dto.PageResponse;
+
+import java.io.IOException;
 import java.util.List;
 
 import com.nhnacademy._vidiafront.user.client.LikeApiClient;
@@ -22,6 +24,7 @@ import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import static org.springframework.http.HttpStatus.*;
@@ -208,12 +211,34 @@ public class BookController {
     }
 
     @GetMapping("/{book-id}/reviews/{review-id}/edit")
-    public String reviewEditForm(@PathVariable(name = "book-id") Long bookId, @PathVariable(name = "review-id") Long reviewId, Model model) {
+    public String reviewEditForm(@PathVariable(name = "book-id") Long bookId,
+                                 @PathVariable(name = "review-id") Long reviewId,
+                                 @RequestHeader(value = "Referer", required = false) String referer,
+                                 Model model) {
         ReviewUpdateRequest request = ReviewUpdateRequest.builder().reviewId(reviewId).bookId(bookId).build();
 
+        String returnUrl = (referer != null && !referer.isBlank()) ? referer : ("/books/" + bookId);
+
         model.addAttribute("request", request);
+        model.addAttribute("returnUrl", returnUrl);
 
         return "review/reviewUpdateForm";
 
+    }
+
+    @PostMapping("/{book-id}/reviews/{review-id}/edit")
+    public String editReview(@PathVariable(name = "book-id") Long bookId, @PathVariable(name = "review-id") Long reviewId,
+                                           @ModelAttribute ReviewUpdateRequest request,
+                                           @RequestParam(name = "images", required = false)List<MultipartFile> images,
+                             @RequestParam(name = "returnUrl", required = false) String returnUrl,
+                             RedirectAttributes redirectAttributes) throws IOException {
+
+        reviewApiClient.editReview(request, images);
+
+        String redirectUrl = (returnUrl != null && !returnUrl.isBlank()) ? returnUrl : ("/books/" + bookId);
+        redirectAttributes.addFlashAttribute("toast", "리뷰가 수정되었습니다.");
+
+
+        return "redirect:" + redirectUrl;
     }
 }

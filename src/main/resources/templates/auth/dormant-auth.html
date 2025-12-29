@@ -70,10 +70,26 @@
 
                         <!-- Dooray Webhook URL 입력 + 인증 코드 요청 -->
                         <form class="user mb-4" th:action="@{/auth/dormant/send-code}" method="post">
-                            <input type="hidden" name="email" th:value="${email}"/>
+
+                            <!-- email 있을 때 -->
+                            <input type="hidden"
+                                   name="email"
+                                   th:if="${email != null}"
+                                   th:value="${email}" />
+
+                            <!-- email 없을 때 -->
+                            <div class="form-group" th:unless="${email != null}">
+                                <input type="email"
+                                       name="email"
+                                       class="form-control form-control-user"
+                                       placeholder="이메일 입력"
+                                       required>
+                            </div>
 
                             <div class="form-group">
-                                <input type="text" name="webhookUrl" class="form-control form-control-user"
+                                <input type="text"
+                                       name="webhookUrl"
+                                       class="form-control form-control-user"
                                        placeholder="Dooray Webhook URL 입력"
                                        required>
                                 <div class="small-guide mt-2">
@@ -90,10 +106,19 @@
 
                         <!-- 인증 코드 입력 -->
                         <form class="user" th:action="@{/auth/dormant/verify}" method="post">
-                            <input type="hidden" name="email" th:value="${email}"/>
 
+                            <!-- email이 있을 때: hidden -->
+                            <input type="hidden"
+                                   name="email"
+                                   th:if="${email != null}"
+                                   th:value="${email}" />
+
+
+                            <!-- 인증 코드 입력 -->
                             <div class="form-group">
-                                <input type="text" name="code" class="form-control form-control-user"
+                                <input type="text"
+                                       name="code"
+                                       class="form-control form-control-user"
                                        placeholder="인증코드 입력"
                                        maxlength="8"
                                        required>
@@ -103,6 +128,7 @@
                                 휴면 해제하기
                             </button>
                         </form>
+
 
                         <hr>
 

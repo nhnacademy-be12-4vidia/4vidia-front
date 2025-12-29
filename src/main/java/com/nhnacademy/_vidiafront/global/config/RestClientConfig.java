@@ -1,6 +1,5 @@
 package com.nhnacademy._vidiafront.global.config;
 
-import com.nhnacademy._vidiafront.global.interceptor.TokenInterceptor;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +23,6 @@ public class RestClientConfig {
     public RestClient restClient(RestClient.Builder builder) {
         return builder
                 .baseUrl("lb://4vidia-gateway") // lb:// 프로토콜 사용 가능
-                .requestInterceptor(new TokenInterceptor())
                 .build();
     }
     @Bean

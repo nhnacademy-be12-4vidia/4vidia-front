@@ -50,13 +50,23 @@
                             <h1 class="h4 text-gray-900 mb-4">메일로 휴면 인증</h1>
                         </div>
 
-                        <form class="user mb-4" th:action="@{/auth/dormant/send-code/email}" method="post">
-                            <input type="hidden" name="email" th:value="${email}"/>
+                        <form class="user mb-4"
+                              th:action="@{/auth/dormant/send-code/email}"
+                              method="post"
+                              onsubmit="syncEmail()">
 
+                            <!-- 실제 입력 -->
                             <div class="form-group">
-                                <input type="email" name="contactEmail" class="form-control form-control-user"
-                                       placeholder="인증코드를 받을 이메일 입력" required>
+                                <input type="email"
+                                       id="contactEmail"
+                                       name="contactEmail"
+                                       class="form-control form-control-user"
+                                       placeholder="인증코드를 받을 이메일 입력"
+                                       required>
                             </div>
+
+                            <!-- 서버용 email -->
+                            <input type="hidden" id="email" name="email"/>
 
                             <button type="submit" class="btn btn-primary btn-user btn-block">
                                 인증코드 전송
@@ -96,6 +106,11 @@
         </div>
     </div>
 </div>
-
+<script>
+    function syncEmail() {
+        const contactEmail = document.getElementById("contactEmail").value;
+        document.getElementById("email").value = contactEmail;
+    }
+</script>
 </body>
 </html>

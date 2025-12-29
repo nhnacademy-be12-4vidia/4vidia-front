@@ -52,8 +52,8 @@ public class DeactivateController {
             request.getSession(false).invalidate();
         }
 
-        authApiClient.deleteCookie("JSESSIONID", response);
-        authApiClient.deleteCookie("refresh", response);
+        authApiClient.deleteCookie("SES", response);
+        authApiClient.deleteCookie("AUT", response);
 
         return "redirect:/";
     }

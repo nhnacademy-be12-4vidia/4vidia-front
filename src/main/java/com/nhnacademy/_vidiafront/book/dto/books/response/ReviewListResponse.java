@@ -16,7 +16,7 @@ public record ReviewListResponse(
     List<String> imageUrlList,
     LocalDate createdAt,
 
-    boolean isMyReview
+    boolean myReview
 
 ) {
 

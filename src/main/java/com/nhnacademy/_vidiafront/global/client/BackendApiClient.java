@@ -567,7 +567,6 @@ public class BackendApiClient {
 
         // ✅ 2. 여기부터는 "HTTP 성공"이든 "논리 실패"든 동일 처리
         ApiResponse<T> response;
-
         try {
             JavaType javaType = objectMapper.getTypeFactory()
                     .constructType(typeRef.getType());

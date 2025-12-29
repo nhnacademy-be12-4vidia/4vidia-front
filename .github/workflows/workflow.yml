@@ -90,7 +90,7 @@ jobs:
             # BLUE (front-2) 트래픽 드레인
             echo "Setting BLUE container DOWN in Eureka..."
             curl -X PUT \
-              "http://${ADMIN_ID}:${ADMIN_PASSWORD}@4vidia-discovery-1:8761/eureka/v2/apps/4VIDIA-FRONT/4vidia-front-2/status?value=DOWN" || true
+              "http://${ADMIN_ID}:${ADMIN_PASSWORD}@localhost:10465/eureka/v2/apps/4VIDIA-FRONT/4vidia-front-2/status?value=DOWN" || true
 
             sleep 30
             

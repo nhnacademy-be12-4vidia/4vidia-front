@@ -6,12 +6,14 @@ import com.nhnacademy._vidiafront.book.dto.books.request.BookSearchRequest;
 import com.nhnacademy._vidiafront.book.dto.books.request.BookSearchWithTagRequest;
 import com.nhnacademy._vidiafront.book.dto.books.request.BookSortOptions;
 import com.nhnacademy._vidiafront.book.dto.books.response.*;
+import com.nhnacademy._vidiafront.book.dto.reviews.request.ReviewUpdateRequest;
 import com.nhnacademy._vidiafront.book.dto.reviews.response.ReviewListWithSummaryResponse;
 import com.nhnacademy._vidiafront.global.dto.PageResponse;
 import java.util.List;
 
 import com.nhnacademy._vidiafront.user.client.LikeApiClient;
 import groovy.util.logging.Slf4j;
+import jakarta.ws.rs.Path;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import static org.springframework.http.HttpStatus.*;
 
 @lombok.extern.slf4j.Slf4j
 @Controller
@@ -177,5 +183,37 @@ public class BookController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+    }
+
+    @PostMapping("/{book-id}/reviews/{review-id}/deactivate")
+    public String deactivateReview(@PathVariable(name = "book-id") Long bookId,
+                                   @PathVariable(name = "review-id") Long reviewId,
+                                   RedirectAttributes redirectAttributes) {
+
+        try {
+            reviewApiClient.deactivateReview(reviewId, bookId);
+            redirectAttributes.addFlashAttribute("toast", "리뷰가 삭제되었습니다.");
+            return "redirect:/books/" + bookId;
+        } catch (HttpStatusCodeException e) {
+            switch (e.getStatusCode()) {
+                case FORBIDDEN -> redirectAttributes.addFlashAttribute("toast", "본인이 작성한 리뷰만 삭제할 수 있습니다.");
+                case NOT_FOUND -> redirectAttributes.addFlashAttribute("toast", "리뷰를 찾을 수 없습니다.");
+                case CONFLICT -> redirectAttributes.addFlashAttribute("toast", "이미 삭제된 리뷰입니다.");
+                default -> redirectAttributes.addFlashAttribute("toast", "리뷰 삭제에 실패했습니다.");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("toast", "리뷰 삭제중 오류가 발생했습니다.");
+        }
+        return "redirect:/books/" + bookId;
+    }
+
+    @GetMapping("/{book-id}/reviews/{review-id}/edit")
+    public String reviewEditForm(@PathVariable(name = "book-id") Long bookId, @PathVariable(name = "review-id") Long reviewId, Model model) {
+        ReviewUpdateRequest request = ReviewUpdateRequest.builder().reviewId(reviewId).bookId(bookId).build();
+
+        model.addAttribute("request", request);
+
+        return "review/reviewUpdateForm";
+
     }
 }

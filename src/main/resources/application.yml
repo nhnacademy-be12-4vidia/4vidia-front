@@ -30,3 +30,12 @@ toss:
 auth:
   payco:
     login-url: https://4vidia.shop/login/payco
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info   # health와 info만 외부에 노출
+  endpoint:
+    health:
+      show-details: always

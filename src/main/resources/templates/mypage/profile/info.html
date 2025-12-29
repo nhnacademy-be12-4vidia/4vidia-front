@@ -10,13 +10,75 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <title>내 정보</title>
+
+    <style>
+
+
+        /* ✅ 반응형 등급 선택 바 */
+        .grade-strip {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .grade-item {
+            flex: 0 0 auto;
+            width: 84px;
+            border-radius: 14px;
+            border: 2px solid #e9ecef;
+            background: #fff;
+            cursor: pointer;
+            transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+            position: relative;
+        }
+        .grade-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0,0,0,.08);
+        }
+        .grade-item.active {
+            border-color: #0d6efd;
+            box-shadow: 0 8px 22px rgba(13,110,253,.16);
+        }
+        .grade-bar {
+            width: 100%;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 26px;
+            height: 96px;
+            background: #fff;
+        }
+        .grade-label {
+            text-align: center;
+            margin-top: 6px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            padding-bottom: 6px;
+            white-space: nowrap;
+        }
+
+        /* ✅ 작은 화면에서는 더 컴팩트 */
+        @media (max-width: 480px) {
+            .grade-item { width: 74px; }
+            .grade-bar  { height: 86px; font-size: 22px; }
+        }
+
+    </style>
+
 </head>
 
 <body>
 <div layout:fragment="content">
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <div class="fixed-container" style="width: 600px; margin: 0 auto;">
 
-    <div class="fixed-container" style="width: 600px; margin: 0 auto;">
-        <h2 class="mt-4 mb-4 text-primary fw-bold">내 정보</h2>
+
+                <h2 class="mt-4 mb-4 text-primary fw-bold">내 정보</h2>
 
         <div class="card shadow-sm">
             <div class="card-body">
@@ -112,9 +174,13 @@
                 </form>
             </div>
         </div>
+            </div>
+            </div>
     </div>
 
 
+
+    <!-- 등급 안내 모달 -->
     <div class="modal fade" id="gradeInfoModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content shadow">
@@ -132,31 +198,48 @@
                 </div>
 
                 <div class="modal-body">
-                    <div class="mb-2 badge badge-light text-dark border" id="gradeDesc" style="font-size: 0.9rem; font-weight: normal; padding: 0.5em;">
+                    <div class="mb-2 badge badge-light text-dark border" id="gradeDesc"
+                         style="font-size: 0.9rem; font-weight: normal; padding: 0.5em;">
                         기본 등급
                     </div>
 
-                    <div class="mb-4">
-                        <div class="fw-bold mb-1 text-dark font-weight-bold">📌 등급 산정 기준</div>
-                        <div class="text-secondary">
-                            최근 3개월간 <strong class="text-dark">순수 주문 금액</strong> 합계
+                    <!-- ✅ 이미지처럼: 등급 선택(클릭)하면 상세가 바로 바뀌는 영역 -->
+                    <div class="grade-strip mb-3" id="gradeStrip"></div>
+
+                    <div class="card border-0 shadow-sm mb-3" style="background:#f8f9fa;">
+                        <div class="card-body py-3">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="fw-bold" style="font-size: 0.95rem;">
+                                    선택 등급: <span id="gdName" class="text-primary">WELCOME</span>
+                                </div>
+                                <span class="badge bg-white text-dark border">
+                                    적립률 <span id="gdRate" class="text-danger fw-bold">1</span>%
+                                </span>
+                            </div>
+
+                            <div class="text-muted" style="font-size:0.85rem;">기준</div>
+                            <div class="fw-semibold" id="gdRange" style="font-size:0.9rem;">0원 ~ 99,999원</div>
+
+                            <div class="text-muted mt-2" style="font-size:0.85rem;">설명</div>
+                            <div class="fw-semibold" id="gdDesc" style="font-size:0.9rem;">기본 등급</div>
+
+                            <div class="text-muted mt-2" style="font-size:0.85rem;">혜택</div>
+                            <div class="fw-semibold" id="gdBenefit" style="font-size:0.9rem;">
+                                결제 시 순수 주문 금액의 1% 적립
+                            </div>
                         </div>
-                        <div id="gradeRange" class="mt-1 fw-bold text-primary font-weight-bold"></div>
                     </div>
 
-                    <div class="mb-4">
-                        <div class="fw-bold mb-1 text-dark font-weight-bold">💰 포인트 적립 혜택</div>
-                        <div class="text-secondary">
-                            결제 시 순수 주문 금액의 <strong class="text-danger" id="gradeRate">1</strong>% 적립
-                        </div>
-                    </div>
+
+
 
                     <div class="p-3 bg-light rounded border">
                         <div class="fw-bold mb-2 font-weight-bold" style="font-size: 0.9rem;">💡 순수 주문 금액이란?</div>
                         <div style="font-size: 0.9rem; color: #555;">
                             <span class="fw-bold font-weight-bold">총 주문 금액</span>에서 아래 항목을 제외한 금액
                         </div>
-                        <div class="mt-2 fw-bold font-weight-bold text-center border-top pt-2" style="font-size: 0.9rem;">
+                        <div class="mt-2 fw-bold font-weight-bold text-center border-top pt-2"
+                             style="font-size: 0.9rem;">
                             (쿠폰 + 배송비 + 취소 금액 + 포장비)
                         </div>
                     </div>
@@ -174,7 +257,7 @@
         // --- 전화번호 포맷팅 로직 시작 ---
         function formatPhoneNumber(value) {
             if (!value) return "";
-            value = value.replace(/[^0-9]/g, ''); // 숫자만 남김
+            value = value.replace(/[^0-9]/g, '');
 
             if (value.length > 3 && value.length <= 7) {
                 return value.substring(0, 3) + '-' + value.substring(3);
@@ -192,23 +275,19 @@
             const phoneInput = document.getElementById('phone');
             if (!phoneInput) return false;
 
-            // 하이픈 제거
             const rawPhone = phoneInput.value.replace(/-/g, '');
-
-            // ✅ 010 + 8자리 = 총 11자리 검증
             const phoneRegex = /^010\d{8}$/;
 
             if (!phoneRegex.test(rawPhone)) {
                 alert("전화번호를 올바르게 입력해주세요.\n예: 010-1234-5678");
                 phoneInput.focus();
-                return false; // ❌ 제출 중단
+                return false;
             }
 
-            phoneInput.value = rawPhone; // 서버로는 숫자만 전달
-            return true; // ✅ 제출 허용
+            phoneInput.value = rawPhone;
+            return true;
         }
 
-        // 페이지 로드 시 기존 DB 데이터(숫자만 있는 상태)를 포맷팅해서 보여줌
         document.addEventListener("DOMContentLoaded", function() {
             const phoneInput = document.getElementById('phone');
             if (phoneInput && phoneInput.value) {
@@ -218,7 +297,7 @@
         // --- 전화번호 포맷팅 로직 끝 ---
 
 
-        // --- 기존 등급 모달 로직 ---
+        // --- 등급 정책 (나중에 관리자 반영하려면 여기 대신 API로 받아오면 됨) ---
         const GRADE_POLICY = {
             WELCOME:  { min: 0,      max:  99999, rate: 1, desc: "기본 등급" },
             REGULAR:  { min: 100000, max: 199999, rate: 2, desc: "순수주문금액 10만원 이상" },
@@ -227,24 +306,116 @@
             PLATINUM: { min: 400000, max: null,   rate: 5, desc: "순수주문금액 40만원 이상" }
         };
 
+        // 색상(이미지 느낌)
+        const GRADE_COLOR = {
+            WELCOME:  "#5bc0de",
+            REGULAR:  "#ff6b6b",
+            ROYAL:    "#ff922b",
+            GOLD:     "#ffd43b",
+            PLATINUM: "#adb5bd"
+        };
+
         function formatWon(n) {
             return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "원";
         }
 
-        function openGradeInfo(el) {
-            const gradeName = el.getAttribute("data-grade");
+        function rangeText(p) {
+            return (p.max == null)
+                ? `${formatWon(p.min)} 이상`
+                : `${formatWon(p.min)} ~ ${formatWon(p.max)}`;
+        }
+
+        // ✅ 표 생성(기존 유지)
+        function buildGradePolicyTable(currentGrade) {
+            const tbody = document.getElementById("gradePolicyTableBody");
+            if (!tbody) return;
+
+            const gradeOrder = ["WELCOME", "REGULAR", "ROYAL", "GOLD", "PLATINUM"];
+            tbody.innerHTML = "";
+
+            gradeOrder.forEach((g) => {
+                const p = GRADE_POLICY[g];
+                const rText = rangeText(p);
+                const isCurrent = (g === currentGrade);
+
+                const tr = document.createElement("tr");
+                tr.className = isCurrent ? "table-active" : "";
+                tr.innerHTML = `
+                    <td class="${isCurrent ? 'fw-bold' : ''}">${g}</td>
+                    <td class="${isCurrent ? 'fw-bold' : ''}">${p.rate}%</td>
+                    <td>${p.desc} (${rText})</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ✅ 이미지처럼 등급 바 렌더링(클릭하면 상세 변경)
+        function renderGradeStrip(currentGrade) {
+            const strip = document.getElementById("gradeStrip");
+            if (!strip) return;
+
+            strip.innerHTML = "";
+            const gradeOrder = ["WELCOME", "REGULAR", "ROYAL", "GOLD", "PLATINUM"];
+
+            const baseHeight = 68;
+            const step = 10;
+
+            gradeOrder.forEach((g, idx) => {
+                const p = GRADE_POLICY[g];
+                const item = document.createElement("div");
+                item.className = "grade-item" + (g === currentGrade ? " active" : "");
+                item.dataset.grade = g;
+
+                const bar = document.createElement("div");
+                bar.className = "grade-bar";
+                const color = GRADE_COLOR[g] || "#dee2e6";
+                bar.style.border = `2px solid ${color}`;
+                bar.style.color = color;
+                bar.style.height = (baseHeight + step * idx) + "px";
+                bar.textContent = g[0]; // W/R/R/G/P 처럼 첫 글자
+
+                const label = document.createElement("div");
+                label.className = "grade-label";
+                label.style.color = color;
+                label.textContent = g;
+
+                item.appendChild(bar);
+                item.appendChild(label);
+
+                item.addEventListener("click", () => {
+                    selectGrade(g);
+                });
+
+                strip.appendChild(item);
+            });
+        }
+
+        // ✅ 선택한 등급으로 상세/기존 영역 모두 갱신
+        function selectGrade(gradeName) {
             const policy = GRADE_POLICY[gradeName] || GRADE_POLICY["WELCOME"];
 
+            // 모달 타이틀 + 배지
             document.getElementById("gradeTitle").innerText = gradeName;
             document.getElementById("gradeDesc").innerText = policy.desc;
-            document.getElementById("gradeRate").innerText = policy.rate;
 
-            const rangeText = (policy.max == null)
-                ? `${formatWon(policy.min)} 이상`
-                : `${formatWon(policy.min)} ~ ${formatWon(policy.max)}`;
+            // 기존 텍스트 영역(유지)
+            document.getElementById("gdRate").innerText = policy.rate;
+            document.getElementById("gdRange").innerText = rangeText(policy);
 
-            document.getElementById("gradeRange").innerText = rangeText;
+            // 새 상세 패널
+            document.getElementById("gdName").innerText = gradeName;
+            document.getElementById("gdRate").innerText = policy.rate;
+            document.getElementById("gdRange").innerText = rangeText(policy);
+            document.getElementById("gdDesc").innerText = policy.desc;
+            document.getElementById("gdBenefit").innerText = `결제 시 순수 주문 금액의 ${policy.rate}% 적립`;
 
+            renderGradeStrip(gradeName);
+        }
+
+        // ✅ 기존 클릭 함수는 유지하되, 이제 선택 UI로 열리도록
+        function openGradeInfo(el) {
+            const gradeName = el.getAttribute("data-grade") || "WELCOME";
+            selectGrade(gradeName);
             $('#gradeInfoModal').modal('show');
         }
     </script>

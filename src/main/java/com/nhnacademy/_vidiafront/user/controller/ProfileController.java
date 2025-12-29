@@ -67,9 +67,8 @@ public class ProfileController {
 
         try {
             userApiClient.changePassword(req);
-            return "redirect:/mypage/profile";
+            return "redirect:/auth/login";
         } catch (Exception e) {
-            // ✅ 어떤 예외가 와도 detail/code를 최대한 뽑아온다
             model.addAttribute("errorMessage", extractProblemDetailMessage(e));
             return "mypage/profile/password";
         }

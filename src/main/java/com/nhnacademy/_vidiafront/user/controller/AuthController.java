@@ -1,6 +1,7 @@
 package com.nhnacademy._vidiafront.user.controller;
 
 import com.nhnacademy._vidiafront.cart.client.CartApiClient;
+import com.nhnacademy._vidiafront.global.dto.ApiResponse;
 import com.nhnacademy._vidiafront.point.client.PointApiClient;
 import com.nhnacademy._vidiafront.user.client.AuthApiClient;
 import com.nhnacademy._vidiafront.user.dto.auth.request.FindIdRequest;
@@ -241,10 +242,10 @@ public class AuthController {
      */
     @PostMapping("/email/send-code")
     @ResponseBody
-    public ResponseEntity<Void> sendSignupEmailCode(@RequestBody Map<String, String> body) {
+    public ApiResponse<Void> sendSignupEmailCode(@RequestBody Map<String, String> body) {
         String email = body.get("email");
         authApiClient.sendSignupEmailCode(email);
-        return ResponseEntity.ok().build();
+        return ApiResponse.success(null);
     }
 
     /**
@@ -252,11 +253,11 @@ public class AuthController {
      */
     @PostMapping("/email/verify-code")
     @ResponseBody
-    public ResponseEntity<Void> verifySignupEmailCode(@RequestBody Map<String, String> body) {
+    public ApiResponse<Void> verifySignupEmailCode(@RequestBody Map<String, String> body) {
         String email = body.get("email");
         String code = body.get("code");
         authApiClient.verifySignupEmailCode(email, code);
-        return ResponseEntity.ok().build();
+        return ApiResponse.success(null);
     }
 
 

@@ -26,7 +26,6 @@ public class AddressController {
     private final AddressApiClient addressApiClient;
     private final UserApiClient userApiClient;
 
-    // todo : jusoPopup(), jusoCallback() 여기에 있어도 되나? /mypage/.. 로 시작하는데?? 주문에서도 쓰지않나??
     // 도로명 찾기 팝업창
     @GetMapping("/jusoPopup")
     public String jusoPopup() {

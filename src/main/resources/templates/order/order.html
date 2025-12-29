@@ -741,6 +741,16 @@
                     return;
                 }
 
+                const zipCodeVal = document.getElementById('zipNo').value;
+                const roadAddrVal = document.getElementById('roadAddrPart1').value;
+
+                if (!zipCodeVal || !roadAddrVal) {
+                    alert("배송지 주소가 입력되지 않았습니다.\n'우편번호 찾기' 버튼을 눌러 주소를 입력해주세요.");
+                    document.querySelector("button[onclick='goPopup()']").focus();
+                    event.preventDefault();
+                    return;
+                }
+
                 if (isGuestUser) {
                     var finalAmount = [[${finalAmount}]];
                     const expectedPoint = Math.floor(finalAmount * gradePointRate * 0.01).toLocaleString();

@@ -40,9 +40,10 @@ public class AdminBookController {
     // 도서 생성 요청
     @PostMapping
     public String createBook(
-            AdminBookCreateRequest request
+            AdminBookCreateRequest request,
+            MultipartFile thumbnail
     ) {
-        adminBookApiClient.createBook(request);
+        adminBookApiClient.createBook(request, thumbnail);
         return "redirect:/admin/books";
     }
 
@@ -65,9 +66,10 @@ public class AdminBookController {
     @PutMapping("/{book-id}")
     public String updateBook(
             @PathVariable("book-id") Long bookId,
-            AdminBookUpdateRequest request
+            AdminBookUpdateRequest request,
+            MultipartFile thumbnail
     ) {
-        adminBookApiClient.updateBook(bookId, request);
+        adminBookApiClient.updateBook(bookId, request, thumbnail);
         return "redirect:/admin/books";
     }
 

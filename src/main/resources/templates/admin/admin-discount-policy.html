@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/admin-layout}">
+
+<head>
+    <title>도서 할인 정책 관리</title>
+</head>
+
+<div layout:fragment="pageContent">
+    <div class="container-fluid">
+        <!-- Page Heading -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">도서 할인 정책 관리</h1>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createPolicyModal">
+                <i class="fas fa-plus fa-sm text-white-50"></i> 정책 등록
+            </button>
+        </div>
+
+        <!-- Filter -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">필터</h6>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row g-3 align-items-center">
+                    <div class="col-auto">
+                        <label for="categoryFilter" class="col-form-label">카테고리</label>
+                    </div>
+                    <div class="col-auto">
+                        <select class="form-select" id="categoryFilter" name="categoryId">
+                            <option value="">전체</option>
+                            <option th:each="cat : ${categories}" 
+                                    th:value="${cat.id()}" 
+                                    th:text="|${cat.kdcCode()}: ${cat.categoryName()}|"
+                                    th:selected="${cat.id() == selectedCategoryId}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-secondary">조회</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- List -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">정책 목록</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>카테고리</th>
+                            <th>정책명</th>
+                            <th>할인율(%)</th>
+                            <th>시작일</th>
+                            <th>종료일</th>
+                            <th>관리</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(policies)}">
+                            <td colspan="7" class="text-center">등록된 정책이 없습니다.</td>
+                        </tr>
+                        <tr th:each="policy : ${policies}">
+                            <td th:text="${policy.id()}"></td>
+                            <td th:text="${policy.categoryId() != null ? policy.kdcCode() + ': ' + policy.categoryName() : '전체(기본)'}"></td>
+                            <td th:text="${policy.discountPolicyName()}"></td>
+                            <td th:text="${policy.discountRate()}"></td>
+                            <td th:text="${policy.startDate()}"></td>
+                            <td th:text="${policy.endDate()}"></td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" 
+                                        th:data-id="${policy.id()}"
+                                        th:data-name="${policy.discountPolicyName()}"
+                                        th:data-rate="${policy.discountRate()}"
+                                        th:data-start="${policy.startDate()}"
+                                        th:data-end="${policy.endDate()}"
+                                        onclick="openUpdateModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-rate'), this.getAttribute('data-start'), this.getAttribute('data-end'))">
+                                    수정
+                                </button>
+                                <form th:action="@{/admin/discount-policies/{id}(id=${policy.id()})}" method="post" style="display:inline;" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                                    <input type="hidden" name="_method" value="delete"/>
+                                    <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Modal -->
+    <div class="modal fade" id="createPolicyModal" tabindex="-1" aria-labelledby="createPolicyModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="createForm" th:action="@{/admin/discount-policies}" method="post">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="createPolicyModalLabel">새 정책 등록</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="createCategoryId" class="form-label">카테고리 (선택 시 해당 카테고리 적용, 미선택 시 기본 정책)</label>
+                            <select class="form-select" id="createCategoryId" name="categoryId">
+                                <option value="">선택 안함 (기본 정책)</option>
+                                <option th:each="cat : ${categories}" 
+                                        th:value="${cat.id()}" 
+                                        th:text="|${cat.kdcCode()}: ${cat.categoryName()}|">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="createName" class="form-label">정책명</label>
+                            <input type="text" class="form-control" id="createName" name="discountPolicyName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="createRate" class="form-label">할인율 (%)</label>
+                            <input type="number" class="form-control" id="createRate" name="discountRate" min="0" max="100" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="createStartDate" class="form-label">시작일</label>
+                            <input type="date" class="form-control" id="createStartDate" name="startDate" max="2100-12-31" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="createEndDate" class="form-label">종료일</label>
+                            <input type="date" class="form-control" id="createEndDate" name="endDate" max="2100-12-31" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                        <button type="submit" class="btn btn-primary">등록</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Modal -->
+    <div class="modal fade" id="updatePolicyModal" tabindex="-1" aria-labelledby="updatePolicyModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="updateForm" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <input type="hidden" name="_method" value="put"/>
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updatePolicyModalLabel">정책 수정</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Note: Category usually cannot be changed in update, or simplified here -->
+                        <div class="mb-3">
+                            <label for="updateName" class="form-label">정책명</label>
+                            <input type="text" class="form-control" id="updateName" name="discountPolicyName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateRate" class="form-label">할인율 (%)</label>
+                            <input type="number" class="form-control" id="updateRate" name="discountRate" min="0" max="100" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateStartDate" class="form-label">시작일</label>
+                            <input type="date" class="form-control" id="updateStartDate" name="startDate" max="2100-12-31" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateEndDate" class="form-label">종료일</label>
+                            <input type="date" class="form-control" id="updateEndDate" name="endDate" max="2100-12-31" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                        <button type="submit" class="btn btn-primary">수정</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        function openUpdateModal(id, name, rate, start, end) {
+            document.getElementById('updateName').value = name;
+            document.getElementById('updateRate').value = rate;
+            document.getElementById('updateStartDate').value = start;
+            document.getElementById('updateEndDate').value = end;
+            
+            document.getElementById('updateForm').action = '/admin/discount-policies/' + id;
+            
+            $('#updatePolicyModal').modal('show');
+        }
+
+        function validateDates(startId, endId) {
+            const startDate = document.getElementById(startId).value;
+            const endDate = document.getElementById(endId).value;
+            const maxDate = '2100-12-31';
+
+            if (startDate > maxDate || endDate > maxDate) {
+                alert('날짜는 2100년 12월 31일까지만 설정 가능합니다.');
+                return false;
+            }
+
+            if (startDate && endDate && startDate > endDate) {
+                alert('종료일은 시작일보다 빠를 수 없습니다.');
+                return false;
+            }
+            return true;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const createForm = document.getElementById('createForm');
+            if (createForm) {
+                createForm.addEventListener('submit', function(e) {
+                    if (!validateDates('createStartDate', 'createEndDate')) {
+                        e.preventDefault();
+                    }
+                });
+            }
+
+            const updateForm = document.getElementById('updateForm');
+            if (updateForm) {
+                updateForm.addEventListener('submit', function(e) {
+                    if (!validateDates('updateStartDate', 'updateEndDate')) {
+                        e.preventDefault();
+                    }
+                });
+            }
+        });
+    </script>
+</div>
+</html>

@@ -1,6 +1,7 @@
 package com.nhnacademy._vidiafront.user.client;
 
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
+import com.nhnacademy._vidiafront.global.dto.ApiResponse;
 import com.nhnacademy._vidiafront.user.dto.address.request.AddressRequest;
 import com.nhnacademy._vidiafront.user.dto.address.request.CreateAddressRequest;
 import com.nhnacademy._vidiafront.user.dto.address.response.AddressResponse;
@@ -23,7 +24,7 @@ public class AddressApiClient {
      * 기존 "/my/addresses"
      */
     public void addAddress(CreateAddressRequest createAddressRequest) {
-        backendApiClient.post(USER_SERVICE + BASE_URL, createAddressRequest, Void.class);
+        backendApiClient.post(USER_SERVICE + BASE_URL, createAddressRequest, new ParameterizedTypeReference<ApiResponse<Void>>() {});
     }
 
     /**
@@ -31,7 +32,7 @@ public class AddressApiClient {
      * 기존 "/my/addresses/" + addressId
      */
     public AddressResponse getAddress(Long addressId) {
-        return backendApiClient.get(USER_SERVICE + BASE_URL + "/" + addressId, AddressResponse.class);
+        return backendApiClient.get(USER_SERVICE + BASE_URL + "/" + addressId, new ParameterizedTypeReference<>() {});
     }
 
     /**
@@ -47,7 +48,7 @@ public class AddressApiClient {
      * 기존 "/my/addresses/" + addressId
      */
     public void updateAddress(Long addressId, AddressRequest addressRequest) {
-        backendApiClient.put(USER_SERVICE + BASE_URL + "/" + addressId, addressRequest, Void.class);
+        backendApiClient.put(USER_SERVICE + BASE_URL + "/" + addressId, addressRequest, new ParameterizedTypeReference<ApiResponse<Void>>() {});
     }
 
     /**
@@ -55,7 +56,7 @@ public class AddressApiClient {
      * 기존 "/my/addresses/change-default/" + addressId
      */
     public void updateDefaultAddress(Long addressId) {
-        backendApiClient.putNoBody(USER_SERVICE + BASE_URL + "/" + addressId + "/default", Void.class);
+        backendApiClient.putNoBody(USER_SERVICE + BASE_URL + "/" + addressId + "/default", new ParameterizedTypeReference<ApiResponse<Void>>() {});
     }
 
     /**
@@ -63,7 +64,7 @@ public class AddressApiClient {
      * 기존 "/my/addresses/" + addressId
      */
     public void deleteAddress(Long addressId) {
-        backendApiClient.delete(USER_SERVICE + BASE_URL + "/" + addressId, Void.class);
+        backendApiClient.delete(USER_SERVICE + BASE_URL + "/" + addressId, new ParameterizedTypeReference<ApiResponse<Void>>() {});
     }
 
 }

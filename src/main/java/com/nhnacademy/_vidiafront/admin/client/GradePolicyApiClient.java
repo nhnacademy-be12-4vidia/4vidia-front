@@ -19,7 +19,7 @@ public class GradePolicyApiClient {
     private final BackendApiClient backendApiClient;
 
     public GradePolicyResponse getGradePolicy(Long gradePolicyId) {
-        return backendApiClient.get(POLICY_SERVICE + "/admin/grade-policies/" + gradePolicyId, GradePolicyResponse.class);
+        return backendApiClient.get(POLICY_SERVICE + "/admin/grade-policies/" + gradePolicyId,  new ParameterizedTypeReference<>() {});
     }
 
     public List<GradePolicyResponse> getGradePolicyList(){
@@ -27,7 +27,7 @@ public class GradePolicyApiClient {
     }
 
     public void updatePointPolicy(Long gradeId, GradePolicyUpdateRequest gradePolicyUpdateRequest){
-        backendApiClient.put(POLICY_SERVICE + "/admin/grade-policies/" + gradeId, gradePolicyUpdateRequest , Void.class);
+        backendApiClient.put(POLICY_SERVICE + "/admin/grade-policies/" + gradeId, gradePolicyUpdateRequest , new ParameterizedTypeReference<>() {});
     }
 }
 

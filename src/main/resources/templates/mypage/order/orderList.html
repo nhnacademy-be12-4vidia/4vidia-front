@@ -300,7 +300,7 @@
                                       class="text-primary small font-weight-bold">리뷰 작성 완료</span>
 
                                 <span class="text-gray-900 font-weight-bold mt-1"
-                                      th:text="${#numbers.formatDecimal(book.salePrice(), 0, 'COMMA', 0, 'POINT') + '원'}"></span>
+                                      th:text="${#numbers.formatDecimal(book.salePrice(), 0, 'COMMA', 0, 'POINT') + ' 원/권'}"></span>
                             </div>
                         </div>
                     </div>
@@ -345,7 +345,9 @@
             </div>
 
             <div th:if="${pageResponse.totalElements > 0}" class="d-flex justify-content-center mt-5">
-                <nav aria-label="Page navigation">
+                <nav aria-label="Page navigation"
+                     th:with="startPage=${(pageResponse.page / 10) * 10},
+                  endPage=${(startPage + 9) < (pageResponse.totalPages - 1) ? (startPage + 9) : (pageResponse.totalPages - 1)}">
                     <ul class="pagination">
 
                         <li class="page-item" th:classappend="${pageResponse.page == 0} ? 'disabled'">
@@ -357,16 +359,14 @@
                         </li>
 
                         <li class="page-item"
-                            th:each="i : ${#numbers.sequence(0, pageResponse.totalPages - 1)}"
-                            th:if="${i >= pageResponse.page - 2 and i <= pageResponse.page + 2}"
+                            th:each="i : ${#numbers.sequence(startPage, endPage)}"
                             th:classappend="${i == pageResponse.page} ? 'active'">
-
                             <a class="page-link"
                                th:href="@{/mypage/order(page=${i}, status=${currentStatus})}"
                                th:text="${i + 1}">1</a>
                         </li>
 
-                        <li class="page-item" th:classappend="${pageResponse.last} ? 'disabled'">
+                        <li class="page-item" th:classappend="${pageResponse.page == (pageResponse.totalPages - 1)} ? 'disabled'">
                             <a class="page-link"
                                th:href="@{/mypage/order(page=${pageResponse.page + 1}, status=${currentStatus})}"
                                aria-label="Next">

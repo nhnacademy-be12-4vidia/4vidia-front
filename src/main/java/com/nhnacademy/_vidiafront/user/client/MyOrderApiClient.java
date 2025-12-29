@@ -3,6 +3,7 @@ package com.nhnacademy._vidiafront.user.client;
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import com.nhnacademy._vidiafront.user.dto.user.response.OrderUserResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,6 +17,6 @@ public class MyOrderApiClient {
      * 주문에 필요한 회원 정보 조회
      */
     public OrderUserResponse getUserOrderInfo() {
-        return backendApiClient.get(USER_SERVICE + BASE_URL + "/order-info", OrderUserResponse.class);
+        return backendApiClient.get(USER_SERVICE + BASE_URL + "/order-info", new ParameterizedTypeReference<>() {});
     }
 }

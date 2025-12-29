@@ -1,6 +1,7 @@
 package com.nhnacademy._vidiafront.user.client;
 
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
+import com.nhnacademy._vidiafront.global.dto.ApiResponse;
 import com.nhnacademy._vidiafront.user.dto.auth.request.FindIdRequest;
 import com.nhnacademy._vidiafront.user.dto.auth.request.FindPasswordRequest;
 import com.nhnacademy._vidiafront.user.dto.auth.request.LoginRequest;
@@ -11,6 +12,7 @@ import com.nhnacademy._vidiafront.user.dto.user.request.UserSignupRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 
 import java.net.URLEncoder;
@@ -30,14 +32,14 @@ public class AuthApiClient {
      * 회원가입
      */
     public Long signup(UserSignupRequest userSignupRequest) {
-        return backendApiClient.post(USER_SERVICE + BASE_URL + "/signup", userSignupRequest, Long.class);
+        return backendApiClient.post(USER_SERVICE + BASE_URL + "/signup", userSignupRequest,new ParameterizedTypeReference<>() {});
     }
 
     /**
      * 회원 아이디(email) 찾기
      */
     public String findUserId(FindIdRequest findIdRequest) {
-        return backendApiClient.post(USER_SERVICE + BASE_URL + "/find-id", findIdRequest, String.class);
+        return backendApiClient.post(USER_SERVICE + BASE_URL + "/find-id", findIdRequest, new ParameterizedTypeReference<>() {});
     }
 
     /**
@@ -46,7 +48,7 @@ public class AuthApiClient {
      * 기존 findUserPassword(...)
      */
     public void issueNewPassword(FindPasswordRequest findPasswordRequest) {
-        backendApiClient.post(USER_SERVICE + BASE_URL + "/reset-password", findPasswordRequest, Void.class);
+        backendApiClient.post(USER_SERVICE + BASE_URL + "/reset-password", findPasswordRequest, new ParameterizedTypeReference<ApiResponse<Void>>() {});
     }
 
     /**
@@ -55,7 +57,7 @@ public class AuthApiClient {
      */
     public String existsByEmail(String email) {
         String encodedEmail = URLEncoder.encode(email, StandardCharsets.UTF_8);
-        return backendApiClient.get(USER_SERVICE + BASE_URL + "/emails/exists?email=" + encodedEmail, String.class);
+        return backendApiClient.get(USER_SERVICE + BASE_URL + "/emails/exists?email=" + encodedEmail, new ParameterizedTypeReference<>() {});
     }
 
     /**
@@ -63,7 +65,7 @@ public class AuthApiClient {
      * 기존 "/auth/check-dormant?email=" + email
      */
     public Boolean isDormant(String email) {
-        return backendApiClient.get(USER_SERVICE + BASE_URL + "/dormant?email=" + email, Boolean.class);
+        return backendApiClient.get(USER_SERVICE + BASE_URL + "/dormant?email=" + email, new ParameterizedTypeReference<>() {});
     }
 
     /**
@@ -73,8 +75,7 @@ public class AuthApiClient {
         backendApiClient.post(
                 USER_SERVICE + BASE_URL + "/dormant/send-code",
                 java.util.Map.of("email", email, "webhookUrl", webhookUrl),
-                Void.class
-        );
+                new ParameterizedTypeReference<>() {}        );
     }
 
     /**
@@ -84,7 +85,7 @@ public class AuthApiClient {
         backendApiClient.post(
                 USER_SERVICE + BASE_URL + "/dormant/verify",
                 java.util.Map.of("email", email, "code", code),
-                Void.class
+                new ParameterizedTypeReference<ApiResponse<Void>>() {}
         );
     }
 
@@ -95,7 +96,7 @@ public class AuthApiClient {
         backendApiClient.post(
                 USER_SERVICE + BASE_URL + "/dormant/send-code/email",
                 Map.of("email", email, "contactEmail", contactEmail),
-                Void.class
+                new ParameterizedTypeReference<ApiResponse<Void>>() {}
         );
     }
     /**
@@ -105,7 +106,7 @@ public class AuthApiClient {
         backendApiClient.post(
                 USER_SERVICE+BASE_URL+"/email/send-code",
                 Map.of("email", email),
-                Void.class
+                new ParameterizedTypeReference<ApiResponse<Void>>() {}
         );
     }
     /**
@@ -115,7 +116,7 @@ public class AuthApiClient {
         backendApiClient.post(
                 USER_SERVICE+BASE_URL+"/email/verify-code",
                 Map.of("email",email,"code",code),
-                Void.class
+                new ParameterizedTypeReference<>() {}
         );
     }
 
@@ -126,7 +127,7 @@ public class AuthApiClient {
      */
     public void updateLastLoginAt(String email) {
         UpdateLastLoginRequest updateLastLoginRequest = new UpdateLastLoginRequest(email);
-        backendApiClient.put(USER_SERVICE + BASE_URL + "/last-login", updateLastLoginRequest, Void.class);
+        backendApiClient.put(USER_SERVICE + BASE_URL + "/last-login", updateLastLoginRequest, new ParameterizedTypeReference<>() {});
     }
 
 
@@ -135,21 +136,21 @@ public class AuthApiClient {
      * 로그인
      */
     public TokenResponse login(LoginRequest loginRequest) {
-        return backendApiClient.post(AUTH + "/auth/login", loginRequest, TokenResponse.class);
+        return backendApiClient.post(AUTH + "/auth/login", loginRequest, new ParameterizedTypeReference<>() {});
     }
 
     /**
      * payco Token callback
      */
     public TokenResponse paycoCallback(PaycoCodeRequest paycoCodeRequest) {
-        return backendApiClient.post(AUTH + "/login/oauth2/code/payco", paycoCodeRequest, TokenResponse.class);
+        return backendApiClient.post(AUTH + "/login/oauth2/code/payco", paycoCodeRequest, new ParameterizedTypeReference<>() {});
     }
 
     /**
      * 로그아웃
      */
     public String logout() {
-        return backendApiClient.postNoBody(AUTH + "/auth/logout", String.class);
+        return backendApiClient.postNoBody(AUTH + "/auth/logout", new ParameterizedTypeReference<>() {});
     }
 
     /**
@@ -157,7 +158,7 @@ public class AuthApiClient {
      * access토큰 재발급
      */
     public TokenResponse reissueToken(String refreshUuid) {
-        return backendApiClient.post(AUTH + "/auth/reissue", refreshUuid , TokenResponse.class);
+        return backendApiClient.post(AUTH + "/auth/reissue", refreshUuid , new ParameterizedTypeReference<>() {});
     }
 
     public void deleteCookie(String name, HttpServletResponse response) {

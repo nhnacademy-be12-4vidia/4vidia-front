@@ -7,7 +7,10 @@ import com.nhnacademy._vidiafront.global.client.BackendApiClient;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+
+import com.nhnacademy._vidiafront.global.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +53,7 @@ public class ReviewApiClient {
 
         String uri = BOOK_SERVICE + "/books/" + request.bookId() + "/reviews";
 
-        return backendApiClient.postMultipartFile(uri, parts, String.class);
+        return backendApiClient.postMultipartFile(uri, parts, new ParameterizedTypeReference<>(){});
     }
 
     public ReviewListWithSummaryResponse getReviewsWithSummary(Long bookId, int page, int size) {
@@ -59,7 +62,7 @@ public class ReviewApiClient {
                 .queryParam("page", page)
                 .queryParam("size", size);
 
-        return backendApiClient.get(uriBuilder.toUriString(), ReviewListWithSummaryResponse.class);
+        return backendApiClient.get(uriBuilder.toUriString(), new ParameterizedTypeReference<>(){});
     }
 
     public void deactivateReview(Long reviewId, Long bookId) {

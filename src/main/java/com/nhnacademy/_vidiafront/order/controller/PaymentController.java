@@ -1,7 +1,9 @@
 package com.nhnacademy._vidiafront.order.controller;
 
+import com.nhnacademy._vidiafront.global.auth.LoginStatus;
 import com.nhnacademy._vidiafront.order.client.OrderApiClient;
 import com.nhnacademy._vidiafront.order.client.PaymentApiClient;
+import com.nhnacademy._vidiafront.order.dto.order.response.OrderAmountResponse;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderResponse;
 import com.nhnacademy._vidiafront.order.dto.payment.requset.PaymentConfirmRequest;
 import com.nhnacademy._vidiafront.order.dto.payment.requset.PaymentFailRequest;
@@ -28,7 +30,7 @@ public class PaymentController {
 
     private final OrderApiClient orderApiClient;
     private final PaymentApiClient paymentApiClient;
-    private final MyOrderApiClient myOrderApiClient;
+    private final LoginStatus loginStatus;
 
     @Value("${toss.clientKey}")
     private String TOSS_CLIENT_KEY;
@@ -45,13 +47,17 @@ public class PaymentController {
 
         String sendOrderId = "ORD-" + UUID.randomUUID();
 
-        OrderResponse orderResponse = orderApiClient.getOrderById(orderId);
-        int payPrice = orderResponse.totalBookPrice() + orderResponse.packagingFee() + orderResponse.deliveryFee()
-                - orderResponse.couponDiscount() - orderResponse.pointUsed(); // 이럴거면 최종 결제 금액 넣는게 나을지도..
+        OrderAmountResponse orderAmountResponse = orderApiClient.getOrderPayPriceById(orderId);
+        int payPrice = orderAmountResponse.payPrice();
+
+        String safeOrderName = orderName;
+        if (orderName.length() > 90) {
+            safeOrderName = orderName.substring(0, 90) + "...";
+        }
 
         model.addAttribute("tossClientKey", TOSS_CLIENT_KEY);
         model.addAttribute("orderId", orderId);
-        model.addAttribute("orderName", orderName);
+        model.addAttribute("orderName", safeOrderName);
         model.addAttribute("customerEmail", ordererEmail);
         model.addAttribute("customerName", ordererName);
         model.addAttribute("payPrice", payPrice);
@@ -88,6 +94,7 @@ public class PaymentController {
 
         PaymentResponse paymentResponse = paymentApiClient.getPayment(id);
         model.addAttribute("payment", paymentResponse);
+        model.addAttribute("isLoggedIn", loginStatus.isLoggedIn());
 
         return "order/orderSuccess";
     }

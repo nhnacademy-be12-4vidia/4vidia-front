@@ -70,10 +70,21 @@
                             <img id="imagePreview" 
                                  th:src="${book != null && book.coverImageUrl != null ? '/proxy?url=' + book.coverImageUrl : '/img/logo.png'}" 
                                  alt="도서 표지 미리보기" class="book-cover-preview mb-3">
-                            <input type="text" class="form-control mt-2" id="imageUrl" name="thumbnailUrl" 
+                            
+                            <!-- File Upload Input -->
+                            <div class="custom-file mt-3 mb-2 text-left">
+                                <input type="file" class="custom-file-input" id="thumbnailFile" name="thumbnail" accept="image/*">
+                                <label class="custom-file-label" for="thumbnailFile" data-browse="찾기">파일 선택...</label>
+                            </div>
+
+                            <input type="text" class="form-control" id="imageUrl" name="thumbnailUrl" 
                                    placeholder="이미지 URL을 입력하세요"
                                    th:value="${book?.coverImageUrl}">
                             
+                            <small class="text-muted d-block text-left mt-1">
+                                * 이미지 파일을 업로드하면 입력된 URL보다 우선 적용됩니다.
+                            </small>
+
                             <!-- ISBN Hidden Field (Populated by Search or Pre-filled) -->
                             <input type="hidden" id="isbn" name="isbn" th:value="${book?.isbn}">
                             <div th:if="${mode == 'update'}" class="mt-2 text-muted small">
@@ -156,7 +167,7 @@
 
                             <div class="form-group">
                                 <label for="categoryId">카테고리</label>
-                                <select class="form-control" id="categoryId" name="categoryId">
+                                <select class="form-control" id="categoryId" name="categoryId" required>
                                     <option value="">카테고리를 선택하세요</option>
                                     <option th:each="cat : ${categories}"
                                             th:value="${cat.id()}"
@@ -201,6 +212,7 @@
                     <div class="form-group form-check">
                         <input type="checkbox" class="form-check-input" id="packagingAvailable" name="packagingAvailable"
                                th:checked="${book?.packagingAvailable}">
+                        <input type="hidden" name="_packagingAvailable" value="on"/>
                         <label class="form-check-label" for="packagingAvailable">선물 포장 가능</label>
                     </div>
                 </div>
@@ -320,11 +332,50 @@
                 imageUrlInput.addEventListener('input', function() {
                     const url = this.value.trim();
                     const preview = document.getElementById('imagePreview');
+                    // 파일이 선택되어 있지 않을 때만 URL 프리뷰 적용 (간단한 UX 처리)
+                    const fileInput = document.getElementById('thumbnailFile');
+                    if (fileInput && fileInput.files.length > 0) return;
+
                     if (url) {
                          // 프록시 적용
                         preview.src = '/proxy?url=' + encodeURIComponent(url);
                     } else {
                         preview.src = '/img/logo.png';
+                    }
+                });
+            }
+
+            // [NEW] 파일 선택 시 미리보기 업데이트
+            const fileInput = document.getElementById('thumbnailFile');
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    const label = e.target.nextElementSibling;
+                    
+                    if (file) {
+                        // 1. 미리보기 갱신
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            document.getElementById('imagePreview').src = e.target.result;
+                        }
+                        reader.readAsDataURL(file);
+
+                        // 2. 파일명 라벨 업데이트
+                        if (label && label.classList.contains('custom-file-label')) {
+                            label.innerText = file.name;
+                        }
+                    } else {
+                        // 취소 시 (선택된 파일 없음)
+                        if (label && label.classList.contains('custom-file-label')) {
+                            label.innerText = '파일 선택...';
+                        }
+                        // URL 입력값이 있다면 복구
+                        const url = document.getElementById('imageUrl').value.trim();
+                        if (url) {
+                             document.getElementById('imagePreview').src = '/proxy?url=' + encodeURIComponent(url);
+                        } else {
+                             document.getElementById('imagePreview').src = '/img/logo.png';
+                        }
                     }
                 });
             }
@@ -336,12 +387,14 @@
 
             // 작가 행 추가 함수
             function addAuthorRow(name = '', role = '') {
+                const safeName = name || '';
+                const safeRole = role || '';
                 const container = document.getElementById('authorListContainer');
                 const div = document.createElement('div');
                 div.className = 'input-group mb-2 author-row';
                 div.innerHTML = `
-                    <input type="text" class="form-control" placeholder="이름" name="authorName_temp" value="${name}">
-                    <input type="text" class="form-control" placeholder="역할 (예: 지음, 옮김)" name="authorRole_temp" value="${role}">
+                    <input type="text" class="form-control" placeholder="이름" name="authorName_temp" value="${safeName}">
+                    <input type="text" class="form-control" placeholder="역할 (예: 지음, 옮김)" name="authorRole_temp" value="${safeRole}">
                     <div class="input-group-append">
                         <button class="btn btn-outline-danger btn-remove-author" type="button">삭제</button>
                     </div>
@@ -484,6 +537,15 @@
             if (form) {
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
+
+                    // 카테고리 유효성 검사
+                    const categoryVal = $('#categoryId').val();
+                    if (!categoryVal) {
+                        alert('카테고리를 선택해주세요.');
+                        $('#categoryId').select2('open');
+                        return; // 제출 중단
+                    }
+
                     if (confirm('저장하시겠습니까?')) {
                         // 에디터 내용 히든 필드에 저장
                         if (editor) {

@@ -70,7 +70,7 @@ public class AdminDeliveryController {
 
         String redirect = UriComponentsBuilder.fromPath("/admin/delivery")
                 .queryParam("deliveryStatus", "SHIPPING")
-                .queryParam("page", page)
+                .queryParam("page", 0)
                 .toUriString();
 
         return "redirect:" + redirect;
@@ -81,15 +81,12 @@ public class AdminDeliveryController {
      */
     @PostMapping("/{orderId}/complete")
     public String completeDelivery(
-            @PathVariable Long orderId,
-            @RequestParam(required = false, defaultValue = "SHIPPING") String deliveryStatus,
-            @RequestParam(required = false, defaultValue = "0") Integer page
-    ) {
+            @PathVariable Long orderId) {
         deliveryApiClient.completeDelivery(orderId);
 
         String redirect = UriComponentsBuilder.fromPath("/admin/delivery")
                 .queryParam("deliveryStatus", "DELIVERED")
-                .queryParam("page", page)
+                .queryParam("page", 0)
                 .toUriString();
 
         return "redirect:" + redirect;

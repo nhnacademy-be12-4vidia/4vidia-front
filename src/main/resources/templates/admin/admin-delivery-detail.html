@@ -149,8 +149,6 @@
                 <form th:action="@{/admin/delivery/{id}/start(id=${order.orderId})}"
                       method="post" th:if="${order.deliveryStatus.name == 'WAITING'}"
                       style="display:inline-block;">
-                    <input type="hidden" name="page" th:value="${page}">
-                    <input type="hidden" name="currentDelivery" th:value="${currentDelivery}">
                     <button type="submit" class="btn btn-success me-2"
                             onclick="return confirm('배송 시작 처리하시겠습니까?');">
                         배송 시작
@@ -161,8 +159,6 @@
                 <form th:action="@{/admin/delivery/{id}/complete(id=${order.orderId})}"
                       method="post" th:if="${order.deliveryStatus.name == 'SHIPPING'}"
                       style="display:inline-block;">
-                    <input type="hidden" name="page" th:value="${page}">
-                    <input type="hidden" name="currentDelivery" th:value="${currentDelivery}">
                     <button type="submit" class="btn btn-primary me-2"
                             onclick="return confirm('배송 완료 처리하시겠습니까?');">
                         배송완료 처리

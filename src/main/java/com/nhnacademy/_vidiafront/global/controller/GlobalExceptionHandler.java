@@ -1,9 +1,12 @@
 package com.nhnacademy._vidiafront.global.controller;
 
+import com.nhnacademy._vidiafront.global.dto.ApiResponse;
 import com.nhnacademy._vidiafront.global.exception.ApiRequestException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,15 +19,18 @@ import java.io.IOException;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+
+
     @ExceptionHandler(ApiRequestException.class)
-    public String handleApiClientError(ApiRequestException e, Model model) {
+    public ResponseEntity<ApiResponse<Void>> handleApiRequestException(ApiRequestException e) {
+        log.warn("API 호출 중 에러 발생: status={}, errorCode={}, msg={}",
+                e.getStatus(), e.getErrorCode(), e.getMessage());
 
-        log.error("API 호출 중 에러 발생: {}{}", e.getMessage(), e.getStackTrace());
-
-        model.addAttribute("errorMessage", e.getMessage());
-
-        return "error/errorPage";
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(ApiResponse.fail(e.getStatus(), e.getMessage(), e.getErrorCode()));
     }
+
     @ExceptionHandler(HttpClientErrorException.Unauthorized.class)
     public String handleUnauthorizedException(HttpClientErrorException.Unauthorized ex, HttpServletResponse response) {
         // 🚨 로그아웃 처리가 필요한 경우 여기에 추가 로직을 넣을 수 있습니다.
@@ -99,5 +105,15 @@ public class GlobalExceptionHandler {
         log.error("General IOException occurred: {}", e.getMessage());
         return "error/errorPage";
     }
-
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
+        log.error("Unexpected error", e);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.fail(
+                        500,
+                        "서버 오류가 발생했습니다.",
+                        "INTERNAL_SERVER_ERROR"
+                ));
+    }
 }

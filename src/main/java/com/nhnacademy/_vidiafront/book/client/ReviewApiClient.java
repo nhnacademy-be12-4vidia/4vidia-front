@@ -68,7 +68,7 @@ public class ReviewApiClient {
     public void deactivateReview(Long reviewId, Long bookId) {
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromPath(BOOK_SERVICE + "/books/" + bookId + "/reviews/" + reviewId + "/deactivate");
 
-        backendApiClient.postNoBody(uriBuilder.toUriString(), new ParameterizedTypeReference<ApiResponse<Void>>() {});
+        backendApiClient.postNoBody(uriBuilder.toUriString(), new ParameterizedTypeReference<>(){});
     }
 
     public void editReview(ReviewUpdateRequest request, List<MultipartFile> newImageList) throws IOException {
@@ -93,7 +93,7 @@ public class ReviewApiClient {
 
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromPath(BOOK_SERVICE + "/books/" + request.getBookId() + "/reviews/" + request.getReviewId() + "/edit");
 
-        backendApiClient.postMultipartFile(uriBuilder.toUriString(), parts,  new ParameterizedTypeReference<>() {});
+        backendApiClient.postMultipartFile(uriBuilder.toUriString(), parts, new ParameterizedTypeReference<>(){});
 
     }
 }

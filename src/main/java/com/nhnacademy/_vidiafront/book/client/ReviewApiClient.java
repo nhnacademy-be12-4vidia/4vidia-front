@@ -96,4 +96,36 @@ public class ReviewApiClient {
         backendApiClient.postMultipartFile(uriBuilder.toUriString(), parts, Void.class);
 
     }
+
+    public void deactivateReview(Long reviewId, Long bookId) {
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromPath(BOOK_SERVICE + "/books/" + bookId + "/reviews/" + reviewId + "/deactivate");
+
+        backendApiClient.postNoBody(uriBuilder.toUriString(), Void.class);
+    }
+
+    public void editReview(ReviewUpdateRequest request, List<MultipartFile> newImageList) throws IOException {
+        MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+
+        parts.add("bookId", request.getBookId());
+        parts.add("content", request.getContent());
+        parts.add("rating", request.getRating());
+
+        if (newImageList != null) {
+            for (MultipartFile file : newImageList) {
+                if (file == null || file.isEmpty()) continue;
+
+                ByteArrayResource resource = new ByteArrayResource(file.getBytes()){
+                    @Override
+                    public String getFilename() {
+                        return file.getOriginalFilename();}
+                };
+                parts.add("images", resource);
+            }
+        }
+
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromPath(BOOK_SERVICE + "/books/" + request.getBookId() + "/reviews/" + request.getReviewId() + "/edit");
+
+        backendApiClient.postMultipartFile(uriBuilder.toUriString(), parts, Void.class);
+
+    }
 }

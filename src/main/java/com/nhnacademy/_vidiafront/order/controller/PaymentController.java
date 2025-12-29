@@ -4,13 +4,9 @@ import com.nhnacademy._vidiafront.global.auth.LoginStatus;
 import com.nhnacademy._vidiafront.order.client.OrderApiClient;
 import com.nhnacademy._vidiafront.order.client.PaymentApiClient;
 import com.nhnacademy._vidiafront.order.dto.order.response.OrderAmountResponse;
-import com.nhnacademy._vidiafront.order.dto.order.response.OrderResponse;
 import com.nhnacademy._vidiafront.order.dto.payment.requset.PaymentConfirmRequest;
 import com.nhnacademy._vidiafront.order.dto.payment.requset.PaymentFailRequest;
 import com.nhnacademy._vidiafront.order.dto.payment.response.PaymentResponse;
-import com.nhnacademy._vidiafront.user.client.MyOrderApiClient;
-import com.nhnacademy._vidiafront.user.client.UserApiClient;
-import com.nhnacademy._vidiafront.user.dto.user.response.OrderUserResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -116,5 +112,6 @@ public class PaymentController {
 
         return ResponseEntity.ok().build();
     }
+
 
 }

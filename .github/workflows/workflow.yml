@@ -1,4 +1,5 @@
 name: 4vidia-front
+
 on:
   push:
     branches:
@@ -11,6 +12,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+
     steps:
       - uses: actions/checkout@v4
 
@@ -19,50 +21,110 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-          cache: 'maven'
+          cache: maven
 
       - name: Build JAR
         run: mvn clean package -DskipTests -B
 
-      - name: 도커 로그인
+      - name: Docker login (GHCR)
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: baejongto
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: 도커 이미지 빌드와 푸시
+
+      - name: Build & Push Docker Image
         run: |
           docker build -t ghcr.io/${{ github.repository_owner }}/4vidia-front:latest .
           docker push ghcr.io/${{ github.repository_owner }}/4vidia-front:latest
-          echo "빌드완료"
+          echo "Docker image pushed"
 
-      - name: 서버 배포
+      - name: Deploy to Server
         uses: appleboy/ssh-action@v1.0.3
         env:
           GH_TOKEN: ${{ secrets.NEW_TOKEN }}
           GH_OWNER: ${{ github.repository_owner }}
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           ADMIN_ID: ${{ secrets.ADMIN_ID }}
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-          REDIS_PASSWORD: ${{secrets.REDIS_PASSWORD}}
-          JWT_SECRET: ${{secrets.JWT_SECRET}}
-          TOSS_CLIENT_KEY: ${{secrets.TOSS_CLIENT_KEY}}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          TOSS_CLIENT_KEY: ${{ secrets.TOSS_CLIENT_KEY }}
         with:
           host: s2.java21.net
           username: be12-team4
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 8822
-          envs: GH_TOKEN,GH_OWNER,SSH_PRIVATE_KEY,ADMIN_ID,ADMIN_PASSWORD,REDIS_PASSWORD,JWT_SECRET,TOSS_CLIENT_KEY
+          envs: GH_TOKEN,GH_OWNER,ADMIN_ID,ADMIN_PASSWORD,REDIS_PASSWORD,JWT_SECRET,TOSS_CLIENT_KEY
           script_stop: true
           script: |
-            echo $GH_TOKEN | docker login ghcr.io -u baejongto --password-stdin
+            set -e
+
+            echo "$GH_TOKEN" | docker login ghcr.io -u baejongto --password-stdin
             cd ~
-            
-            echo "Starting 4vidia-front-1"
-            docker compose pull 4vidia-front-1
+
+            ############################
+            # GREEN (front-1) 배포
+            ############################
+            echo "Starting 4vidia-front-1 (GREEN)..."
             docker compose up -d 4vidia-front-1
 
+            echo "Waiting for GREEN health check..."
+            HEALTH_CHECK_COUNT=0
+            while [ $HEALTH_CHECK_COUNT -lt 12 ]; do
+              if curl -s http://localhost:10461/actuator/health | grep -q '"status":"UP"'; then
+                echo "4vidia-front-1 (GREEN) is UP."
+                break
+              fi
 
-            echo "Starting 4vidia-front-2"
-            docker compose pull 4vidia-front-2
+              echo "Health check attempt $((HEALTH_CHECK_COUNT+1)) failed. Retrying in 10s..."
+              sleep 10
+              HEALTH_CHECK_COUNT=$((HEALTH_CHECK_COUNT+1))
+            done
+
+            if [ $HEALTH_CHECK_COUNT -eq 12 ]; then
+              echo "GREEN container failed. Aborting deployment."
+              exit 1
+            fi
+
+            ############################
+            # BLUE (front-2) 트래픽 드레인
+            ############################
+            echo "Setting BLUE container DOWN in Eureka..."
+            curl -X PUT \
+              "http://${ADMIN_ID}:${ADMIN_PASSWORD}@4vidia-discovery-1:8761/eureka/v2/apps/4VIDIA-FRONT/4vidia-front-2/status?value=DOWN" || true
+
+            sleep 30
+
+            ############################
+            # BLUE 재기동
+            ############################
+            echo "Stopping 4vidia-front-2 (BLUE)..."
+            docker compose stop 4vidia-front-2
+
+            echo "Starting 4vidia-front-2 (BLUE)..."
             docker compose up -d 4vidia-front-2
+
+            echo "Waiting for BLUE health check..."
+            HEALTH_CHECK_COUNT=0
+            while [ $HEALTH_CHECK_COUNT -lt 12 ]; do
+              if curl -s http://localhost:10462/actuator/health | grep -q '"status":"UP"'; then
+                echo "4vidia-front-2 (BLUE) is UP."
+                break
+              fi
+
+              echo "Health check attempt $((HEALTH_CHECK_COUNT+1)) failed. Retrying in 10s..."
+              sleep 10
+              HEALTH_CHECK_COUNT=$((HEALTH_CHECK_COUNT+1))
+            done
+
+            if [ $HEALTH_CHECK_COUNT -eq 12 ]; then
+              echo "BLUE container failed."
+              exit 1
+            fi
+            ############################
+            # 마무리
+            ############################
+            echo "Cleaning up unused Docker images..."
+            docker image prune -f
+
+            echo "🚀 Deployment completed successfully!"

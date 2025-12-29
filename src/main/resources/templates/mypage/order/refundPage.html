@@ -34,7 +34,8 @@
         <div class="col-12 col-lg-8">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <form id="returnForm" th:action="@{/refunds}" method="post" novalidate>
+                    <form id="returnForm" th:data-can-simple="${order.canReturnByChangeOfMind}"
+                          th:action="@{/refunds}" method="post" novalidate>
                         <input type="hidden" name="orderId" th:value="${order.orderId}"/>
 
                         <!-- reason 섹션 (항상 보이도록 변경) -->
@@ -59,7 +60,8 @@
                                 <input class="form-check-input" type="radio" name="damaged" id="typeDamaged" value="true">
                                 <label class="form-check-label" for="typeDamaged">파손/불량</label>
                             </div>
-                            <div class="form-text text-muted mt-1">파손으로 선택 시 관리자가 추가 확인을 요청할 수 있습니다.</div>
+                            <div class="form-text text-muted mt-1">* 단순변심으로 반품 신청 시 배송비 3000원이 청구됩니다. </div>
+                            <div class="form-text text-muted mt-1">* 파손으로 선택 시 관리자가 추가 확인을 요청할 수 있습니다.</div>
                         </div>
 
                         <div class="d-flex justify-content-end mt-3">
@@ -112,6 +114,16 @@
                 const reasonTextarea = document.getElementById('reason');
                 const typeSimple = document.getElementById('typeSimple');
                 const typeDamaged = document.getElementById('typeDamaged');
+                const canSimple = form.getAttribute('data-can-simple') !== 'false';
+
+                if (!canSimple) {
+                    typeSimple.disabled = true;
+                    typeDamaged.checked = true; // 강제 선택
+
+                    // 안내 문구 출력
+                    const infoText = document.querySelector('.form-text');
+                    infoText.innerHTML = '<b class="text-danger">배송 10일 경과로 [파손/불량] 반품만 접수 가능합니다.</b>';
+                }
 
                 function updateReasonField() {
                     if (typeDamaged.checked) {
@@ -126,12 +138,11 @@
                     }
                 }
 
-                // 초기 상태
+                // 초기 상태 실행 (날짜 로직에 의해 파손/불량이 선택된 상태일 수 있음)
                 updateReasonField();
 
-                // 🔥 여기 중요
-                typeSimple.addEventListener('input', updateReasonField);
-                typeDamaged.addEventListener('input', updateReasonField);
+                typeSimple.addEventListener('change', updateReasonField); // input 대신 change 권장
+                typeDamaged.addEventListener('change', updateReasonField);
 
                 form.addEventListener('submit', function(e) {
                     const selected = Array.from(
@@ -154,9 +165,8 @@
             document.addEventListener('DOMContentLoaded', initReturnForm);
         })();
     </script>
-</div>
 
-<!-- 간단한 검증 스크립트: 최소 하나 선택했는지 확인 -->
+</div>
 
 </body>
 </html>

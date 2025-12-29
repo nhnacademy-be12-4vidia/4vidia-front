@@ -6,6 +6,7 @@ import java.util.List;
  */
 public record RefundResponse (
         Long orderId,
+        boolean canReturnByChangeOfMind, // 단순 변심 반품 가능 여부
         List<OrderItemResponse> orderItems
 ){
 }

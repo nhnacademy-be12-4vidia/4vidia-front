@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: 4vidia-front
+
+  cloud:
+    config:
+      uri: http://4vidia-config:10469   # 또는 서버 내부이면 localhost:10469
+      username: ${ADMIN_ID}
+      password: ${ADMIN_PASSWORD}
+
+  profiles:
+    active: prod

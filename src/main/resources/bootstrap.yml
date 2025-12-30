@@ -4,7 +4,7 @@ spring:
 
   cloud:
     config:
-      uri: http://4vidia-config:10469   # 또는 서버 내부이면 localhost:10469
+      uri: http://4vidia-config:8080   # 또는 서버 내부이면 localhost:10469
       username: ${ADMIN_ID}
       password: ${ADMIN_PASSWORD}
 

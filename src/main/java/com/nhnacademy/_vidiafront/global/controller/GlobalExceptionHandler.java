@@ -25,13 +25,23 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(ApiRequestException.class)
-    public String handleApiRequestException(
+    public Object handleApiRequestException(
             ApiRequestException e,
             HttpServletRequest request,
             RedirectAttributes redirectAttributes
     ) {
         log.warn("API error: status={}, errorCode={}, message={}",
                 e.getStatus(), e.getErrorCode(), e.getMessage());
+
+        boolean isAjax = "XMLHttpRequest".equalsIgnoreCase(request.getHeader("X-Requested-With"))
+                || (request.getHeader("Accept") != null && request.getHeader("Accept").contains("application/json"));
+
+
+        if (isAjax) {
+            return ResponseEntity
+                    .status(e.getStatus())
+                    .body(ApiResponse.fail(e.getStatus(), e.getMessage(), e.getErrorCode()));
+        }
 
         // ===== 인증 관련 =====
         if (e.getStatus() == 401) {

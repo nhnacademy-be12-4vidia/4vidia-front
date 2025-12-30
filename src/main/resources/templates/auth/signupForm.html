@@ -377,19 +377,9 @@
                                 <div class="input-wrapper">
 
                                     <input type="date" id="birthDate" name="birthDate"
-
                                            class="form-control form-control-user"
-
                                            min="1900-01-01"
-
-                                           th:max="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"
-
-                                           required
-
-                                           oninput="validateBirthDate(); updateSignupButtonState()">
-
-                                    <small id="birthFeedback" class="form-feedback"></small>
-
+                                           required>
                                 </div>
 
                             </div>
@@ -425,836 +415,458 @@
 </div>
 
 
-
 <script>
-
     // ===== 상태 =====
-
-    let emailValid = false; // 중복확인 통과
-
-    let emailVerified = false; // 이메일 인증 완료
-
-
+    let emailValid = false;     // 중복확인 통과
+    let emailVerified = false;  // 이메일 인증 완료
 
     let timerInterval = null;
-
     let remainingSeconds = 0;
 
-
-
     // ===== 유틸: CSRF + AJAX 표시 =====
-
     function csrfHeaders() {
-
         const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
-
         const header = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
 
-
-
         const h = {
-
             "Content-Type": "application/json",
-
-// ✅ 프론트 서버가 redirect로 바꾸는 경우를 줄이기 위해 표시(가능하면)
-
+            "Accept": "application/json",
             "X-Requested-With": "XMLHttpRequest"
-
         };
-
         if (token && header) h[header] = token;
-
         return h;
-
     }
 
+    function ajaxHeaders() {
+        return {
+            "Accept": "application/json",
+            "X-Requested-With": "XMLHttpRequest"
+        };
+    }
 
-
-    // ✅ “응답이 JSON인지/리다이렉트 HTML인지”까지 포함해서 안전 파싱
-
+    // ===== 공통: redirect/HTML 방어 + ApiResponse 파싱 =====
     async function safeReadJsonOrThrow(res, defaultMsg) {
+        // ✅ 리다이렉트(302)로 login 보내는 경우도 방어
+        if (res.redirected || res.status === 302) {
+            throw Object.assign(new Error("로그인이 필요하거나 서버가 리다이렉트했습니다."), {
+                errorCode: "REDIRECTED",
+                status: res.status,
+                redirectedUrl: res.url
+            });
+        }
+
         const ct = (res.headers.get("content-type") || "").toLowerCase();
 
-        // ✅ 프론트 서버가 HTML을 내려준 경우 (redirect 등)
+        // ✅ JSON이 아니면 HTML/기타
         if (!ct.includes("application/json")) {
             const text = await res.text().catch(() => "");
-            throw Object.assign(
-                new Error("서버 응답이 올바르지 않습니다."),
-                {
-                    errorCode: "NON_JSON",
-                    status: res.status,
-                    raw: text
-                }
-            );
+            throw Object.assign(new Error("서버 응답이 올바르지 않습니다."), {
+                errorCode: "NON_JSON",
+                status: res.status,
+                raw: text
+            });
         }
 
         const data = await res.json().catch(() => null);
 
         if (!data || !data.header) {
-            throw Object.assign(
-                new Error(defaultMsg || "요청에 실패했습니다."),
-                {
-                    errorCode: "INVALID_RESPONSE",
-                    status: res.status,
-                    response: data
-                }
-            );
+            throw Object.assign(new Error(defaultMsg || "요청에 실패했습니다."), {
+                errorCode: "INVALID_RESPONSE",
+                status: res.status,
+                response: data
+            });
         }
 
-        // ✅ 핵심: ApiResponse.header 기준
         if (data.header.isSuccessful !== true) {
-            throw Object.assign(
-                new Error(data.header.resultMessage || defaultMsg),
-                {
+            throw Object.assign(new Error(data.header.resultMessage || defaultMsg), {
+                errorCode: data.header.errorCode,
+                status: data.header.resultCode ?? res.status,
+                response: data
+            });
+        }
+
+        return data; // ApiResponse
+    }
+
+    // ✅ check-email은 ApiResponse(data=true/false) or boolean(true/false) 둘 다 올 수 있음
+    async function readBooleanOrApiResponse(res, defaultMsg) {
+        if (res.redirected || res.status === 302) {
+            throw Object.assign(new Error("로그인이 필요하거나 서버가 리다이렉트했습니다."), {
+                errorCode: "REDIRECTED",
+                status: res.status,
+                redirectedUrl: res.url
+            });
+        }
+
+        const ct = (res.headers.get("content-type") || "").toLowerCase();
+
+        if (!ct.includes("application/json")) {
+            const text = await res.text().catch(() => "");
+            throw Object.assign(new Error("서버 응답이 올바르지 않습니다."), {
+                errorCode: "NON_JSON",
+                status: res.status,
+                raw: text
+            });
+        }
+
+        const data = await res.json().catch(() => null);
+
+        // 1) ApiResponse 형태
+        if (data && data.header) {
+            if (data.header.isSuccessful !== true) {
+                throw Object.assign(new Error(data.header.resultMessage || defaultMsg), {
                     errorCode: data.header.errorCode,
-                    status: data.header.resultCode,
+                    status: data.header.resultCode ?? res.status,
                     response: data
-                }
-            );
+                });
+            }
+            return data.data === true; // boolean
         }
 
-        return data;
+        // 2) 순수 boolean json
+        if (typeof data === "boolean") return data;
+
+        throw Object.assign(new Error(defaultMsg || "요청에 실패했습니다."), {
+            errorCode: "INVALID_RESPONSE",
+            status: res.status,
+            response: data
+        });
     }
 
-
-    // ✅ errorCode 기준 메시지/UX 매핑 (이 화면에서 쓰는 것만)
-
+    // ✅ errorCode 기준 메시지 매핑
     function mapEmailAuthError(errorCode, fallbackMsg) {
-
         switch (errorCode) {
-
-            case "U501":
-
-                return "인증시간이 만료되었습니다. 재발송을 눌러주세요.";
-
-            case "U503":
-
-                return "인증코드가 일치하지 않습니다. 다시 확인해주세요.";
-
-            case "U005":
-
-                return "회원 정보를 찾을 수 없습니다. 이메일을 확인해주세요.";
-
-            case "U601":
-
-                return "메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요.";
-
-            case "NON_JSON":
-
-                return "서버 응답이 올바르지 않습니다. 새로고침 후 다시 시도해주세요.";
-
-            default:
-
-                return fallbackMsg || "요청에 실패했습니다.";
-
+            case "U501": return "인증시간이 만료되었습니다. 재발송을 눌러주세요.";
+            case "U503": return "인증코드가 일치하지 않습니다. 다시 확인해주세요.";
+            case "U601": return "메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요.";
+            case "AUTH_REQUIRED": return "로그인이 필요합니다. 새로고침 후 다시 시도해주세요.";
+            case "REDIRECTED": return "로그인이 필요하거나 서버가 리다이렉트했습니다. 새로고침 후 다시 시도해주세요.";
+            case "NON_JSON": return "서버 응답이 올바르지 않습니다. 새로고침 후 다시 시도해주세요.";
+            default: return fallbackMsg || "요청에 실패했습니다.";
         }
-
     }
-
-
-
-
-
-
 
     // ===== 타이머 =====
-
     function startTimer(seconds) {
-
         stopTimer();
-
         remainingSeconds = seconds;
 
-
-
         const badge = document.getElementById('timerBadge');
-
         if (badge) badge.style.display = "inline-block";
-
-
 
         updateTimerUI();
 
-
-
         timerInterval = setInterval(() => {
-
             remainingSeconds--;
-
             updateTimerUI();
 
-
-
             if (remainingSeconds <= 0) {
-
                 stopTimer();
 
-
-
                 emailVerified = false;
-
                 const codeFeedback = document.getElementById('codeFeedback');
 
+                // ✅ 주석 풀었음 (중요!)
                 codeFeedback.textContent = "인증시간이 만료되었습니다. 재발송을 눌러주세요.";
-
                 codeFeedback.style.color = "red";
 
-
-
                 document.getElementById('sendOrResendBtn').disabled = false;
-
                 document.getElementById('verifyCodeBtn').disabled = true;
 
-
-
                 updateSignupButtonState();
-
             }
-
         }, 1000);
-
     }
-
-
 
     function updateTimerUI() {
-
         const mm = String(Math.floor(remainingSeconds / 60)).padStart(2, "0");
-
         const ss = String(remainingSeconds % 60).padStart(2, "0");
 
-
-
         const badge = document.getElementById('timerBadge');
-
         if (!badge) return;
 
-
-
         badge.textContent = `${mm}:${ss}`;
-
-
-
         if (remainingSeconds <= 30) badge.classList.add('danger');
-
         else badge.classList.remove('danger');
-
     }
-
-
 
     function stopTimer() {
-
         if (timerInterval) clearInterval(timerInterval);
-
         timerInterval = null;
-
         remainingSeconds = 0;
 
-
-
         const badge = document.getElementById('timerBadge');
-
         if (badge) badge.style.display = "none";
-
     }
-
-
 
     // ===== 전화번호 =====
-
     function formatPhoneNumber(value) {
-
         if (!value) return "";
-
         value = value.replace(/[^0-9]/g, '');
 
-
-
         if (value.length > 3 && value.length <= 7) {
-
             return value.substring(0, 3) + '-' + value.substring(3);
-
         } else if (value.length > 7) {
-
             return value.substring(0, 3) + '-' + value.substring(3, 7) + '-' + value.substring(7, 11);
-
         }
-
         return value;
-
     }
-
-
 
     function handlePhoneInput(input) {
-
         input.value = formatPhoneNumber(input.value);
-
         updateSignupButtonState();
-
     }
-
-
 
     // ===== 버튼 상태 업데이트 =====
-
     function updateSignupButtonState() {
-
         const name = document.getElementById('name').value.trim();
-
         const phoneValue = document.getElementById('phone').value.trim();
-
         const email = document.getElementById('email').value.trim();
-
         const password = document.getElementById('password');
 
-
-
         const rawPhone = phoneValue.replace(/[^0-9]/g, '');
-
         const isPhoneValid = rawPhone.length >= 10 && rawPhone.length <= 11;
-
-
-
         const isPasswordValid = password.checkValidity();
 
-        const isBirthValid = validateBirthDate(); // ✅ 미래 날짜만 체크
-
-
-
         const signupButton = document.getElementById('signupButton');
-
-
-
-        const canSubmit =
-
-            name && isPhoneValid && email && isPasswordValid && isBirthValid && emailValid && emailVerified;
-
-
+        const canSubmit = name && isPhoneValid && email && isPasswordValid && emailValid && emailVerified;
 
         signupButton.disabled = !canSubmit;
-
     }
 
-
-
-    // ===== 이메일 중복확인 =====
-
-    function checkEmail() {
-
+    // ===== 이메일 중복확인 (통일 버전) =====
+    async function checkEmail() {
         const email = document.getElementById('email').value.trim();
-
         const feedback = document.getElementById('emailFeedback');
-
         const sendBtn = document.getElementById('sendOrResendBtn');
 
-
-
         const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]*[A-Za-z][A-Za-z0-9.-]*\.[A-Za-z]{2,}$/;
-
         if (!emailPattern.test(email)) {
-
             feedback.textContent = "올바른 이메일 형식이 아닙니다.";
-
             feedback.style.color = "red";
-
             emailValid = false;
-
             emailVerified = false;
-
             sendBtn.disabled = true;
-
             document.getElementById('codeBlock').style.display = "none";
+            updateSignupButtonState();
+            return;
+        }
+
+        feedback.textContent = "중복확인 중...";
+        feedback.style.color = "#495057";
+
+        try {
+            const res = await fetch(`/auth/check-email?email=${encodeURIComponent(email)}`, {
+                method: "GET",
+                credentials: "same-origin",
+                headers: ajaxHeaders()
+            });
+
+            // exists=true면 이미 사용중
+            const exists = await readBooleanOrApiResponse(res, "이메일 중복확인에 실패했습니다.");
+
+            if (exists) {
+                feedback.textContent = "이미 사용 중인 이메일입니다.";
+                feedback.style.color = "red";
+                emailValid = false;
+                emailVerified = false;
+                sendBtn.disabled = true;
+                document.getElementById('codeBlock').style.display = "none";
+            } else {
+                feedback.textContent = "사용 가능한 이메일입니다! 인증을 진행해주세요.";
+                feedback.style.color = "green";
+                emailValid = true;
+                emailVerified = false;
+
+                sendBtn.disabled = false;
+                sendBtn.textContent = "인증코드 발송";
+                sendBtn.classList.remove("btn-outline-secondary");
+                sendBtn.classList.add("btn-outline-primary");
+
+                document.getElementById('codeBlock').style.display = "none";
+            }
 
             updateSignupButtonState();
 
-            return;
+        } catch (e) {
+            const msg = mapEmailAuthError(e.errorCode, e.message);
+            feedback.textContent = msg;
+            feedback.style.color = "red";
 
+            emailValid = false;
+            emailVerified = false;
+            sendBtn.disabled = true;
+
+            updateSignupButtonState();
         }
-
-
-
-        fetch(`/auth/check-email?email=${encodeURIComponent(email)}`, {
-
-            headers: { "X-Requested-With": "XMLHttpRequest" }
-
-        })
-
-            .then(async (res) => {
-
-// check-email은 보통 boolean json이지만, redirect HTML 방어
-
-                const ct = (res.headers.get("content-type") || "").toLowerCase();
-
-                if (!ct.includes("application/json")) {
-
-                    const text = await res.text();
-
-                    if (text.includes("<html") || text.includes("/auth/login") || text.includes("로그인")) {
-
-                        throw new Error("로그인이 필요합니다.");
-
-                    }
-
-                    throw new Error("이메일 중복확인 응답이 올바르지 않습니다.");
-
-                }
-
-                if (!res.ok) throw new Error("이메일 중복확인에 실패했습니다.");
-
-                return res.json();
-
-            })
-
-            .then((exists) => {
-
-                if (exists) {
-
-                    feedback.textContent = "이미 사용 중인 이메일입니다.";
-
-                    feedback.style.color = "red";
-
-                    emailValid = false;
-
-                    emailVerified = false;
-
-                    sendBtn.disabled = true;
-
-                    document.getElementById('codeBlock').style.display = "none";
-
-                } else {
-
-                    feedback.textContent = "사용 가능한 이메일입니다! 인증을 진행해주세요.";
-
-                    feedback.style.color = "green";
-
-                    emailValid = true;
-
-                    emailVerified = false;
-
-                    sendBtn.disabled = false;
-
-                    sendBtn.textContent = "인증코드 발송";
-
-                    sendBtn.classList.remove("btn-outline-secondary");
-
-                    sendBtn.classList.add("btn-outline-primary");
-
-                    document.getElementById('codeBlock').style.display = "none";
-
-                }
-
-                updateSignupButtonState();
-
-            })
-
-            .catch((err) => {
-
-                feedback.textContent = err?.message || "서버 오류가 발생했습니다.";
-
-                feedback.style.color = "red";
-
-                emailValid = false;
-
-                emailVerified = false;
-
-                sendBtn.disabled = true;
-
-                updateSignupButtonState();
-
-            });
-
     }
 
-
-
     // ===== 이메일 코드 발송 =====
-
-    // ===== 이메일 코드 발송 =====
-
     async function sendEmailCode() {
-
         const email = document.getElementById('email').value.trim();
-
         const codeFeedback = document.getElementById('codeFeedback');
-
         const btn = document.getElementById('sendOrResendBtn');
 
-
-
         if (!emailValid) {
-
             codeFeedback.textContent = "먼저 이메일 중복확인을 완료해주세요.";
-
             codeFeedback.style.color = "red";
-
             return;
-
         }
 
-
-
         btn.disabled = true;
-
         codeFeedback.textContent = "인증코드를 발송 중입니다...";
-
         codeFeedback.style.color = "#495057";
 
-
-
         try {
-
             const res = await fetch(`/auth/email/send-code`, {
-
                 method: "POST",
-
-                credentials: "same-origin", // ✅ 추가
-
+                credentials: "same-origin",
                 headers: csrfHeaders(),
-
                 body: JSON.stringify({ email })
-
             });
-
-
 
             await safeReadJsonOrThrow(res, "인증코드 발송에 실패했습니다.");
 
-
-
-// ✅ 성공 처리
-
             document.getElementById('codeBlock').style.display = "flex";
-
             codeFeedback.textContent = "인증코드를 발송했어요. 메일함을 확인해주세요.";
-
             codeFeedback.style.color = "green";
 
-
-
             btn.textContent = "재발송";
-
             btn.disabled = false;
 
             document.getElementById('verifyCodeBtn').disabled = false;
 
-
-
-// 인증 재시작
-
             emailVerified = false;
-
             startTimer(180);
-
             updateSignupButtonState();
-
-
 
         } catch (e) {
-
             const msg = mapEmailAuthError(e.errorCode, e.message);
-
             codeFeedback.textContent = msg;
-
             codeFeedback.style.color = "red";
 
-
-
-// ✅ 실패 시 버튼 재활성화
-
             btn.textContent = "재발송";
-
             btn.disabled = false;
 
+            updateSignupButtonState();
+        }
+    }
 
+    // ===== 인증코드 확인 =====
+    async function verifyEmailCode() {
+        const email = document.getElementById('email').value.trim();
+        const code = document.getElementById('emailCode').value.trim();
+        const codeFeedback = document.getElementById('codeFeedback');
+
+        if (code.length !== 6) {
+            codeFeedback.textContent = "인증코드 6자리를 입력해주세요.";
+            codeFeedback.style.color = "red";
+            return;
+        }
+
+        codeFeedback.textContent = "인증코드를 확인 중입니다...";
+        codeFeedback.style.color = "#495057";
+
+        try {
+            const res = await fetch(`/auth/email/verify-code`, {
+                method: "POST",
+                credentials: "same-origin",
+                headers: csrfHeaders(),
+                body: JSON.stringify({ email, code })
+            });
+
+            await safeReadJsonOrThrow(res, "인증코드가 올바르지 않거나 만료되었습니다.");
+
+            // ✅ 성공
+            emailVerified = true;
+            stopTimer();
+
+            codeFeedback.textContent = "이메일 인증이 완료되었습니다!";
+            codeFeedback.style.color = "green";
+
+            const sendBtn = document.getElementById('sendOrResendBtn');
+            sendBtn.textContent = "인증 완료";
+            sendBtn.disabled = true;
+
+            document.getElementById('verifyCodeBtn').disabled = true;
+            document.getElementById('emailDupBtn').disabled = true;
+            document.getElementById('email').readOnly = true;
 
             updateSignupButtonState();
 
-        }
+        } catch (e) {
+            emailVerified = false;
 
-    }
-
-
-
-
-
-
-
-    // ===== 인증코드 확인(예외 처리 강화: redirect HTML 방어 + header.isSuccessful 체크) =====
-
-    // ===== 인증코드 확인 =====
-
-    function verifyEmailCode() {
-
-        const email = document.getElementById('email').value.trim();
-
-        const code = document.getElementById('emailCode').value.trim();
-
-        const codeFeedback = document.getElementById('codeFeedback');
-
-
-
-        if (code.length !== 6) {
-
-            codeFeedback.textContent = "인증코드 6자리를 입력해주세요.";
-
+            const msg = mapEmailAuthError(e.errorCode, e.message);
+            codeFeedback.textContent = msg;
             codeFeedback.style.color = "red";
 
-            return;
-
-        }
-
-
-
-        codeFeedback.textContent = "인증코드를 확인 중입니다...";
-
-        codeFeedback.style.color = "#495057";
-
-
-
-        fetch(`/auth/email/verify-code`, {
-
-            method: "POST",
-
-            credentials: "same-origin", // ✅ 추가
-
-            headers: csrfHeaders(),
-
-            body: JSON.stringify({ email, code })
-
-        })
-
-            .then(async (res) => {
-
-                await safeReadJsonOrThrow(res, "인증코드가 올바르지 않거나 만료되었습니다.");
-
-
-
-// ✅ 성공
-
-                emailVerified = true;
-
+            // ✅ 만료(U501)이면 타이머 끄고 재발송 유도
+            if (e.errorCode === "U501") {
                 stopTimer();
-
-
-
-                codeFeedback.textContent = "이메일 인증이 완료되었습니다!";
-
-                codeFeedback.style.color = "green";
-
-
-
-                const sendBtn = document.getElementById('sendOrResendBtn');
-
-                sendBtn.textContent = "인증 완료";
-
-                sendBtn.disabled = true;
-
-
-
                 document.getElementById('verifyCodeBtn').disabled = true;
+            } else {
+                document.getElementById('verifyCodeBtn').disabled = false;
+            }
 
-                document.getElementById('emailDupBtn').disabled = true;
+            const sendBtn = document.getElementById('sendOrResendBtn');
+            sendBtn.textContent = "재발송";
+            sendBtn.disabled = false;
 
-                document.getElementById('email').readOnly = true;
-
-
-
-                updateSignupButtonState();
-
-            })
-
-            .catch((e) => {
-
-                emailVerified = false;
-
-
-
-                const msg = mapEmailAuthError(e.errorCode, e.message);
-
-                codeFeedback.textContent = msg;
-
-                codeFeedback.style.color = "red";
-
-
-
-// ✅ 만료(U501)이면 타이머 끄고 재발송 유도
-
-                if (e.errorCode === "U501") {
-
-                    stopTimer();
-
-                    document.getElementById('verifyCodeBtn').disabled = true;
-
-                } else {
-
-                    document.getElementById('verifyCodeBtn').disabled = false;
-
-                }
-
-
-
-                const sendBtn = document.getElementById('sendOrResendBtn');
-
-                sendBtn.textContent = "재발송";
-
-                sendBtn.disabled = false;
-
-
-
-                updateSignupButtonState();
-
-            });
-
+            updateSignupButtonState();
+        }
     }
-
-
 
     // ===== 비밀번호 체크 =====
-
     function validatePassword() {
-
         const passwordInput = document.getElementById("password");
-
         const checkIcon = document.getElementById("passwordCheckIcon");
 
-
-
         if (passwordInput.value && passwordInput.checkValidity()) checkIcon.style.display = "block";
-
         else checkIcon.style.display = "none";
-
     }
 
-
-
     // ===== 이메일 입력 변경 시 상태 초기화 =====
-
     function resetEmailValidation() {
-
         emailValid = false;
-
         emailVerified = false;
-
-
 
         stopTimer();
 
-
-
         document.getElementById('emailFeedback').textContent = "중복확인을 해주세요.";
-
         document.getElementById('emailFeedback').style.color = "orange";
 
-
-
         document.getElementById('codeFeedback').textContent = "";
-
         document.getElementById('codeBlock').style.display = "none";
-
-
-
-// ✅ 버그 수정: sendCodeBtn이 아니라 sendOrResendBtn
 
         document.getElementById('sendOrResendBtn').disabled = true;
 
-
-
-// UI 잠금 해제
-
+        // UI 잠금 해제
         document.getElementById('emailDupBtn').disabled = false;
-
         document.getElementById('verifyCodeBtn').disabled = false;
-
         document.getElementById('email').readOnly = false;
 
-
-
         updateSignupButtonState();
-
     }
-
-
-
-    // ===== 생년월일 검증: '나이 제한 제거' + '미래 날짜만 방지' =====
-
-    function validateBirthDate() {
-
-        const birthInput = document.getElementById("birthDate");
-
-        const feedback = document.getElementById("birthFeedback");
-
-
-
-        if (!birthInput.value) return false;
-
-
-
-        const birth = new Date(birthInput.value);
-
-        const today = new Date();
-
-
-
-        if (birth > today) {
-
-            feedback.textContent = "미래 날짜는 선택할 수 없습니다.";
-
-            feedback.style.color = "red";
-
-            return false;
-
-        }
-
-
-
-// ✅ 나이 제한 제거 → 정상 입력이면 피드백 지움(또는 안내 문구)
-
-        feedback.textContent = "";
-
-        return true;
-
-    }
-
-
 
     // ===== 최종 폼 제출 방어 =====
-
     function validateForm(event) {
-
-        const isBirthValid = validateBirthDate();
-
-
-
         if (!emailValid) { alert("이메일 중복 확인을 완료해주세요."); return false; }
-
         if (!emailVerified) { alert("이메일 인증을 완료해주세요."); return false; }
 
-        if (!isBirthValid) { alert("생년월일을 확인해주세요."); return false; }
-
-
-
-// 서버로 보내기 직전에 하이픈 제거
-
         const phoneInput = document.getElementById('phone');
-
         phoneInput.value = phoneInput.value.replace(/-/g, '');
-
-
-
         return true;
-
     }
 
-
-
     document.addEventListener('DOMContentLoaded', () => {
+        // ✅ 생년월일: 미래 날짜 선택 방지 (로컬 시간 기준)
+        const d = new Date();
+        const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
+        document.getElementById("birthDate")?.setAttribute("max", today);
         updateSignupButtonState();
-
     });
-
 </script>
 
 </body>

@@ -1,10 +1,13 @@
 package com.nhnacademy._vidiafront.user.client;
 
 import com.nhnacademy._vidiafront.global.client.BackendApiClient;
+import com.nhnacademy._vidiafront.user.dto.grade.response.GradePolicyResponse;
 import com.nhnacademy._vidiafront.user.dto.grade.response.GradeResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -29,5 +32,13 @@ public class GradeApiClient {
     public String updateGrade(Long gradeId) {
         return backendApiClient.putNoBody(USER_SERVICE + BASE_URL + "/" + gradeId, new ParameterizedTypeReference<>() {});
     }
+
+    public List<GradePolicyResponse> getGradePolicies() {
+        return backendApiClient.get(
+                USER_SERVICE + BASE_URL + "/policies",
+                new ParameterizedTypeReference<>() {}
+        );
+    }
+
 
 }

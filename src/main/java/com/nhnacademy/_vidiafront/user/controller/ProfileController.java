@@ -3,7 +3,9 @@ package com.nhnacademy._vidiafront.user.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy._vidiafront.global.exception.ApiRequestException;
+import com.nhnacademy._vidiafront.user.client.GradeApiClient;
 import com.nhnacademy._vidiafront.user.client.UserApiClient;
+import com.nhnacademy._vidiafront.user.dto.grade.response.GradePolicyResponse;
 import com.nhnacademy._vidiafront.user.dto.user.request.ChangePasswordRequest;
 import com.nhnacademy._vidiafront.user.dto.user.request.UpdateUserRequest;
 import com.nhnacademy._vidiafront.user.dto.user.response.UserProfileResponse;
@@ -17,12 +19,15 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/mypage/profile")
 @Controller
 public class ProfileController {
     private final UserApiClient userApiClient;
+    private final GradeApiClient gradeApiClient;
 
     /**
      * 회원정보 조회 폼
@@ -33,6 +38,9 @@ public class ProfileController {
         model.addAttribute("user", user);
         model.addAttribute("request", new UpdateUserRequest(user.name(), user.phone()));
         model.addAttribute("gradeName", user.gradeName());
+
+        // ✅ 핵심: SSR에서도 정책 내려주기
+        model.addAttribute("gradePolicies", gradeApiClient.getGradePolicies());
         return "mypage/profile/info";
     }
 
@@ -93,6 +101,14 @@ public class ProfileController {
                     : "비밀번호 변경에 실패했습니다.";
         };
     }
+    @GetMapping("/grade/policies")
+    @ResponseBody
+    public List<GradePolicyResponse> gradePolicies() {
+        return gradeApiClient.getGradePolicies();
+    }
+
+
+
 
 
 

@@ -1,17 +1,17 @@
-spring:
-  application:
-    name: 4vidia-front
-
-  cloud:
-    config:
-      uri: http://localhost:10469
-      username: ${ADMIN_ID}
-      password: ${ADMIN_PASSWORD}
-
-
-
-  profiles:
-    active: prod
-
-server:
-  port: 8080
+#spring:
+#  application:
+#    name: 4vidia-front
+#
+#  cloud:
+#    config:
+#      uri: http://localhost:10469
+#      username: ${ADMIN_ID}
+#      password: ${ADMIN_PASSWORD}
+#
+#
+#
+#  profiles:
+#    active: prod
+#
+#server:
+#  port: 8080

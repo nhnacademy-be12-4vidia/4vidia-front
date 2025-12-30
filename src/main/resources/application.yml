@@ -1,41 +1,41 @@
-#spring:
-#  application:
-#    name: 4vidia-front
-#
-#  mvc:
-#    hiddenmethod:
-#      filter:
-#        enabled: true
-#
-#  data:
-#    redis:
-#      host: s4.java21.net
-#      port: 6379
-#      password: ${REDIS_PASSWORD}
-#      database: 386
-#      timeout: 5000ms
-#
-#
-#eureka:
-#  client:
-#    service-url:
-#      defaultZone: http://${ADMIN_ID}:${ADMIN_PASSWORD}@4vidia-discovery-1:8080/eureka/
-#
-#server:
-#  port: 8080
-#
-#toss:
-#  clientKey: ${TOSS_CLIENT_KEY}
-#
-#auth:
-#  payco:
-#    login-url: https://4vidia.shop/login/payco
-#
-#management:
-#  endpoints:
-#    web:
-#      exposure:
-#        include: health,info   # health와 info만 외부에 노출
-#  endpoint:
-#    health:
-#      show-details: always
+spring:
+  application:
+    name: 4vidia-front
+
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+
+  data:
+    redis:
+      host: s4.java21.net
+      port: 6379
+      password: ${REDIS_PASSWORD}
+      database: 386
+      timeout: 5000ms
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${ADMIN_ID}:${ADMIN_PASSWORD}@4vidia-discovery-1:8080/eureka/
+
+server:
+  port: 8080
+
+toss:
+  clientKey: ${TOSS_CLIENT_KEY}
+
+auth:
+  payco:
+    login-url: https://4vidia.shop/login/payco
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info   # health와 info만 외부에 노출
+  endpoint:
+    health:
+      show-details: always

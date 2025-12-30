@@ -26,7 +26,7 @@ public class SecurityConfig {
                                 "/auth/login",
                                 "/auth/logout",
                                 "/login/oauth2/**",
-                                "/mypage/address/jusoCallback",
+                                "/mypage/address/**",
                                 "/mypage/address"
 
                         ));

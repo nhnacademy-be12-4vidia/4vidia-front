@@ -819,12 +819,6 @@
 
                 orderData.orderItems = orderItems;
 
-                function getCsrfToken() {
-                    const metaToken = document.querySelector('meta[name="_csrf"]');
-                    if (metaToken) return metaToken.getAttribute('content');
-                    return document.cookie.split('; ').find(row => row.startsWith('XSRF-TOKEN='))?.split('=')[1];
-                }
-
                 const csrfToken = getCsrfToken();
                 fetch("/orders", {
                     method: 'POST',

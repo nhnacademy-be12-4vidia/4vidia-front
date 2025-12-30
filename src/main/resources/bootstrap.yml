@@ -1,15 +1,15 @@
-spring:
-  application:
-    name: 4vidia-front
-
-  cloud:
-    config:
-      uri: http://4vidia-config:8080
-      username: ${ADMIN_ID}
-      password: ${ADMIN_PASSWORD}
-
-  profiles:
-    active: prod
-
-server:
-  port: 8080
+#spring:
+#  application:
+#    name: 4vidia-front
+#
+#  cloud:
+#    config:
+#      uri: http://4vidia-config:8080
+#      username: ${ADMIN_ID}
+#      password: ${ADMIN_PASSWORD}
+#
+#  profiles:
+#    active: prod
+#
+#server:
+#  port: 8080

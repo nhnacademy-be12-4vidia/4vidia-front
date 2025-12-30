@@ -1,6 +1,7 @@
 package com.nhnacademy._vidiafront.coupon.controller;
 
 import com.nhnacademy._vidiafront.coupon.client.CouponApiClient;
+import com.nhnacademy._vidiafront.coupon.dto.response.MyCouponPageResponse;
 import com.nhnacademy._vidiafront.coupon.dto.response.MyCouponResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -21,43 +22,15 @@ public class CouponController {
     @GetMapping("/coupons")
     public String myCoupons(
             @RequestParam(required = false, defaultValue = "ALL") String status,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size,
             Model model
     ) {
-        var coupons = couponApiClient.getMyCoupons();
+        MyCouponPageResponse res = couponApiClient.getMyCoupons(page, size, status);
 
-        // ✅ 상태 필터 (HTML 버튼용)
-        List<MyCouponResponse> filteredCoupons =
-                switch (status) {
-                    case "UNUSED" ->
-                            coupons.stream()
-                                    .filter(c -> c.status().equals("UNUSED"))
-                                    .toList();
-                    case "USED" ->
-                            coupons.stream()
-                                    .filter(c -> c.status().equals("USED"))
-                                    .toList();
-                    case "EXPIRED" ->
-                            coupons.stream()
-                                    .filter(c -> c.status().equals("EXPIRED"))
-                                    .toList();
-                    default -> coupons;
-                };
-
-        long totalCount =
-                coupons.stream()
-                        .filter(c -> c.status().equals("UNUSED"))
-                        .count();
-
-        long expireSoonCount =
-                coupons.stream()
-                        .filter(c -> c.status().equals("UNUSED"))
-                        .filter(c -> c.expireAt()
-                                .isBefore(LocalDateTime.now().plusDays(7)))
-                        .count();
-
-        model.addAttribute("coupons", filteredCoupons);
-        model.addAttribute("totalCount", totalCount);
-        model.addAttribute("expireSoonCount", expireSoonCount);
+        model.addAttribute("page", res.page()); // pagination용
+        model.addAttribute("totalCount", res.totalCount());
+        model.addAttribute("expireSoonCount", res.expireSoonCount());
         model.addAttribute("status", status);
 
         return "mypage/coupon/my-coupon-list";

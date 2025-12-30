@@ -7,6 +7,11 @@ spring:
       uri: http://localhost:10469
       username: ${ADMIN_ID}
       password: ${ADMIN_PASSWORD}
+      server:
+        git:
+          search-paths: "{application}"
+          default-label: main
+
 
   profiles:
     active: prod

@@ -96,8 +96,15 @@
             </div>
         </div>
 
+
         <!-- ================= 내 쿠폰 목록 ================= -->
-        <div class="mt-5 section-box">
+        <div class="mt-5 section-box"
+                 th:with="
+        size=${page != null ? page.size() : 10},
+        currentPage=${page != null ? page.page()-1 : 0},
+        totalPages=${page != null ? page.totalPages() : 0},
+        totalElements=${page != null ? page.totalElements() : 0}
+        ">
 
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="fw-bold mb-0">내 쿠폰 목록</h5>
@@ -105,66 +112,78 @@
                 <div class="btn-group btn-group-sm">
                     <a class="btn"
                        th:classappend="${status == null || status == 'ALL'} ? ' btn-primary' : ' btn-outline-primary'"
-                       th:href="@{/mypage/coupons(status='ALL')}">전체</a>
+                       th:href="@{/mypage/coupons(status='ALL', page=0, size=${size})}">전체</a>
+
                     <a class="btn"
                        th:classappend="${status == 'UNUSED'} ? ' btn-primary' : ' btn-outline-primary'"
-                       th:href="@{/mypage/coupons(status='UNUSED')}">사용 가능</a>
+                       th:href="@{/mypage/coupons(status='UNUSED', page=0, size=${size})}">사용 가능</a>
+
                     <a class="btn"
                        th:classappend="${status == 'USED'} ? ' btn-primary' : ' btn-outline-primary'"
-                       th:href="@{/mypage/coupons(status='USED')}">사용 완료</a>
+                       th:href="@{/mypage/coupons(status='USED', page=0, size=${size})}">사용 완료</a>
+
                     <a class="btn"
                        th:classappend="${status == 'EXPIRED'} ? ' btn-primary' : ' btn-outline-primary'"
-                       th:href="@{/mypage/coupons(status='EXPIRED')}">만료</a>
+                       th:href="@{/mypage/coupons(status='EXPIRED', page=0, size=${size})}">만료</a>
                 </div>
             </div>
 
-            <!-- 빈 상태 -->
-            <div th:if="${coupons == null or coupons.isEmpty()}"
+            <div th:if="${page == null or #lists.isEmpty(page.content())}"
                  class="text-center text-muted py-5">
                 보유한 쿠폰이 없습니다.
             </div>
 
-            <!-- 쿠폰 리스트 -->
-            <div th:each="c : ${coupons}" class="coupon-item">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="fw-semibold"
-                             th:text="${c.policyName}"></div>
+            <div th:if="${page != null and !#lists.isEmpty(page.content())}">
 
-                        <div class="text-muted small"
-                             th:text="|만료일: ${#temporals.format(c.expireAt,'yyyy-MM-dd')}|"></div>
 
-                        <div class="text-muted small"
-                             th:if="${c.categoryKdcId != null}"
-                             th:text="|카테고리 전용 (${c.categoryKdcId})|"></div>
+                <div th:each="c : ${page.content()}" class="coupon-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-semibold" th:text="${c.policyName}"></div>
 
-                        <div class="text-muted small"
-                             th:if="${c.bookId != null}"
-                             th:text="|도서 전용 (ID: ${c.bookId})|"></div>
-                    </div>
+                            <div class="text-muted small"
+                                 th:text="|만료일: ${#temporals.format(c.expireAt,'yyyy-MM-dd')}|"></div>
 
-                    <div class="text-end">
-                        <div class="fw-bold mb-1"
-                             th:text="${c.discountType == 'PRICE'}
-                                      ? ${c.discountValue} + '원'
-                                      : ${c.discountValue} + '%'">
+                            <div class="text-muted small"
+                                 th:if="${c.categoryKdcId != null}"
+                                 th:text="|카테고리 전용 (${c.categoryKdcId})|"></div>
+
+                            <div class="text-muted small"
+                                 th:if="${c.bookId != null}"
+                                 th:text="|도서 전용 (ID: ${c.bookId})|"></div>
                         </div>
 
-                        <span class="badge"
-                              th:classappend="${c.status == 'UNUSED'} ? 'badge-usable' :
-                                              (${c.status == 'USED'} ? 'badge-used' : 'badge-expired')"
-                              th:text="${c.status}">
-                        </span>
+                        <div class="text-end">
+                            <div class="fw-bold mb-1"
+                                 th:text="${c.discountType == 'PRICE'} ? ${c.discountValue + '원'}: ${c.discountValue + '%'}">
+                            </div>
+
+                            <span class="badge"
+                                  th:classappend="${c.status == 'UNUSED'} ? ' badge-usable' :
+                                          (${c.status == 'USED'} ? ' badge-used' : ' badge-expired')"
+                                  th:text="${c.status}">
+                    </span>
+                        </div>
                     </div>
                 </div>
+
+                <!-- ✅ 페이지네이션 (page record 접근 안전하게) -->
+                <nav class="mt-4" th:if="${totalPages > 1}">
+                    <ul class="pagination justify-content-center mb-0">
+
+                        <li class="page-item"
+                            th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                            th:classappend="${i == currentPage} ? ' active'">
+                            <a class="page-link"
+                               th:text="${i + 1}"
+                               th:href="@{/mypage/coupons(status=${status}, page=${i}, size=${size})}">
+                            </a>
+                        </li>
+
+                    </ul>
+                </nav>
             </div>
-
-
-
-
-
         </div>
-
     </div>
 </div>
 </body>

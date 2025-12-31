@@ -27,7 +27,8 @@ public class SecurityConfig {
                                 "/auth/logout",
                                 "/login/oauth2/**",
                                 "/mypage/address/**",
-                                "/mypage/address"
+                                "/mypage/address",
+                                "/orders"
 
                         ));
         http

@@ -447,7 +447,7 @@
                         </button>
 
                         <a th:href="@{/books/{bookId}(bookId=${book.id()})}" style="text-decoration:none; color:inherit;">
-                            <img th:src="${book.imageUrl()}" th:alt="${book.title()}">
+                            <img th:src="${book.imageUrl() != null ? book.imageUrl() : '/img/default-book-cover.png'}" th:alt="${book.title()}">
                         </a>
                     </div>
 

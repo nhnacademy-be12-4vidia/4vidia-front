@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="Asciidoctor 2.0.23">
-    <title>4VIDIA Bookstore API 명세서</title>
+    <title>Coupon Service API Docs</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
     <style>
         /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -433,7 +433,6 @@
             #footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
         @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/github.min.css">
     <style>
         /*! Asciidoctor Tabs | Copyright (c) 2018-present Dan Allen | MIT License */
@@ -548,369 +547,294 @@
         }
     </style>
 </head>
-<body class="book toc2 toc-left">
+<body class="article toc2 toc-left">
 <div id="header">
-    <h1>4VIDIA Bookstore API 명세서</h1>
+    <h1>Coupon Service API Docs</h1>
     <div id="toc" class="toc2">
         <div id="toctitle">Table of Contents</div>
         <ul class="sectlevel1">
-            <li><a href="#_개요">1. 💡 개요</a></li>
-            <li><a href="#_기능별_rest_api_docs">2. 📑 기능별 Rest API Docs</a></li>
-            <li><a href="#_️_http_상태코드">3. 🛠️ HTTP 상태코드</a></li>
+            <li><a href="#_my_coupon_api">1. My Coupon API</a>
+                <ul class="sectlevel2">
+                    <li><a href="#_내_쿠폰_조회">1.1. 내 쿠폰 조회</a></li>
+                    <li><a href="#_주문_쿠폰_검증">1.2. 주문 쿠폰 검증</a></li>
+                </ul>
+            </li>
+            <li><a href="#_coupon_policy_api">2. Coupon Policy API</a>
+                <ul class="sectlevel2">
+                    <li><a href="#_활성_쿠폰_정책_조회">2.1. 활성 쿠폰 정책 조회</a></li>
+                </ul>
+            </li>
+            <li><a href="#_admin_coupon_api">3. Admin Coupon API</a>
+                <ul class="sectlevel2">
+                    <li><a href="#_특정_유저_쿠폰_조회">3.1. 특정 유저 쿠폰 조회</a></li>
+                </ul>
+            </li>
         </ul>
     </div>
 </div>
 <div id="content">
     <div class="sect1">
-        <h2 id="_개요"><a class="anchor" href="#_개요"></a><a class="link" href="#_개요">1. 💡 개요</a></h2>
+        <h2 id="_my_coupon_api">1. My Coupon API</h2>
         <div class="sectionbody">
-            <div class="paragraph">
-                <p>이 문서는 <strong>4VIDIA</strong> 온라인 서점의 마이크로서비스 아키텍처(MSA) 기반 API 명세서입니다.</p>
+            <div class="sect2">
+                <h3 id="_내_쿠폰_조회">1.1. 내 쿠폰 조회</h3>
+                <div class="listingblock">
+                    <div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /coupons/me?page=0&amp;size=10 HTTP/1.1
+X-User-Id: 1
+Host: localhost:8080</code></pre>
+                    </div>
+                </div>
+                <table class="tableblock frame-all grid-all stretch">
+                    <colgroup>
+                        <col style="width: 50%;">
+                        <col style="width: 50%;">
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th class="tableblock halign-left valign-top">Name</th>
+                        <th class="tableblock halign-left valign-top">Description</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>X-User-Id</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock">유저 ID</p></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <table class="tableblock frame-all grid-all stretch">
+                    <colgroup>
+                        <col style="width: 50%;">
+                        <col style="width: 50%;">
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th class="tableblock halign-left valign-top">Parameter</th>
+                        <th class="tableblock halign-left valign-top">Description</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>page</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock">페이지 번호</p></td>
+                    </tr>
+                    <tr>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>size</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock">페이지 크기</p></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <table class="tableblock frame-all grid-all stretch">
+                    <colgroup>
+                        <col style="width: 33.3333%;">
+                        <col style="width: 33.3333%;">
+                        <col style="width: 33.3334%;">
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th class="tableblock halign-left valign-top">Path</th>
+                        <th class="tableblock halign-left valign-top">Type</th>
+                        <th class="tableblock halign-left valign-top">Description</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>header.isSuccessful</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock">성공 여부</p></td>
+                    </tr>
+                    <tr>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>header.resultCode</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock">결과 코드</p></td>
+                    </tr>
+                    <tr>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>header.resultMessage</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock">결과 메시지</p></td>
+                    </tr>
+                    <tr>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>header.errorCode</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock">에러 코드</p></td>
+                    </tr>
+                    <tr>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>header.timestamp</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock">응답 시간</p></td>
+                    </tr>
+                    <tr>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.page</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock">페이지 정보</p></td>
+                    </tr>
+                    <tr>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.totalCount</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock">총 쿠폰 수</p></td>
+                    </tr>
+                    <tr>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.expireSoonCount</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock">만료 임박 쿠폰 수</p></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="listingblock">
+                    <div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 189
+
+{"header":{"isSuccessful":true,"resultCode":200,"resultMessage":"SUCCESS","errorCode":null,"timestamp":"2026-01-05T10:39:17.599098"},"data":{"page":null,"totalCount":0,"expireSoonCount":0}}</code></pre>
+                    </div>
+                </div>
             </div>
-            <div class="paragraph">
-                <p>각 서비스는 독립적인 기능을 수행하며, 아래 카드를 통해 상세 API 엔드포인트와 입출력 예시를 확인할 수 있습니다.</p>
-            </div>
-        </div>
-    </div>
-    <div class="sect1">
-        <h2 id="_기능별_rest_api_docs"><a class="anchor" href="#_기능별_rest_api_docs"></a><a class="link" href="#_기능별_rest_api_docs">2. 📑 기능별 Rest API Docs</a></h2>
-        <div class="sectionbody">
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+            <div class="sect2">
+                <h3 id="_주문_쿠폰_검증">1.2. 주문 쿠폰 검증</h3>
+                <div class="listingblock">
+                    <div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /coupons/validate HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+X-User-Id: 1
+Content-Length: 25
+Host: localhost:8080
 
-            <style>
-                :root {
-                    --primary-color: #0366d6;
-                    --bg-color: #f6f8fa;
-                    --card-bg: #ffffff;
-                    --text-main: #24292e;
-                    --text-sub: #586069;
-                }
-
-                .api-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-                    gap: 25px;
-                    margin-top: 30px;
-                }
-
-                .api-card {
-                    background: var(--card-bg);
-                    border: 1px solid #e1e4e8;
-                    border-radius: 12px;
-                    padding: 24px;
-                    text-decoration: none !important;
-                    color: var(--text-main) !important;
-                    transition: all 0.3s ease;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: space-between;
-                    position: relative;
-                    overflow: hidden;
-                    height: 260px; /* 상세 설명 대응을 위해 높이 조정 */
-                }
-
-                .api-card::before {
-                    content: '';
-                    position: absolute;
-                    top: 0; left: 0; width: 100%; height: 4px;
-                    background: var(--primary-color);
-                    opacity: 0;
-                    transition: opacity 0.3s;
-                }
-
-                .api-card:hover {
-                    transform: translateY(-5px);
-                    box-shadow: 0 12px 24px rgba(0,0,0,0.1);
-                    border-color: var(--primary-color);
-                }
-
-                .api-card:hover::before {
-                    opacity: 1;
-                }
-
-                .api-card-header {
-                    display: flex;
-                    align-items: center;
-                    margin-bottom: 12px;
-                }
-
-                .api-card-header i {
-                    font-size: 1.6rem;
-                    width: 35px;
-                    text-align: center;
-                    margin-right: 12px;
-                    color: var(--primary-color);
-                }
-
-                .api-card h3 {
-                    margin: 0 !important;
-                    font-size: 1.25rem;
-                    border-bottom: none !important;
-                    font-weight: 700;
-                }
-
-                .api-card p {
-                    font-size: 0.88rem;
-                    color: var(--text-sub);
-                    line-height: 1.6;
-                    margin-bottom: 10px;
-                }
-
-                .api-footer {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    border-top: 1px solid #f0f0f0;
-                    padding-top: 12px;
-                }
-
-                .badge {
-                    display: inline-block;
-                    padding: 2px 8px;
-                    background: #f1f8ff;
-                    color: var(--primary-color);
-                    border-radius: 4px;
-                    font-size: 0.75rem;
-                    font-weight: 600;
-                }
-
-                .go-link {
-                    font-size: 0.8rem;
-                    font-weight: bold;
-                    color: var(--primary-color);
-                }
-            </style>
-
-            <div class="api-grid">
-                <a href="all-api/user-api.html" class="api-card">
-                    <div>
-                        <div class="api-card-header">
-                            <i class="fa-solid fa-user-gear"></i>
-                            <h3>회원 & 인증 (User)</h3>
-                        </div>
-                        <p>🔐 이메일 인증 기반 회원가입, 휴면 계정 관리(Webhook), 등급 및 주소록 관리, 좋아요 목록 및 마이페이지 주문 요약을 제공합니다.</p>
+{"orderBookResponses":[]}</code></pre>
                     </div>
-                    <div class="api-footer">
-                        <span class="badge">Account & MyPage</span>
-                        <span class="go-link">자세히 보기 →</span>
-                    </div>
-                </a>
+                </div>
+                <table class="tableblock frame-all grid-all stretch">
+                    <colgroup>
+                        <col style="width: 50%;">
+                        <col style="width: 50%;">
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th class="tableblock halign-left valign-top">Name</th>
+                        <th class="tableblock halign-left valign-top">Description</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>X-User-Id</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock">유저 ID</p></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="listingblock">
+                    <div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 186
 
-                <a href="all-api/book-api.html" class="api-card">
-                    <div>
-                        <div class="api-card-header">
-                            <i class="fa-solid fa-magnifying-glass-plus"></i>
-                            <h3>도서 & 검색 (Book)</h3>
-                        </div>
-                        <p>🔎 Elastic/AI 기반 고도화 검색, 태그 필터링, 실시간 베스트셀러 및 계층형 카테고리와 리뷰(생성/수정/삭제)를 관리합니다.</p>
+{"header":{"isSuccessful":true,"resultCode":200,"resultMessage":"SUCCESS","errorCode":null,"timestamp":"2026-01-05T10:39:17.555822"},"data":{"possibleCoupons":[],"impossibleCoupons":[]}}</code></pre>
                     </div>
-                    <div class="api-footer">
-                        <span class="badge">Elastic & AI Search</span>
-                        <span class="go-link">자세히 보기 →</span>
-                    </div>
-                </a>
-
-                <a href="all-api/order-api.html" class="api-card">
-                    <div>
-                        <div class="api-card-header">
-                            <i class="fa-solid fa-file-invoice-dollar"></i>
-                            <h3>주문 & 결제 (Order)</h3>
-                        </div>
-                        <p>💳 회원/비회원 주문 결제 프로세스, 체크아웃 세션 관리, 포장 옵션 및 구매 확정/취소 등 주문의 전체 라이프사이클을 담당합니다.</p>
-                    </div>
-                    <div class="api-footer">
-                        <span class="badge">Checkout & Payment</span>
-                        <span class="go-link">자세히 보기 →</span>
-                    </div>
-                </a>
-
-                <a href="all-api/cart-api.html" class="api-card">
-                    <div>
-                        <div class="api-card-header">
-                            <i class="fa-solid fa-cart-arrow-down"></i>
-                            <h3>장바구니 (Cart)</h3>
-                        </div>
-                        <p>🛒 비회원-회원 장바구니 병합, Redis와 DB 간 실시간 동기화(로그인/아웃 시) 및 수량 관리 기능을 제공합니다.</p>
-                    </div>
-                    <div class="api-footer">
-                        <span class="badge">Redis Sync</span>
-                        <span class="go-link">자세히 보기 →</span>
-                    </div>
-                </a>
-
-                <a href="all-api/point-api.html" class="api-card">
-                    <div>
-                        <div class="api-card-header">
-                            <i class="fa-solid fa-coins"></i>
-                            <h3>포인트 (Point)</h3>
-                        </div>
-                        <p>💰 사용자의 가용 포인트 조회, 소멸 예정 포인트 알림 및 전체 적립/차감 내역에 대한 상세 정보를 조회합니다.</p>
-                    </div>
-                    <div class="api-footer">
-                        <span class="badge">Loyalty Points</span>
-                        <span class="go-link">자세히 보기 →</span>
-                    </div>
-                </a>
-
-                <a href="all-api/refund-api.html" class="api-card">
-                    <div>
-                        <div class="api-card-header">
-                            <i class="fa-solid fa-box-open"></i>
-                            <h3>반품 관리 (Refund)</h3>
-                        </div>
-                        <p>🔄 반품 가능 목록 필터링, 신청서 작성 및 진행 상태(카운트) 조회를 통해 사후 처리를 관리합니다.</p>
-                    </div>
-                    <div class="api-footer">
-                        <span class="badge">Return Process</span>
-                        <span class="go-link">자세히 보기 →</span>
-                    </div>
-                </a>
-
-                <a href="all-api/global-api.html" class="api-card">
-                    <div>
-                        <div class="api-card-header">
-                            <i class="fa-solid fa-network-wired"></i>
-                            <h3>내부 & 공통 (Global)</h3>
-                        </div>
-                        <p>🌐 서비스 간 내부 통신용 사용자 조회, PAYCO 계정 연동 및 시스템 전반의 유효성 검증 기능을 제공합니다.</p>
-                    </div>
-                    <div class="api-footer">
-                        <span class="badge">Internal API</span>
-                        <span class="go-link">자세히 보기 →</span>
-                    </div>
-                </a>
-
-                <a href="all-api/admin-api.html" class="api-card">
-                    <div>
-                        <div class="api-card-header">
-                            <i class="fa-solid fa-user-shield"></i>
-                            <h3>관리자 (Admin)</h3>
-                        </div>
-                        <p>🛠️ 회원 상태 통제, 도서 정보 보강(ISBN/이미지 업로드), 배송/반품 승인 및 포인트·등급·할인 정책을 통합 관리합니다.</p>
-                    </div>
-                    <div class="api-footer">
-                        <span class="badge">Backoffice & Policy</span>
-                        <span class="go-link">자세히 보기 →</span>
-                    </div>
-                </a>
-
-                <a href="all-api/coupon-api.html" class="api-card">
-                    <div>
-                        <div class="api-card-header">
-                            <i class="fa-solid fa-ticket-simple"></i>
-                            <h3>쿠폰 (Coupon)</h3>
-                        </div>
-                        <p>🎫 내 쿠폰 및 만료 임박 목록 조회, 주문 시 사용 가능 여부 검증, 활성 쿠폰 정책 확인 및 관리자용 유저별 쿠폰 관리 기능을 제공합니다.</p>
-                    </div>
-                    <div class="api-footer">
-                        <span class="badge">Promotion Service</span>
-                        <span class="go-link">자세히 보기 →</span>
-                    </div>
-                </a>
+                </div>
             </div>
         </div>
     </div>
     <div class="sect1">
-        <h2 id="_️_http_상태코드"><a class="anchor" href="#_️_http_상태코드"></a><a class="link" href="#_️_http_상태코드">3. 🛠️ HTTP 상태코드</a></h2>
+        <h2 id="_coupon_policy_api">2. Coupon Policy API</h2>
         <div class="sectionbody">
-            <table class="tableblock frame-all grid-all stretch">
-                <caption class="title">Table 1. Status 코드별 의미</caption>
-                <colgroup>
-                    <col style="width: 25%;">
-                    <col style="width: 25%;">
-                    <col style="width: 50%;">
-                </colgroup>
-                <thead>
-                <tr>
-                    <th class="tableblock halign-left valign-top">HTTP 상태</th>
-                    <th class="tableblock halign-left valign-top">Code</th>
-                    <th class="tableblock halign-left valign-top">Description</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">200</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">OK</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">일반적인 요청 성공 (응답 바디에 에러를 전송해서는 안됨)</p></td>
-                </tr>
-                <tr>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">201</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">Created</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">성공적으로 리소스를 생성했을 때 사용</p></td>
-                </tr>
-                <tr>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">202</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">Accepted</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">비동기 처리가 성공적으로 시작되었음을 알릴 때 사용</p></td>
-                </tr>
-                <tr>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">204</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">No Content</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">성공하였으나 반환할 데이터 없음</p></td>
-                </tr>
-                <tr>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">400</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">Bad Request</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">일반적인 요청 실패</p></td>
-                </tr>
-                <tr>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">401</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">Unauthorized</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">클라이언트 인증에 문제가 있을 때 사용</p></td>
-                </tr>
-                <tr>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">403</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">Forbidden</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">인증상태에 상관없이, 액세스를 금지할 때 사용</p></td>
-                </tr>
-                <tr>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">404</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">Not Found</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">리소스가 없을 때 사용</p></td>
-                </tr>
-                <tr>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">405</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">Method Not Allowed</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">HTTP 메서드가 지원되지 않을 때 사용</p></td>
-                </tr>
-                <tr>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">406</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">Not Acceptable</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">요청된 리소스 미디어 타입을 제공하지 못 할 때 사용</p></td>
-                </tr>
-                <tr>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">409</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">Conflict</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">리소스 상태에 위반되는 행위를 지원할 때 사용</p></td>
-                </tr>
-                <tr>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">500</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">Internal Server Error</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">서버 내부 오류</p></td>
-                </tr>
-                <tr>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">502</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">Bad Gateway</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">상위 서버 오류</p></td>
-                </tr>
-                <tr>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">503</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">Service Unavailable</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">서버 다운/점검</p></td>
-                </tr>
-                <tr>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">504</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">Gateway Timeout</p></td>
-                    <td class="tableblock halign-left valign-top"><p class="tableblock">응답 지연</p></td>
-                </tr>
-                </tbody>
-            </table>
+            <div class="sect2">
+                <h3 id="_활성_쿠폰_정책_조회">2.1. 활성 쿠폰 정책 조회</h3>
+
+            </div>
+        </div>
+    </div>
+    <div class="sect1">
+        <h2 id="_admin_coupon_api">3. Admin Coupon API</h2>
+        <div class="sectionbody">
+            <div class="sect2">
+                <h3 id="_특정_유저_쿠폰_조회">3.1. 특정 유저 쿠폰 조회</h3>
+                <div class="listingblock">
+                    <div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /admin/users/1/coupons HTTP/1.1
+Host: localhost:8080</code></pre>
+                    </div>
+                </div>
+                <table class="tableblock frame-all grid-all stretch">
+                    <caption class="title">Table 1. /admin/users/{userId}/coupons</caption>
+                    <colgroup>
+                        <col style="width: 50%;">
+                        <col style="width: 50%;">
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th class="tableblock halign-left valign-top">Parameter</th>
+                        <th class="tableblock halign-left valign-top">Description</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>userId</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock">유저 ID</p></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <table class="tableblock frame-all grid-all stretch">
+                    <colgroup>
+                        <col style="width: 33.3333%;">
+                        <col style="width: 33.3333%;">
+                        <col style="width: 33.3334%;">
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th class="tableblock halign-left valign-top">Path</th>
+                        <th class="tableblock halign-left valign-top">Type</th>
+                        <th class="tableblock halign-left valign-top">Description</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>header.isSuccessful</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock">성공 여부</p></td>
+                    </tr>
+                    <tr>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>header.resultCode</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock">결과 코드</p></td>
+                    </tr>
+                    <tr>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>header.resultMessage</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock">결과 메시지</p></td>
+                    </tr>
+                    <tr>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>header.errorCode</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock">에러 코드</p></td>
+                    </tr>
+                    <tr>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>header.timestamp</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock">응답 시간</p></td>
+                    </tr>
+                    <tr>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>data</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
+                        <td class="tableblock halign-left valign-top"><p class="tableblock">유저의 쿠폰 목록</p></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="listingblock">
+                    <div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 143
+
+{"header":{"isSuccessful":true,"resultCode":200,"resultMessage":"SUCCESS","errorCode":null,"timestamp":"2026-01-05T10:39:16.188803"},"data":[]}</code></pre>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 <div id="footer">
     <div id="footer-text">
-        Last updated 2026-01-05 20:53:39 +0900
+        Last updated 2026-01-05 20:35:41 +0900
     </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>

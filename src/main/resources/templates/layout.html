@@ -185,9 +185,12 @@
             color: #fff;
         }
     </style>
+    <link rel="stylesheet" th:href="@{/css/loading.css}">
 </head>
 
 <body id="page-top">
+
+<div id="global-loader" class="loader-container"></div>
 
 <div id="wrapper">
 
@@ -295,6 +298,7 @@
                 </button>
 
                 <form th:action="@{/books/search}" method="get"
+                      onsubmit="startLoading()"
                       class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search"
                       style="width: 70%; max-width: 40rem;">
 
@@ -429,7 +433,7 @@
 <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/vendor/jquery-easing/jquery.easing.min.js}"></script>
 <script th:src="@{/js/sb-admin-2.min.js}"></script>
-
+<script th:src="@{/customJs/loading.js}"></script>
 
 </body>
 </html>

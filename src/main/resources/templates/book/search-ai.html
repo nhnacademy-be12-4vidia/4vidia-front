@@ -109,10 +109,15 @@
 
   <script th:src="@{/customJs/askMoveCart.js}"></script>
   <script th:src="@{/customJs/like.js}"></script>
+
+<!--  <link rel="stylesheet" th:href="@{/css/loading.css}">-->
+<!--  <script th:src="@{/customJs/loading.js}"></script>-->
 </head>
 
 <body>
 <div layout:fragment="content">
+  <div id="global-loader" class="loader-container"></div>
+
   <div class="container-fluid">
 
     <!-- 상단 타이틀 -->

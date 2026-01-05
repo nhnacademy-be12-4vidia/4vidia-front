@@ -298,6 +298,7 @@
                 const size = document.getElementById('pageSizeHolder')?.value;
                 if (size) url.searchParams.set('size', size);
             }
+            startLoading(); // 추가
             window.location.href = url.toString();
         }
     </script>
@@ -341,7 +342,7 @@
                 const size = document.getElementById('pageSizeHolder')?.value;
                 if (size) url.searchParams.set('size', size);
             }
-
+            startLoading(); // 추가
             window.location.href = url.toString();
         }
 
@@ -356,14 +357,19 @@
                 const size = document.getElementById('pageSizeHolder')?.value;
                 if (size) url.searchParams.set('size', size);
             }
-
+            startLoading(); // 추가
             window.location.href = url.toString();
         }
     </script>
+
+<!--    <link rel="stylesheet" th:href="@{/css/loading.css}">-->
+<!--    <script th:src="@{/customJs/loading.js}"></script>-->
 </head>
 
 <body>
 <div layout:fragment="content">
+    <div id="global-loader" class="loader-container"></div>
+
     <div class="container-fluid mt-4 page-wrap">
 
         <div class="floating-filters">

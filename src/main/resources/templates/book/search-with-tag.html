@@ -253,6 +253,7 @@
                 });
             }
 
+            startLoading(); // 추가
             window.location.href = url.toString();
         }
 
@@ -271,6 +272,8 @@
 
             // page는 0으로 리셋
             url.searchParams.set('page', '0');
+
+            startLoading(); // 추가
             window.location.href = url.toString();
         }
 
@@ -283,6 +286,8 @@
 
             // page는 0으로 리셋
             url.searchParams.set('page', '0');
+
+            startLoading(); // 추가
             window.location.href = url.toString();
         }
 
@@ -290,20 +295,37 @@
             const url = new URL(window.location.href);
             url.searchParams.set('mode', mode);
             url.searchParams.set('page', '0');
+
+            startLoading(); // 추가
             window.location.href = url.toString();
         }
 
         function goPage(pageNo) {
+            startLoading(); // 추가
             const url = new URL(window.location.href);
             url.searchParams.set('page', String(pageNo));
             // keep size/mode/tagNameList as-is in current URL
             window.location.href = url.toString();
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const tagForm = document.getElementById('tagSearchForm');
+            if (tagForm) {
+                tagForm.addEventListener('submit', () => {
+                    startLoading();
+                });
+            }
+        });
     </script>
+
+<!--    <link rel="stylesheet" th:href="@{/css/loading.css}">-->
+<!--    <script th:src="@{/customJs/loading.js}"></script>-->
 </head>
 
 <body>
 <div layout:fragment="content">
+    <div id="global-loader" class="loader-container"></div>
+
     <div class="container-fluid mt-4 page-wrap">
 
         <!-- 헤더 -->

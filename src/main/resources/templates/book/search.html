@@ -490,6 +490,7 @@
             const sizeFromModel = /*[[${size}]]*/ 20;
             if (!params.get('size')) params.set('size', sizeFromModel);
 
+            startLoading(); // 추가
             // /books/search 로 이동 (컨트롤러 매핑에 맞추세요)
             window.location.href = '/books/search?' + params.toString();
         }
@@ -532,6 +533,7 @@
                 if (size) url.searchParams.set('size', size);
             }
 
+            startLoading(); // 추가
             window.location.href = url.toString();
         }
 
@@ -546,14 +548,19 @@
                 const size = document.getElementById('pageSizeHolder')?.value;
                 if (size) url.searchParams.set('size', size);
             }
-
+            startLoading(); // 추가
             window.location.href = url.toString();
         }
     </script>
+
+<!--    <link rel="stylesheet" th:href="@{/css/loading.css}">-->
+<!--    <script th:src="@{/customJs/loading.js}"></script>-->
 </head>
 
 <body>
 <div layout:fragment="content">
+    <div id="global-loader" class="loader-container"></div>
+
     <div class="container-fluid mt-4">
 
         <div class="d-sm-flex align-items-center justify-content-between mb-4 px-2">

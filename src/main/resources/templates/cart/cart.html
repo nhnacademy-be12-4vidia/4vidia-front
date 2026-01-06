@@ -56,7 +56,6 @@
             padding-top: 1rem;
             margin-top: 1.5rem;
         }
-        /* Chrome/Safari/Edge → number input 스피너 항상 보이도록 */
         input[type=number]::-webkit-inner-spin-button,
         input[type=number]::-webkit-outer-spin-button {
             opacity: 1 !important;
@@ -68,11 +67,7 @@
 <div layout:fragment="content">
     <div class="container-fluid">
 
-        <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">장바구니</h1>
-        </div>
-
-        <div class="row">
+        <div class="row justify-content-center">
             <div th:if="${cart == null or #lists.isEmpty(cart.items)}"
                  class="col-12 d-flex justify-content-center mt-5">
                 <div class="text-center cart-empty-box">

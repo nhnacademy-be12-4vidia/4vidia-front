@@ -14,9 +14,90 @@
 
     <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
     <link href="/css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+        /* ===== 공통 배경 ===== */
+        body.light-bg {
+            background-color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        /* ===== 카드 ===== */
+        .card {
+            background-color: #f8fafc;
+            border: none !important;
+            border-radius: 14px;
+        }
+
+        /* 그림자 제거 (로그인 페이지랑 통일) */
+        .shadow-lg {
+            box-shadow: none !important;
+        }
+
+        /* ===== 카드 내부 ===== */
+        .card-body {
+            padding: 3rem !important;
+        }
+
+        /* ===== 제목 ===== */
+        h2.h3 {
+            font-weight: 800;
+            color: #1f2937;
+        }
+
+        /* ===== 라벨 ===== */
+        .form-group label {
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: #6e707e;
+        }
+
+        /* ===== 입력 ===== */
+        .form-control-user {
+            height: 46px;
+            border-radius: 0.6rem !important;
+            font-size: 0.95rem;
+        }
+
+        /* ===== 버튼 공통 ===== */
+        .btn-user {
+            height: 46px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        /* ===== primary 버튼 (로그인과 동일) ===== */
+        .btn-primary {
+            background-color: #49689b !important;
+            border-color: #49689b !important;
+        }
+
+        .btn-primary:hover {
+            background-color: #324463 !important;
+            border-color: #324463 !important;
+        }
+
+        /* ===== 하단 링크 ===== */
+        .small a,
+        .d-flex a {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #6e707e;
+            text-decoration: none;
+        }
+
+        .small a:hover,
+        .d-flex a:hover {
+            color: #49689b;
+            text-decoration: underline;
+        }
+
+    </style>
 </head>
 
-<body class="bg-gradient-primary">
+<body class="light-bg">
 
 <div class="container">
     <div class="row justify-content-center align-items-center min-vh-100">

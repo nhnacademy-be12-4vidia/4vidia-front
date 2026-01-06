@@ -84,6 +84,10 @@
         .guest-order-toggle.opened .fas { transform: rotate(180deg); }
         hr { border-top: 1px solid #e3e6f0; }
         .form-group label { font-size: 0.8rem; font-weight: 800; color: #6e707e; }
+        .form-control-user {
+            border-radius: 0.6rem !important;
+        }
+
     </style>
 </head>
 
@@ -96,11 +100,11 @@
                 <div class="card-body p-0">
                     <div class="p-5">
                         <div class="text-center">
-                            <div class="d-flex align-items-center justify-content-center mb-4">
-                                <img src="/img/logo.png" alt="로고" style="height: 60px; margin-right: 15px;">
-                                <h1 class="h1 text-gray-900 mb-0">4VIDIA</h1>
+                            <div class="d-flex align-items-center justify-content-center mb-5">
+                                <img src="/img/logo.png" alt="로고" style="height: 70px; margin-right: 15px;">
+                                <h1 class="h1 text-gray-900 mb-0"><b>4VIDIA</b></h1>
                             </div>
-                            <p class="text-gray-600 mb-4">로그인하여 서비스를 이용하세요</p>
+<!--                            <p class="text-gray-600 mb-4">로그인하여 서비스를 이용하세요</p>-->
                         </div>
 
                         <form class="user" action="/auth/login" method="post">

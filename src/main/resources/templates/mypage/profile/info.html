@@ -20,119 +20,163 @@
         .grade-bar { width:100%; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:26px; height:96px; background:#fff; }
         .grade-label { text-align:center; margin-top:6px; font-size:.82rem; font-weight:700; padding-bottom:6px; white-space:nowrap; }
         @media (max-width:480px){ .grade-item{width:74px;} .grade-bar{height:86px;font-size:22px;} }
+
+        .profile-wrap { max-width: 600px; margin: 0 auto; }
+        .profile-table th { width: 200px; }
+
+        @media (max-width: 576px) {
+            .profile-table th { width: auto !important; white-space: nowrap; }
+            .profile-table td { word-break: break-word; }
+        }
     </style>
 </head>
 
 <body>
 <div layout:fragment="content">
-    <div class="row justify-content-center">
-        <div class="col-auto">
-            <div class="fixed-container" style="width: 600px; margin: 0 auto;">
+    <div class="container px-3 py-4">
+        <div class="profile-wrap">
 
-                <h2 class="mt-4 mb-4 text-primary fw-bold">내 정보</h2>
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h2 class="m-0 fw-bold" style="color:#49689b;">내 정보</h2>
+                <a class="btn btn-outline-secondary btn-sm"
+                   th:href="@{/mypage/profile/password}">
+                    비밀번호 변경
+                </a>
+            </div>
 
-                <div class="card shadow-sm">
-                    <div class="card-body">
+            <!-- ✅ 카드 1: 기본 정보 -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                        <div>
+                            <div class="text-muted small">아이디(email)</div>
+                            <div class="fw-semibold" th:text="${user.email}">user@email.com</div>
+                        </div>
 
-                        <form method="post" th:action="@{/mypage/profile}" th:object="${request}" onsubmit="return removeHyphenBeforeSubmit()">
-                            <input type="hidden" name="_method" value="put">
+                        <div class="text-end">
+                            <div class="text-muted small">등급</div>
+                            <a href="javascript:void(0);"
+                               id="gradeBadge"
+                               class="badge rounded-pill bg-info text-white"
+                               style="text-decoration:none; cursor:pointer; padding: 8px 12px;"
+                               th:attr="data-grade=${user.gradeName}"
+                               data-bs-toggle="modal"
+                               data-bs-target="#gradeInfoModal">
+                                <span th:text="${user.gradeName}">WELCOME</span>
+                            </a>
+                            <div class="text-muted small mt-1">(클릭해서 등급 안내)</div>
+                        </div>
+                    </div>
 
-                            <table class="table table-bordered mb-4">
-                                <tbody>
-                                <tr>
-                                    <th class="bg-light" style="width: 200px;">아이디(email)</th>
-                                    <td th:text="${user.email}"></td>
-                                </tr>
+                    <hr class="my-3">
 
-                                <tr>
-                                    <th class="bg-light" style="width: 200px;">이름</th>
-                                    <td>
-                                        <input type="text" class="form-control" th:field="*{name}" placeholder="사용할 별칭 입력" required>
-                                        <div class="text-danger small mt-1" th:errors="*{name}"></div>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <th class="bg-light" style="width: 200px;">전화번호</th>
-                                    <td>
-                                        <script th:inline="javascript">
-                                            const successMessage = /*[[${message}]]*/ null;
-                                            if (successMessage) { alert(successMessage); }
-                                        </script>
-
-                                        <input type="tel" id="phone" class="form-control"
-                                               th:field="*{phone}"
-                                               placeholder="예: 010-1234-5678"
-                                               maxlength="13"
-                                               required
-                                               pattern="010-\\d{4}-\\d{4}"
-                                               oninput="handlePhoneInput(this)">
-                                        <div class="text-danger small mt-1" th:errors="*{phone}"></div>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <th class="bg-light" style="width: 200px;">생년월일</th>
-                                    <td th:text="${user.birthDate}"></td>
-                                </tr>
-
-                                <tr>
-                                    <th class="bg-light" style="width: 200px;">포인트</th>
-                                    <td th:text="${#numbers.formatDecimal(user.point(), 0, 'COMMA', 0, 'POINT')} + ' P'"></td>
-                                </tr>
-
-                                <tr>
-                                    <th class="bg-light" style="width: 200px;">등급</th>
-                                    <td>
-                                        <!-- ✅ 부트스트랩이 모달을 직접 열게 (JS 죽어도 뜸) -->
-                                        <a href="javascript:void(0);"
-                                           id="gradeBadge"
-                                           class="badge rounded-pill bg-info text-white"
-                                           style="text-decoration:none; cursor:pointer; padding: 8px 12px;"
-                                           th:attr="data-grade=${user.gradeName}"
-                                           data-bs-toggle="modal"
-                                           data-bs-target="#gradeInfoModal">
-                                            <span th:text="${user.gradeName}">WELCOME</span>
-                                        </a>
-                                        <span class="text-muted ms-2" style="font-size: 0.9rem;">(클릭해서 등급 안내 보기)</span>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <th class="bg-light" style="width: 200px;">기본주소</th>
-                                    <td>
-                                        <th:block th:if="${user.defaultAddress() != null}">
-                                            <div class="mb-1">
-                                                별칭: <span th:text="${user.defaultAddress().alias()}"></span>
-                                            </div>
-                                            <div>
-                                                주소:
-                                                <span th:text="|(${user.defaultAddress().zipCode()}) ${user.defaultAddress().roadAddress()} ${user.defaultAddress().addressDetail()}|"></span>
-                                            </div>
-                                        </th:block>
-
-                                        <th:block th:unless="${user.defaultAddress() != null}">
-                                            <span class="text-muted">설정된 기본 주소가 없습니다.</span>
-                                        </th:block>
-                                    </td>
-                                </tr>
-
-                                </tbody>
-                            </table>
-
-                            <div class="d-flex justify-content-between">
-                                <button type="submit" class="btn btn-primary">회원정보 수정</button>
-                                <a class="btn btn-secondary" th:href="@{/mypage/profile/password}">비밀번호 변경</a>
+                    <div class="row g-3">
+                        <div class="col-12 col-sm-6">
+                            <div class="p-3 rounded border bg-light">
+                                <div class="text-muted small">생년월일</div>
+                                <div class="fw-semibold" th:text="${user.birthDate}">1999-01-01</div>
                             </div>
-                        </form>
+                        </div>
 
+                        <div class="col-12 col-sm-6">
+                            <div class="p-3 rounded border bg-light">
+                                <div class="text-muted small">포인트</div>
+                                <div class="fw-semibold"
+                                     th:text="${#numbers.formatDecimal(user.point(), 0, 'COMMA', 0, 'POINT')} + ' P'">
+                                    0 P
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ✅ 카드 2: 수정 정보 -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="fw-bold">회원정보 수정</div>
+                        <div class="text-muted small">이름/전화번호만 수정 가능</div>
+                    </div>
+
+                    <form method="post"
+                          th:action="@{/mypage/profile}"
+                          th:object="${request}"
+                          onsubmit="return validatePhoneBeforeSubmit()">
+                        <input type="hidden" name="_method" value="put">
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">이름</label>
+                            <input type="text"
+                                   class="form-control"
+                                   th:field="*{name}"
+                                   placeholder="사용할 별칭 입력"
+                                   required>
+                            <div class="text-danger small mt-1" th:errors="*{name}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">전화번호</label>
+
+                            <!-- ✅ 서버로 제출될 값(숫자만) -->
+                            <input type="hidden" id="phoneRaw" name="phone" th:value="*{phone}">
+
+                            <!-- ✅ 사용자 입력(표시) -->
+                            <input type="tel"
+                                   id="phoneView"
+                                   class="form-control"
+                                   name="phoneView"
+                                   placeholder="예: 01012345678"
+                                   inputmode="numeric"
+                                   autocomplete="tel"
+                                   maxlength="11"
+                                   required
+                                   pattern="^010[0-9]{8}$"
+                                   oninput="syncPhone(this)">
+
+                            <div class="form-text">010으로 시작하는 11자리 숫자만 입력</div>
+                            <div class="text-danger small mt-1" th:errors="*{phone}"></div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            저장하기
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ✅ 카드 3: 기본 주소 -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="fw-bold mb-2">기본 주소</div>
+
+                    <th:block th:if="${user.defaultAddress() != null}">
+                        <div class="p-3 rounded border bg-light">
+                            <div class="text-muted small mb-1">별칭</div>
+                            <div class="fw-semibold mb-2" th:text="${user.defaultAddress().alias()}">우리집</div>
+
+                            <div class="text-muted small mb-1">주소</div>
+                            <div class="fw-semibold"
+                                 th:text="|(${user.defaultAddress().zipCode()}) ${user.defaultAddress().roadAddress()} ${user.defaultAddress().addressDetail()}|">
+                            </div>
+                        </div>
+                    </th:block>
+
+                    <th:block th:unless="${user.defaultAddress() != null}">
+                        <div class="text-muted">설정된 기본 주소가 없습니다.</div>
+                    </th:block>
+
+                    <div class="mt-3">
+                        <a class="btn btn-outline-secondary w-100" th:href="@{/mypage/address}">
+                            주소 관리로 이동
+                        </a>
                     </div>
                 </div>
-
             </div>
+
         </div>
     </div>
-
 
     <!-- ✅ 등급 안내 모달 -->
     <div class="modal fade" id="gradeInfoModal" tabindex="-1" aria-hidden="true">
@@ -200,11 +244,51 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // ✅ 프론트 서버 endpoint로 정책을 받아오자 (Front Controller에서 BackendApiClient로 호출)
-        // 너희가 만들 프론트 endpoint 예시: /mypage/grade/policies
-        // (여기 URL만 네가 실제로 만든 경로로 맞추면 됨)
-        const GRADE_POLICIES_URL = "/mypage/profile/grade/policies";
 
+        function syncPhone(viewEl) {
+            const digits = viewEl.value.replace(/\D/g, "").slice(0, 11);
+            viewEl.value = digits;
+
+            //  입력이 바뀔 때마다 hidden도 동일하게 업데이트 (이전 값 남는 문제 방지)
+            const rawEl = document.getElementById("phoneRaw");
+            if (rawEl) rawEl.value = digits;
+        }
+
+        function validatePhoneBeforeSubmit() {
+            const viewEl = document.getElementById("phoneView");
+            const rawEl  = document.getElementById("phoneRaw");
+            const digits = (viewEl?.value || "").replace(/\D/g, "");
+
+            // 11자리(010 + 8자리) 아니면 제출 막기
+            if (!(digits.length === 11 && digits.startsWith("010"))) {
+                alert("전화번호는 010으로 시작하는 11자리 숫자만 입력 가능합니다. (예: 01012345678)");
+                viewEl?.focus();
+                return false;
+            }
+
+            // 서버로 제출될 phone 확정 세팅
+            if (rawEl) rawEl.value = digits;
+            return true;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const rawEl  = document.getElementById("phoneRaw");
+            const viewEl = document.getElementById("phoneView");
+
+            if (rawEl && viewEl) {
+                const digits = (rawEl.value || "").replace(/\D/g, "").slice(0, 11);
+                rawEl.value = digits;
+                viewEl.value = digits;
+            }
+
+            // ✅ flash message 알림
+            const successMessage = /*[[${message}]]*/ null;
+            if (successMessage) { alert(successMessage); }
+        });
+
+
+
+        const GRADE_POLICIES_URL = "/mypage/profile/grade/policies";
 
         const GRADE_COLOR = {
             WELCOME:  "#5bc0de",
@@ -226,7 +310,6 @@
         }
 
         async function fetchPoliciesNoCache() {
-            // ✅ 캐시 방지(관리자 수정 즉시 반영 목적)
             const res = await fetch(`${GRADE_POLICIES_URL}?t=${Date.now()}`, {
                 method: "GET",
                 headers: { "Accept": "application/json" },
@@ -310,7 +393,6 @@
             renderGradeStrip(gradeName);
         }
 
-        // ✅ 모달이 열릴 때마다 "항상 최신 정책"을 다시 받아서 반영
         const modalEl = document.getElementById("gradeInfoModal");
         modalEl.addEventListener("shown.bs.modal", async () => {
             const badge = document.getElementById("gradeBadge");
@@ -321,7 +403,6 @@
                 buildPolicyMap(list);
                 selectGrade(currentGrade);
             } catch (e) {
-                // 실패해도 모달은 떠있으니 안내만
                 console.error(e);
                 document.getElementById("gradeTitle").innerText = currentGrade;
                 document.getElementById("gradeDesc").innerText = "등급 정책을 불러오지 못했어요.";

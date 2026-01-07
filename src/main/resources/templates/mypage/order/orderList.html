@@ -5,14 +5,77 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>📦 주문/배송 목록</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <style>
+
         .fixed-content-area {
-            width: 650px;
+            max-width: 650px;
+            width: 100%;
             margin: 0 auto;
+            padding: 0 12px; /* 모바일 좌우 여백 */
+            box-sizing: border-box;
+        }
+
+        .order-status-tab {
+            min-width: 92px; /* 탭 너무 작아지는 것 방지 */
+        }
+
+        @media (max-width: 576px) {
+            h1.h3 {
+                font-size: 1.25rem;
+                margin-bottom: 1rem !important;
+            }
+            /* 주문 카드 패딩 축소 */
+            .bg-white.rounded-lg.shadow-sm.p-4.mb-4 {
+                padding: 1rem !important;
+            }
+            /* 상단 주문정보(날짜/주문번호/상태) 줄바꿈 허용 */
+            .d-flex.align-items-center.justify-content-between.mb-3.pb-3 {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .d-flex.align-items-center.gap-4 {
+                flex-wrap: wrap;
+                gap: 8px !important;
+            }
+            .order-item-row {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 12px !important;
+            }
+
+            /* 책 이미지 조금 키우기 */
+            .order-item-row img {
+                width: 96px !important;
+                height: 134px !important;
+            }
+
+            /* 오른쪽 영역(가격/리뷰버튼) 폭 고정 제거 */
+            .order-item-row > div:last-child {
+                width: 100% !important;
+                align-items: flex-start !important;
+            }
+
+            /* 제목 글자 크기 살짝 키우기 */
+            .order-item-row h4 {
+                font-size: 1.05rem !important;
+                line-height: 1.3;
+            }
+            .order-actions {
+                flex-direction: column;
+                gap: 10px !important;
+            }
+            .order-actions .btn {
+                width: 100%;
+            }
+            .pagination .page-link {
+                padding: 0.6rem 0.85rem;
+            }
         }
 
         .order-status-tab {

@@ -12,37 +12,99 @@
 
     <style>
         .fixed-content-area {
-            width: 650px;
+            max-width: 650px;
+            width: 100%;
             margin: 0 auto;
+            padding: 0 15px;
         }
+
+        /* 상태 탭 */
         .status-tab {
             text-align: center;
-            padding: 1rem 0.5rem;
+            padding: 0.8rem 0.5rem;
             border-bottom: 3px solid transparent;
             cursor: pointer;
             color: #6c757d;
             text-decoration: none;
             flex-grow: 1;
+            transition: all 0.2s ease;
         }
+
         .status-tab.active {
             border-bottom-color: #5b5b9e;
             font-weight: bold;
             color: #5b5b9e !important;
         }
+
         .tab-count {
             font-size: 1.5rem;
             font-weight: bold;
         }
-        .refund-card:hover {
-            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+
+        /* 카드 */
+        .refund-card {
+            transition: box-shadow 0.3s ease;
         }
+
+        .refund-card:hover {
+            box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15);
+        }
+
         .detail-box {
             background-color: #f8f9fa;
             border-radius: 0.5rem;
             padding: 1rem;
         }
+
         .badge-status {
-            font-size: .85rem;
+            font-size: 0.85rem;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: nowrap; /* 데스크톱에서는 무조건 한 줄 */
+        }
+
+        .item-left {
+            flex: 1 1 auto;
+            min-width: 0; /* text-truncate 동작 */
+            margin-right: 15px;
+        }
+
+        .item-left .text-truncate {
+            display: block;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .item-right {
+            flex: 0 0 auto;
+            text-align: right;
+            white-space: nowrap; /* 가격/배지 줄바꿈 방지 */
+        }
+
+        @media (max-width: 768px) {
+            .status-tab { padding: 0.6rem 0.3rem; font-size: 0.85rem; }
+            .tab-count { font-size: 1.2rem; }
+            .detail-box { padding: 0.8rem; }
+
+            .item-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .item-right { text-align: left; }
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 1.5rem; }
+            .fixed-content-area { padding: 0 10px; }
+            .status-tab .tab-count { font-size: 1rem; }
+            .status-tab div { font-size: 0.75rem; }
         }
     </style>
 
@@ -59,22 +121,19 @@
 
 <body>
 <div layout:fragment="content">
-    <div class="container">
+    <div class="container py-4">
 
+        <h1 class="h3 mb-4 text-center text-gray-800">반품 조회</h1>
 
-        <h1 class="h3 mb-4 text-gray-800 text-center">반품 조회</h1>
-
-        <!-- ================= 상태 탭 ================= -->
+        <!-- 상태 탭 -->
         <div class="fixed-content-area mb-4">
-            <div class="d-flex text-center border-bottom">
-                <!-- ✅ page=0,size 유지 -->
+            <div class="d-flex text-center border-bottom flex-wrap">
                 <a th:href="@{/mypage/refund-history(status='ALL', page=0, size=${size})}"
                    th:classappend="${currentStatus == 'ALL' ? 'active' : ''}"
                    class="status-tab">
                     <div class="tab-count" th:text="${totalReturns}">0</div>
                     <div>전체</div>
                 </a>
-
 
                 <a th:href="@{/mypage/refund-history(status='PROCESS', page=0, size=${size})}"
                    th:classappend="${currentStatus == 'PROCESS' ? 'active' : ''}"
@@ -102,7 +161,7 @@
             <div th:each="refund : ${returnList}"
                  class="bg-white rounded shadow-sm p-4 mb-4 border refund-card">
 
-                <div class="mb-3 border-bottom pb-2 d-flex justify-content-between align-items-center">
+                <div class="mb-3 border-bottom pb-2 d-flex justify-content-between align-items-center flex-wrap">
                     <div>
                         <div class="fw-bold"
                              th:text="${#temporals.format(refund.refundDate, 'yyyy.MM.dd')} + ' 반품신청'">
@@ -116,7 +175,7 @@
                             <span th:text="${refund.orderId}"></span>
                         </div>
                     </div>
-                    <span class="badge badge-status"
+                    <span class="badge badge-status mt-2 mt-md-0"
                           th:classappend="${refund.refundStatus.colorClass}"
                           th:text="${refund.refundStatus().description}">
                     </span>
@@ -126,20 +185,20 @@
                 <div th:each="item : ${refund.items}"
                      class="border rounded p-3 mb-2">
 
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <div class="fw-bold" th:text="${item.title}">도서명</div>
+                    <div class="item-row">
+                        <div class="item-left">
+                            <div class="fw-bold text-truncate" th:text="${item.title}">도서명</div>
                             <div class="small text-muted"
                                  th:text="'수량: ' + ${item.quantity} + '개'"></div>
                         </div>
 
-                        <div class="text-end">
+                        <div class="item-right">
                             <div class="fw-bold"
                                  th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT') + '원'}">
                             </div>
-                                <span class="badge"
-                                      th:classappend="${item.refundItemStatus().colorClass}"
-                                      th:text="${item.refundItemStatus().description}">
+                            <span class="badge"
+                                  th:classappend="${item.refundItemStatus().colorClass}"
+                                  th:text="${item.refundItemStatus().description}">
                                 </span>
                         </div>
                     </div>
@@ -160,12 +219,9 @@
                     </button>
                 </div>
 
-
-                <!-- ✅ refundId() -> refundId 로 통일 -->
                 <div th:id="'detail-' + ${refund.refundId}"
                      style="display:none"
                      class="detail-box mt-3">
-                    <!-- 반품 사유 -->
                     <div class="mb-3">
                         <strong>반품 사유</strong> :
                         <span th:text="${refund.refundReason}"></span>
@@ -177,29 +233,24 @@
                     </div>
                 </div>
             </div>
-            <nav th:if="${totalPages > 1}" class="mt-4">
-                <ul class="pagination justify-content-center">
 
-                    <!-- 이전 -->
+            <!-- 페이지네이션 -->
+            <nav th:if="${totalPages > 1}" class="mt-4">
+                <ul class="pagination justify-content-center flex-wrap">
+
                     <li class="page-item" th:classappend="${isFirst} ? 'disabled'">
-                    <a class="page-link"
+                        <a class="page-link"
                            th:href="@{/mypage/refund-history(status=${currentStatus}, page=${page - 1}, size=${size})}">
                             &laquo;
                         </a>
                     </li>
 
-                    <!-- 앞쪽 ... -->
-                    <li class="page-item disabled"
-                        th:if="${page > 2}">
+                    <li class="page-item disabled" th:if="${page > 2}">
                         <span class="page-link">…</span>
                     </li>
 
-                    <!-- 페이지 번호 (현재 기준 -2 ~ +2) -->
                     <li class="page-item"
-                        th:each="i : ${#numbers.sequence(
-                T(java.lang.Math).max(0, page - 2),
-                T(java.lang.Math).min(totalPages - 1, page + 2)
-            )}"
+                        th:each="i : ${#numbers.sequence(T(java.lang.Math).max(0, page - 2), T(java.lang.Math).min(totalPages - 1, page + 2))}"
                         th:classappend="${i == page} ? 'active'">
                         <a class="page-link"
                            th:text="${i + 1}"
@@ -207,16 +258,12 @@
                         </a>
                     </li>
 
-                    <!-- 뒤쪽 ... -->
-                    <li class="page-item disabled"
-                        th:if="${page < totalPages - 3}">
+                    <li class="page-item disabled" th:if="${page < totalPages - 3}">
                         <span class="page-link">…</span>
                     </li>
 
-                    <!-- 다음 -->
                     <li class="page-item" th:classappend="${isLast} ? 'disabled'">
-
-                    <a class="page-link"
+                        <a class="page-link"
                            th:href="@{/mypage/refund-history(status=${currentStatus}, page=${page + 1}, size=${size})}">
                             &raquo;
                         </a>

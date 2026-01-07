@@ -1,23 +1,12 @@
 package com.nhnacademy._vidiafront.user.controller;
 
-import com.nhnacademy._vidiafront.cart.client.CartApiClient;
 import com.nhnacademy._vidiafront.global.dto.ApiResponse;
-import com.nhnacademy._vidiafront.point.client.PointApiClient;
 import com.nhnacademy._vidiafront.user.client.AuthApiClient;
 import com.nhnacademy._vidiafront.user.dto.auth.request.FindIdRequest;
 import com.nhnacademy._vidiafront.user.dto.auth.request.FindPasswordRequest;
-import com.nhnacademy._vidiafront.user.dto.auth.request.LoginRequest;
-import com.nhnacademy._vidiafront.user.dto.auth.request.PaycoCodeRequest;
-import com.nhnacademy._vidiafront.user.dto.auth.response.TokenResponse;
 import com.nhnacademy._vidiafront.user.dto.user.request.UserSignupRequest;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;

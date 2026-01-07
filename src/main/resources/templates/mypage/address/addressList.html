@@ -5,11 +5,127 @@
 
 <head>
     <meta charset="UTF-8">
+    <!-- ✅ 모바일 축소 방지 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>주소 관리</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
+    <style>
+        /* ✅ 고정폭 제거 -> 반응형 */
+        .address-wrap{
+            max-width: 900px;
+            margin: 0 auto;
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+
+        /* ✅ 테이블 가독성 */
+        .address-table th, .address-table td {
+            vertical-align: middle;
+        }
+
+        /* ✅ 모바일 적응형: 테이블을 카드형처럼 보이게 */
+        @media (max-width: 576px) {
+
+            .address-wrap {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
+            /* 상단 버튼 영역: 왼쪽 정렬 */
+            .address-top-actions{
+                justify-content: flex-start !important;
+            }
+
+            /* ✅ 테이블 헤더 숨김 */
+            .address-table thead {
+                display: none;
+            }
+
+            /* ✅ 테이블/행을 블록 카드처럼 */
+            .address-table,
+            .address-table tbody,
+            .address-table tr,
+            .address-table td {
+                display: block;
+                width: 100%;
+            }
+
+            /* 각 행(주소 1개)을 카드로 */
+            .address-table tbody tr {
+                border: 1px solid #e9ecef;
+                border-radius: 14px;
+                padding: 12px;
+                margin-bottom: 12px;
+                background: #fff;
+            }
+
+            /* td는 라벨+값 형태 */
+            .address-table td {
+                border: none !important;
+                padding: 8px 4px !important;
+                text-align: left !important;
+            }
+
+            /* 선택 체크박스 영역 */
+            .address-td-select {
+                display: flex !important;
+                align-items: center;
+                justify-content: flex-start;
+                gap: 10px;
+                padding-top: 4px !important;
+            }
+
+            /* 주소 텍스트 줄바꿈 */
+            .address-td-address span {
+                word-break: break-word;
+            }
+
+            /* 수정/삭제 버튼 영역: 오른쪽 아래 */
+            .address-td-actions{
+                display: flex !important;
+                gap: 6px;
+                justify-content: flex-end;   /* 오른쪽 정렬 */
+                align-items: center;
+                padding-top: 8px !important;
+            }
+
+            /* 버튼 크기 축소 + 균일 */
+            .address-td-actions a,
+            .address-td-actions button{
+                width: auto;                /* ❌ 100% 제거 */
+                min-width: 56px;            /* 버튼 폭 통일 */
+                height: 32px;               /* 버튼 높이 통일 */
+                padding: 0 10px;            /* 안쪽 여백 */
+                font-size: 0.75rem;         /* 글자 크기 줄이기 */
+                line-height: 1;
+                margin: 0 !important;       /* me-2 제거 */
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                white-space: nowrap;
+            }
+
+            /* 하단 버튼(기본 설정/선택 삭제)도 세로로 */
+            .address-bulk-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .address-bulk-actions button {
+                width: 100%;
+            }
+
+            /* 모달도 모바일에서 꽉 차게 */
+            .modal-dialog {
+                margin: 0.75rem;
+            }
+        }
+    </style>
+
     <script th:src="@{/customJs/get-cookie.js}"></script>
+
     <script>
         function getSelectedAddresses() {
             return Array.from(document.querySelectorAll("input[name='selectedAddress']:checked"))
@@ -35,9 +151,7 @@
                 const res = await fetch(`/mypage/address/default/${addressId}`, {
                     method: "PUT",
                     credentials: "same-origin",
-                    headers: {
-                        'X-XSRF-TOKEN': csrfToken
-                    },
+                    headers: { 'X-XSRF-TOKEN': csrfToken },
                 });
 
                 if (res.ok) {
@@ -61,18 +175,15 @@
                 return;
             }
 
-            // [기존] 삭제 전 확인 질문
             if (!confirm("선택한 주소를 모두 삭제하시겠습니까?")) return;
 
             try {
                 const results = await Promise.all(
                     selected.map(id =>
                         fetch(`/mypage/address/${id}?_method=DELETE`, {
-                            method: "POST", // 405 해결을 위한 POST
+                            method: "POST",
                             credentials: "same-origin",
-                            headers: {
-                                'X-XSRF-TOKEN': csrfToken
-                            },
+                            headers: { 'X-XSRF-TOKEN': csrfToken },
                         })
                     )
                 );
@@ -83,7 +194,6 @@
                     return;
                 }
 
-                // [추가된 부분] 성공 알림창
                 alert("선택한 주소가 삭제되었습니다.");
                 location.reload();
 
@@ -99,27 +209,20 @@
             const form = document.getElementById("addAddressForm");
             const submitBtn = document.getElementById("saveAddressBtn");
 
-            if (!submitBtn) {
-                console.error("저장 버튼을 찾을 수 없습니다. 버튼의 ID를 확인해주세요.");
-            } else {
-                // 이미 처리 중이면 종료
+            if (submitBtn) {
                 if (submitBtn.disabled) return;
-
-                // 버튼 비활성화
                 submitBtn.disabled = true;
                 submitBtn.innerText = "저장 중...";
             }
 
             const formData = new FormData(form);
-            const csrfToken = getCsrfToken(); // customJs 파일 확인 필요
+            const csrfToken = getCsrfToken();
 
             try {
                 const res = await fetch("/mypage/address", {
                     method: "POST",
                     credentials: "same-origin",
-                    headers: {
-                        'X-XSRF-TOKEN': csrfToken
-                    },
+                    headers: { 'X-XSRF-TOKEN': csrfToken },
                     body: formData
                 });
 
@@ -132,38 +235,32 @@
                 console.error("주소 저장 실패:", res.status, text);
                 alert(`주소 저장 실패: ${res.status}`);
 
-                // 실패 시 버튼 복구
-                if(submitBtn) {
+                if (submitBtn) {
                     submitBtn.disabled = false;
-                    submitBtn.innerText = "저장하기"; // 원래 텍스트로 복구
+                    submitBtn.innerText = "저장하기";
                 }
 
             } catch (error) {
                 console.error("네트워크 오류:", error);
                 alert("저장 중 오류가 발생했습니다.");
 
-                // 에러 시 버튼 복구
-                if(submitBtn) {
+                if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.innerText = "저장하기";
                 }
             }
         }
 
-        // 단일 삭제 함수
         async function deleteOneAddress(addressId) {
             if (!confirm("정말 이 주소를 삭제하시겠습니까?")) return;
 
             const csrfToken = getCsrfToken();
 
             try {
-                // 선택 삭제와 동일하게 POST + _method=DELETE 방식 사용
                 const res = await fetch(`/mypage/address/${addressId}?_method=DELETE`, {
                     method: "POST",
                     credentials: "same-origin",
-                    headers: {
-                        'X-XSRF-TOKEN': csrfToken
-                    },
+                    headers: { 'X-XSRF-TOKEN': csrfToken },
                 });
 
                 if (res.ok) {
@@ -197,12 +294,11 @@
 
 <body>
 <div layout:fragment="content">
+    <div class="container mt-4 address-wrap">
 
-    <div class="container mt-5" style="width: 900px; margin: 0 auto;">
-<!--        <h2 class="text-center mb-5 text-primary">📦 주소 관리</h2>-->
         <h2 class="mt-4 mb-4 text-primary fw-bold">📦 주소 관리</h2>
 
-        <div class="d-flex justify-content-end mb-3">
+        <div class="d-flex justify-content-end mb-3 address-top-actions">
             <button class="btn btn-primary"
                     data-bs-toggle="modal"
                     data-bs-target="#addressModal"
@@ -216,7 +312,7 @@
             🚨 <b>기본 주소를 설정해주세요!</b>
         </div>
 
-        <table class="table table-bordered text-center align-middle">
+        <table class="table table-bordered text-center align-middle address-table">
             <thead class="table-light">
             <tr>
                 <th style="width: 70px;">선택</th>
@@ -234,40 +330,44 @@
                 </td>
             </tr>
 
+            <!-- ✅ 기본 주소 -->
             <tr th:if="${defaultAddress != null}" th:with="addr=${defaultAddress}" class="table-primary">
-                <td></td>
+                <td class="address-td-select"></td>
+
                 <td>
                     <strong th:text="${addr.alias}"></strong>
                     <span class="badge bg-primary ms-1">기본</span>
                 </td>
-                <td class="text-start">
+
+                <td class="text-start address-td-address">
                     <span th:text="|(${addr.zipCode}) ${addr.roadAddress}, ${addr.addressDetail}|"></span>
                 </td>
-                <td>
+
+                <td class="address-td-actions">
                     <a th:href="@{/mypage/address/{addressId}/edit(addressId=${addr.addressId()})}"
-                       class="btn btn-sm btn-outline-primary me-2">수정</a>
+                       class="btn btn-sm btn-outline-primary">수정</a>
                 </td>
             </tr>
 
+            <!-- ✅ 일반 주소 -->
             <th:block th:each="addr : ${addressList}"
                       th:with="isDefault=${defaultAddress != null and defaultAddress.addressId() == addr.addressId()}">
                 <tr th:unless="${isDefault}">
-                    <td>
-                        <input type="checkbox" name="selectedAddress"
-                               th:value="${addr.addressId}">
+                    <td class="address-td-select">
+                        <input type="checkbox" name="selectedAddress" th:value="${addr.addressId}">
                     </td>
 
                     <td>
                         <strong th:text="${addr.alias}"></strong>
                     </td>
 
-                    <td class="text-start">
+                    <td class="text-start address-td-address">
                         <span th:text="|(${addr.zipCode}) ${addr.roadAddress}, ${addr.addressDetail}|"></span>
                     </td>
 
-                    <td>
+                    <td class="address-td-actions">
                         <a th:href="@{/mypage/address/{addressId}/edit(addressId=${addr.addressId})}"
-                           class="btn btn-sm btn-outline-primary me-2">수정</a>
+                           class="btn btn-sm btn-outline-primary">수정</a>
 
                         <button type="button"
                                 class="btn btn-sm btn-outline-danger"
@@ -282,7 +382,7 @@
         </table>
 
         <th:block th:with="nonDefaultAddresses=${#lists.size(addressList) - (#bools.isTrue(defaultAddress != null) ? 1 : 0)}">
-            <div class="d-flex justify-content-between mt-3" th:if="${nonDefaultAddresses > 0}">
+            <div class="d-flex justify-content-between mt-3 address-bulk-actions" th:if="${nonDefaultAddresses > 0}">
                 <button id="setDefaultBtn" class="btn btn-outline-primary">기본 주소로 설정</button>
                 <button id="deleteSelectedBtn" class="btn btn-outline-danger">선택한 주소 삭제</button>
             </div>
@@ -304,7 +404,6 @@
                           th:action="@{/mypage/address}"
                           onsubmit="submitAddress(event)">
 
-                        <!-- form submit 방식도 가능하게 hidden 남겨둠 -->
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
                         <div class="form-group mb-3">
@@ -342,6 +441,10 @@
             </div>
         </div>
     </div>
+
 </div>
+
+<!-- ✅ 부트스트랩 JS (모달 동작) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

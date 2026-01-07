@@ -30,9 +30,4 @@ public class PaymentApiClient {
         return backendApiClient.post(ORDER_SERVICE + "/payments/rollback", paymentFailRequest, new ParameterizedTypeReference<ApiResponse<Void>>() {});
     }
 
-//    // 결제 취소인데 배송 전 전체 취소만 해당 - 출고일 이후는 포인트로 돌려줌
-//    public PaymentResponse cancelPayment(PaymentCancelRequest cancelRequest, long orderId) {
-//        return backendApiClient.post(ORDER_SERVICE + "/orders/" + orderId + "/cancel", cancelRequest, PaymentResponse.class);
-//    }
-
 }

@@ -14,7 +14,28 @@
     <style>
         .page-wrap { max-width: 1180px; margin: 0 auto; position: relative; }
 
-        /* 상단 소개(검색창 없음, “이 태그에는 이런 책들이…” 톤) */
+        /* ------------------------------------------------ */
+        /* 공통 레이아웃 (반응형 수정 핵심) */
+        /* ------------------------------------------------ */
+        .row-flex {
+            display: flex;
+            flex-wrap: wrap !important;
+            justify-content: flex-start; /* 왼쪽 정렬하되 자연스럽게 흐르도록 */
+            margin-right: -0.5rem;
+            margin-left: -0.5rem;
+        }
+
+        /* 카드 Wrapper */
+        .book-card-wrapper {
+            flex-shrink: 0;
+            width: 240px; /* 데스크탑 고정 폭 */
+            padding: 0 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        /* ------------------------------------------------ */
+        /* 상단 소개 (Tag Hero) */
+        /* ------------------------------------------------ */
         .tag-hero {
             border: 1px solid rgba(78,115,223,0.22);
             border-radius: 16px;
@@ -23,6 +44,7 @@
             padding: 16px;
             position: relative;
             overflow: hidden;
+            margin-bottom: 1.5rem;
         }
         .tag-hero::before{
             content:"";
@@ -40,139 +62,108 @@
             justify-content:space-between;
             gap:14px;
         }
-        .tag-hero__left{
-            flex: 1 1 520px;
-            min-width: 320px;
-        }
-        .tag-hero__right{
-            flex: 0 0 auto;
-            margin-left: auto;
-            max-width: 100%;
-        }
-        .tag-hero__title{
-            display:flex;
-            align-items:center;
-            gap:10px;
-        }
+        .tag-hero__left{ flex: 1 1 auto; }
+        .tag-hero__title{ display:flex; align-items:center; gap:10px; }
         .tag-chip{
-            display:inline-flex;
-            align-items:center;
-            gap:6px;
-            padding:4px 10px;
-            border-radius:999px;
-            background:rgba(78,115,223,0.14);
-            border:1px solid rgba(78,115,223,0.22);
-            color:#2e59d9;
-            font-weight:800;
-            font-size:0.82rem;
-            white-space:nowrap;
+            display:inline-flex; align-items:center; gap:6px; padding:4px 10px;
+            border-radius:999px; background:rgba(78,115,223,0.14);
+            border:1px solid rgba(78,115,223,0.22); color:#2e59d9;
+            font-weight:800; font-size:0.82rem; white-space:nowrap;
         }
-        .tag-hero__sub{
-            position:relative;
-            margin:8px 0 0 0;
-            color:#5a5c69;
-            font-size:0.92rem;
+        .tag-hero__sub{ position:relative; margin:8px 0 0 0; color:#5a5c69; font-size:0.92rem; }
+
+        /* ------------------------------------------------ */
+        /* 카드 디자인 (검색 결과 페이지 스타일 적용) */
+        /* ------------------------------------------------ */
+        .book-card {
+            border: none;
+            border-radius: 0.75rem;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.25s ease;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
         }
 
-        /* 결과 그리드 (좀 더 촘촘하게) */
-        .result-grid{
-            display:grid;
-            grid-template-columns: repeat(5, minmax(0, 1fr));
-            gap:16px;
+        .card-img-wrapper {
+            position: relative;
+            overflow: hidden;
+            background-color: #f8f9fa;
+            text-align: center;
         }
-        @media (max-width:1200px){ .result-grid{ grid-template-columns:repeat(4,1fr);} }
-        @media (max-width:992px){ .result-grid{ grid-template-columns:repeat(3,1fr);} }
-        @media (max-width:768px){ .result-grid{ grid-template-columns:repeat(2,1fr);} }
-        @media (max-width:576px){ .result-grid{ grid-template-columns:repeat(2,1fr); gap:12px;} }
+        .card-img-wrapper img {
+            width: 100%;
+            height: 220px;
+            object-fit: contain;
+            transition: transform 0.35s ease;
+            padding: 10px;
+        }
+        .book-card:hover .card-img-wrapper img { transform: scale(1.05); }
 
-        .book-card{
-            border:1px solid rgba(0,0,0,0.06);
-            border-radius:14px;
-            background:#fff;
-            overflow:hidden;
-            box-shadow:0 0.35rem 1.2rem rgba(0,0,0,0.08);
-            transition: transform .18s ease, box-shadow .18s ease;
-            height:100%;
+        .btn-heart {
+            position: absolute; top: 8px; right: 8px; z-index: 5;
+            width: 32px; height: 32px; border: none; border-radius: 50%;
+            background: rgba(255,255,255,0.95);
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            transition: background 0.15s, transform 0.2s;
         }
-        .book-card:hover{
-            transform: translateY(-4px);
-            box-shadow:0 0.65rem 1.6rem rgba(0,0,0,0.14);
+        .btn-heart:hover { background: #ffe5e5; transform: scale(1.08); }
+        .btn-heart i { font-size: 1rem; color: #777; }
+        .btn-heart i.fas { color: #e74a3b; }
+
+        .card-body {
+            padding: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            color: #333;
+            flex-grow: 1;
         }
-        .img-wrap{
-            position:relative;
-            background:#f8f9fa;
-            text-align:center;
-        }
-        .img-wrap img{
-            width:100%;
-            height:170px;
-            object-fit:contain;
-            padding:10px;
+        .card-title {
+            font-size: 0.95rem; font-weight: 700; margin-bottom: 0.2rem !important; color: #2c3e50;
         }
 
-        .btn-heart{
-            position:absolute;
-            top:8px; right:8px;
-            z-index:5;
-            width:32px; height:32px;
-            border:none;
-            border-radius:50%;
-            background:rgba(255,255,255,0.95);
-            display:flex; justify-content:center; align-items:center;
-            box-shadow:0 2px 5px rgba(0,0,0,0.15);
-            transition: background .15s, transform .2s;
-        }
-        .btn-heart:hover{ background:#ffe5e5; transform:scale(1.08); }
-        .btn-heart i{ font-size:1rem; color:#777; }
-        .btn-heart i.fas{ color:#e74a3b; }
+        .price-original-no-discount { color: #2c3e50; font-size: 0.95rem; font-weight: 700; text-decoration: none; }
+        .price-original { text-decoration: line-through; color: #858796; font-size: 0.8rem; margin-right: 0.3rem; }
+        .price-current { color: #4e73df; font-weight: 700; font-size: 0.95rem; }
 
-        .body{
-            padding:12px 12px 14px 12px;
-            display:flex;
-            flex-direction:column;
-            gap:6px;
-        }
-        .title{
-            font-size:0.95rem;
-            font-weight:800;
-            color:#2c3e50;
-            line-height:1.25;
-            display:-webkit-box;
-            -webkit-line-clamp:2;
-            -webkit-box-orient:vertical;
-            overflow:hidden;
-            margin:0;
-        }
-        .meta{
-            font-size:0.82rem;
-            color:#6c757d;
-            white-space:nowrap;
-            overflow:hidden;
-            text-overflow:ellipsis;
-        }
-        .meta .publisher{ color:#4e73df; font-weight:800; }
+        .btn-block { width: 100%; border-radius: 0.35rem; font-size: 0.9rem; padding: 0.3rem 0; font-weight: 600; }
+        .btn-primary { background: #4e73df; border: none; }
+        .btn-primary:hover { background: #365acb; }
+        .btn-buy { background: #2c3e50; border: none; color: white; }
+        .btn-buy:hover { background: #1a252f; color: white; }
 
-        .prices{ margin-top:2px; }
-        .price-original-no-discount{
-            color:#2c3e50;
-            font-size:0.95rem;
-            font-weight:800;
-            text-decoration:none;
-        }
-        .price-original{
-            text-decoration:line-through;
-            color:#858796;
-            font-size:0.82rem;
-            margin-left:6px;
-        }
-        .price-current{
-            color:#4e73df;
-            font-weight:800;
-            font-size:0.95rem;
+        /* ------------------------------------------------ */
+        /* 반응형 (모바일 최적화) */
+        /* ------------------------------------------------ */
+        @media (max-width: 576px) {
+            .row-flex {
+                justify-content: center; /* 모바일에서는 중앙 정렬 */
+            }
+            .book-card-wrapper {
+                width: 48%; /* 모바일에서 2열 배치 */
+                padding: 0 0.25rem;
+            }
+            .card-img-wrapper img {
+                height: 180px;
+            }
+            .filter-shell { padding: 10px; }
+            .filter-bar { justify-content: flex-start; }
+            .filter-group { width: 100%; justify-content: space-between; }
+            .filter-input { width: 45%; }
+            .filter-select { width: 100%; }
+            .filter-actions { width: 100%; justify-content: flex-end; }
         }
 
         /* ------------------------------------------------ */
-        /* 필터/정렬 바 (세련된 스타일 + 오른쪽 정렬) */
+        /* 필터/정렬 바 */
         /* ------------------------------------------------ */
         .filter-shell{
             margin-top: 6px;
@@ -184,186 +175,107 @@
             backdrop-filter: blur(10px);
             max-width: 100%;
         }
-
-        .filter-bar{
-            display:flex;
-            flex-wrap:wrap;
-            gap:10px;
-            align-items:center;
-            justify-content:flex-end;
-        }
-
+        .filter-bar{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:flex-end; }
         .filter-group{
-            display:flex;
-            align-items:center;
-            gap:8px;
-            padding: 6px 8px;
-            border-radius: 14px;
-            background: rgba(255,255,255,0.70);
+            display:flex; align-items:center; gap:8px; padding: 6px 8px;
+            border-radius: 14px; background: rgba(255,255,255,0.70);
             border: 1px solid rgba(0,0,0,0.08);
         }
-
         .filter-chip{
-            display:inline-flex;
-            align-items:center;
-            padding: 4px 10px;
-            border-radius: 999px;
-            background: rgba(78,115,223,0.10);
-            border: 1px solid rgba(78,115,223,0.18);
-            color:#2e59d9;
-            font-weight: 900;
-            font-size: 0.78rem;
-            white-space: nowrap;
+            display:inline-flex; align-items:center; padding: 4px 10px;
+            border-radius: 999px; background: rgba(78,115,223,0.10);
+            border: 1px solid rgba(78,115,223,0.18); color:#2e59d9;
+            font-weight: 900; font-size: 0.78rem; white-space: nowrap;
         }
-
-        .filter-select,
-        .filter-input{
-            height: 36px;
-            border: 1px solid rgba(0,0,0,0.12);
-            border-radius: 12px;
-            padding: 0 12px;
-            background: #fff;
-            outline: none;
-            font-weight: 750;
-            color:#2c3e50;
+        .filter-select, .filter-input{
+            height: 36px; border: 1px solid rgba(0,0,0,0.12); border-radius: 12px;
+            padding: 0 12px; background: #fff; outline: none; font-weight: 750; color:#2c3e50;
         }
         .filter-input{ width: 110px; }
         .filter-select{ width: 180px; }
-
-        .filter-select:focus,
-        .filter-input:focus{
-            border-color: rgba(78,115,223,0.55);
-            box-shadow: 0 0 0 3px rgba(78,115,223,0.18);
+        .filter-select:focus, .filter-input:focus{
+            border-color: rgba(78,115,223,0.55); box-shadow: 0 0 0 3px rgba(78,115,223,0.18);
         }
-
         .tilde{ color:#9aa0a6; font-weight: 900; }
         .unit{ color:#6c757d; font-weight: 900; font-size: 0.85rem; }
-
-        .filter-actions{
-            display:flex;
-            gap:8px;
-            align-items:center;
-        }
-
+        .filter-actions{ display:flex; gap:8px; align-items:center; }
         .filter-btn{
-            height: 36px;
-            padding: 0 14px;
-            border-radius: 12px;
-            border: 1px solid #2e59d9;
-            background: #2e59d9;
-            color: #fff;
-            font-weight: 900;
-            cursor: pointer;
-            display:inline-flex;
-            align-items:center;
-            gap:8px;
+            height: 36px; padding: 0 14px; border-radius: 12px;
+            border: 1px solid #2e59d9; background: #2e59d9; color: #fff;
+            font-weight: 900; cursor: pointer; display:inline-flex; align-items:center; gap:8px;
         }
-        .filter-btn.ghost{
-            background: #fff;
-            color: #2e59d9;
-        }
+        .filter-btn.ghost{ background: #fff; color: #2e59d9; }
         .filter-btn:hover{ filter: brightness(0.96); }
-
-        /* 페이지 우상단(카테고리 박스 밖) 필터: 별도 행으로 두고 오른쪽 정렬 */
-        .floating-filters{
-            display:flex;
-            justify-content:flex-end;
-            align-items:flex-start;
-            max-width: 100%;
-            margin-bottom: 12px;
-        }
+        .floating-filters{ display:flex; justify-content:flex-end; align-items:flex-start; max-width: 100%; margin-bottom: 12px; }
 
         @media (max-width: 768px) {
             .floating-filters{ width: 100%; justify-content: flex-start; margin-bottom: 10px; }
-            .tag-hero__left{ flex: 1 1 100%; min-width: 0; }
-            .tag-hero__right{ width: 100%; margin-left: 0; }
-            .filter-shell{ padding: 10px; }
-            .filter-bar{ justify-content: flex-start; }
-            .filter-group{ width: 100%; justify-content: space-between; }
-            .filter-input{ width: 45%; }
-            .filter-select{ width: 100%; }
-            .filter-actions{ width: 100%; justify-content: flex-end; }
         }
 
         .pagination .page-link{ border-radius:10px; }
     </style>
 
     <script th:src="@{/customJs/like.js}"></script>
-    <script>
-        function goPage(pageNo){
-            const url = new URL(window.location.href);
-            url.searchParams.set('page', String(pageNo));
-            // size 유지
-            if (!url.searchParams.get('size')) {
-                const size = document.getElementById('pageSizeHolder')?.value;
-                if (size) url.searchParams.set('size', size);
-            }
-            startLoading(); // 추가
-            window.location.href = url.toString();
+    <script th:src="@{/customJs/askMoveCart.js}"></script> <script>
+    function goPage(pageNo){
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', String(pageNo));
+        if (!url.searchParams.get('size')) {
+            const size = document.getElementById('pageSizeHolder')?.value;
+            if (size) url.searchParams.set('size', size);
         }
-    </script>
+        startLoading();
+        window.location.href = url.toString();
+    }
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // 서버 렌더링(th:selected)과 별개로 URL 기반 fallback
-            const url = new URL(window.location.href);
-            const sort = url.searchParams.get('sort');
-            const sel = document.getElementById('sortSelect');
-            if (sel && sort) sel.value = sort;
-        });
+    document.addEventListener('DOMContentLoaded', () => {
+        const url = new URL(window.location.href);
+        const sort = url.searchParams.get('sort');
+        const sel = document.getElementById('sortSelect');
+        if (sel && sort) sel.value = sort;
+    });
 
-        function applyFilters(){
-            const url = new URL(window.location.href);
-            const minV = document.getElementById('minPriceInput')?.value?.trim();
-            const maxV = document.getElementById('maxPriceInput')?.value?.trim();
-            const sortV = document.getElementById('sortSelect')?.value;
+    function applyFilters(){
+        const url = new URL(window.location.href);
+        const minV = document.getElementById('minPriceInput')?.value?.trim();
+        const maxV = document.getElementById('maxPriceInput')?.value?.trim();
+        const sortV = document.getElementById('sortSelect')?.value;
 
-            if (minV && maxV) {
-                const minN = Number(minV);
-                const maxN = Number(maxV);
-                if (!Number.isNaN(minN) && !Number.isNaN(maxN) && minN > maxN) {
-                    alert('최저가가 최고가보다 클 수 없습니다.');
-                    return;
-                }
+        if (minV && maxV) {
+            const minN = Number(minV);
+            const maxN = Number(maxV);
+            if (!Number.isNaN(minN) && !Number.isNaN(maxN) && minN > maxN) {
+                alert('최저가가 최고가보다 클 수 없습니다.');
+                return;
             }
-
-            if (minV) url.searchParams.set('minPrice', minV);
-            else url.searchParams.delete('minPrice');
-
-            if (maxV) url.searchParams.set('maxPrice', maxV);
-            else url.searchParams.delete('maxPrice');
-
-            if (sortV) url.searchParams.set('sort', sortV);
-            else url.searchParams.delete('sort');
-
-            url.searchParams.set('page', '0');
-
-            if (!url.searchParams.get('size')) {
-                const size = document.getElementById('pageSizeHolder')?.value;
-                if (size) url.searchParams.set('size', size);
-            }
-            startLoading(); // 추가
-            window.location.href = url.toString();
         }
+        if (minV) url.searchParams.set('minPrice', minV); else url.searchParams.delete('minPrice');
+        if (maxV) url.searchParams.set('maxPrice', maxV); else url.searchParams.delete('maxPrice');
+        if (sortV) url.searchParams.set('sort', sortV); else url.searchParams.delete('sort');
+        url.searchParams.set('page', '0');
 
-        function resetFilters(){
-            const url = new URL(window.location.href);
-            url.searchParams.delete('minPrice');
-            url.searchParams.delete('maxPrice');
-            url.searchParams.delete('sort');
-            url.searchParams.set('page', '0');
-
-            if (!url.searchParams.get('size')) {
-                const size = document.getElementById('pageSizeHolder')?.value;
-                if (size) url.searchParams.set('size', size);
-            }
-            startLoading(); // 추가
-            window.location.href = url.toString();
+        if (!url.searchParams.get('size')) {
+            const size = document.getElementById('pageSizeHolder')?.value;
+            if (size) url.searchParams.set('size', size);
         }
-    </script>
+        startLoading();
+        window.location.href = url.toString();
+    }
 
-<!--    <link rel="stylesheet" th:href="@{/css/loading.css}">-->
-<!--    <script th:src="@{/customJs/loading.js}"></script>-->
+    function resetFilters(){
+        const url = new URL(window.location.href);
+        url.searchParams.delete('minPrice');
+        url.searchParams.delete('maxPrice');
+        url.searchParams.delete('sort');
+        url.searchParams.set('page', '0');
+        if (!url.searchParams.get('size')) {
+            const size = document.getElementById('pageSizeHolder')?.value;
+            if (size) url.searchParams.set('size', size);
+        }
+        startLoading();
+        window.location.href = url.toString();
+    }
+</script>
 </head>
 
 <body>
@@ -373,7 +285,6 @@
     <div class="container-fluid mt-4 page-wrap">
 
         <div class="floating-filters">
-            <!-- 필터/정렬 바 (카테고리 박스 밖, 오른쪽 위) -->
             <div class="filter-shell">
                 <div class="filter-bar">
                     <div class="filter-group">
@@ -414,7 +325,7 @@
             </div>
         </div>
 
-        <section class="tag-hero mb-3">
+        <section class="tag-hero">
             <div class="tag-hero__top">
                 <div class="tag-hero__left">
                     <div class="tag-hero__title">
@@ -433,7 +344,7 @@
 
         <div class="row" th:if="${#lists.isEmpty(books)}">
             <div class="col-12">
-                <div class="alert alert-light border text-center py-5">
+                <div class="alert alert-light border text-center py-5 mt-4">
                     <i class="fas fa-book fa-3x text-gray-300 mb-3"></i>
                     <p class="mb-1 fw-bold">이 태그에 해당하는 도서가 없습니다.</p>
                     <p class="mb-0 text-muted small">다른 태그를 선택하거나 태그 조합 검색을 이용해 보세요.</p>
@@ -441,10 +352,10 @@
             </div>
         </div>
 
-        <div th:if="${!#lists.isEmpty(books)}" class="result-grid mb-4">
-            <div th:each="book : ${books}">
-                <div class="book-card h-100">
-                    <div class="img-wrap">
+        <div th:if="${!#lists.isEmpty(books)}" class="row-flex">
+            <div class="book-card-wrapper" th:each="book : ${books}">
+                <div class="card book-card h-100">
+                    <div class="card-img-wrapper">
                         <button type="button"
                                 class="btn-heart"
                                 th:attr="data-book-id=${book.id()}"
@@ -457,17 +368,17 @@
                         </a>
                     </div>
 
-                    <div class="body">
+                    <div class="card-body">
                         <a th:href="@{/books/{bookId}(bookId=${book.id()})}" style="text-decoration:none; color:inherit;">
-                            <p class="title" th:text="${book.title()}">책 제목</p>
+                            <h5 class="card-title text-truncate" th:text="${book.title()}">책 제목</h5>
                         </a>
 
-                        <div class="meta">
-                            <span class="publisher" th:text="${book.publisherName()}">출판사</span>
-                            <span th:text="${#lists.isEmpty(book.authorNames()) ? '저자 정보 없음' : #strings.listJoin(book.authorNames(), ', ')}">저자</span>
-                        </div>
+                        <p class="text-muted small mb-2 text-truncate" style="font-size: 0.75rem;"
+                           th:text="${#lists.isEmpty(book.authorNames()) ? '저자 정보 없음' : #strings.listJoin(book.authorNames(), ', ')}">
+                            저자
+                        </p>
 
-                        <div class="prices">
+                        <div class="mb-2">
                             <span th:if="${book.priceStandard() > book.priceSales()}"
                                   class="price-current"
                                   th:text="${#numbers.formatDecimal(book.priceSales(), 0, 'COMMA', 0, 'POINT') + '원'}">할인가</span>
@@ -484,6 +395,23 @@
                                   th:if="${book.priceStandard() > book.priceSales()}"
                                   th:text="${book.priceStandard() == 0 ? '' : #numbers.formatDecimal((book.priceStandard() - book.priceSales()) * 100 / book.priceStandard(), 0, 'COMMA', 0, 'POINT') + '%'}"></span>
                         </div>
+
+                        <div class="mt-auto d-flex gap-2">
+                            <form th:action="@{/cart/add}" method="post" class="flex-grow-1">
+                                <input type="hidden" name="bookId" th:value="${book.id()}">
+                                <button class="btn btn-primary btn-block" title="장바구니"
+                                        th:onclick="|addToCartAndConfirmMove('${book.id()}', '1'); return false;|">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </button>
+                            </form>
+                            <form th:action="@{/orders/checkout-temp}" method="post" class="flex-grow-1">
+                                <input type="hidden" name="bookId" th:value="${book.id()}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn btn-buy btn-block" title="구매">
+                                    <i class="fas fa-credit-card"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -499,21 +427,18 @@
                          lastIndex=${effectiveLast < 0 ? 0 : effectiveLast},
                          start=${p - (p % blockSize)}">
 
-                <!-- 맨앞 -->
                 <li class="page-item" th:classappend="${page == 0} ? ' disabled'">
                     <a class="page-link" href="javascript:void(0)" th:attr="onclick=|goPage(0)|" aria-label="First">
                         <i class="fas fa-angle-double-left"></i>
                     </a>
                 </li>
 
-                <!-- 이전 블록 (start-1) -->
                 <li class="page-item" th:classappend="${start == 0} ? ' disabled'">
                     <a class="page-link" href="javascript:void(0)" th:attr="onclick=|goPage(${start - 1})|" aria-label="Prev block">
                         <i class="fas fa-angle-left"></i>
                     </a>
                 </li>
 
-                <!-- 현재 블록(최대 10개) -->
                 <th:block th:if="${start <= lastIndex}"
                           th:with="end=${(lastIndex < (start + blockSize - 1)) ? lastIndex : (start + blockSize - 1)}">
                     <li class="page-item"
@@ -525,14 +450,12 @@
                     </li>
                 </th:block>
 
-                <!-- 다음 블록 (start+blockSize) -->
                 <li class="page-item" th:classappend="${start + blockSize > lastIndex} ? ' disabled'">
                     <a class="page-link" href="javascript:void(0)" th:attr="onclick=|goPage(${start + blockSize})|" aria-label="Next block">
                         <i class="fas fa-angle-right"></i>
                     </a>
                 </li>
 
-                <!-- 맨뒤 -->
                 <li class="page-item" th:classappend="${page >= lastIndex} ? ' disabled'">
                     <a class="page-link" href="javascript:void(0)" th:attr="onclick=|goPage(${lastIndex})|" aria-label="Last">
                         <i class="fas fa-angle-double-right"></i>

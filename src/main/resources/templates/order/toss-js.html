@@ -18,8 +18,8 @@
 <script th:inline="javascript">
     // Controller에서 전달받은 정보
     const clientKey = /*[[${tossClientKey}]]*/ 'test_client_key';
-    const orderId = /*[[${orderId}]]*/ 1;      // DB에 저장된 PK (롤백용)
-    const sendOrderId = /*[[${sendOrderId}]]*/ '1234567890'; // 토스용 주문번호
+    const orderId = /*[[${orderId}]]*/ 1;
+    const sendOrderId = /*[[${sendOrderId}]]*/ '1234567890';
     const finalAmount = /*[[${payPrice}]]*/ 10000;
     const paymentMethod = /*[[${paymentMethod}]]*/ 'CARD';
     const orderName = /*[[${orderName}]]*/ "책 1권 이상 등";
@@ -32,30 +32,31 @@
     const successUrl = window.location.origin + "/payments/success?id=" + orderId;
     const failUrl = window.location.origin + "/payments/fail";
 
-    // 롤백이 필요한지 여부를 판단하는 플래그
+    // 롤백 필요 여부 플래그
     let isRollbackNeeded = true;
 
     // 뒤로가기 방지용 히스토리 스택 추가
     history.pushState(null, null, location.href);
 
-    // 뒤로가기 감지 이벤트 (popstate)
+    //  뒤로가기 감지 이벤트 (popstate)
     window.onpopstate = function(event) {
         if (isRollbackNeeded) {
-            handleRollback(); // 롤백 요청 발송
+            handleRollback("Back Button Detected");
             alert("결제 과정에서 뒤로가기가 감지되어 주문이 취소되었습니다.");
             window.location.href = failUrl;
         }
     };
 
-    // 롤백 요청 함수 fetch keepalive 사용
-    const handleRollback = () => {
+    // 롤백 요청 함수
+    const handleRollback = (reason) => {
         if (!isRollbackNeeded) return;
-        isRollbackNeeded = false;
+        isRollbackNeeded = false; // 중복 실행 방지
+
+        console.log("Rollback Triggered by:", reason);
 
         const rollbackUrl = window.location.origin + "/payments/rollback";
         const csrfToken = getCsrfToken();
 
-        // fetch에 keepalive: true를 주면 페이지가 닫히거나 이동해도 요청이 취소되지 않음
         fetch(rollbackUrl, {
             method: 'POST',
             headers: {
@@ -64,16 +65,13 @@
             },
             body: JSON.stringify({
                 orderId: orderId,
-                message: "User pressed back button or closed window"
+                message: "User cancelled payment (" + reason + ")"
             }),
-            keepalive: true
+            keepalive: true // 페이지 이동 중에도 요청 유지
         }).catch(err => {
             console.error("Rollback failed:", err);
         });
     };
-
-    // 창 닫기/새로고침 감지
-    window.addEventListener('pagehide', handleRollback);
 
     async function requestPayment() {
         const finalAmountObj = {
@@ -82,42 +80,28 @@
         };
 
         try {
-            switch (paymentMethod) {
-                case "CARD":
-                case "VIRTUAL_ACCOUNT":
-                case "CULTURE_GIFT_CERTIFICATE":
-                    await payment.requestPayment({
-                        method: paymentMethod,
-                        amount: finalAmountObj,
-                        orderId: sendOrderId,
-                        orderName: orderName,
-                        customerEmail: customerEmail,
-                        customerName: customerName,
-                        successUrl: successUrl,
-                        failUrl: failUrl,
-                    });
-                    break;
-                default:
-                    alert("선택된 결제 수단이 유효하지 않습니다: " + paymentMethod);
-            }
+            // 결제 요청
+            await payment.requestPayment({
+                method: paymentMethod,
+                amount: finalAmountObj,
+                orderId: sendOrderId,
+                orderName: orderName,
+                customerEmail: customerEmail,
+                customerName: customerName,
+                successUrl: successUrl,
+                failUrl: failUrl,
+            });
+
         } catch (error) {
-            // 사용자가 결제창의 X버튼을 눌러서 취소한 경우
+            // 3. 결제창 내부의 'X' 버튼이나 '취소' 버튼을 눌렀을 때 (USER_CANCEL)
             if (error.code === 'USER_CANCEL') {
-                const csrfToken = getCsrfToken();
-                fetch(window.location.origin + "/payments/rollback", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-XSRF-TOKEN': csrfToken
-                    },
-                    body: JSON.stringify({
-                        orderId: orderId
-                    })
-                }).then(() => {
-                    alert("결제가 취소되었습니다.");
-                    window.location.href = failUrl;
-                });
-                isRollbackNeeded = false;
+                handleRollback("User Closed Payment Window");
+                alert("결제가 취소되었습니다.");
+                window.location.href = failUrl;
+            } else {
+                // 그 외 결제 모듈 에러
+                console.error("Payment Error:", error);
+                alert("결제 중 오류가 발생했습니다: " + error.message);
             }
         }
     }

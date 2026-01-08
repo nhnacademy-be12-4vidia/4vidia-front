@@ -13,7 +13,6 @@ function startLoading() {
     // 초기 시간 설정
     startTime = Date.now();
 
-    // HTML 구조 생성 (이미지 디자인 반영)
     loader.innerHTML = `
         <div class="loader-content">
             <div class="spinner-wrapper">

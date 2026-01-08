@@ -20,7 +20,7 @@
         .row-flex {
             display: flex;
             flex-wrap: wrap !important;
-            justify-content: flex-start; /* 왼쪽 정렬하되 자연스럽게 흐르도록 */
+            justify-content: center; /* 왼쪽 정렬하되 자연스럽게 흐르도록 */
             margin-right: -0.5rem;
             margin-left: -0.5rem;
         }
@@ -28,7 +28,7 @@
         /* 카드 Wrapper */
         .book-card-wrapper {
             flex-shrink: 0;
-            width: 240px; /* 데스크탑 고정 폭 */
+            width: calc(20% - 1rem);
             padding: 0 0.5rem;
             margin-bottom: 2rem;
         }
@@ -143,7 +143,7 @@
         /* ------------------------------------------------ */
         /* 반응형 (모바일 최적화) */
         /* ------------------------------------------------ */
-        @media (max-width: 576px) {
+        @media (max-width: 700px) {
             .row-flex {
                 justify-content: center; /* 모바일에서는 중앙 정렬 */
             }

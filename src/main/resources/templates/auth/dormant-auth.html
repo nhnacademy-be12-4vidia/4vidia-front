@@ -17,141 +17,178 @@
     <link th:href="@{/css/sb-admin-2.min.css}" rel="stylesheet">
 
     <style>
+        /* ------------------- 공통 카드 스타일 ------------------- */
+        body.light-bg {
+            background-color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .card {
+            border: none;
+            border-radius: 1rem;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            background-color: #ffffff;
+        }
+
+        .card-body {
+            padding: 2rem;
+            color: #2c3e50;
+        }
+
+        /* ------------------- 안내문 / 작은 가이드 ------------------- */
         .small-guide {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: #6c757d;
+        }
+
+        /* ------------------- 버튼 통일 ------------------- */
+        .btn-user {
+            border-radius: 0.35rem;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .btn-info {
+            background-color: #4e73df;
+            border: none;
+            color: #fff;
+        }
+
+        .btn-info:hover {
+            background-color: #365acb;
+        }
+
+        .btn-primary {
+            background-color: #2c3e50;
+            border: none;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background-color: #1a252f;
+        }
+
+        .btn-success {
+            background-color: #1cc88a;
+            border: none;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background-color: #17a673;
+        }
+
+        /* ------------------- 텍스트 센터링 & 마진 ------------------- */
+        .text-center {
+            text-align: center;
+        }
+
+        /* ------------------- 반응형: 모바일 카드 여백 조정 ------------------- */
+        @media (max-width: 576px) {
+            .card-body {
+                padding: 1.5rem 1rem;
+            }
+            .btn-user {
+                font-size: 0.85rem;
+                padding: 0.45rem 0;
+            }
+        }
+
+        /* ------------------- 메시지 박스 통일 ------------------- */
+        .alert {
+            border-radius: 0.5rem;
+            font-weight: 600;
         }
     </style>
 </head>
 
-<body class="bg-gradient-primary">
+<body class="light-bg">
 
 <div class="container">
 
-    <div class="card o-hidden border-0 shadow-lg my-5">
-        <div class="card-body p-0">
+    <div class="row justify-content-center align-items-center min-vh-100">
+        <div class="col-lg-8 col-md-10">
+            <div class="card">
+                <div class="card-body">
 
-            <div class="row">
-                <div class="col-lg-6 d-none d-lg-block bg-password-image"></div>
-
-                <div class="col-lg-6">
-                    <div class="p-5">
-
-                        <div class="text-center">
-                            <h1 class="h4 text-gray-900 mb-4">휴면 계정 인증</h1>
-                            <p class="mb-4">
-                                Dooray로 인증코드를 전송하기 위한 Webhook URL을 입력한 후,<br>
-                                전송된 인증코드를 아래에 입력해주세요.
-                            </p>
-                        </div>
-                        <!-- 인증 실패 메시지 -->
-                        <div th:if="${param.errorMsg}" class="alert alert-danger">
-                            <i class="fas fa-exclamation-circle mr-1"></i>
-                            <span th:text="${param.errorMsg}"></span>
-                        </div>
-
-                        <!-- 인증코드 전송 완료 메시지 -->
-                        <div th:if="${param.sent}" class="alert alert-info">
-                            <i class="fas fa-envelope mr-1"></i>
-                            입력하신 Webhook URL로 인증코드가 전송되었습니다.
-                        </div>
-
-                        <!-- 인증 성공 메시지 -->
-                        <div th:if="${param.success}" class="alert alert-success text-center">
-                            <i class="fas fa-check-circle mr-1"></i>
-                            휴면 계정 인증이 완료되었습니다!
-                            <div class="mt-3">
-                                <a href="/auth/login" class="btn btn-success btn-sm">
-                                    로그인 하러 가기
-                                </a>
-                            </div>
-                        </div>
-
-
-                        <!-- Dooray Webhook URL 입력 + 인증 코드 요청 -->
-                        <form class="user mb-4" th:action="@{/auth/dormant/send-code}" method="post">
-
-                            <!-- email 있을 때 -->
-                            <input type="hidden"
-                                   name="email"
-                                   th:if="${email != null}"
-                                   th:value="${email}" />
-
-                            <!-- email 없을 때 -->
-                            <div class="form-group" th:unless="${email != null}">
-                                <input type="email"
-                                       name="email"
-                                       class="form-control form-control-user"
-                                       placeholder="이메일 입력"
-                                       required>
-                            </div>
-
-                            <div class="form-group">
-                                <input type="text"
-                                       name="webhookUrl"
-                                       class="form-control form-control-user"
-                                       placeholder="Dooray Webhook URL 입력"
-                                       required>
-                                <div class="small-guide mt-2">
-                                    예) https://hook.dooray.com/services/xxxx/yyyy/zzzz
-                                </div>
-                            </div>
-
-                            <button type="submit" class="btn btn-info btn-user btn-block">
-                                <i class="fas fa-paper-plane mr-1"></i> 인증코드 전송
-                            </button>
-                        </form>
-
-                        <hr>
-
-                        <!-- 인증 코드 입력 -->
-                        <form class="user" th:action="@{/auth/dormant/verify}" method="post">
-
-                            <!-- email이 있을 때: hidden -->
-                            <input type="hidden"
-                                   name="email"
-                                   th:if="${email != null}"
-                                   th:value="${email}" />
-
-
-                            <!-- 인증 코드 입력 -->
-                            <div class="form-group">
-                                <input type="text"
-                                       name="code"
-                                       class="form-control form-control-user"
-                                       placeholder="인증코드 입력"
-                                       maxlength="8"
-                                       required>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary btn-user btn-block">
-                                휴면 해제하기
-                            </button>
-                        </form>
-
-
-                        <hr>
-
-                        <div class="text-center">
-                            <a class="small" href="/auth/login">로그인 페이지로 돌아가기</a>
-                            <span class="mx-2">|</span>
-                            <a class="small"
-                               th:href="@{/auth/dormant-auth/email(email=${email})}">
-                                메일로 인증하기
-                            </a>
-                        </div>
-
+                    <div class="text-center mb-4">
+                        <h1 class="h4 text-gray-900 mb-3">휴면 계정 인증</h1>
+                        <p>
+                            Dooray로 인증코드를 전송하기 위한 Webhook URL을 입력한 후,<br>
+                            전송된 인증코드를 아래에 입력해주세요.
+                        </p>
                     </div>
+
+                    <!-- 인증 실패 메시지 -->
+                    <div th:if="${param.errorMsg}" class="alert alert-danger text-center">
+                        <i class="fas fa-exclamation-circle mr-1"></i>
+                        <span th:text="${param.errorMsg}"></span>
+                    </div>
+
+                    <!-- 인증코드 전송 완료 메시지 -->
+                    <div th:if="${param.sent}" class="alert alert-info text-center">
+                        <i class="fas fa-envelope mr-1"></i>
+                        입력하신 Webhook URL로 인증코드가 전송되었습니다.
+                    </div>
+
+                    <!-- 인증 성공 메시지 -->
+                    <div th:if="${param.success}" class="alert alert-success text-center">
+                        <i class="fas fa-check-circle mr-1"></i>
+                        휴면 계정 인증이 완료되었습니다!
+                        <div class="mt-3">
+                            <a href="/auth/login" class="btn btn-success btn-sm">로그인 하러 가기</a>
+                        </div>
+                    </div>
+
+                    <!-- Webhook URL 입력 -->
+                    <form class="user mb-4" th:action="@{/auth/dormant/send-code}" method="post">
+
+                        <input type="hidden" name="email" th:if="${email != null}" th:value="${email}" />
+
+                        <div class="form-group" th:unless="${email != null}">
+                            <input type="email" name="email" class="form-control form-control-user" placeholder="이메일 입력" required>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="text" name="webhookUrl" class="form-control form-control-user" placeholder="Dooray Webhook URL 입력" required>
+                            <div class="small-guide mt-2">
+                                예) https://hook.dooray.com/services/xxxx/yyyy/zzzz
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-info btn-user btn-block">
+                            <i class="fas fa-paper-plane mr-1"></i> 인증코드 전송
+                        </button>
+                    </form>
+
+                    <hr>
+
+                    <!-- 인증 코드 입력 -->
+                    <form class="user" th:action="@{/auth/dormant/verify}" method="post">
+                        <input type="hidden" name="email" th:if="${email != null}" th:value="${email}" />
+
+                        <div class="form-group">
+                            <input type="text" name="code" class="form-control form-control-user" placeholder="인증코드 입력" maxlength="8" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-user btn-block">휴면 해제하기</button>
+                    </form>
+
+                    <hr>
+
+                    <div class="text-center">
+                        <a class="small" href="/auth/login">로그인 페이지로 돌아가기</a>
+                        <span class="mx-2">|</span>
+                        <a class="small" th:href="@{/auth/dormant-auth/email(email=${email})}">메일로 인증하기</a>
+                    </div>
+
                 </div>
-
             </div>
-
         </div>
     </div>
 
 </div>
 
-<!-- Scripts -->
 <script th:src="@{/vendor/jquery/jquery.min.js}"></script>
 <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/vendor/jquery-easing/jquery.easing.min.js}"></script>

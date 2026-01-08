@@ -5,6 +5,8 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>리뷰 관리</title>
     <link th:href="@{/css/sb-admin-2.min.css}" rel="stylesheet">
 
@@ -73,7 +75,6 @@
             overflow: visible !important;
         }
 
-
         .review-thumb {
             width: 72px;
             height: 72px;
@@ -81,16 +82,106 @@
             border-radius: 6px;
             border: 1px solid #e3e6f0;
         }
+
+        /* ✅ 모바일 버튼 풀폭(검색) */
+        @media (max-width: 575.98px) {
+            .mobile-full-btn { width: 100%; }
+        }
+
+        @media (max-width: 767.98px) {
+
+            .table-responsive { border: 0; }
+
+            /* 헤더 숨김 */
+            .table thead { display: none; }
+
+            /* 행을 카드처럼 */
+            .table tbody tr {
+                display: block;
+                margin: 10px 10px;
+                border: 1px solid #e9ecef;
+                border-radius: 12px;
+                padding: 10px 12px;
+                background: #fff;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            }
+
+            /* 셀을 2열 구조(라벨/값)로 */
+            .table tbody td {
+                display: flex;
+                justify-content: space-between;
+                gap: 12px;
+                padding: 8px 0;
+                border: 0;
+                text-align: left !important;
+                white-space: normal !important; /* 모바일에서는 줄바꿈 허용 */
+                overflow: visible !important;
+                text-overflow: unset !important;
+            }
+
+            /* 라벨 */
+            .table tbody td::before {
+                content: attr(data-label);
+                font-weight: 700;
+                color: #6c757d;
+                flex: 0 0 92px;
+            }
+
+            /* 내용 셀: 모바일에서는 라벨/내용 세로 흐름이 자연스럽게 */
+            td.review-content-cell {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            td.review-content-cell::before {
+                flex: none;
+            }
+
+            /* 모바일에서도 기본은 "접힘" 상태 유지 */
+            .review-content{
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 2;   /* ✅ 기본 2줄만 보여주기 (원하면 3으로) */
+                overflow: hidden;
+                white-space: normal;
+                max-width: 100%;
+            }
+
+            /* 펼쳤을 때는 clamp 해제 */
+            .review-content.expanded{
+                -webkit-line-clamp: unset;
+                display: block;
+                overflow: visible;
+            }
+
+            /* 관리 버튼(삭제) 셀 */
+            .table tbody td.actions {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+                margin-top: 6px;
+                padding-top: 10px;
+                border-top: 1px dashed #e9ecef;
+            }
+
+            .table tbody td.actions form,
+            .table tbody td.actions button {
+                width: 100%;
+            }
+
+            /* 이미지 썸네일: 너무 커 보이면 조금 줄이기(선택) */
+            .review-thumb {
+                width: 64px;
+                height: 64px;
+            }
+        }
     </style>
 </head>
 
 <body>
 <div layout:fragment="pageContent">
 
-    <!-- 페이지 제목 -->
     <h1 class="h3 mb-3 text-gray-800">리뷰 관리</h1>
 
-    <!-- 검색 / 필터 영역 (회원관리 구조로 통일) -->
     <div class="card shadow-sm mb-3">
         <div class="card-body form-box">
 
@@ -98,7 +189,7 @@
                 <div class="row g-3 align-items-end">
 
                     <!-- 키워드 -->
-                    <div class="col-md-4">
+                    <div class="col-12 col-md-4">
                         <label class="form-label mb-1">검색어</label>
                         <input type="text"
                                name="keyword"
@@ -108,7 +199,7 @@
                     </div>
 
                     <!-- 평점 -->
-                    <div class="col-md-3">
+                    <div class="col-6 col-md-3">
                         <label class="form-label mb-1">평점</label>
                         <select name="rating" class="form-select form-select-sm">
                             <option value="" th:selected="${rating == null}">전체</option>
@@ -121,7 +212,7 @@
                     </div>
 
                     <!-- 페이지 크기 -->
-                    <div class="col-md-2">
+                    <div class="col-6 col-md-2">
                         <label class="form-label mb-1">페이지 당</label>
                         <select name="size" class="form-select form-select-sm">
                             <option value="10" th:selected="${page.size() == 10}">10</option>
@@ -131,9 +222,9 @@
                     </div>
 
                     <!-- 버튼 -->
-                    <div class="col-md-3 text-end">
+                    <div class="col-12 col-md-3 text-md-end">
                         <input type="hidden" name="page" value="0"/>
-                        <button class="btn btn-primary btn-sm" type="submit" style="margin-top: 22px;">
+                        <button class="btn btn-primary btn-sm mobile-full-btn" type="submit" style="margin-top: 0.25rem;">
                             검색
                         </button>
                     </div>
@@ -144,211 +235,203 @@
         </div>
     </div>
 
-    <!-- 총 건수 -->
     <div class="d-flex justify-content-between align-items-center mb-2">
         <div class="small text-muted">
             총 <strong th:text="${page.totalElements()}">0</strong> 건
         </div>
     </div>
-    <!-- ✅ 테이블+페이지네이션을 아래로 밀기 위한 wrapper 시작 -->
+
     <div class="d-flex flex-column gap-3" style="min-height: calc(100vh - 360px);">
 
-    <!-- 리뷰 목록 테이블 -->
-    <div class="card shadow-sm">
-        <div class="card-body p-0">
-            <table class="table table-hover align-middle mb-0 table-fixed">
-                <thead>
-                <tr class="text-center">
-                    <th style="width:80px;">ID</th>
-                    <th style="width:220px;">도서</th>
-                    <th style="width:170px;">회원</th>
-                    <th style="width:90px;">평점</th>
-                    <th>내용</th>
-                    <th style="width:160px;">작성일</th>
-                    <th style="width:110px;">관리</th>
-                </tr>
-                </thead>
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
 
-                <tbody>
-                <!-- 데이터 없음 -->
-                <tr th:if="${#lists.isEmpty(page.content())}">
-                    <td colspan="7" class="text-center py-4 text-muted">
-                        등록된 리뷰가 없습니다.
-                    </td>
-                </tr>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 table-fixed">
+                        <thead>
+                        <tr class="text-center">
+                            <th style="width:80px;">ID</th>
+                            <th style="width:220px;">도서</th>
+                            <th style="width:170px;">회원</th>
+                            <th style="width:90px;">평점</th>
+                            <th>내용</th>
+                            <th style="width:160px;">작성일</th>
+                            <th style="width:110px;">관리</th>
+                        </tr>
+                        </thead>
 
-                <!-- 리뷰 행 -->
-                <tr th:each="r : ${page.content()}" class="align-middle">
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(page.content())}">
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                등록된 리뷰가 없습니다.
+                            </td>
+                        </tr>
 
-                    <!-- ID -->
-                    <td class="text-center" th:text="${r.id}">1</td>
+                        <tr th:each="r : ${page.content()}" class="align-middle">
 
-                    <!-- 도서 -->
-                    <td>
-                        <a th:href="@{/books/{bookId}(bookId=${r.bookId})}" class="text-decoration-none">
-                            <div class="fw-semibold text-primary" th:text="${r.bookTitle}">
-                                도서 제목
-                            </div>
-                        </a>
-                        <div class="small text-muted" th:text="'ID: ' + ${r.bookId}">ID: 0</div>
-                    </td>
+                            <!-- ✅ data-label 추가 -->
+                            <td class="text-center" data-label="ID" th:text="${r.id}">1</td>
 
-                    <!-- 회원 -->
-                    <td class="text-center">
-                        <div th:text="${r.userNickname} ?: '-'">닉네임</div>
-                        <div class="small text-muted" th:text="${r.email()}">user@email.com</div>
-                    </td>
+                            <td data-label="도서">
+                                <a th:href="@{/books/{bookId}(bookId=${r.bookId})}" class="text-decoration-none">
+                                    <div class="fw-semibold text-primary" th:text="${r.bookTitle}">
+                                        도서 제목
+                                    </div>
+                                </a>
+                                <div class="small text-muted" th:text="'ID: ' + ${r.bookId}">ID: 0</div>
+                            </td>
 
-                    <!-- 평점 -->
-                    <td class="text-center">
-                        <span class="badge-rating"
-                              th:text="${r.rating} + '점'"
-                              th:classappend="${r.rating} >= 4 ? ' bg-success text-white' :
-                                              (${r.rating} == 3 ? ' bg-primary text-white' : ' bg-secondary text-white')">
-                            5점
-                        </span>
-                    </td>
+                            <td class="text-center" data-label="회원">
+                                <div th:text="${r.userNickname} ?: '-'">닉네임</div>
+                                <div class="small text-muted" th:text="${r.email()}">user@email.com</div>
+                            </td>
 
-                    <!-- 내용 + 이미지 -->
-                    <td class="review-content-cell">
-                        <div class="review-content" th:text="${r.content}">
-                            리뷰 내용 미리보기...
-                        </div>
+                            <td class="text-center" data-label="평점">
+                                <span class="badge-rating"
+                                      th:text="${r.rating} + '점'"
+                                      th:classappend="${r.rating} >= 4 ? ' bg-success text-white' :
+                                                      (${r.rating} == 3 ? ' bg-primary text-white' : ' bg-secondary text-white')">
+                                    5점
+                                </span>
+                            </td>
 
-                        <button type="button"
-                                class="btn btn-link btn-sm p-0 align-baseline"
-                                th:if="${#strings.length(r.content) > 30}"
+                            <td class="review-content-cell" data-label="내용">
+                                <div class="review-content" th:text="${r.content}">
+                                    리뷰 내용 미리보기...
+                                </div>
+
+                                <button type="button"
+                                        class="btn btn-link btn-sm p-0 align-baseline"
+                                        th:if="${#strings.length(r.content) > 60}"
                                 onclick="toggleReviewContent(this)">
-                            더보기
-                        </button>
+                                더보기
+                                </button>
 
-                        <div class="mt-2"
-                             th:if="${r.imageUrls != null and !#lists.isEmpty(r.imageUrls)}">
 
-                            <img th:each="imgUrl : ${r.imageUrls}"
-                                 th:src="@{/proxy(url=${imgUrl})}"
-                                 alt="리뷰 이미지"
-                                 class="review-thumb me-2 mb-2">
-                        </div>
-                    </td>
+                                <div class="mt-2"
+                                     th:if="${r.imageUrls != null and !#lists.isEmpty(r.imageUrls)}">
+                                    <img th:each="imgUrl : ${r.imageUrls}"
+                                         th:src="@{/proxy(url=${imgUrl})}"
+                                         alt="리뷰 이미지"
+                                         class="review-thumb me-2 mb-2">
+                                </div>
+                            </td>
 
-                    <!-- 작성일 -->
-                    <td class="text-center">
-                        <span th:text="${r.createdAt}">2025-01-01</span>
-                    </td>
+                            <td class="text-center" data-label="작성일">
+                                <span th:text="${r.createdAt}">2025-01-01</span>
+                            </td>
 
-                    <!-- 관리(삭제) -->
-                    <td class="text-center">
-                        <form th:action="@{'/admin/reviews/' + ${r.id} + '/delete'}"
-                              method="post" class="d-inline">
-                            <!-- 현재 검색/페이지 상태 유지 -->
-                            <input type="hidden" name="keyword" th:value="${keyword}">
-                            <input type="hidden" name="rating" th:value="${rating}">
-                            <input type="hidden" name="page" th:value="${page.page()}">
-                            <input type="hidden" name="size" th:value="${page.size()}">
-                            <button type="submit"
-                                    class="btn btn-sm btn-outline-danger"
-                                    onclick="return confirm('해당 리뷰를 삭제하시겠습니까?');">
-                                삭제
-                            </button>
-                        </form>
-                    </td>
+                            <!-- ✅ 관리 셀 actions로 -->
+                            <td class="text-center actions" data-label="관리">
+                                <form th:action="@{'/admin/reviews/' + ${r.id} + '/delete'}"
+                                      method="post" class="d-inline">
+                                    <input type="hidden" name="keyword" th:value="${keyword}">
+                                    <input type="hidden" name="rating" th:value="${rating}">
+                                    <input type="hidden" name="page" th:value="${page.page()}">
+                                    <input type="hidden" name="size" th:value="${page.size()}">
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('해당 리뷰를 삭제하시겠습니까?');">
+                                        삭제
+                                    </button>
+                                </form>
+                            </td>
 
-                </tr>
-                </tbody>
-            </table>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
+
+        <nav class="mt-auto" th:if="${page.totalPages > 1}">
+            <ul class="pagination pagination-sm justify-content-center"
+                th:with="
+                currentPage=${page.page()},
+                totalPages=${page.totalPages()},
+                blockSize=${5},
+                currentBlock=${currentPage / blockSize},
+                startPage=${currentBlock * blockSize},
+                endPage=${(startPage + blockSize - 1) < (totalPages - 1) ? (startPage + blockSize - 1) : (totalPages - 1)}
+            ">
+
+                <li class="page-item" th:classappend="${currentPage == 0} ? ' disabled'">
+                    <a class="page-link"
+                       th:href="@{/admin/reviews(
+                            page=${currentPage - 1},
+                            size=${page.size()},
+                            keyword=${keyword},
+                            rating=${rating}
+                       )}">&lt;</a>
+                </li>
+
+                <li class="page-item" th:if="${startPage > 0}">
+                    <a class="page-link"
+                       th:href="@{/admin/reviews(
+                            page=${0},
+                            size=${page.size()},
+                            keyword=${keyword},
+                            rating=${rating}
+                       )}">1</a>
+                </li>
+                <li class="page-item disabled" th:if="${startPage > 1}">
+                    <span class="page-link">…</span>
+                </li>
+
+                <li class="page-item"
+                    th:each="p : ${#numbers.sequence(startPage, endPage)}"
+                    th:classappend="${p == currentPage} ? ' active'">
+                    <a class="page-link"
+                       th:text="${p + 1}"
+                       th:href="@{/admin/reviews(
+                            page=${p},
+                            size=${page.size()},
+                            keyword=${keyword},
+                            rating=${rating}
+                       )}"></a>
+                </li>
+
+                <li class="page-item disabled" th:if="${endPage < totalPages - 2}">
+                    <span class="page-link">…</span>
+                </li>
+                <li class="page-item" th:if="${endPage < totalPages - 1}">
+                    <a class="page-link"
+                       th:text="${totalPages}"
+                       th:href="@{/admin/reviews(
+                            page=${totalPages - 1},
+                            size=${page.size()},
+                            keyword=${keyword},
+                            rating=${rating}
+                       )}"></a>
+                </li>
+
+                <li class="page-item" th:classappend="${page.last()} ? ' disabled'">
+                    <a class="page-link"
+                       th:href="@{/admin/reviews(
+                            page=${currentPage + 1},
+                            size=${page.size()},
+                            keyword=${keyword},
+                            rating=${rating}
+                       )}">&gt;</a>
+                </li>
+
+            </ul>
+        </nav>
+
+        <script th:inline="javascript">
+            function toggleReviewContent(button) {
+                const cell = button.closest('.review-content-cell');
+                if (!cell) return;
+
+                const contentEl = cell.querySelector('.review-content');
+                if (!contentEl) return;
+
+                const expanded = contentEl.classList.toggle('expanded');
+                button.textContent = expanded ? "접기" : "더보기";
+            }
+        </script>
+
     </div>
-
-    <!-- Pagination (회원관리와 동일 패턴 유지) -->
-    <nav class="mt-auto" th:if="${page.totalPages > 1}">
-        <ul class="pagination pagination-sm justify-content-center"
-            th:with="
-            currentPage=${page.page()},
-            totalPages=${page.totalPages()},
-            blockSize=${5},
-            currentBlock=${currentPage / blockSize},
-            startPage=${currentBlock * blockSize},
-            endPage=${(startPage + blockSize - 1) < (totalPages - 1) ? (startPage + blockSize - 1) : (totalPages - 1)}
-        ">
-
-            <li class="page-item" th:classappend="${currentPage == 0} ? ' disabled'">
-                <a class="page-link"
-                   th:href="@{/admin/reviews(
-                        page=${currentPage - 1},
-                        size=${page.size()},
-                        keyword=${keyword},
-                        rating=${rating}
-                   )}">&lt;</a>
-            </li>
-
-            <li class="page-item" th:if="${startPage > 0}">
-                <a class="page-link"
-                   th:href="@{/admin/reviews(
-                        page=${0},
-                        size=${page.size()},
-                        keyword=${keyword},
-                        rating=${rating}
-                   )}">1</a>
-            </li>
-            <li class="page-item disabled" th:if="${startPage > 1}">
-                <span class="page-link">…</span>
-            </li>
-
-            <li class="page-item"
-                th:each="p : ${#numbers.sequence(startPage, endPage)}"
-                th:classappend="${p == currentPage} ? ' active'">
-                <a class="page-link"
-                   th:text="${p + 1}"
-                   th:href="@{/admin/reviews(
-                        page=${p},
-                        size=${page.size()},
-                        keyword=${keyword},
-                        rating=${rating}
-                   )}"></a>
-            </li>
-
-            <li class="page-item disabled" th:if="${endPage < totalPages - 2}">
-                <span class="page-link">…</span>
-            </li>
-            <li class="page-item" th:if="${endPage < totalPages - 1}">
-                <a class="page-link"
-                   th:text="${totalPages}"
-                   th:href="@{/admin/reviews(
-                        page=${totalPages - 1},
-                        size=${page.size()},
-                        keyword=${keyword},
-                        rating=${rating}
-                   )}"></a>
-            </li>
-
-            <li class="page-item" th:classappend="${page.last()} ? ' disabled'">
-                <a class="page-link"
-                   th:href="@{/admin/reviews(
-                        page=${currentPage + 1},
-                        size=${page.size()},
-                        keyword=${keyword},
-                        rating=${rating}
-                   )}">&gt;</a>
-            </li>
-
-        </ul>
-    </nav>
-
-    <script th:inline="javascript">
-        function toggleReviewContent(button) {
-            const cell = button.closest('.review-content-cell');
-            if (!cell) return;
-
-            const contentEl = cell.querySelector('.review-content');
-            if (!contentEl) return;
-
-            const expanded = contentEl.classList.toggle('expanded');
-            button.textContent = expanded ? "접기" : "더보기";
-        }
-    </script>
-
-</div>
 </div>
 </body>
 </html>

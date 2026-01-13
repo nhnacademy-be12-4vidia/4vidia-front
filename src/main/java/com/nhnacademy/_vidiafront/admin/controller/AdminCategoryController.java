@@ -1,6 +1,7 @@
 package com.nhnacademy._vidiafront.admin.controller;
 
 import com.nhnacademy._vidiafront.admin.client.AdminCategoryManagementApiClient;
+import com.nhnacademy._vidiafront.admin.client.AdminCheckApiClient;
 import com.nhnacademy._vidiafront.admin.dto.category.request.CreateCategoryRequest;
 import com.nhnacademy._vidiafront.admin.dto.category.request.UpdateCategoryRequest;
 import com.nhnacademy._vidiafront.book.client.CategoryApiClient;
@@ -26,11 +27,14 @@ public class AdminCategoryController {
 
     private final AdminCategoryManagementApiClient adminCategoryApiClient;
     private final CategoryApiClient categoryApiClient;
+    private final AdminCheckApiClient adminCheckApiClient;
+
 
     @GetMapping
     public String listCategories(
             Model model
     ) {
+        adminCheckApiClient.checkAdmin();
         List<CategoryResponse> categories = categoryApiClient.getCategoryList();
         model.addAttribute("categories", categories);
         return "admin/admin-category";

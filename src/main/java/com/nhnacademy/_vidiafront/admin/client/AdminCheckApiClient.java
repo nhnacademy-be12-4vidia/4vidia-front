@@ -12,7 +12,7 @@ public class AdminCheckApiClient {
     private static final String USER_SERVICE = "/api/v1/user-service";
     private final BackendApiClient backendApiClient;
 
-    public String checkAdmin() {
-        return backendApiClient.get(USER_SERVICE + "/admin" + "/users/name", new ParameterizedTypeReference<>() {});
+    public Void checkAdmin() {
+        return backendApiClient.get(USER_SERVICE + "/admin/check", new ParameterizedTypeReference<>() {});
     }
 }

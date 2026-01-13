@@ -1,6 +1,7 @@
 package com.nhnacademy._vidiafront.admin.controller;
 
 import com.nhnacademy._vidiafront.admin.client.AdminBookApiClient;
+import com.nhnacademy._vidiafront.admin.client.AdminCheckApiClient;
 import com.nhnacademy._vidiafront.admin.dto.request.AdminBookCreateRequest;
 import com.nhnacademy._vidiafront.admin.dto.request.AdminBookUpdateRequest;
 import com.nhnacademy._vidiafront.admin.dto.response.AdminIsbnSearchResponse;
@@ -26,12 +27,14 @@ public class AdminBookController {
     private final AdminBookApiClient adminBookApiClient;
     private final BookApiClient bookApiClient;
     private final CategoryApiClient categoryApiClient;
+    private final AdminCheckApiClient adminCheckApiClient;
 
     // 도서 생성 폼
     @GetMapping
     public String getBookCreateForm(
             Model model
     ) {
+        adminCheckApiClient.checkAdmin();
         model.addAttribute("mode", "create");
         model.addAttribute("categories", categoryApiClient.getFlatCategoryList());
         return "admin/admin-book-form";

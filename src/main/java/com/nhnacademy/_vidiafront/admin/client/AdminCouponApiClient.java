@@ -23,7 +23,7 @@ public class AdminCouponApiClient {
 
     public void createPolicy(CouponPolicyCreateRequest request) {
         backendApiClient.post(
-                COUPON_SERVICE + "/admin/policies",
+                COUPON_SERVICE + "/policies",
                 request,
                 new ParameterizedTypeReference<ApiResponse<Void>>(){}
         );
@@ -46,7 +46,7 @@ public class AdminCouponApiClient {
             int size
     ) {
         UriComponentsBuilder uriBuilder = UriComponentsBuilder
-                .fromPath(COUPON_SERVICE + "/admin/policies/search")
+                .fromPath(COUPON_SERVICE + "/policies/search")
                 .queryParam("page", page)
                 .queryParam("size", size);
 

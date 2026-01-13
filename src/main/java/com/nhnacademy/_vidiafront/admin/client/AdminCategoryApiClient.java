@@ -12,7 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminCategoryApiClient {
 
-    private static final String COUPON_SERVICE = "/api/v1/coupon-service";
+    private static final String COUPON_SERVICE = "/api/v1/coupon-service/admin";
 
     private final BackendApiClient backendApiClient;
 

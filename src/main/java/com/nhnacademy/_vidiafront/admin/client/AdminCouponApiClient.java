@@ -23,7 +23,7 @@ public class AdminCouponApiClient {
 
     public void createPolicy(CouponPolicyCreateRequest request) {
         backendApiClient.post(
-                COUPON_SERVICE + "/policies",
+                COUPON_SERVICE + "/admin/policies",
                 request,
                 new ParameterizedTypeReference<ApiResponse<Void>>(){}
         );
@@ -32,7 +32,7 @@ public class AdminCouponApiClient {
     // 활성/비활성 toggle
     public void toggleActivation(Long policyId) {
         backendApiClient.patchNoBody(
-                COUPON_SERVICE + "/policies/" + policyId + "/toggle",
+                COUPON_SERVICE + "/admin/policies/" + policyId + "/toggle",
                 new ParameterizedTypeReference<ApiResponse<Void>>(){}
         );
     }
@@ -46,7 +46,7 @@ public class AdminCouponApiClient {
             int size
     ) {
         UriComponentsBuilder uriBuilder = UriComponentsBuilder
-                .fromPath(COUPON_SERVICE + "/policies/search")
+                .fromPath(COUPON_SERVICE + "/admin/policies/search")
                 .queryParam("page", page)
                 .queryParam("size", size);
 

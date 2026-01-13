@@ -1,6 +1,7 @@
 package com.nhnacademy._vidiafront.admin.controller;
 
 import com.nhnacademy._vidiafront.admin.client.AdminCategoryApiClient;
+import com.nhnacademy._vidiafront.admin.client.AdminCheckApiClient;
 import com.nhnacademy._vidiafront.admin.client.AdminCouponApiClient;
 import com.nhnacademy._vidiafront.admin.dto.request.CouponPolicyCreateRequest;
 import com.nhnacademy._vidiafront.coupon.dto.CouponPolicyDto;
@@ -17,6 +18,7 @@ public class AdminCouponPolicyController {
 
     private final AdminCouponApiClient couponApiClient;
     private final AdminCategoryApiClient categoryApiClient;
+    private final AdminCheckApiClient adminCheckApiClient;
 
     /* ======================================================
        쿠폰 정책 생성 (카테고리)
@@ -24,6 +26,7 @@ public class AdminCouponPolicyController {
 
     @GetMapping("/category")
     public String createCategoryForm(Model model) {
+        adminCheckApiClient.checkAdmin();
         model.addAttribute("categories", categoryApiClient.getCategoryList());
         return "admin/admin-coupon-policy-category";
     }

@@ -19,6 +19,7 @@ public record ReviewListResponse(
     boolean myReview,
     boolean modified
 
+
 ) {
 
 }

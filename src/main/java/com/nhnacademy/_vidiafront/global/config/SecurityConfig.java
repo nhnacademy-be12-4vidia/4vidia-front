@@ -28,7 +28,7 @@ public class SecurityConfig {
                                 "/login/oauth2/**",
                                 "/mypage/address/**",
                                 "/mypage/address",
-                                "/orders"
+                                "/orders/**"
 
                         ));
         http

@@ -78,6 +78,7 @@ public class ReviewApiClient {
         parts.add("content", request.getContent());
         parts.add("rating", request.getRating());
 
+
         if (newImageList != null) {
             for (MultipartFile file : newImageList) {
                 if (file == null || file.isEmpty()) continue;

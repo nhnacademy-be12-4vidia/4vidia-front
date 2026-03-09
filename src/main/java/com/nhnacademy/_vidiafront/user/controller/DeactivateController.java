@@ -1,6 +1,7 @@
 package com.nhnacademy._vidiafront.user.controller;
 
 import com.nhnacademy._vidiafront.cart.client.CartApiClient;
+import com.nhnacademy._vidiafront.global.exception.ApiRequestException;
 import com.nhnacademy._vidiafront.user.client.AuthApiClient;
 import com.nhnacademy._vidiafront.user.client.UserApiClient;
 import com.nhnacademy._vidiafront.user.dto.user.request.DeleteUserRequest;
@@ -9,10 +10,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -38,13 +42,18 @@ public class DeactivateController {
     public String deleteUser(HttpServletRequest request,
                              HttpServletResponse response,
                              DeleteUserRequest deleteUserRequest,
-                             BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return "mypage/deactive/leave";
+                             RedirectAttributes redirectAttributes) {
+        try{
+            userApiClient.deleteUser(deleteUserRequest);
+        } catch (ApiRequestException e) {
+        if ("U502".equals(e.getErrorCode())) {
+            redirectAttributes.addFlashAttribute("errorMessage", "비밀번호가 일치하지 않습니다.");
+            return "redirect:/mypage/deactivate";
         }
+        return "mypage/deactive/leave";
+    }
 
-        userApiClient.deleteUser(deleteUserRequest);
-        String userId = authApiClient.logout();
+    String userId = authApiClient.logout();
         log.info("회원탈퇴 후 로그아웃함  userId: {}", userId);
         cartApiClient.deleteCart();
 

@@ -1,5 +1,6 @@
 package com.nhnacademy._vidiafront.admin.controller;
 
+import com.nhnacademy._vidiafront.admin.client.AdminCheckApiClient;
 import com.nhnacademy._vidiafront.admin.client.AdminCouponApiClient;
 import com.nhnacademy._vidiafront.admin.client.AdminUserApiClient;
 import com.nhnacademy._vidiafront.admin.dto.response.AdminUserResponse;
@@ -15,6 +16,7 @@ public class AdminCouponUserController {
 
     private final AdminCouponApiClient couponApiClient;
     private final AdminUserApiClient userApiClient;
+    private final AdminCheckApiClient adminCheckApiClient;
 
     /* =========================
        유저 쿠폰 발급 페이지
@@ -26,6 +28,7 @@ public class AdminCouponUserController {
             Model model
     ) {
         // 1️⃣ 유저 정보
+        adminCheckApiClient.checkAdmin();
         AdminUserResponse user = userApiClient.getUser(userId);
 
         // 2️⃣ 발급 가능한 쿠폰 정책

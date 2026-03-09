@@ -12,11 +12,6 @@
 <div layout:fragment="content">
 
     <div class="container-fluid">
-
-        <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">결제 결과</h1>
-        </div>
-
         <div class="row justify-content-center">
             <div class="col-lg-6 col-md-8">
 
@@ -47,9 +42,16 @@
                                 <span class="font-weight-bold text-gray-900" style="font-size: 1.1rem;">총 결제 금액</span>
                                 <span class="text-primary font-weight-bold" style="font-size: 1.1rem;"
                                       th:text="${#numbers.formatInteger(payment.amount, 0, 'COMMA')} + '원'">
-                                    35,000원
-                                </span>
+                35,000원
+            </span>
                             </div>
+                        </div>
+
+                        <div th:unless="${isLoggedIn}" class="mb-3">
+                            <p class="text-muted small mb-0">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                비회원은 <strong>주문번호</strong>와 <strong>설정한 비밀번호</strong>로 조회가 가능합니다.
+                            </p>
                         </div>
 
                         <div class="row">
@@ -60,25 +62,19 @@
                                     <i class="fas fa-file-invoice mr-2"></i>주문상세
                                 </a>
 
-                                <div th:unless="${isLoggedIn}">
-                                    <p class="text-muted small mb-2 text-center">
-                                        <i class="fas fa-info-circle mr-1"></i>
-                                        비회원은 <strong>주문번호</strong>와 <strong>설정한 비밀번호</strong>로 조회가 가능합니다.
-                                    </p>
-                                    <a th:href="@{/auth/login}"
-                                       class="btn btn-primary btn-block btn-lg">
-                                        <i class="fas fa-search mr-2"></i>주문조회하기
-                                    </a>
-                                </div>
+                                <a th:unless="${isLoggedIn}"
+                                   th:href="@{/auth/login}"
+                                   class="btn btn-primary btn-block btn-lg">
+                                    <i class="fas fa-search mr-2"></i>주문조회
+                                </a>
                             </div>
 
                             <div class="col-6">
-                                <div th:if="${!isLoggedIn}" class="mb-4 d-none d-lg-block"></div> <a th:href="@{/}" class="btn btn-secondary btn-block btn-lg">
-                                <i class="fas fa-home mr-2"></i>홈으로
-                            </a>
+                                <a th:href="@{/}" class="btn btn-secondary btn-block btn-lg">
+                                    <i class="fas fa-home mr-2"></i>홈으로
+                                </a>
                             </div>
                         </div>
-
                     </div>
                 </div>
 

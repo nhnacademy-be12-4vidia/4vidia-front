@@ -68,7 +68,7 @@
                         </div>
                         <div class="card-body text-center">
                             <img id="imagePreview" 
-                                 th:src="${book != null && book.coverImageUrl != null ? '/proxy?url=' + book.coverImageUrl : '/img/logo.png'}" 
+                                 th:src="${book != null && book.coverImageUrl != null ? '/proxy?url=' + book.coverImageUrl : '/img/final_logo.png'}"
                                  alt="도서 표지 미리보기" class="book-cover-preview mb-3">
                             
                             <!-- File Upload Input -->
@@ -262,6 +262,7 @@
 </div>
 
 <th:block layout:fragment="pageScript">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/vendor/toastui/js/toastui-editor-all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script th:inline="javascript">
@@ -340,7 +341,7 @@
                          // 프록시 적용
                         preview.src = '/proxy?url=' + encodeURIComponent(url);
                     } else {
-                        preview.src = '/img/logo.png';
+                        preview.src = '/img/final_logo.png';
                     }
                 });
             }
@@ -374,7 +375,7 @@
                         if (url) {
                              document.getElementById('imagePreview').src = '/proxy?url=' + encodeURIComponent(url);
                         } else {
-                             document.getElementById('imagePreview').src = '/img/logo.png';
+                             document.getElementById('imagePreview').src = '/img/final_logo.png';
                         }
                     }
                 });
@@ -451,7 +452,7 @@
                     document.getElementById('imagePreview').src = data.coverImageUrl;
                     document.getElementById('imageUrl').value = data.coverImageUrl;
                 } else {
-                    document.getElementById('imagePreview').src = '/img/logo.png';
+                    document.getElementById('imagePreview').src = '/img/final_logo.png';
                     document.getElementById('imageUrl').value = '';
                 }
 

@@ -26,7 +26,7 @@ public class MainController {
     @GetMapping("/admin")
     public String admin() {
         if (userApiClient.getUserRole().equals("ADMIN")) {
-            return "admin/admin-layout";
+            return "admin/admin-main";
         } else {
             return "redirect:/";
         }

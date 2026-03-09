@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+<!-- 구매 위젯 Fragment -->
+<th:block th:fragment="widget(book)">
+
+    <div class="card purchase-card section-gap purchase-widget-container">
+        <div class="card-body">
+
+            <div class="meta-grid">
+                <div class="k">저자</div>
+                <div class="v">
+                    <span th:if="${!#lists.isEmpty(book.authors)}">
+                        <span th:each="author, stat : ${book.authors}">
+                            <a th:href="@{/books/search(keyword=${author.name})}"
+                               th:text="${author.name}">저자명</a>
+                            <span th:if="${!stat.last}">, </span>
+                        </span>
+                    </span>
+                    <span th:if="${#lists.isEmpty(book.authors)}">-</span>
+                </div>
+
+                <div class="k">출판사</div>
+                <div class="v">
+                    <a th:if="${book.publisher != null}"
+                       th:href="@{/books/search(keyword=${book.publisher.name})}"
+                       th:text="${book.publisher.name}">출판사명</a>
+                    <span th:if="${book.publisher == null}">-</span>
+                </div>
+
+                <div class="k">출간일</div>
+                <div class="v"
+                     th:text="${book.publishedDate != null ? #temporals.format(book.publishedDate, 'yyyy-MM-dd') : '-'}">-</div>
+
+                <div class="k">ISBN</div>
+                <div class="v" th:text="${book.isbn} ?: '-'">-</div>
+
+                <div class="k">쪽수</div>
+                <div class="v" th:text="${book.pageCount != null ? book.pageCount + '쪽' : '-'}">-</div>
+            </div>
+
+            <hr>
+            <div class="price-row">
+                <span class="price-sales"
+                      th:text="${book.priceSales != null ? #numbers.formatInteger(book.priceSales, 0, 'COMMA') + '원' : '가격 미정'}">- 원</span>
+                <span class="price-standard" th:if="${book.priceStandard != null}"
+                      th:text="${#numbers.formatInteger(book.priceStandard, 0, 'COMMA')} + '원'">- 원</span>
+            </div>
+
+            <div class="mt-2">
+                <span th:if="${book.stock != null and book.stock > 0}"
+                      class="stock-status-in small"
+                      th:text="'재고 있음 (' + ${book.stock} + '권)'">재고 있음</span>
+                <span th:unless="${book.stock != null and book.stock > 0}"
+                      class="stock-status-out small">품절</span>
+            </div>
+
+            <div class="mt-1 mb-3">
+                <span class="small" th:if="${book.reviewCount != null and book.reviewCount > 0}">
+                    <i class="fas fa-star text-warning"></i>
+                    <strong th:text="${#numbers.formatDecimal(book.avgRating, 1, 1)}">0.0</strong>
+                    <span class="text-muted"> (<span th:text="${book.reviewCount}">0</span>건)</span>
+                </span>
+                <span class="small text-muted" th:if="${book.reviewCount == null or book.reviewCount == 0}">
+                    <i class="fas fa-star text-muted"></i> 리뷰 없음
+                </span>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="font-weight-bold text-gray-800">수량</span>
+                <div class="qty-control">
+                    <button type="button" class="qty-btn qty-btn-minus">-</button>
+                    <input type="text" class="qty-input" value="1" inputmode="numeric" readonly>
+                    <button type="button" class="qty-btn qty-btn-plus">+</button>
+                </div>
+            </div>
+
+            <div class="row no-gutters mb-3">
+                <div class="col-6 pr-1">
+                    <form th:action="@{/cart/add}" method="post">
+                        <input type="hidden" name="bookId" th:value="${book.id}">
+                        <input type="hidden" name="quantity" value="1" class="hidden-cart-qty">
+                        <button type="button"
+                                class="btn btn-outline-primary btn-block py-2 font-weight-bold"
+                                th:attr="data-book-id=${book.id}"
+                                onclick="handleAddToCart(this)">
+                            <i class="fas fa-shopping-cart mr-1"></i> 장바구니
+                        </button>
+                    </form>
+                </div>
+                <div class="col-6 pl-1">
+                    <form th:action="@{/orders/checkout-temp}" method="post">
+                        <input type="hidden" name="bookId" th:value="${book.id}">
+                        <input type="hidden" name="quantity" value="1" class="hidden-order-qty">
+                        <button type="submit" class="btn btn-primary btn-block py-2 font-weight-bold">
+                            바로 구매
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="pt-3 border-top">
+                <h6 class="text-gray-800 mb-2 font-weight-bold small">관련 태그</h6>
+                <div th:if="${!#lists.isEmpty(book.tags)}">
+                    <a class="badge badge-pill badge-secondary book-tag-badge"
+                       th:each="tag : ${book.tags}"
+                       th:text="${tag}"
+                       th:href="@{/books/search/tags(tagNameList=${tag}, mode='OR')}">태그</a>
+                </div>
+                <div th:if="${#lists.isEmpty(book.tags)}">
+                    <span class="text-muted small">태그 없음</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</th:block>
+
+</body>
+</html>

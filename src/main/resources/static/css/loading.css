@@ -1,23 +1,17 @@
-/* resources/static/css/loading.css */
-
 .loader-container {
     position: fixed;
-    top: 4.375rem; /* 헤더 높이 */
-    left: 14rem;   /* 사이드바 너비 */
-    width: calc(100% - 14rem);
-    height: calc(100% - 4.375rem);
-    background-color: rgba(255, 255, 255, 0.9); /* 이미지처럼 밝게 */
+    top: 4.375rem;   /* 네비바까지 덮으려면 0, 네비바 아래라면 기존 4.375rem */
+    left: 0;  /* 왼쪽 끝에 딱 붙도록 명시 */
+    width: 100vw;  /* 화면 전체 너비 */
+    height: 100vh; /* 화면 전체 높이 */
+    background-color: rgba(255, 255, 255, 0.9);
     display: none;
     justify-content: center;
     align-items: center;
     z-index: 99999 !important;
     pointer-events: all;
-}
 
-/* 사이드바 접혔을 때 대응 */
-#accordionSidebar.toggled ~ #content-wrapper .loader-container {
-    left: 6.5rem;
-    width: calc(100% - 6.5rem);
+    margin: 0 !important;
 }
 
 .loader-container.active {

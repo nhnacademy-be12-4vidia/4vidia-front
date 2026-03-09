@@ -32,7 +32,7 @@ public class AdminCouponApiClient {
     // 활성/비활성 toggle
     public void toggleActivation(Long policyId) {
         backendApiClient.patchNoBody(
-                COUPON_SERVICE + "/policies/" + policyId + "/toggle",
+                COUPON_SERVICE + "/admin/policies/" + policyId + "/toggle",
                 new ParameterizedTypeReference<ApiResponse<Void>>(){}
         );
     }

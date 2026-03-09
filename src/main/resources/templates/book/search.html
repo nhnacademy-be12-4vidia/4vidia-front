@@ -15,51 +15,88 @@
         /* ------------------------------------------------ */
         /* 공통 레이아웃 */
         /* ------------------------------------------------ */
-        .row {
+        .book-list-row {
             display: flex;
-            flex-wrap: wrap !important;
-            justify-content: center; /* 카드들을 중앙 정렬 */
+            flex-wrap: wrap;
+            margin-right: -0.5rem;
+            margin-left: -0.5rem;
+            justify-content: flex-start;
         }
 
         /* ------------------------------------------------ */
-        /* 카드 Wrapper (Grid 제어) */
+        /* 메인 목록 카드 Wrapper (반응형 Grid) */
         /* ------------------------------------------------ */
         .book-card-wrapper {
             flex-shrink: 0;
-            width: 240px; /* 메인 페이지 디자인에 맞춰 폭 조정 */
+            width: 240px; /* 데스크탑 고정 폭 */
             padding: 0 0.5rem;
             margin-bottom: 2rem;
         }
 
         /* ------------------------------------------------ */
-        /* 카드 디자인 (메인 페이지 스타일 이식) */
+        /* ★ AI 추천 전용 가로 스크롤 Wrapper ★ */
+        /* ------------------------------------------------ */
+        .ai-scroll-container {
+            display: flex;
+            flex-wrap: nowrap;       /* 줄바꿈 방지 */
+            overflow-x: auto;        /* 가로 스크롤 허용 */
+            gap: 1rem;               /* 카드 사이 간격 */
+            padding-bottom: 1rem;    /* 스크롤바 공간 확보 */
+            -webkit-overflow-scrolling: touch; /* 모바일 부드러운 스크롤 */
+            margin-left: -0.5rem;    /* 좌우 여백 보정 */
+            margin-right: -0.5rem;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+
+        /* 스크롤바 스타일링 */
+        .ai-scroll-container::-webkit-scrollbar { height: 8px; }
+        .ai-scroll-container::-webkit-scrollbar-thumb {
+            background: rgba(78,115,223,0.3);
+            border-radius: 4px;
+        }
+        .ai-scroll-container::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+            border-radius: 4px;
+        }
+
+        .ai-card-wrapper-scroll {
+            flex: 0 0 auto;          /* 크기 고정 (줄어들지 않음) */
+            width: 240px;            /* 메인 카드와 동일한 폭 */
+            /* margin-bottom 없음 (스크롤이므로) */
+        }
+
+        /* ------------------------------------------------ */
+        /* 카드 디자인 (공통 사용) */
         /* ------------------------------------------------ */
         .book-card {
             border: none;
             border-radius: 0.75rem;
             width: 100%;
-            height: 100%; /* 카드 높이를 wrapper에 맞춤 */
+            height: 100%;
             background: #ffffff;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             transition: all 0.25s ease;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
         .book-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 25px rgba(0,0,0,0.2);
         }
 
-        /* 이미지 영역 (Contain 스타일) */
+        /* 이미지 영역 */
         .card-img-wrapper {
             position: relative;
             overflow: hidden;
-            background-color: #f8f9fa; /* 빈 여백 색상 */
+            background-color: #f8f9fa;
             text-align: center;
         }
         .card-img-wrapper img {
             width: 100%;
-            height: 220px; /* 메인 페이지와 동일한 높이 */
-            object-fit: contain; /* 이미지가 잘리지 않음 */
+            height: 220px; /* 고정 높이 */
+            object-fit: contain;
             transition: transform 0.35s ease;
             padding: 10px;
         }
@@ -72,393 +109,67 @@
         /* ------------------------------------------------ */
         .btn-heart {
             position: absolute;
-            top: 8px;
-            right: 8px;
-            z-index: 5;
-            width: 32px;
-            height: 32px;
-            border: none;
-            border-radius: 50%;
+            top: 8px; right: 8px; z-index: 5;
+            width: 32px; height: 32px; border: none; border-radius: 50%;
             background: rgba(255,255,255,0.95);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: flex; justify-content: center; align-items: center;
             box-shadow: 0 2px 5px rgba(0,0,0,0.15);
             transition: background 0.15s, transform 0.2s;
         }
-        .btn-heart:hover {
-            background: #ffe5e5;
-            transform: scale(1.08);
-        }
-        .btn-heart i {
-            font-size: 1rem;
-            color: #777;
-        }
-        .btn-heart i.fas {
-            color: #e74a3b;
-        }
+        .btn-heart:hover { background: #ffe5e5; transform: scale(1.08); }
+        .btn-heart i { font-size: 1rem; color: #777; }
+        .btn-heart i.fas { color: #e74a3b; }
 
         /* ------------------------------------------------ */
-        /* 텍스트 및 가격 영역 */
+        /* 텍스트 및 버튼 영역 */
         /* ------------------------------------------------ */
         .card-body {
             padding: 0.8rem;
             display: flex;
             flex-direction: column;
             color: #333;
+            flex-grow: 1;
         }
         .card-title {
-            font-size: 0.95rem;
-            font-weight: 700;
-            margin-bottom: 0.2rem !important;
-            color: #2c3e50;
+            font-size: 0.95rem; font-weight: 700; margin-bottom: 0.2rem !important; color: #2c3e50;
         }
 
-        /* 가격 스타일 */
-        .price-original-no-discount {
-            color: #2c3e50;
-            font-size: 0.95rem;
-            font-weight: 700;
-            text-decoration: none;
-        }
-        .price-original {
-            text-decoration: line-through;
-            color: #858796;
-            font-size: 0.8rem;
-            margin-right: 0.3rem;
-        }
-        .price-current {
-            color: #4e73df;
-            font-weight: 700;
-            font-size: 0.95rem;
-        }
+        .price-original-no-discount { color: #2c3e50; font-size: 0.95rem; font-weight: 700; text-decoration: none; }
+        .price-original { text-decoration: line-through; color: #858796; font-size: 0.8rem; margin-right: 0.3rem; }
+        .price-current { color: #4e73df; font-weight: 700; font-size: 0.95rem; }
+
+        .btn-block { width: 100%; border-radius: 0.35rem; font-size: 0.9rem; padding: 0.3rem 0; font-weight: 600; }
+        .btn-primary { background: #4e73df; border: none; }
+        .btn-primary:hover { background: #365acb; }
+        .btn-buy { background: #2c3e50; border: none; color: white; }
+        .btn-buy:hover { background: #1a252f; color: white; }
 
         /* ------------------------------------------------ */
-        /* 버튼 스타일 (가로 배치) */
-        /* ------------------------------------------------ */
-        .btn-block {
-            width: 100%;
-            border-radius: 0.35rem;
-            font-size: 0.9rem;
-            padding: 0.3rem 0;
-            font-weight: 600;
-        }
-        .btn-primary {
-            background: #4e73df;
-            border: none;
-        }
-        .btn-primary:hover {
-            background: #365acb;
-        }
-        .btn-buy {
-            background: #2c3e50;
-            border: none;
-            color: white;
-        }
-        .btn-buy:hover {
-            background: #1a252f;
-            color: white;
-        }
-
-        /* ------------------------------------------------ */
-        /* 반응형 */
+        /* 반응형 (모바일) */
         /* ------------------------------------------------ */
         @media (max-width: 576px) {
+            /* 메인 목록: 2열 배치 */
+            .book-list-row {
+                justify-content: space-between;
+                padding: 0 0.5rem;
+            }
             .book-card-wrapper {
-                width: 48%; /* 모바일에서 2열 */
-                padding: 0 0.25rem;
+                width: 48%;
+                padding: 0;
+                margin-bottom: 1rem;
             }
+
+            /* AI 스크롤 목록: 모바일에서도 적절한 크기 유지 (스크롤 유도) */
+            .ai-card-wrapper-scroll {
+                width: 180px; /* 모바일에서는 카드를 약간 작게 하여 더 많이 보이게 */
+            }
+
+            /* 이미지 높이 조정 */
             .card-img-wrapper img {
-                height: 180px; /* 모바일 이미지 높이 조정 */
+                height: 170px;
             }
-        }
 
-        /* ------------------------------------------------ */
-        /* AI 추천(캐시) 그리드 */
-        /* ------------------------------------------------ */
-        .ai-suggestions {
-            border: 1px solid rgba(78,115,223,0.25);
-            border-radius: 14px;
-            padding: 18px;
-            margin-bottom: 18px;
-            background: linear-gradient(135deg, rgba(78,115,223,0.10), rgba(246,194,62,0.10));
-            box-shadow: 0 0.35rem 1.25rem rgba(78,115,223,0.12);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .ai-suggestions::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at 12% 18%, rgba(78,115,223,0.18), transparent 45%),
-                        radial-gradient(circle at 85% 30%, rgba(246,194,62,0.18), transparent 45%);
-            pointer-events: none;
-        }
-
-        .ai-suggestions__header {
-            position: relative;
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 10px;
-        }
-
-        .ai-suggestions__title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .ai-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            border-radius: 999px;
-            background: rgba(78,115,223,0.14);
-            border: 1px solid rgba(78,115,223,0.22);
-            color: #2e59d9;
-            font-weight: 800;
-            font-size: 0.82rem;
-            white-space: nowrap;
-        }
-
-        .ai-suggestions__header h3 {
-            margin: 0;
-        }
-
-        .ai-suggestions__sub {
-            margin: 6px 0 0 0;
-            font-size: 0.9rem;
-            color: #5a5c69;
-        }
-
-        .ai-grid {
-            position: relative;
-            display: flex;
-            flex-wrap: nowrap;
-            gap: 12px;
-            overflow-x: auto;
-            overflow-y: hidden;
-            padding: 6px 4px 10px 4px;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .ai-grid::-webkit-scrollbar {
-            height: 10px;
-        }
-
-        .ai-grid::-webkit-scrollbar-thumb {
-            background: rgba(78,115,223,0.25);
-            border-radius: 999px;
-        }
-
-        .ai-grid::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.05);
-            border-radius: 999px;
-        }
-
-        .ai-card-wrapper {
-            flex: 0 0 auto;
-            width: 175px;
-            scroll-snap-align: start;
-        }
-
-        .ai-card {
-            position: relative;
-            border: none;
-            border-radius: 0.75rem;
-            overflow: hidden;
-            background: #ffffff;
-            box-shadow: 0 0.25rem 1.25rem rgba(0,0,0,0.10);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            height: 100%;
-        }
-
-        .ai-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 0.65rem 1.8rem rgba(0,0,0,0.16);
-        }
-
-        .ai-rank-badge {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 5;
-            padding: 4px 10px;
-            border-radius: 999px;
-            background: linear-gradient(135deg, rgba(60, 130, 246, 0.95), rgba(246, 194, 62, 0.92));
-            color: #fff;
-            font-weight: 700;
-            font-size: 0.85rem;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.18);
-        }
-
-        .ai-card-img {
-            width: 100%;
-            height: 210px;
-            object-fit: cover;
-            display: block;
-        }
-
-        .ai-card-body {
-            padding: 0.9rem;
-        }
-
-        .ai-title {
-            font-size: 0.98rem;
-            font-weight: 800;
-            margin: 0 0 6px 0;
-            line-height: 1.25;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .ai-meta {
-            color: #6c757d;
-            font-size: 0.82rem;
-            margin-bottom: 6px;
-        }
-
-        .ai-meta .publisher {
-            display: block;
-            font-weight: 700;
-            color: #4e73df;
-            margin-bottom: 2px;
-        }
-
-        .ai-prices {
-            margin-top: 8px;
-        }
-
-        .ai-prices .price-original-no-discount {
-            color: initial;
-            font-size: 1.05rem;
-            font-weight: 800;
-            text-decoration: none;
-        }
-
-        .ai-prices .price-original {
-            text-decoration: line-through;
-            color: #858796;
-            font-size: 0.85rem;
-            margin-right: 0.4rem;
-        }
-
-        .ai-prices .price-current {
-            color: #4e73df;
-            font-weight: 800;
-            font-size: 1.05rem;
-        }
-
-        @media (max-width: 576px) {
-            .ai-card-wrapper {
-                width: 72%;
-            }
-            .ai-card-img {
-                height: 230px;
-            }
-        }
-        /* ------------------------------------------------ */
-        /* 필터/정렬 바 (세련된 스타일 + 오른쪽 정렬) */
-        /* ------------------------------------------------ */
-        .filter-shell{
-            background: rgba(255,255,255,0.92);
-            border: 1px solid rgba(0,0,0,0.08);
-            border-radius: 14px;
-            padding: 10px 12px;
-            box-shadow: 0 0.35rem 1.05rem rgba(0,0,0,0.06);
-            backdrop-filter: blur(6px);
-        }
-
-        .filter-bar{
-            display:flex;
-            flex-wrap:wrap;
-            gap:10px;
-            align-items:center;
-            justify-content:flex-end; /* 전체를 오른쪽으로 */
-        }
-
-        .filter-group{
-            display:flex;
-            align-items:center;
-            gap:8px;
-            padding: 6px 8px;
-            border-radius: 12px;
-            background: rgba(78,115,223,0.06);
-            border: 1px solid rgba(78,115,223,0.12);
-        }
-
-        .filter-chip{
-            display:inline-flex;
-            align-items:center;
-            padding: 4px 10px;
-            border-radius: 999px;
-            background: rgba(78,115,223,0.14);
-            border: 1px solid rgba(78,115,223,0.22);
-            color: #2e59d9;
-            font-weight: 800;
-            font-size: 0.78rem;
-            white-space: nowrap;
-        }
-
-        .filter-select,
-        .filter-input{
-            height: 36px;
-            border: 1px solid rgba(0,0,0,0.12);
-            border-radius: 12px;
-            padding: 0 12px;
-            background: #fff;
-            outline: none;
-            font-weight: 700;
-            color: #2c3e50;
-        }
-
-        .filter-input{ width: 110px; }
-        .filter-select{ width: 180px; }
-
-        .filter-select:focus,
-        .filter-input:focus{
-            border-color: rgba(78,115,223,0.55);
-            box-shadow: 0 0 0 3px rgba(78,115,223,0.18);
-        }
-
-        .tilde{ color:#9aa0a6; font-weight: 800; }
-        .unit{ color:#6c757d; font-weight: 800; font-size: 0.85rem; }
-
-        .filter-actions{
-            display:flex;
-            gap:8px;
-            align-items:center;
-        }
-
-        .filter-btn{
-            height: 36px;
-            padding: 0 14px;
-            border-radius: 12px;
-            border: 1px solid #4e73df;
-            background: #4e73df;
-            color: #fff;
-            font-weight: 900;
-            cursor: pointer;
-            display:inline-flex;
-            align-items:center;
-            gap:8px;
-        }
-
-        .filter-btn.ghost{
-            background: #fff;
-            color: #4e73df;
-        }
-
-        .filter-btn:hover{ filter: brightness(0.96); }
-
-        @media (max-width: 576px) {
+            /* 필터 반응형 */
             .filter-shell{ padding: 10px; }
             .filter-bar{ justify-content: flex-start; }
             .filter-group{ width: 100%; justify-content: space-between; }
@@ -466,6 +177,86 @@
             .filter-select{ width: 100%; }
             .filter-actions{ width: 100%; justify-content: flex-end; }
         }
+
+        /* ------------------------------------------------ */
+        /* AI 추천 영역 스타일 */
+        /* ------------------------------------------------ */
+        .ai-suggestions {
+            border: 1px solid rgba(78,115,223,0.25);
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, rgba(78,115,223,0.10), rgba(246,194,62,0.10));
+            box-shadow: 0 0.35rem 1.25rem rgba(78,115,223,0.12);
+            position: relative;
+            overflow: hidden;
+        }
+        .ai-suggestions::before {
+            content: ""; position: absolute; inset: 0;
+            background: radial-gradient(circle at 12% 18%, rgba(78,115,223,0.18), transparent 45%),
+            radial-gradient(circle at 85% 30%, rgba(246,194,62,0.18), transparent 45%);
+            pointer-events: none;
+        }
+
+        .ai-suggestions__header {
+            position: relative; display: flex; align-items: flex-start; justify-content: space-between;
+            gap: 12px; margin-bottom: 15px;
+        }
+        .ai-suggestions__title { display: flex; align-items: center; gap: 10px; }
+        .ai-chip {
+            display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px;
+            border-radius: 999px; background: rgba(78,115,223,0.14);
+            border: 1px solid rgba(78,115,223,0.22); color: #2e59d9;
+            font-weight: 800; font-size: 0.82rem; white-space: nowrap;
+        }
+        .ai-suggestions__header h3 { margin: 0; }
+        .ai-suggestions__sub { margin: 6px 0 0 0; font-size: 0.9rem; color: #5a5c69; }
+
+        .ai-rank-badge {
+            position: absolute; top: 10px; left: 10px; z-index: 5;
+            padding: 4px 10px; border-radius: 999px;
+            background: linear-gradient(135deg, rgba(60, 130, 246, 0.95), rgba(246, 194, 62, 0.92));
+            color: #fff; font-weight: 700; font-size: 0.85rem;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.18);
+        }
+
+        /* ------------------------------------------------ */
+        /* 필터/정렬 바 */
+        /* ------------------------------------------------ */
+        .filter-shell{
+            background: rgba(255,255,255,0.92); border: 1px solid rgba(0,0,0,0.08); border-radius: 14px;
+            padding: 10px 12px; box-shadow: 0 0.35rem 1.05rem rgba(0,0,0,0.06); backdrop-filter: blur(6px);
+            margin-top: 6px;
+        }
+        .filter-bar{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:flex-end; }
+        .filter-group{
+            display:flex; align-items:center; gap:8px; padding: 6px 8px; border-radius: 12px;
+            background: rgba(78,115,223,0.06); border: 1px solid rgba(78,115,223,0.12);
+        }
+        .filter-chip{
+            display:inline-flex; align-items:center; padding: 4px 10px; border-radius: 999px;
+            background: rgba(78,115,223,0.14); border: 1px solid rgba(78,115,223,0.22); color: #2e59d9;
+            font-weight: 800; font-size: 0.78rem; white-space: nowrap;
+        }
+        .filter-select, .filter-input{
+            height: 36px; border: 1px solid rgba(0,0,0,0.12); border-radius: 12px; padding: 0 12px;
+            background: #fff; outline: none; font-weight: 700; color: #2c3e50;
+        }
+        .filter-input{ width: 110px; }
+        .filter-select{ width: 180px; }
+        .filter-select:focus, .filter-input:focus{
+            border-color: rgba(78,115,223,0.55); box-shadow: 0 0 0 3px rgba(78,115,223,0.18);
+        }
+        .tilde{ color:#9aa0a6; font-weight: 800; }
+        .unit{ color:#6c757d; font-weight: 800; font-size: 0.85rem; }
+        .filter-actions{ display:flex; gap:8px; align-items:center; }
+        .filter-btn{
+            height: 36px; padding: 0 14px; border-radius: 12px; border: 1px solid #4e73df;
+            background: #4e73df; color: #fff; font-weight: 900; cursor: pointer;
+            display:inline-flex; align-items:center; gap:8px;
+        }
+        .filter-btn.ghost{ background: #fff; color: #4e73df; }
+        .filter-btn:hover{ filter: brightness(0.96); }
 
     </style>
 
@@ -481,23 +272,16 @@
     </script>
     <script th:inline="javascript">
         function goPage(p) {
-            // 현재 URL의 쿼리스트링을 그대로 가져와서 page만 바꿔치기
             const params = new URLSearchParams(window.location.search);
-
             params.set('page', p);
-
-            // size가 없으면 현재 모델값/기본값으로 세팅
             const sizeFromModel = /*[[${size}]]*/ 20;
             if (!params.get('size')) params.set('size', sizeFromModel);
-
-            startLoading(); // 추가
-            // /books/search 로 이동 (컨트롤러 매핑에 맞추세요)
+            startLoading();
             window.location.href = '/books/search?' + params.toString();
         }
     </script>
     <script>
         function setSort(sortValue){
-            // 정렬 변경만으로는 이동하지 않습니다. (적용 버튼에서 함께 처리)
             const sel = document.getElementById('sortSelect');
             if (sel && typeof sortValue === 'string') sel.value = sortValue;
         }
@@ -516,24 +300,16 @@
                     return;
                 }
             }
-
-            if (minV) url.searchParams.set('minPrice', minV);
-            else url.searchParams.delete('minPrice');
-
-            if (maxV) url.searchParams.set('maxPrice', maxV);
-            else url.searchParams.delete('maxPrice');
-
-            if (sortV) url.searchParams.set('sort', sortV);
-            else url.searchParams.delete('sort');
-
+            if (minV) url.searchParams.set('minPrice', minV); else url.searchParams.delete('minPrice');
+            if (maxV) url.searchParams.set('maxPrice', maxV); else url.searchParams.delete('maxPrice');
+            if (sortV) url.searchParams.set('sort', sortV); else url.searchParams.delete('sort');
             url.searchParams.set('page', '0');
 
             if (!url.searchParams.get('size')) {
                 const size = document.getElementById('pageSizeHolder')?.value;
                 if (size) url.searchParams.set('size', size);
             }
-
-            startLoading(); // 추가
+            startLoading();
             window.location.href = url.toString();
         }
 
@@ -543,18 +319,14 @@
             url.searchParams.delete('maxPrice');
             url.searchParams.delete('sort');
             url.searchParams.set('page', '0');
-
             if (!url.searchParams.get('size')) {
                 const size = document.getElementById('pageSizeHolder')?.value;
                 if (size) url.searchParams.set('size', size);
             }
-            startLoading(); // 추가
+            startLoading();
             window.location.href = url.toString();
         }
     </script>
-
-<!--    <link rel="stylesheet" th:href="@{/css/loading.css}">-->
-<!--    <script th:src="@{/customJs/loading.js}"></script>-->
 </head>
 
 <body>
@@ -577,7 +349,6 @@
             </div>
         </div>
 
-        <!-- 필터/정렬 바 (모두 오른쪽 정렬, 적용 시에만 반영) -->
         <div class="filter-shell mt-2 mx-2">
             <div class="filter-bar">
                 <div class="filter-group">
@@ -596,32 +367,20 @@
                     <span class="filter-chip">정렬</span>
                     <select id="sortSelect" class="filter-select">
                         <option value="" th:selected="${param.sort == null or param.sort[0] == ''}">기본</option>
-
-                        <option value="PUBLISHED_DESC"
-                                th:selected="${param.sort != null and param.sort[0] == 'PUBLISHED_DESC'}">신상품순</option>
-
-                        <option value="PUBLISHED_ASC"
-                                th:selected="${param.sort != null and param.sort[0] == 'PUBLISHED_ASC'}">오래된순</option>
-
-                        <option value="PRICE_ASC"
-                                th:selected="${param.sort != null and param.sort[0] == 'PRICE_ASC'}">최저가순</option>
-
-                        <option value="PRICE_DESC"
-                                th:selected="${param.sort != null and param.sort[0] == 'PRICE_DESC'}">최고가순</option>
-
-                        <option value="RATING_DESC"
-                                th:selected="${param.sort != null and param.sort[0] == 'RATING_DESC'}">평점순</option>
+                        <option value="PUBLISHED_DESC" th:selected="${param.sort != null and param.sort[0] == 'PUBLISHED_DESC'}">신상품순</option>
+                        <option value="PUBLISHED_ASC" th:selected="${param.sort != null and param.sort[0] == 'PUBLISHED_ASC'}">오래된순</option>
+                        <option value="PRICE_ASC" th:selected="${param.sort != null and param.sort[0] == 'PRICE_ASC'}">최저가순</option>
+                        <option value="PRICE_DESC" th:selected="${param.sort != null and param.sort[0] == 'PRICE_DESC'}">최고가순</option>
+                        <option value="RATING_DESC" th:selected="${param.sort != null and param.sort[0] == 'RATING_DESC'}">평점순</option>
                     </select>
                 </div>
 
                 <div class="filter-actions">
                     <button type="button" class="filter-btn" onclick="applyFilters()">
-                        <i class="fas fa-check"></i>
-                        적용
+                        <i class="fas fa-check"></i> 적용
                     </button>
                     <button type="button" class="filter-btn ghost" onclick="resetFilters()">
-                        <i class="fas fa-undo"></i>
-                        초기화
+                        <i class="fas fa-undo"></i> 초기화
                     </button>
                 </div>
             </div>
@@ -656,53 +415,67 @@
                 </div>
             </div>
 
-            <div class="ai-grid">
-                <div class="ai-card-wrapper" th:each="s : ${aiCacheResponseList}">
-                    <div class="ai-card">
-                        <div class="ai-rank-badge" th:text="'#' + ${s.rank()}">#1</div>
+            <div class="ai-scroll-container">
+                <div class="ai-card-wrapper-scroll" th:each="s : ${aiCacheResponseList}">
 
-                        <a th:href="@{/books/{bookId}(bookId=${s.id()})}" style="text-decoration: none; color: inherit;">
-                            <!-- 기존 검색결과와 동일하게 imageUrl을 그대로 사용 -->
-                            <img class="ai-card-img" th:src="${s.imageUrl() != null ? s.imageUrl() : '/img/default-book-cover.png'}" th:alt="${s.title()}" />
-                        </a>
-
-                        <div class="ai-card-body">
-                            <div class="ai-meta">
-                                <span class="publisher" th:text="${s.publisherName()}">출판사</span>
-                                <span th:text="${#lists.isEmpty(s.authorNames()) ? '저자 정보 없음' : #strings.listJoin(s.authorNames(), ', ')}">저자</span>
-                            </div>
+                    <div class="card book-card h-100">
+                        <div class="card-img-wrapper">
+                            <div class="ai-rank-badge" th:text="'#' + ${s.rank()}">#1</div>
 
                             <a th:href="@{/books/{bookId}(bookId=${s.id()})}" style="text-decoration: none; color: inherit;">
-                                <div class="ai-title" th:text="${s.title()}">책 제목</div>
+                                <img class="card-img-top" th:src="${s.imageUrl() != null ? s.imageUrl() : '/img/default-book-cover.png'}" th:alt="${s.title()}" />
+                            </a>
+                        </div>
+
+                        <div class="card-body">
+                            <a th:href="@{/books/{bookId}(bookId=${s.id()})}" style="text-decoration: none; color: inherit;">
+                                <h5 class="card-title text-truncate" th:text="${s.title()}">책 제목</h5>
                             </a>
 
-                            <!-- 가격 영역: 기존 검색 페이지 로직 참조 -->
-                            <div class="ai-prices">
-                                <span th:if="${s.priceStandard() > s.priceSales()}"
-                                      class="price-current"
+                            <p class="text-muted small mb-2 text-truncate" style="font-size: 0.75rem;"
+                               th:text="${#lists.isEmpty(s.authorNames()) ? '저자 정보 없음' : #strings.listJoin(s.authorNames(), ', ')}">
+                                저자
+                            </p>
+
+                            <div class="mb-2">
+                                <span th:if="${s.priceStandard() > s.priceSales()}" class="price-current"
                                       th:text="${#numbers.formatDecimal(s.priceSales(), 0, 'COMMA', 0, 'POINT') + '원'}">현재가격</span>
 
-                                <span th:if="${s.priceStandard() > s.priceSales()}"
-                                      class="price-original"
+                                <span th:if="${s.priceStandard() > s.priceSales()}" class="price-original"
                                       th:text="${#numbers.formatDecimal(s.priceStandard(), 0, 'COMMA', 0, 'POINT') + '원'}">정가</span>
 
-                                <span th:if="${s.priceStandard() <= s.priceSales()}"
-                                      class="price-original-no-discount"
+                                <span th:if="${s.priceStandard() <= s.priceSales()}" class="price-original-no-discount"
                                       th:text="${#numbers.formatDecimal(s.priceStandard(), 0, 'COMMA', 0, 'POINT') + '원'}">정가</span>
 
-                                <span class="badge bg-danger"
+                                <span class="badge bg-danger ms-1" style="font-size: 0.7rem;"
                                       th:if="${s.priceStandard() > s.priceSales()}"
                                       th:text="${s.priceStandard() == 0 ? '' : #numbers.formatDecimal((s.priceStandard() - s.priceSales()) * 100 / s.priceStandard(), 0, 'COMMA', 0, 'POINT') + '%'}">
                                 </span>
                             </div>
 
+                            <div class="mt-auto d-flex gap-2">
+                                <form th:action="@{/cart/add}" method="post" class="flex-grow-1">
+                                    <input type="hidden" name="bookId" th:value="${s.id()}">
+                                    <button class="btn btn-primary btn-block" title="장바구니"
+                                            th:onclick="|addToCartAndConfirmMove('${s.id()}', '1'); return false;|">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </button>
+                                </form>
+                                <form th:action="@{/orders/checkout-temp}" method="post" class="flex-grow-1">
+                                    <input type="hidden" name="bookId" th:value="${s.id()}">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="btn btn-buy btn-block" title="구매">
+                                        <i class="fas fa-credit-card"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <div class="row" th:if="${!#lists.isEmpty(books)}">
+        <div th:if="${!#lists.isEmpty(books)}" class="book-list-row">
             <div class="book-card-wrapper" th:each="book : ${books}">
 
                 <div class="card book-card h-100">
@@ -773,21 +546,18 @@
                          lastIndex=${effectiveLast < 0 ? 0 : effectiveLast},
                          start=${p - (p % blockSize)}">
 
-                <!-- 맨앞 -->
                 <li class="page-item" th:classappend="${page == 0} ? ' disabled'">
                     <a class="page-link" href="javascript:void(0)" th:attr="onclick=|goPage(0)|" aria-label="First">
                         <i class="fas fa-angle-double-left"></i>
                     </a>
                 </li>
 
-                <!-- 이전 블록 (start-1) -->
                 <li class="page-item" th:classappend="${start == 0} ? ' disabled'">
                     <a class="page-link" href="javascript:void(0)" th:attr="onclick=|goPage(${start - 1})|" aria-label="Prev block">
                         <i class="fas fa-angle-left"></i>
                     </a>
                 </li>
 
-                <!-- 현재 블록(최대 10개) -->
                 <th:block th:if="${start <= lastIndex}"
                           th:with="end=${(lastIndex < (start + blockSize - 1)) ? lastIndex : (start + blockSize - 1)}">
                     <li class="page-item"
@@ -799,14 +569,12 @@
                     </li>
                 </th:block>
 
-                <!-- 다음 블록 (start+blockSize) -->
                 <li class="page-item" th:classappend="${start + blockSize > lastIndex} ? ' disabled'">
                     <a class="page-link" href="javascript:void(0)" th:attr="onclick=|goPage(${start + blockSize})|" aria-label="Next block">
                         <i class="fas fa-angle-right"></i>
                     </a>
                 </li>
 
-                <!-- 맨뒤 -->
                 <li class="page-item" th:classappend="${page >= lastIndex} ? ' disabled'">
                     <a class="page-link" href="javascript:void(0)" th:attr="onclick=|goPage(${lastIndex})|" aria-label="Last">
                         <i class="fas fa-angle-double-right"></i>

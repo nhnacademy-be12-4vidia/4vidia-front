@@ -33,7 +33,6 @@
     <link rel="stylesheet" th:href="@{/css/loading.css}">
 
     <style>
-        /* ===== Ridi-ish Theme Tokens ===== */
         :root{
             --ridi-bg: #f6f7fb;
             --ridi-white: #ffffff;
@@ -48,7 +47,6 @@
             --radius-lg: 18px;
             --radius-pill: 999px;
 
-            /* ✅ 헤더를 "가운데로" 모으는 폭 */
             --ridi-container: 1300px;
         }
 
@@ -60,7 +58,6 @@
             color: var(--ridi-text);
         }
 
-        /* ✅ 사이드바 제거: 세로 레이아웃 */
         #wrapper {
             min-height: 100vh;
             display: flex;
@@ -76,7 +73,6 @@
         }
         #content { flex: 1; }
 
-        /* ✅ 헤더 전용 가운데 정렬 컨테이너 */
         .ridi-container {
             max-width: var(--ridi-container);
             margin: 0 auto;
@@ -142,33 +138,6 @@
             padding: 0 .25rem 0 .25rem;
             width: 100%;
             font-size: 1rem;
-        }
-
-        /* AI 토글 */
-        .ai-chip {
-            display:flex;
-            align-items:center;
-            gap:.5rem;
-            height: 38px;
-            padding: 0 .85rem;
-            border-radius: var(--radius-pill);
-            background: #ffffff;
-            border: 1px solid #eef0f4;
-            color: var(--ridi-muted);
-            font-size: .88rem;
-            white-space: nowrap;
-        }
-        .ai-chip .custom-control {
-            min-height: 0;
-            padding-left: 2.3rem;
-            margin: 0;
-        }
-        .ai-chip .custom-control-label {
-            padding: 1px;
-        }
-        .ai-chip .custom-control-label::before,
-        .ai-chip .custom-control-label::after {
-            top: .14rem;
         }
 
         .ridi-search .btn-search {
@@ -268,7 +237,6 @@
             color: var(--ridi-primary);
         }
 
-        /* links next to category */
         .nav-links {
             display:flex;
             align-items:center;
@@ -316,10 +284,49 @@
             padding-top: 1.2rem;
         }
 
-        /* footer */
-        .sticky-footer {
-            margin-top: 10px;
+        .footer {
+            background-color: #fff;
+            padding: 30px 40px;
+            font-size: 14px;
             border-top: 1px solid var(--ridi-line);
+        }
+
+        .footer-container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .footer-left p {
+            margin: 4px 0;
+        }
+
+        .footer-right {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .footer-right a {
+            color: gray;
+            text-decoration: none;
+        }
+
+        .footer-right a:hover {
+            text-decoration: underline;
+        }
+
+        /* 모바일 대응 */
+        @media (max-width: 600px) {
+            .footer-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .footer-right {
+                margin-top: 10px;
+            }
         }
 
         /* responsive */
@@ -440,8 +447,11 @@
                                         <a class="dropdown-item need-login" th:href="@{/mypage/point}">
                                             <i class="fas fa-coins fa-sm fa-fw mr-2 text-gray-400"></i> 포인트
                                         </a>
+                                        <a class="dropdown-item need-login" th:href="@{/mypage/refund-history}">
+                                            <i class="fas fa-coins fa-sm fa-fw mr-2 text-gray-400"></i> 반품내역
+                                        </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item need-login text-danger" th:href="@{/mypage/deactivate}">
+                                         <a class="dropdown-item need-login text-danger" th:href="@{/mypage/deactivate}">
                                             <i class="fas fa-user-times fa-sm fa-fw mr-2 text-gray-400"></i> 회원 탈퇴
                                         </a>
                                     </div>
@@ -488,11 +498,8 @@
                                 </div>
 
                                 <div class="nav-links">
-                                    <a href="#" onclick="return false;">공지</a>
-                                    <span class="sep">|</span>
                                     <a class="need-login" th:href="@{/mypage/order}">주문조회</a>
                                     <span class="sep">|</span>
-                                    <a href="#" onclick="return false;">고객센터</a>
                                 </div>
 
                                 <a class="nav-chip" th:if="${isAdmin}" href="/admin">
@@ -534,13 +541,21 @@
         </div>
 
         <!-- ✅ 푸터 -->
-        <footer class="sticky-footer bg-white">
-            <div class="container my-auto">
-                <div class="copyright text-center my-auto d-flex flex-column align-items-center">
-                    <span class="mb-2">© 2025 Team4 4VIDIA | NHN Academy Project</span>
+        <footer class="footer">
+            <div class="footer-container">
+                <div class="footer-left">
+                    <p>&copy; 2025 Team4 4VIDIA | NHN Academy Project</p>
                     <a href="/docs/index.html" target="_blank" class="text-gray-600 hover-primary">
                         <i class="fas fa-book mr-1"></i>REST API Docs
                     </a>
+                </div>
+
+                <div class="footer-right">
+                    <a>개인정보처리방침</a>
+                    <span>|</span>
+                    <a>이용약관</a>
+                    <span>|</span>
+                    <a>문의하기</a>
                 </div>
             </div>
         </footer>
